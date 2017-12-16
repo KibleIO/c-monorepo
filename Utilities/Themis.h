@@ -18,7 +18,6 @@
 #include "Buffer.h"
 #include "Difference.h"
 #include "DynArr.h"
-#include "MemorySharer.h"
 
 using namespace std;
 
@@ -32,8 +31,6 @@ class Themis {
 		char *compressed_send_buffer;
 		char *swap;
 		char *history;
-		MEMORY_SERVER *server1;
-		MEMORY_CLIENT *client1;
 		bool swapper;
 		void SwapBuffers();
 		void PrepareSendBuffer();
