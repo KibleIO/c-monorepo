@@ -1,6 +1,7 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#include <netinet/tcp.h>
 #include "Networking.h"
 
 class Server {
