@@ -3,7 +3,7 @@
 
 #define GAIA_BOUNDS_CHECKING
 
-#include "CONCURRENT_BLOCK.h" // Includes BLOCK_EVENT and <mutex>
+#include <Gaia/CONCURRENT_BLOCK.h> // Includes BLOCK_EVENT and <mutex>
 
 /* GAIA
  * Defines a concurrent data structure composed of CONCURRENT_BLOCKs

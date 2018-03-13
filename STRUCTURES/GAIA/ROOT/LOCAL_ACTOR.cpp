@@ -56,19 +56,3 @@ void Load_Gaia_Root_Local_Actor     (CONCURRENT_BLOCK* const calling_block, DATA
 
 	Commit_Concurrent_Block (gaia_block, write_block);
 }
-
-
-// Aliases
-inline void Gaia_Root_Local_Actor_Employ   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Employ_Gaia_Root_Local_Actor(calling_block, context_data);
-}
-inline void Gaia_Root_Local_Actor_Unemploy (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Unemploy_Gaia_Root_Local_Actor(calling_block, context_data);
-}
-
-inline void Gaia_Root_Local_Actor_Load     (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Load_Gaia_Root_Local_Actor(calling_block, context_data);
-}

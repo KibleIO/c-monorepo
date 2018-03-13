@@ -112,23 +112,3 @@ void Commit_Gaia_Root_Remote_Actor   (CONCURRENT_BLOCK* const calling_block, DAT
 
 	Queue_Latest_Block_Event(gaia_root_remote_actor->Latest_Commit);
 }
-
-
-// Aliases
-inline void Gaia_Root_Remote_Actor_Employ   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Employ_Gaia_Root_Remote_Actor(calling_block, context_data);
-}
-inline void Gaia_Root_Remote_Actor_Unemploy (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Unemploy_Gaia_Root_Remote_Actor(calling_block, context_data);
-}
-
-inline void Gaia_Root_Remote_Actor_Load     (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Load_Gaia_Root_Remote_Actor(calling_block, context_data);
-}
-inline void Gaia_Root_Remote_Actor_Commit   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data)
-{
-	Commit_Gaia_Root_Remote_Actor(calling_block, context_data);
-}

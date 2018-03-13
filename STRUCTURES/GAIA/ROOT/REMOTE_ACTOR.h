@@ -15,12 +15,4 @@ void Unemploy_Gaia_Root_Remote_Actor (CONCURRENT_BLOCK* const calling_block, DAT
 void Load_Gaia_Root_Remote_Actor     (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
 void Commit_Gaia_Root_Remote_Actor   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
 
-
-// Aliases
-inline void Gaia_Root_Remote_Actor_Employ   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
-inline void Gaia_Root_Remote_Actor_Unemploy (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
-
-inline void Gaia_Root_Remote_Actor_Load     (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
-inline void Gaia_Root_Remote_Actor_Commit   (CONCURRENT_BLOCK* const calling_block, DATA_BLOCK* const context_data);
-
 #endif // GAIA_ROOT_REMOTE_ACTOR_H_
