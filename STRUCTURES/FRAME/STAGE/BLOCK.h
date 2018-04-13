@@ -1,0 +1,18 @@
+#ifndef FRAME_BUFFER_BLOCK_H_
+#define FRAME_BUFFER_BLOCK_H_
+
+#include "BLOCK_DESCRIPTOR.h"
+
+struct FRAME_BUFFER_BLOCK
+{
+	unsigned char Buffer; // Array of 32 bit, ARGB pixel values
+};
+
+const struct BLOCK_DESCRIPTOR DEFAULT_FRAME_BUFFER_BLOCK_DESCRIPTOR =
+{
+	BLOCK_TYPE_FRAME_BUFFER,
+	BLOCK_OPTION_SEND,
+	BLOCK_LATENCY_VISABLE
+};
+
+#endif // FRAME_BUFFER_BLOCK_H_

@@ -44,23 +44,24 @@ class Graphics {
 		int  width_c;
 		int  height_c;
 		int* buffer_i;
-		Graphics           (char *, int, int, int, int);
-		void setClip       (int, int, int, int);
-		void drawImage     (int, int, Image *);
-		void drawImage2    (int, int, Image *);
-		void drawPoint     (int, int, Color);
-		void drawPoint_wa  (int, int, Color);
-		void drawLine      (int, int, int, int, Color);
-		void drawSquare    (int, int, int, int, Color);
-		void fillSquare    (int, int, int, int, Color);
-		void drawCircle    (int, int, int, Color);
-		void fillCircle    (int, int, int, Color);
-		void fillPolygon   (Polygon, Color);
-		void fillTriangle  (int, int, int, int, int, int, Color);
-		void drawLineWidth (int, int, int, Color);
-		void drawLineHeight(int, int, int, Color);
-		void Swapbuffers   (char*);
-		inline void SetPriority(int p) {
+		Graphics                     (char *, int, int, int, int);
+		void  setClip                (int, int, int, int);
+		void  drawImage              (int, int, Image *);
+		void  drawImage2             (int, int, Image *);
+		void  Draw_Transparent_Point (int, int, Color);
+		void  drawPoint              (int, int, Color);
+		void  drawPoint_wa           (int, int, Color);
+		void  drawLine               (int, int, int, int, Color);
+		void  drawSquare             (int, int, int, int, Color);
+		void  fillSquare             (int, int, int, int, Color);
+		void  drawCircle             (int, int, int, Color);
+		void  fillCircle             (int, int, int, Color);
+		void  fillPolygon            (Polygon, Color);
+		void  fillTriangle           (int, int, int, int, int, int, Color);
+		void  drawLineWidth          (int, int, int, Color);
+		void  drawLineHeight         (int, int, int, Color);
+		void  Swapbuffers            (char*);
+		void  SetPriority            (int p) {
 			p           = p << 24;
     		_BLUE       = (_BLUE       & 0x00FFFFFF) | p;
     		_NAVY_BLUE  = (_NAVY_BLUE  & 0x00FFFFFF) | p;
@@ -77,7 +78,7 @@ class Graphics {
     		_LEAF_GREEN = (_LEAF_GREEN & 0x00FFFFFF) | p;
     		_NERF_GREEN = (_NERF_GREEN & 0x00FFFFFF) | p;
 		}
-		char* GetBuffer() { return buffer; }
+		char* GetBuffer              () { return buffer; }
 		~Graphics() { delete ContourX; }
 };
 

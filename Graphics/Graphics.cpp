@@ -19,10 +19,10 @@ void Graphics::setClip(int x, int y, int w, int h) {
 	//this is a bit flawed as we do not want to draw any pixels on the screen if the clipped area is
     //outside of the screen
     if (x < 0 || x >= width || y < 0 || y >= height) {
-		x_c      = 0;
-		y_c      = 0;
-		width_c  = width;
-		height_c = height;
+			x_c      = 0;
+			y_c      = 0;
+			width_c  = width;
+			height_c = height;
     } else {
 	    if ((w + x) > width) {
 			w = (width - x);
@@ -138,12 +138,26 @@ void Graphics::drawImage(int x, int y, Image * i) {
 
 void Graphics::drawImage2(int x, int y, Image * i) {
 	int temp;
-        for (int X = 0; X < i->getWidth(); X++) {
-                for (int Y = 0; Y < i->getHeight(); Y++) {
-			temp = i->getARGB(X,Y);
-			if (temp != -1) drawPoint(X + x, Y + y, temp);
-                }
-        }
+	for (int X = 0; X < i->getWidth(); X++) {
+		for (int Y = 0; Y < i->getHeight(); Y++) {
+		temp = i->getARGB(X,Y);
+			if (temp != -1) {
+				drawPoint(X + x, Y + y, temp);
+			}
+		}
+	}
+}
+void Graphics::Draw_Transparent_Point(int x, int y, Color c) {
+	if (x < width_c && x >= x_c && y < height_c && y >= y_c){
+		register const unsigned int __register transparent_color = (unsigned int)c;
+		register const unsigned int __register background_color  = buffer_i[x + (y * width)];
+		register const unsigned int __register alpha             = (transparent_color & 0xFF000000) >> 24; // ()(unsigned char*)transparent_color)[3]
+		register const unsigned int __register not_alpha         = (~alpha) & 0x000000FF;
+
+		buffer_i[x + (y * width)] =
+			((((alpha * (transparent_color & 0x00FF00FF)) + (not_alpha * (background_color & 0x00FF00FF))) >> 8) & 0x00FF00FF) | // Red and Blue
+			((((alpha * (transparent_color & 0x0000FF00)) + (not_alpha * (background_color & 0x0000FF00))) >> 8) & 0x0000FF00);  // Green
+	}
 }
 
 void Graphics::drawPoint(int x, int y, Color c) {
@@ -255,16 +269,16 @@ void Graphics::drawCircle(int x0, int y0, int radius, Color c) {
 	while(x >= y) {
 		drawPoint(x + x0, y + y0, c);
 		drawPoint(-x + x0, y + y0, c);
-		
+
 		drawPoint(y + x0, x + y0, c);
 		drawPoint(-y + x0, x + y0, c);
-		
+
 		drawPoint(-x + x0, -y + y0, c);
 		drawPoint(x + x0, -y + y0, c);
-		
+
 		drawPoint(-y + x0, -x + y0, c);
 		drawPoint(y + x0, -x + y0, c);
-		
+
 		y++;
 		if (radiusError < 0) {
 			radiusError += 2 * y + 1;

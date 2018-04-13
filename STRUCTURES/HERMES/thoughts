@@ -1,0 +1,36 @@
+
+Hermes structure: [
+		Header,
+		Device_Local,
+		Key_Seed_Local,
+		Device_Remote,
+		Key_Seed_Remote
+	];
+
+All endpoints in the system contain a HERMES structure shared with HOST
+All HERMES structures are spawned by the HOST
+
+HOST (remote) will provide new HERMES structures; HERMES structures should not be constructed locally
+
+
+is
+
+char** pp;
+char*  p;
+
+pp = new char*;
+p  = new char;
+
+*pp = p;
+
+delete pp;
+
+equal to
+
+char** pp;
+char*  p;
+
+p  = new char;
+
+pp = (char**)&p;
+???
