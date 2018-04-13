@@ -149,10 +149,10 @@ void Graphics::drawImage2(int x, int y, Image * i) {
 }
 void Graphics::Draw_Transparent_Point(int x, int y, Color c) {
 	if (x < width_c && x >= x_c && y < height_c && y >= y_c){
-		register const unsigned int __register transparent_color = (unsigned int)c;
-		register const unsigned int __register background_color  = buffer_i[x + (y * width)];
-		register const unsigned int __register alpha             = (transparent_color & 0xFF000000) >> 24; // ()(unsigned char*)transparent_color)[3]
-		register const unsigned int __register not_alpha         = (~alpha) & 0x000000FF;
+		register const unsigned int transparent_color = (unsigned int)c;
+		register const unsigned int background_color  = buffer_i[x + (y * width)];
+		register const unsigned int alpha             = (transparent_color & 0xFF000000) >> 24; // ()(unsigned char*)transparent_color)[3]
+		register const unsigned int not_alpha         = (~alpha) & 0x000000FF;
 
 		buffer_i[x + (y * width)] =
 			((((alpha * (transparent_color & 0x00FF00FF)) + (not_alpha * (background_color & 0x00FF00FF))) >> 8) & 0x00FF00FF) | // Red and Blue
