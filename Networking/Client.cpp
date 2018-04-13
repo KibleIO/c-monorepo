@@ -40,4 +40,8 @@ bool Client::Receive(char *data, int size) {
 	return (startedUp && recv(mainSocket, data, size, MSG_WAITALL) == size);
 }
 
+bool Client::Receive_b(char *data, int size) {
+	return (startedUp && recv(mainSocket, data, size, MSG_DONTWAIT) == size);
+}
+
 #endif /* CLIENT_H_ */

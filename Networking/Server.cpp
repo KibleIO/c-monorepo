@@ -34,6 +34,8 @@ bool Server::Listen(int port) {
 	}
 	int buff_size = 700000;
 	setsockopt(mainSocket, SOL_SOCKET, SO_SNDBUF, &buff_size, (int) sizeof(buff_size));
+	int one = 1;
+	setsockopt(mainSocket, SOL_TCP, TCP_NODELAY, &one, sizeof(one));
 	return true;
 }
 

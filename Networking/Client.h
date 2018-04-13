@@ -15,6 +15,7 @@ public:
 	void  CloseConnection();
 	bool  Send(char *, int);
 	bool Receive(char *,int);
+	bool Receive_b(char *,int);
 };
 
 
