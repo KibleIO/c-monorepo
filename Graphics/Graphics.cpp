@@ -8,6 +8,11 @@ Graphics::Graphics(char *b, int w, int h, int s_w, int s_h) :
 	buffer_i = (int*) buffer;
 	ContourX = new long[height * 2];
 	setClip(-1, -1, -1, -1);
+	setTransparent(false);
+}
+
+void  Graphics::setTransparent         (bool trans) {
+	transparent = trans;
 }
 
 void Graphics::Swapbuffers(char *buff) {
@@ -120,34 +125,12 @@ void Graphics::fillTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Colo
       long len = 1 + ContourX[y * height + 1] - ContourX[y * height + 0];
 
       // Can draw a horizontal line instead of individual pixels here
-      while (len--)
-      {
-        drawPoint(x++, y, c);
-      }
+	  drawLine(x, y, x + len, y, c);
     }
   }
 }
 
-void Graphics::drawImage(int x, int y, Image * i) {
-	for (int X = 0; X < i->getWidth(); X++) {
-		for (int Y = 0; Y < i->getHeight(); Y++) {
-			drawPoint(X + x, Y + y, i->getARGB(X,Y));
-		}
-	}
-}
-
-void Graphics::drawImage2(int x, int y, Image * i) {
-	int temp;
-	for (int X = 0; X < i->getWidth(); X++) {
-		for (int Y = 0; Y < i->getHeight(); Y++) {
-		temp = i->getARGB(X,Y);
-			if (temp != -1) {
-				drawPoint(X + x, Y + y, temp);
-			}
-		}
-	}
-}
-void Graphics::Draw_Transparent_Point(int x, int y, Color c) {
+void Graphics::drawPoint_wa(int x, int y, Color c) {
 	if (x < width_c && x >= x_c && y < height_c && y >= y_c){
 		register const unsigned int transparent_color = (unsigned int)c;
 		register const unsigned int background_color  = buffer_i[x + (y * width)];
@@ -161,6 +144,14 @@ void Graphics::Draw_Transparent_Point(int x, int y, Color c) {
 }
 
 void Graphics::drawPoint(int x, int y, Color c) {
+	if (transparent) {
+		drawPoint_wa(x, y, c);
+	} else {
+		drawPoint_na(x, y, c);
+	}
+}
+
+void Graphics::drawPoint_na(int x, int y, Color c) {
 	if (x > width_c - 1 || x < x_c || y > height_c - 1 || y < y_c){
 		return;
 	} else {
@@ -168,6 +159,7 @@ void Graphics::drawPoint(int x, int y, Color c) {
 	}
 }
 
+/*
 void Graphics::drawPoint_wa(int x, int y, Color c) {
 	if (x > width_c - 1 || x < x_c || y > height_c - 1 || y < y_c){
 		return;
@@ -198,6 +190,7 @@ void Graphics::drawPoint_wa(int x, int y, Color c) {
 	frontB = ((frontB * frontA) + (backB * (255 - frontA))) / 255;
  	buffer_i[(x + y * width)] = (0xFF << 24) | ((frontR & 0xFF) << 16) | ((frontG & 0xFF) << 8) | (frontB & 0xFF);
 }
+*/
 
 void Graphics::drawLine(int x1, int y1, int x2, int y2, Color c) {
 	int dx, dy, inx, iny, e;

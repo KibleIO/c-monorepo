@@ -6,7 +6,6 @@
 #include <string>
 #include <limits.h>
 #include "Polygon.h"
-#include "Image.h"
 #include "../Utilities/Integer.h"
 
 #define ABS(x) ((x >= 0) ? x : -x)
@@ -34,6 +33,7 @@ class Graphics {
 		char* buffer;
 		void  ScanLine(long, long, long, long);
 		long* ContourX;
+		bool  transparent;
 	public:
 		int  width;
 		int  height;
@@ -45,12 +45,12 @@ class Graphics {
 		int  height_c;
 		int* buffer_i;
 		Graphics                     (char *, int, int, int, int);
+		void  setTransparent         (bool);
 		void  setClip                (int, int, int, int);
-		void  drawImage              (int, int, Image *);
-		void  drawImage2             (int, int, Image *);
 		void  Draw_Transparent_Point (int, int, Color);
 		void  drawPoint              (int, int, Color);
 		void  drawPoint_wa           (int, int, Color);
+		void  drawPoint_na           (int, int, Color);
 		void  drawLine               (int, int, int, int, Color);
 		void  drawSquare             (int, int, int, int, Color);
 		void  fillSquare             (int, int, int, int, Color);
