@@ -132,14 +132,17 @@ void Graphics::fillTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Colo
 
 void Graphics::drawPoint_wa(int x, int y, Color c) {
 	if (x < width_c && x >= x_c && y < height_c && y >= y_c){
-		register const unsigned int transparent_color = (unsigned int)c;
-		register const unsigned int background_color  = buffer_i[x + (y * width)];
-		register const unsigned int alpha             = (transparent_color & 0xFF000000) >> 24; // ()(unsigned char*)transparent_color)[3]
-		register const unsigned int not_alpha         = (~alpha) & 0x000000FF;
+		unsigned char* fg = (unsigned char*) &c;
+		unsigned char* bg = (unsigned char*) &buffer_i[x + (y * width)];
+		unsigned int result;
+		unsigned int alpha = fg[3] + 1;
+    unsigned int inv_alpha = 256 - fg[3];
 
-		buffer_i[x + (y * width)] =
-			((((alpha * (transparent_color & 0x00FF00FF)) + (not_alpha * (background_color & 0x00FF00FF))) >> 8) & 0x00FF00FF) | // Red and Blue
-			((((alpha * (transparent_color & 0x0000FF00)) + (not_alpha * (background_color & 0x0000FF00))) >> 8) & 0x0000FF00);  // Green
+    ((unsigned char*)&result)[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
+    ((char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+    ((char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+    ((char*)&result)[3] = 0xff;
+		buffer_i[x + (y * width)] = result;
 	}
 }
 
