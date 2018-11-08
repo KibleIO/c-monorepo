@@ -1,759 +1,291 @@
-#define STB_TRUETYPE_IMPLEMENTATION
 #define NK_IMPLEMENTATION
+
 #include "GUI.h"
 
-// TRY TO REMOVE THESE
-nk_font* font_14;
 
-/*************************************************/
-//	stb_truetype code
-
-int advances[95];
-stbtt_fontinfo font_stb;
-
-static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length){
+static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length) {
+	BAKED_GLYPH* glyphs = (BAKED_GLYPH*)handle.ptr;
 	int _x = 0;
 	for (int i = 0; i < length; i++) {
-		_x += advances[int(text[i]) - 32]; // Add check for oob
+		_x += glyphs[int(text[i]) - 32].Advance;
 	}
 	return _x;
 }
 
-int Font_Get_Text_Height(GUI* gui, const char* text, int length){
-	int _y = 0;
-	for (int i = 0; i < length; i++) {
-		if (gui->baked_glyphs[int(text[i]) - 32].h > _y) {
-			_y = gui->baked_glyphs[int(text[i] - 32)].h;
-		}
-	}
-	return _y;
+void Initialize_GUI_Themis(GUI* gui, int display_id) {
+	gui->Display_ID = display_id;
 }
-// END: TRY TO REMOVE
 
-void Initialize_GUI       (GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int* num_dev, unsigned int width, unsigned int height, unsigned int frame_count) {
-	gui->Mouse            = mouse;
-	gui->Keyboard         = keyboard;
-	gui->num_dev          = num_dev;
-	gui->Width            = width;
-	gui->Height           = height;
-	gui->Frame_Resolution = width * height;
-	gui->NK_Context       = new nk_context();
-
-	/*************************************************/
-	//	FONT SETUP
-
-	//STB_ttf font set up
-	float         scale;
-	float         text_height = 20;
-	int           ascent;
-	int           baseline;
-	int           c_w;
-	int           c_h;
-	int           c_xoff;
-	int           c_yoff;
-	int           advance;
-	int           lsb;
-	unsigned char ttf_buffer[1<<20];
-
-	text_height = 20;
-	fread(ttf_buffer, 1, 1<<20, fopen("/root/IRIS/myriad.ttf", "rb"));
-	stbtt_InitFont(&font_stb, ttf_buffer,0);
-	scale = stbtt_ScaleForPixelHeight(&font_stb, text_height);
-	stbtt_GetFontVMetrics(&font_stb, &ascent, 0, 0);
-	gui->baseline = (int) ascent * scale;
-
-	//Bake stb_font
-	for (int i = 0; i < 95; i++)
-	{
-		gui->baked_glyphs[i].bmp  = stbtt_GetCodepointBitmap(&font_stb,scale,scale, 32 + i, &c_w, &c_h, &c_xoff, &c_yoff);
-		gui->baked_glyphs[i].w    = c_w;
-		gui->baked_glyphs[i].h    = c_h;
-		gui->baked_glyphs[i].xoff = c_xoff;
-		gui->baked_glyphs[i].yoff = c_yoff;
-		stbtt_GetCodepointHMetrics(&font_stb, char(32 + i), &advance, &lsb);
-		advances[i] = advance * scale;
-		gui->baked_glyphs[i].advance = advances[i];
+void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer, Server* server) {
+	gui->Width        = width;
+	gui->Height       = height;
+	gui->Frame_Resolution	= width * height;
+	gui->Render_Type = GUI_EMPTY_BUFFER;
+	if (server) {
+		gui->server = server;
 	}
 
-	//Nuklear font setup
-	nk_font_atlas* atlas;
-	nk_font_atlas_init_default(atlas);
-	nk_font_atlas_begin(atlas);
-	font_14 = nk_font_atlas_add_from_file(atlas, "/root/IRIS/myriad.ttf", text_height, 0);
-	nk_font_atlas_end(atlas, nk_handle_id(font_14->texture.id), NULL);
-	font_14->handle.width    = Font_Get_Text_Width;
-	nk_init_default(gui->NK_Context, &font_14->handle);
-
-	/*************************************************/
-	//	GUI Setup
-
-	Initialize_Frames_GUI(gui, frame_count);
-}
-GUI* Construct_GUI        (MOUSE** mouse, KEYBOARD** keyboard, int* num_dev, unsigned int width, unsigned int height, unsigned int frame_count)          {
-	GUI* gui = new GUI();
-	Initialize_GUI(gui, mouse, keyboard, num_dev, width, height, frame_count);
-	return gui;
-}
-void Delete_GUI           (GUI* gui)                                                                                                     {
-	delete gui->NK_Context;
-	Delete_Frames_GUI(gui);
-}
-
-// Isolate to a FRAME_MANAGER struct
-void Initialize_Frames_GUI(GUI* gui, unsigned int frame_count)                                                                           {
-	gui->Frame_Count            = frame_count;
-	gui->Frames                 = new FRAME       [frame_count];
-	gui->Delta_Buffers_Reserved = new char*       [frame_count];
-	gui->Delta_Buffers          = new char*       [frame_count];
-	gui->History_Buffers        = new char*       [frame_count];
-	gui->Delta_Lengths          = new unsigned int[frame_count];
-	for (int frame_index = 0; frame_index < frame_count; frame_index++){
-		Initialize_Frame(gui->Frames + frame_index, gui->Frame_Resolution);
-		gui->History_Buffers       [frame_index] = (char*)gui->Frames[frame_index].Buffer;
-		gui->Delta_Buffers_Reserved[frame_index] = new char[(gui->Frame_Resolution * sizeof(int)) + SIZE_OF_DELTA_HEADER];
-		gui->Delta_Buffers         [frame_index] = gui->Delta_Buffers_Reserved[frame_index];
-	}
-}
-void Delete_Frames_GUI    (GUI* gui)                                                                                                     {
-	for (int frame_index = 0; frame_index < gui->Frame_Count; frame_index++){
-		Delete_Frame(gui->Frames + frame_index);
-		delete gui->Delta_Buffers_Reserved[frame_index];
-	}
-	delete gui->Frames;
-	delete gui->Delta_Buffers_Reserved;
-	delete gui->Delta_Buffers;
-	delete gui->History_Buffers;
-	delete gui->Delta_Lengths;
-	gui->Frame_Count = 0;
-}
-void Refresh_Frames_GUI   (GUI* gui, unsigned int frame_count)                                                                           {
-	Delete_Frames_GUI    (gui);
-	Initialize_Frames_GUI(gui, frame_count);
-}
-void Refresh_Frames_GUI   (GUI* gui)                                                                                                     {
-	Refresh_Frames_GUI(gui, gui->Frame_Count);
-}
-
-//
-void Draw_Text(GUI* gui, Graphics* graphics, const struct nk_command_text* text_command){
-	Baked_Glyph* baked_glyph
-	unsigned int forecolor;
-	unsigned int alpha;
-	string       str;
-	int          _x;
-	int          _y;
-
-	forecolor = (text_command->foreground.r << 16) + (text_command->foreground.g << 8) + text_command->foreground.b;
-	str       = string(text_command->string);
-	_x        = text_command->x;
-	_y        = text_command->y + (Font_Get_Text_Height(gui, str.c_str(), str.length()) >> 1); // + gui->baseline - (t->h / 2);
-
-	switch ((unsigned char)text_command->foreground.a){
-		case 0xFF: {
-			for (int i = 0; i < str.length(); i++) {
-				baked_glyph = &gui->baked_glyphs[int(str[i]) - 32];
-				for (int x = 0; x < baked_glyph->w; x++) {
-					for (int y = 0; y < baked_glyph->h; y++) {
-						alpha = baked_glyph->bmp[(y * baked_glyph->w) + x];
-						switch (alpha) {
-							case 0xFF:{
-								graphics->drawPoint(
-									_x + x + baked_glyph->xoff,
-									_y + y + baked_glyph->yoff,
-									forecolor + (alpha << 24));
-								break;
-							}
-							case 0x00:{
-								break;
-							}
-							default:{
-								graphics->Draw_Transparent_Point(
-									_x + x + baked_glyph->xoff,
-									_y + y + baked_glyph->yoff,
-									forecolor + (alpha << 24));
-								break;
-							}
-						}
-					}
-				}
-				_x += baked_glyph->advance;
-			}
-			break;
-		}
-		case 0x00: {
-			break;
-		}
-		default: {
-			for (int i = 0; i < str.length(); i++) {
-				baked_glyph = &gui->baked_glyphs[int(str[i]) - 32];
-				for (int x = 0; x < baked_glyph->w; x++) {
-					for (int y = 0; y < baked_glyph->h; y++) {
-						alpha = ((((unsigned int)text_command->foreground.a) * ((unsigned int)baked_glyph->bmp[(y * baked_glyph->w) + x])) + 127) / 255;
-						// alpha = (((((unsigned int)text_command->foreground.a) + 1) * (((unsigned int)baked_glyph->bmp[(y * baked_glyph->w) + x]) + 1)) + 128) >> 8; // May be faster, test me
-						switch (alpha) {
-							case 0xFF:{
-								graphics->drawPoint(
-									_x + x + baked_glyph->xoff,
-									_y + y + baked_glyph->yoff,
-									forecolor + (alpha << 24));
-								break;
-							}
-							case 0x00:{
-								break;
-							}
-							default:{
-								graphics->Draw_Transparent_Point(
-									_x + x + baked_glyph->xoff,
-									_y + y + baked_glyph->yoff,
-									forecolor + (alpha << 24));
-								break;
-							}
-						}
-					}
-				}
-				_x += baked_glyph->advance;
-			}
-			break;
-		}
-	}
-}
-
-void Apply_GUI            (GUI* gui, Graphics* graphics)                                                                    {
-	//int* buffer = new int[gui->Frame_Resolution + 2];
-	//fill(buffer, buffer + gui->Frame_Resolution + 2, 0x00000000);
-	//Graphics* graphics = new Graphics((char*)buffer, gui->Width, gui->Height, gui->Width, gui->Height);
-
-	const struct nk_command* command;
-	nk_foreach(command, gui->NK_Context) {
-		switch (command->type) {
-			case NK_COMMAND_NOP:
-				break;
-			case NK_COMMAND_SCISSOR:         {
-				const struct nk_command_scissor* s =(const struct nk_command_scissor*)command;
-				graphics->setClip(s->x, s->y, s->w, s->h);
-				break;
-			}
-			case NK_COMMAND_LINE:            {
-				const struct nk_command_line* l = (const struct nk_command_line*)command;
-				graphics->drawLine(l->begin.x, l->begin.y, l->end.x, l->end.y, l->color.r + (l->color.g << 8) + (l->color.b << 16));
-				break;
-			}
-			case NK_COMMAND_RECT:            {
-				const struct nk_command_rect* rectangle = (const struct nk_command_rect*)command;
-				graphics->drawSquare(
-					rectangle->x,
-					rectangle->y,
-					rectangle->w,
-					rectangle->h,
-					rectangle->color.r + (rectangle->color.g << 8) + (rectangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_RECT_FILLED:     {
-				const struct nk_command_rect_filled* rectangle = (const struct nk_command_rect_filled*)command;
-				graphics->fillSquare(
-					rectangle->x,
-					rectangle->y,
-					rectangle->w,
-					rectangle->h,
-					rectangle->color.r + (rectangle->color.g << 8) + (rectangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_CIRCLE:          {
-				const struct nk_command_circle* circle = (const struct nk_command_circle*)command;
-				/*
-				graphics->drawCircle(
-					circle->x + (circle->w / 2),
-					circle->y + (circle->w / 2),
-					circle->w / 2,
-					circle->color.r + (circle->color.g << 8) + (circle->color.b << 16) + (0xff << 24));
-				*/
-				break;
-			}
-			case NK_COMMAND_CIRCLE_FILLED:   {
-				const struct nk_command_circle_filled* circle = (const struct nk_command_circle_filled*)command;
-				graphics->fillCircle(
-					circle->x + (circle->w / 2),
-					circle->y + (circle->w / 2),
-					circle->w / 2,
-					circle->color.r + (circle->color.g << 8) + (circle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_TRIANGLE:        {
-				const struct nk_command_triangle* triangle = (const struct nk_command_triangle*)command;
-				break;
-			}
-			case NK_COMMAND_TRIANGLE_FILLED: {
-				const struct nk_command_triangle_filled* triangle = (const struct nk_command_triangle_filled*)command;
-				Polygon tri;
-				tri.addPoint(triangle->a.x, triangle->a.y);
-				tri.addPoint(triangle->b.x, triangle->b.y);
-				tri.addPoint(triangle->c.x, triangle->c.y);
-				graphics->fillPolygon(
-					tri, triangle->color.r + (triangle->color.g << 8) + (triangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_POLYGON:         {
-				const struct nk_command_polygon* polygon = (const struct nk_command_polygon*)command;
-				break;
-			}
-			case NK_COMMAND_POLYGON_FILLED:  {
-				const struct nk_command_polygon_filled* polygon = (const struct nk_command_polygon_filled*)command;
-				break;
-			}
-			case NK_COMMAND_POLYLINE:        {
-				break;
-			}
-			case NK_COMMAND_TEXT:            {
-				Draw_Text(gui, graphics, command);
-				break;
-			}
-			case NK_COMMAND_CURVE:
-			case NK_COMMAND_RECT_MULTI_COLOR:
-			case NK_COMMAND_IMAGE:
-			case NK_COMMAND_ARC:
-			case NK_COMMAND_ARC_FILLED:
-			case NK_COMMAND_CUSTOM:
-			default:
-				break;
-		}
-	}
-	nk_clear(gui->NK_Context);
-}
-void Apply_GUI            (GUI* gui, FRAME* frame, Graphics* graphics)                                                                    {
-	// This can't be efficient...
-	int* delta_buffer = new int[gui->Frame_Resolution + SIZE_OF_DELTA_HEADER]; // leak!
-	int  delta_length = Encode_Difference_File_spec(
-		(unsigned char*)delta_buffer,
-		(unsigned char*)frame->Buffer,
-		(unsigned char*)graphics->buffer_i,
-		gui->Frame_Resolution * sizeof(unsigned int));
-	if (delta_length > 0){
-		Damage_Frame(frame, (char*)delta_buffer, (unsigned int)delta_length);
+	gui->NK_Context      = new nk_context;
+	gui->FontNK          = new nk_user_font;
+	gui->X264_Buffer     = new char[(gui->Frame_Resolution + 2) * 4];
+	if (frame_buffer) {
+		gui->Graphics_Handle              = new Graphics(frame_buffer, gui->Width, gui->Height, gui->Width, gui->Height);
 	} else {
-		delete delta_buffer;
+		gui->Graphics_Handle_Buffer       = new char[(gui->Frame_Resolution + 2) * 4];
+		gui->Graphics_Handle              = new Graphics((char*)gui->Graphics_Handle_Buffer, gui->Width, gui->Height, gui->Width, gui->Height);
 	}
-	//delete graphics;
-	//delete buffer;
-}
-void Apply_GUI            (GUI* gui, FRAME* frame)                                                                                       {
-	int* buffer = new int[gui->Frame_Resolution + 2];
-	fill(buffer, buffer + gui->Frame_Resolution + 2, 0x00000000);
-	Graphics* graphics = new Graphics((char*)buffer, gui->Width, gui->Height, gui->Width, gui->Height);
+	gui->Graphics_Handle->setTransparent(true);
 
-	const struct nk_command* command;
-	nk_foreach(command, gui->NK_Context) {
-		switch (command->type) {
-			case NK_COMMAND_NOP:
-				break;
-			case NK_COMMAND_SCISSOR:         {
-				const struct nk_command_scissor* s =(const struct nk_command_scissor*)command;
-				graphics->setClip(s->x, s->y, s->w, s->h);
-				break;
-			}
-			case NK_COMMAND_LINE:            {
-				const struct nk_command_line* l = (const struct nk_command_line*)command;
-				graphics->drawLine(l->begin.x, l->begin.y, l->end.x, l->end.y, l->color.r + (l->color.g << 8) + (l->color.b << 16));
-				break;
-			}
-			case NK_COMMAND_RECT:            {
-				const struct nk_command_rect* rectangle = (const struct nk_command_rect*)command;
-				graphics->drawSquare(
-					rectangle->x,
-					rectangle->y,
-					rectangle->w,
-					rectangle->h,
-					rectangle->color.r + (rectangle->color.g << 8) + (rectangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_RECT_FILLED:     {
-				const struct nk_command_rect_filled* rectangle = (const struct nk_command_rect_filled*)command;
-				graphics->fillSquare(
-					rectangle->x,
-					rectangle->y,
-					rectangle->w,
-					rectangle->h,
-					rectangle->color.r + (rectangle->color.g << 8) + (rectangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_CIRCLE:          {
-				const struct nk_command_circle* circle = (const struct nk_command_circle*)command;
-				graphics->drawCircle(
-					circle->x + (circle->w / 2),
-					circle->y + (circle->w / 2),
-					circle->w / 2,
-					circle->color.r + (circle->color.g << 8) + (circle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_CIRCLE_FILLED:   {
-				const struct nk_command_circle_filled* circle = (const struct nk_command_circle_filled*)command;
-				graphics->fillCircle(
-					circle->x + (circle->w / 2),
-					circle->y + (circle->w / 2),
-					circle->w / 2,
-					circle->color.r + (circle->color.g << 8) + (circle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_TRIANGLE:        {
-				const struct nk_command_triangle* triangle = (const struct nk_command_triangle*)command;
-				break;
-			}
-			case NK_COMMAND_TRIANGLE_FILLED: {
-				const struct nk_command_triangle_filled* triangle = (const struct nk_command_triangle_filled*)command;
-				Polygon tri;
-				tri.addPoint(triangle->a.x, triangle->a.y);
-				tri.addPoint(triangle->b.x, triangle->b.y);
-				tri.addPoint(triangle->c.x, triangle->c.y);
-				graphics->fillPolygon(
-					tri, triangle->color.r + (triangle->color.g << 8) + (triangle->color.b << 16) + (0xff << 24));
-				break;
-			}
-			case NK_COMMAND_POLYGON:         {
-				const struct nk_command_polygon* polygon = (const struct nk_command_polygon*)command;
-				break;
-			}
-			case NK_COMMAND_POLYGON_FILLED:  {
-				const struct nk_command_polygon_filled* polygon = (const struct nk_command_polygon_filled*)command;
-				break;
-			}
-			case NK_COMMAND_POLYLINE:        {
-				break;
-			}
-			case NK_COMMAND_TEXT:            {
-				Draw_Text(gui, graphics, command);
-				break;
-			}
-			case NK_COMMAND_CURVE:
-			case NK_COMMAND_RECT_MULTI_COLOR:
-			case NK_COMMAND_IMAGE:
-			case NK_COMMAND_ARC:
-			case NK_COMMAND_ARC_FILLED:
-			case NK_COMMAND_CUSTOM:
-			default:
-				break;
-		}
-	}
-	nk_clear(gui->NK_Context);
+	float text_height = int((gui->Height * 3) / 100);
+	Initialize_Font(gui->Font, font_path.c_str(), text_height);
 
-	int* delta_buffer = new int[gui->Frame_Resolution + SIZE_OF_DELTA_HEADER];
-	int  delta_length = Encode_Difference_File_spec(
-		(unsigned char*)delta_buffer,
-		(unsigned char*)frame->Buffer,
-		(unsigned char*)buffer,
-		gui->Frame_Resolution * sizeof(unsigned int));
-	if (delta_length > 0) {
-		Damage_Frame(frame, (char*)delta_buffer, (unsigned int)delta_length);
-	} else {
-		delete delta_buffer;
-	}
-	delete graphics;
-	delete buffer;
+	gui->FontNK->userdata.ptr = gui->Font->Baked_glyphs;
+	gui->FontNK->height = text_height;
+	gui->FontNK->width = Font_Get_Text_Width;
+	nk_init_default(gui->NK_Context, gui->FontNK);
+
+    gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
+    gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
+
+    gui->NK_Context->style.button.normal = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+    gui->NK_Context->style.button.hover = nk_style_item_color(nk_rgb(0x90,0x90,0x90));
+    gui->NK_Context->style.button.active = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+    gui->NK_Context->style.button.text_normal = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.button.text_hover = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.button.text_active = nk_rgb(0x25,0x25,0x25);
+
+    gui->NK_Context->style.button.padding = nk_vec2(0,0);
+	gui->NK_Context->style.button.border = 0;
+
+	gui->NK_Context->style.window.padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.spacing = nk_vec2(0,0);
+	gui->NK_Context->style.window.scrollbar_size = nk_vec2(0,0);
+	gui->NK_Context->style.window.min_size = nk_vec2(0,0);
+	gui->NK_Context->style.window.border = 0;
+
+	gui->NK_Context->style.window.header.padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.header.label_padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.header.spacing = nk_vec2(0,0);
+
+	gui->NK_Context->style.text.color = nk_rgb(0xc1,0xc0,0xc0);
+
+	gui->NK_Context->style.edit.normal = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+	gui->NK_Context->style.edit.hover = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+    gui->NK_Context->style.edit.active = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+
+	gui->NK_Context->style.edit.cursor_text_normal = nk_rgb(0x0,0x0,0x0);
+    gui->NK_Context->style.edit.cursor_text_hover = nk_rgb(0x0,0x0,0x0);
+    gui->NK_Context->style.edit.text_normal = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.edit.text_hover = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
+    gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
 }
-void Apply_GUI            (GUI* gui, unsigned int frame_index)                                                                           {
-	if (frame_index < gui->Frame_Count){
-		Apply_GUI(gui, gui->Frames + frame_index);
-	} else {
-		nk_clear(gui->NK_Context);
+
+void Delete_GUI(GUI* gui) {
+	if (gui->NK_Context) {
+		delete gui->NK_Context;
+	}
+	if (gui->Graphics_Handle) {
+		delete gui->Graphics_Handle;
+	}
+	if (gui->Font) {
+		Delete_Font(gui->Font);
 	}
 }
 
-void Apply_Mouse_GUI      (GUI* gui, FRAME* frame)                                                                                       {
-	int* buffer = new int[gui->Frame_Resolution + 2];
-	fill(buffer, buffer + gui->Frame_Resolution + 2, 0x00000000);
-	Graphics* graphics = new Graphics((char*)buffer, gui->Width, gui->Height, gui->Width, gui->Height);
+void Draw_Text(GUI* gui, Graphics* graphics, const struct nk_command* command) {
+	const struct nk_command_text* t = (const struct nk_command_text*)command;
+	string str = string(t->string);
+	int _x = t->x;
+	int _y = t->y + gui->Font->Baseline;
 
-	int  mousie[][11] = {
-		{0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000},
-		{0x03000000,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03FFFFFF,0x03000000},
-		{0x03000000,0x03FFFFFF,0x03FFFFFF,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000,0x03000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000,0x03000000,0x03FFFFFF,0x03000000,0x00000000},
-		{0x03000000,0x03FFFFFF,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x03000000,0x03FFFFFF,0x03000000},
-		{0x03000000,0x03000000,0x03000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x03000000,0x03000000}
-	};
-	for (int x = 0; x < 11; x++) {
-		for (int y = 0; y < 11; y++) {
-			switch (mousie[x][y]) {
-				case 0x03ffffff:
-					graphics->drawPoint(gui->Current_X + x, gui->Current_Y + y, 0xffffffff);
-					break;
-				case 0x03000000:
-					graphics->drawPoint(gui->Current_X + x, gui->Current_Y + y, 0xff000000);
-					break;
+	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
+	unsigned char bg[] = {t->background.b,t->background.g,t->background.r,t->background.a};
+	if (((int*)fg)[0] == ((int*)bg)[0]) ((int*)bg)[0] = 0xff989898;
+	unsigned char result[] = {0,0,0,0xff};
+
+	union {
+		unsigned char bytes[4];
+		int data;
+	} kk;
+
+	for (int i = 0; i < str.length(); i++) {
+		BAKED_GLYPH *c = &gui->Font->Baked_glyphs[int(str[i]) - 32];
+
+		for (int x = 0; x < c->W; x++){
+			for (int y = 0; y < c->H; y++){
+				unsigned int alpha = c->Bitmap[(y*c->W)+x];
+				unsigned int inv_alpha = 255 - alpha;
+				result[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
+				result[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+				result[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+				result[3] = (unsigned char)((alpha * fg[3] + inv_alpha * bg[3]) >> 8);
+				memcpy(kk.bytes, result, 4);
+				graphics->drawPoint(_x + x + c->Xoff, _y + y + c->Yoff, kk.data);
 			}
 		}
-	}
-
-	int* delta_buffer = new int[gui->Frame_Resolution + SIZE_OF_DELTA_HEADER];
-	int  delta_length = Encode_Difference_File_spec(
-		(unsigned char*)delta_buffer,
-		(unsigned char*)frame->Buffer,
-		(unsigned char*)buffer,
-		(unsigned int  )gui->Frame_Resolution * sizeof(unsigned int));
-	if (delta_length > 0){
-		Damage_Frame(frame, (char*)delta_buffer, (unsigned int)delta_length);
-	} else {
-		delete delta_buffer;
-	}
-	delete graphics;
-	delete buffer;
-}
-void Apply_Mouse_GUI      (GUI* gui, unsigned int frame_index)                                                                           {
-	if (frame_index < gui->Frame_Count){
-		Apply_Mouse_GUI(gui, gui->Frames + frame_index);
+		_x += c->Advance;
 	}
 }
 
-int  Render_GUI           (GUI* gui, char** delta_output)                                                                                {
-	int damage_length;
-	switch (gui->Frame_Count){
-		case 0:
-			damage_length = 0;
-			break;
-		case 1: {
-			damage_length = Render_Frame(gui->Frames, delta_output);
-			break;
-		}
-		default: {
-			int* delta_counts;
-			int  frame_index;
-			for (frame_index = 0; frame_index < gui->Frame_Count; frame_index++) {
-				gui->Delta_Lengths[frame_index] = Render_Frame(gui->Frames + frame_index, &gui->Delta_Buffers[frame_index]);
+void Draw_Text(GUI* gui, Graphics* graphics, string str, int _x, int _y, unsigned char* fg, unsigned char* back) {
+	unsigned char result[] = {0,0,0,0xff};
+
+	union {
+		unsigned char bytes[4];
+		int data;
+	} kk;
+
+	for (int i = 0; i < str.length(); i++) {
+		BAKED_GLYPH *c = &gui->Font->Baked_glyphs[int(str[i]) - 32];
+
+		for (int x = 0; x < c->W; x++){
+			for (int y = 0; y < c->H; y++){
+				unsigned int alpha = c->Bitmap[(y*c->W)+x];
+				unsigned int inv_alpha = 255 - alpha;
+				unsigned char* bg = (unsigned char*)&(((int*)back)[gui->Width * (_y + y + c->Yoff) + (_x + x)]);
+				result[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
+				result[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+				result[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+				memcpy(kk.bytes, result, 4);
+				graphics->drawPoint(_x + x + c->Xoff, _y + y + c->Yoff, kk.data);
 			}
-
-			delta_counts  = count_num_diff(gui->Delta_Buffers, (int*)gui->Delta_Lengths, (int)gui->Frame_Count);
-			damage_length = black_box(gui->Delta_Buffers, delta_counts, gui->History_Buffers, gui->Frame_Count, *delta_output);
-
-			for (frame_index = 0; frame_index < gui->Frame_Count; frame_index++){
-				if (gui->Delta_Buffers[frame_index] != gui->Delta_Buffers_Reserved[frame_index]) {
-					delete gui->Delta_Buffers[frame_index];
-					gui->Delta_Buffers[frame_index] = gui->Delta_Buffers_Reserved[frame_index];
-				}
-			}
-			delete delta_counts;
-			break;
 		}
+		_x += c->Advance;
 	}
-	return damage_length;
 }
 
-void Handle_Mouse_GUI     (GUI* gui)                                                                                                     {
-	MOUSE* mouse;
-	for (int k = 0; k < *gui->num_dev; k++) {
-		if (gui->Mouse[k] != NULL) {
-			mouse = gui->Mouse[k];
-			for (int i = mouse->Mouse_Event_Stack.getLength(); i > 0; i--) {
+void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len) {
+	nk_input_begin (gui->NK_Context);
+	// Mouse
+
+	for (int k = 0; k < len; k++) {
+		if (mouse[k] != NULL) {
+			for (int i = mouse[k]->Mouse_Event_Stack.getLength(); i > 0; i--) {
 				libinput_event_pointer* lep;
-				MOUSE_EVENT_ELEMENT* element = (MOUSE_EVENT_ELEMENT*)mouse->Mouse_Event_Stack.GetElement(0);
+				MOUSE_EVENT_ELEMENT* element = (MOUSE_EVENT_ELEMENT*)mouse[k]->Mouse_Event_Stack.GetElement(0);
 				switch(libinput_event_get_type(element->Event)) {
 					case LIBINPUT_EVENT_POINTER_MOTION:
 	                    lep = libinput_event_get_pointer_event(element->Event);
-						gui->Current_X += libinput_event_pointer_get_dx_unaccelerated(lep) * mouse->Sensitivity;
-						if(gui->Current_X > mouse->Maximum_X) {
-							gui->Current_X = mouse->Maximum_X;
-						} else if (gui->Current_X < mouse->Minimum_X) {
-							gui->Current_X = mouse->Minimum_X;
+						mouse[k]->Current_X += libinput_event_pointer_get_dx_unaccelerated(lep) * mouse[k]->Sensitivity;
+						if (mouse[k]->Current_X > mouse[k]->Maximum_X) {
+							mouse[k]->Current_X = mouse[k]->Maximum_X;
+						} else if (mouse[k]->Current_X < mouse[k]->Minimum_X) {
+							mouse[k]->Current_X = mouse[k]->Minimum_X;
 						}
-						gui->Current_Y += libinput_event_pointer_get_dy_unaccelerated(lep) * mouse->Sensitivity;
-						if (gui->Current_Y > mouse->Maximum_Y) {
-							gui->Current_Y = mouse->Maximum_Y;
-						} else if(gui->Current_Y < mouse->Minimum_Y) {
-							gui->Current_Y = mouse->Minimum_Y;
+						mouse[k]->Current_Y += libinput_event_pointer_get_dy_unaccelerated(lep) * mouse[k]->Sensitivity;
+						if (mouse[k]->Current_Y > mouse[k]->Maximum_Y) {
+							mouse[k]->Current_Y = mouse[k]->Maximum_Y;
+						} else if(mouse[k]->Current_Y < mouse[k]->Minimum_Y) {
+							mouse[k]->Current_Y = mouse[k]->Minimum_Y;
 						}
 	                    break;
 	                case LIBINPUT_EVENT_POINTER_BUTTON:
 	                	lep = libinput_event_get_pointer_event(element->Event);
 	                	if (libinput_event_pointer_get_button(lep) == BTN_LEFT) {
-	                		nk_input_button(gui->NK_Context, NK_BUTTON_LEFT, gui->Current_X, gui->Current_Y, libinput_event_pointer_get_button_state(lep));
+							log_dbg("left mouse clicked " + to_string(mouse[k]->Current_X) + " " + to_string(mouse[k]->Current_Y));
+	                		nk_input_button(gui->NK_Context, NK_BUTTON_LEFT,   mouse[k]->Current_X, mouse[k]->Current_Y, libinput_event_pointer_get_button_state(lep));
 	                	}
 	                	break;
 					default:
-						Write_Notice(string("Unexpected mouse type ") + to_string(libinput_event_get_type(element->Event)));
+						//Write_Notice(string("Unexpected mouse type ") + to_string(libinput_event_get_type(element->Event)));
 						break;
 				}
 				libinput_event_destroy(element->Event);
-				mouse->Mouse_Event_Stack.Remove(element);
+				mouse[k]->Mouse_Event_Stack.Remove(element);
 				delete element;
 			}
-			nk_input_motion(gui->NK_Context, gui->Current_X, gui->Current_Y);
+			nk_input_motion(gui->NK_Context, mouse[k]->Current_X, mouse[k]->Current_Y);
 		}
 	}
-}
 
-void Handle_Keyboard_GUI  (GUI* gui){
-	KEYBOARD* keyboard;
-	for (int k = 0; k < *gui->num_dev; k++) {
-		if (gui->Keyboard[k] != NULL) {
-			keyboard = gui->Keyboard[k];
-			for (int i = keyboard->Device->Event_Stack.getLength(); i > 0; i--){
-				EVENT_ELEMENT* element = (EVENT_ELEMENT*)keyboard->Device->Event_Stack.GetElement(0);
-				switch (element->Event.type){
+	// Keyboard
+	for (int k = 0; k < len; k++) {
+		if (keyboard[k] != NULL) {
+			for(int i = keyboard[k]->Device->Event_Stack.getLength(); i > 0; i--){
+				EVENT_ELEMENT* element = (EVENT_ELEMENT*)keyboard[k]->Device->Event_Stack.GetElement(0);
+				switch(element->Event.type){
 					case EV_SYN:
 					case EV_REL:
 						break;
 					case EV_KEY:
-						switch (element->Event.code){
+						switch(element->Event.code){
 							case KEY_LEFTSHIFT:
 							case KEY_RIGHTSHIFT:
 								nk_input_key(gui->NK_Context, NK_KEY_SHIFT, element->Event.value);
-								switch (element->Event.value){
+								switch(element->Event.value){
 									case 0: // Key Release
-										keyboard->Shift = false;
+										keyboard[k]->Shift = false;
 										break;
 									case 1: // Key Press
 									case 2: // Auto Repeat
-										keyboard->Shift = true;
+										keyboard[k]->Shift = true;
 										break;
 									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
+										//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
 										break;
 								}
 								break;
 							case KEY_CAPSLOCK:
-								switch (element->Event.value){
+								switch(element->Event.value){
 									case 0: // Key Release
+										keyboard[k]->Caps_Lock = false;
 										break;
 									case 1: // Key Press
-										keyboard->Caps_Lock = !keyboard->Caps_Lock;
-										break;
 									case 2: // Auto Repeat
+										keyboard[k]->Caps_Lock = true;
 										break;
 									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+										//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 										break;
 								}
 								break;
 							case KEY_BACKSPACE:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, element->Event.value);
 								break;
 							case KEY_UP:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_UP, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_UP, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_UP, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_UP, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_UP,        element->Event.value);
 								break;
 							case KEY_DOWN:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_DOWN, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_DOWN, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_DOWN, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_DOWN, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_DOWN,      element->Event.value);
 								break;
 							case KEY_LEFT:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_LEFT, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_LEFT, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_LEFT, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_LEFT, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_LEFT,      element->Event.value);
 								break;
 							case KEY_RIGHT:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_RIGHT, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_RIGHT, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_RIGHT, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_RIGHT, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_RIGHT,     element->Event.value);
 								break;
 							case KEY_ENTER:
-								switch (element->Event.value){
-									case 0: // Key Release
-										nk_input_key(gui->NK_Context, NK_KEY_ENTER, 0);
-										break;
-									case 1: // Key Press
-										nk_input_key(gui->NK_Context, NK_KEY_ENTER, 1);
-										break;
-									case 2: // Auto Repeat
-										nk_input_key(gui->NK_Context, NK_KEY_ENTER, 0);
-										nk_input_key(gui->NK_Context, NK_KEY_ENTER, 1);
-										break;
-									default:
-										Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
+								nk_input_key(gui->NK_Context, NK_KEY_ENTER,     element->Event.value);
 								break;
 							default:
-								if (element->Event.code <= 111){
-									switch (element->Event.value){
+								if(element->Event.code <= 111){
+									switch(element->Event.value){
 										case 0:
 											break;
 										case 1: // Key Press
 										case 2: // Auto Repeat
 											char key_value;
-											if (keyboard->Shift) {
-												key_value = keyboard->Keys_Shifted[element->Event.code];
-											} else {
-												key_value = keyboard->Keys        [element->Event.code];
-											}
-											if (key_value > 0) {
-												if (keyboard->Caps_Lock) {
-													if (key_value >= 'A' && key_value <= 'Z') {
-														key_value += 32;
-													} else if (key_value >= 'a' && key_value <= 'z') {
-														key_value -= 32;
-													}
+											if(keyboard[k]->Caps_Lock){
+												if (keyboard[k]->Shift) {
+													key_value = lower_key_strings[element->Event.code];
+												} else {
+													key_value = upper_key_strings[element->Event.code];
 												}
+											} else {
+												if (keyboard[k]->Shift) {
+													key_value = upper_key_strings[element->Event.code];
+												} else {
+													key_value = lower_key_strings[element->Event.code];
+												}
+											}
+											if(key_value > 0){
 												nk_input_char(gui->NK_Context, key_value);
 											}
 											break;
 										default:
-											Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+											//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 											break;
 									}
 								}
@@ -773,12 +305,191 @@ void Handle_Keyboard_GUI  (GUI* gui){
 					case EV_CNT:
 						break;
 					default:
-						Write_Notice(string("@Listen_Keyboard() Unexpected event type: ") + to_string(element->Event.type) + " (code: " + to_string(element->Event.code) + " and value: " + to_string(element->Event.value) + ")");
+						//Write_Notice(string("@Listen_Keyboard() Unexpected event type: ") + to_string(element->Event.type) + " (code: " + to_string(element->Event.code) + " and value: " + to_string(element->Event.value) + ")");
 						break;
 				}
-				keyboard->Device->Event_Stack.Remove(element);
+				keyboard[k]->Device->Event_Stack.Remove(element);
 				delete element;
 			}
 		}
 	}
+	nk_input_end(gui->NK_Context);
 }
+void Render_Nuklear_GUI(GUI* gui) {
+	const struct nk_command* command;
+	Integer color;
+
+	nk_foreach(command, gui->NK_Context) {
+		switch (command->type) {
+			case NK_COMMAND_NOP: break;
+			case NK_COMMAND_SCISSOR: {
+				const struct nk_command_scissor* s =(const struct nk_command_scissor*)command;
+				gui->Graphics_Handle->setClip(s->x, s->y, s->w, s->h);
+				break;
+			}
+			case NK_COMMAND_LINE: {
+				const struct nk_command_line* l = (const struct nk_command_line*)command;
+				color.bytes[0] = l->color.r;
+				color.bytes[1] = l->color.g;
+				color.bytes[2] = l->color.b;
+				color.bytes[3] = l->color.a;
+				gui->Graphics_Handle->drawLine(l->begin.x, l->begin.y, l->end.x, l->end.y, color.data);
+				break;
+			}
+			case NK_COMMAND_RECT: {
+				const struct nk_command_rect* r = (const struct nk_command_rect*)command;
+				color.bytes[0] = r->color.r;
+				color.bytes[1] = r->color.g;
+				color.bytes[2] = r->color.b;
+				color.bytes[3] = r->color.a;
+				gui->Graphics_Handle->drawSquare(r->x, r->y, r->w, r->h, color.data);
+				break;
+			}
+			case NK_COMMAND_RECT_FILLED: {
+				const struct nk_command_rect_filled* r = (const struct nk_command_rect_filled*)command;
+				color.bytes[0] = r->color.r;
+				color.bytes[1] = r->color.g;
+				color.bytes[2] = r->color.b;
+				color.bytes[3] = r->color.a;
+				gui->Graphics_Handle->fillSquare(r->x, r->y, r->w, r->h, color.data);
+				break;
+			}
+			case NK_COMMAND_CIRCLE: {
+				const struct nk_command_circle* c = (const struct nk_command_circle*)command;
+				color.bytes[0] = c->color.r;
+				color.bytes[1] = c->color.g;
+				color.bytes[2] = c->color.b;
+				color.bytes[3] = c->color.a;
+				gui->Graphics_Handle->drawCircle(c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+				break;
+			}
+			case NK_COMMAND_CIRCLE_FILLED: {
+				const struct nk_command_circle_filled* c = (const struct nk_command_circle_filled*)command;
+				color.bytes[0] = c->color.r;
+				color.bytes[1] = c->color.g;
+				color.bytes[2] = c->color.b;
+				color.bytes[3] = c->color.a;
+				gui->Graphics_Handle->fillCircle(c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+				break;
+			}
+			case NK_COMMAND_TRIANGLE: {
+				const struct nk_command_triangle* t = (const struct nk_command_triangle*)command;
+				break;
+			}
+			case NK_COMMAND_TRIANGLE_FILLED: {
+				const struct nk_command_triangle_filled* t = (const struct nk_command_triangle_filled*)command;
+				color.bytes[0] = t->color.r;
+				color.bytes[1] = t->color.g;
+				color.bytes[2] = t->color.b;
+				color.bytes[3] = t->color.a;
+				Polygon tri;
+				tri.addPoint(t->a.x, t->a.y);
+				tri.addPoint(t->b.x, t->b.y);
+				tri.addPoint(t->c.x, t->c.y);
+				gui->Graphics_Handle->fillPolygon(tri, color.data);
+				break;
+			}
+			case NK_COMMAND_POLYGON: {
+				const struct nk_command_polygon* p = (const struct nk_command_polygon*)command;
+				break;
+			}
+			case NK_COMMAND_POLYGON_FILLED: {
+				const struct nk_command_polygon_filled* p = (const struct nk_command_polygon_filled*)command;
+				break;
+			}
+			case NK_COMMAND_POLYLINE: {
+				break;
+			}
+			case NK_COMMAND_TEXT: {
+				const struct nk_command_text* t = (const struct nk_command_text*)command;
+
+				color.bytes[0] = t->foreground.r;
+				color.bytes[1] = t->foreground.g;
+				color.bytes[2] = t->foreground.b;
+				color.bytes[3] = t->foreground.a;
+
+				Draw_Text(gui, gui->Graphics_Handle, command);
+
+				//Draw_Text(gui, gui->Graphics_Handle, string(t->string), t->x, t->y + gui->Font->Baseline, (unsigned char*) color.bytes, (unsigned char*) gui->Graphics_Handle->buffer_i);
+				break;
+			}
+			case NK_COMMAND_CURVE:
+			case NK_COMMAND_RECT_MULTI_COLOR:
+			case NK_COMMAND_IMAGE: {
+				const struct nk_command_image* image = (const struct nk_command_image*)command;
+				Draw_BMP((BMP*)image->img.handle.ptr, gui->Graphics_Handle, image->x, image->y);
+				break;
+			}
+			case NK_COMMAND_ARC:
+			case NK_COMMAND_ARC_FILLED:
+			case NK_COMMAND_CUSTOM:
+			default:
+				break;
+		}
+	}
+	nk_clear(gui->NK_Context);
+	gui->Graphics_Handle->setClip(-1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	gui->Render_Type = GUI_RGBA_BUFFER;
+}
+
+void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
+	for (int x = 0; x < 11; x++) {
+		for (int y = 0; y < 11; y++) {
+			int hg = mousie[x][y];
+			if (hg == 0x03ffffff) {
+				gui->Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
+			} else if (hg == 0x03000000) {
+				gui->Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
+			}
+		}
+	}
+	gui->Render_Type = GUI_RGBA_BUFFER;
+}
+
+void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_y) {
+	for (int x = 0; x < 11; x++) {
+		for (int y = 0; y < 11; y++) {
+			int hg = mousie[x][y];
+			if (hg == 0x03ffffff) {
+				Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
+			} else if (hg == 0x03000000) {
+				Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
+			}
+		}
+	}
+}
+
+void Render_X264(GUI* gui, char* X264_Buffer, int size) {
+
+	if (!gui->server->Send((char*)&size, sizeof(unsigned int)) ||
+		!gui->server->Send(X264_Buffer,         size   )) {
+		//Write_Error("@IRIS::Main() Failed to send frame data to Rana3.");
+	}
+
+
+	/*
+	while (gui->Render_Type != GUI_EMPTY_BUFFER) {}
+	copy(X264_Buffer, X264_Buffer + size, gui->X264_Buffer);
+	gui->X264_Buffer_Size = size;
+	gui->Render_Type = GUI_X264_BUFFER;
+	*/
+
+	gui->X264_Buffer_Size = size;
+	gui->Render_Type = GUI_X264_BUFFER;
+}
+
+int  Render_GUI           (GUI* gui, char* output_buffer) {
+	if (gui->Render_Type == GUI_RGBA_BUFFER) {
+		copy(gui->Graphics_Handle_Buffer, gui->Graphics_Handle_Buffer + (gui->Frame_Resolution * 4), output_buffer);
+		gui->Render_Type = GUI_EMPTY_BUFFER;
+		return gui->Frame_Resolution * 4;
+
+	} else if (gui->Render_Type == GUI_X264_BUFFER) {
+		copy(gui->X264_Buffer, gui->X264_Buffer + gui->X264_Buffer_Size, output_buffer);
+		gui->Render_Type = GUI_EMPTY_BUFFER;
+		return gui->X264_Buffer_Size;
+	} else {
+		return 0;
+	}
+}
+

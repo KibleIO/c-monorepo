@@ -136,12 +136,12 @@ void Graphics::drawPoint_wa(int x, int y, Color c) {
 		unsigned char* bg = (unsigned char*) &buffer_i[x + (y * width)];
 		unsigned int result;
 		unsigned int alpha = fg[3] + 1;
-    unsigned int inv_alpha = 256 - fg[3];
+    	unsigned int inv_alpha = 256 - fg[3];
 
-    ((unsigned char*)&result)[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
-    ((char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
-    ((char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
-    ((char*)&result)[3] = 0xff;
+    	((unsigned char*)&result)[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
+    	((char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+    	((char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+    	((char*)&result)[3] = 0xff;
 		buffer_i[x + (y * width)] = result;
 	}
 }
@@ -161,6 +161,7 @@ void Graphics::drawPoint_na(int x, int y, Color c) {
  		buffer_i[(x + y * width)] = c;
 	}
 }
+
 
 /*
 void Graphics::drawPoint_wa(int x, int y, Color c) {
@@ -255,6 +256,13 @@ void Graphics::drawSquare(int x, int y, int w, int h, Color c) {
 void Graphics::fillSquare(int x, int y, int w, int h, Color c) {
 	for (int i = 0; i < h; i++) {
 		drawLineWidth(x, y + i, w, c);
+	}
+}
+
+void Graphics::clearScreen(Color c) {
+//	fill(buffer_i, buffer_i + width*height, c);
+	for (int i = width * height - 1; i >= 0; i--) {
+		buffer_i[i] = c;
 	}
 }
 

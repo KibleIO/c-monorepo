@@ -1,89 +1,66 @@
 #ifndef  GUI_H_
 #define  GUI_H_
 
-#include <fstream>
-#include <iostream>
-#include <linux/input.h>
-#include <libinput.h>
-#include <string>
-#include <Graphics/Graphics.h>
-#include "../UTILITIES/LOGGING.h"
-#include "FRAME.h"
-#include "MOUSE.h"
-#include "KEYBOARD.h"
+#include <cstring>
 
-#include "stb_truetype.h"
+#include <Graphics/Graphics.h>
+#include <GUI/BMP.h>
+#include <GUI/FONT.h>
+#include <Networking/Server.h>
+#include <Utilities/Assets.h>
+#include <GUI/MOUSE.h>
+#include <GUI/KEYBOARD.h>
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
-#include "nuklear.h"
+
+#include <GUI/nuklear.h>
+
+#define GREY 0xff252525
+#define WHITE 0xff989898
+#define MID_GREY_DARK 0xffCCCCCB
+#define MID_GREY_LIGHT 0xffBABABA
+
+#define GUI_RGBA_BUFFER 0
+#define GUI_X264_BUFFER 1
+#define GUI_EMPTY_BUFFER 2
 
 #define MAX_BUFFER 64
-
-static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int len);
-
-struct Baked_Glyph {
-	unsigned char* bmp;     // Refractor as 'Bitmap'
-	int            w;       // Refractor as 'Base_Width'
-	int            h;       // Refractor as 'Base_Height'
-	int            xoff;    // Refractor as 'X_Offset'
-	int            yoff;    // Refractor as 'Y_Offset'
-	int            advance; // Refractor as 'Scaled_Width'
-};
+using namespace std;
 
 struct GUI {
-	nk_context*   NK_Context;
-	FRAME*        Frames;
-	unsigned int  Frame_Count;
-	unsigned int  Frame_Resolution;
-	unsigned int  Width;
-	unsigned int  Height;
+	int			 Display_ID;
+	int          Width;
+	int          Height;
+	int			Frame_Resolution;
+	Graphics*    Graphics_Handle;
+	nk_context*  NK_Context;
+	FONT* Font;
+	nk_user_font*	FontNK;
 
-	// Black box crap
-	char**        Delta_Buffers_Reserved;
-	char**        Delta_Buffers;
-	unsigned int* Delta_Lengths;
-	char**        History_Buffers; // unneeded
+	char*        Graphics_Handle_Buffer;
+	char*        X264_Buffer;
+	int          X264_Buffer_Size;
 
-	MOUSE**       Mouse;
-	KEYBOARD**    Keyboard;
-	int*          num_dev;
+	volatile int  Render_Type;
 
-	//these are mouse coordinates;
-	double        Current_X;
-	double        Current_Y;
-	int           Abs_X;
-	int           Abs_Y; //these are mouse coordinates;
-
-	int           baseline;         // Refractor as 'Font_Base_Line'
-	Baked_Glyph   baked_glyphs[96]; // Refractor as 'Baked_Glyphs'
+	Server * server;
 };
 
-void Initialize_GUI        (GUI*, MOUSE**, KEYBOARD**, int*, unsigned int, unsigned int, unsigned int);
-GUI* Construct_GUI         (MOUSE**, KEYBOARD**, int*, unsigned int, unsigned int, unsigned int);
-void Uninitialize_GUI      (GUI*);
-void Deconstruct_GUI       (GUI*);
+static float Font_Get_Text_Width(nk_handle, float, const char*, int);
+void Initialize_GUI_Themis(GUI* gui, int display_id);
+void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL, Server* server = NULL);
+void Delete_GUI(GUI*);
+void Draw_Text(GUI*, Graphics*, const struct nk_command*);
+void Draw_Text(GUI*, Graphics*, string, int, int, unsigned char*, unsigned char*);
+void Render_Nuklear_GUI(GUI*);
+void Render_Mouse_GUI(GUI*, double, double);
+void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_y);
+void Render_X264(GUI* gui, char* X264_Buffer, int size);
+int Render_GUI(GUI* gui, char* output_buffer);
 
-// Isolate to a FRAME_MANAGER struct
-void Initialize_Frames_GUI (GUI*, unsigned int);
-void Delete_Frames_GUI     (GUI*);
-void Refresh_Frames_GUI    (GUI*, unsigned int);
-void Refresh_Frames_GUI    (GUI*);
-
-void Apply_GUI             (GUI*, FRAME*, Graphics*);
-void Apply_GUI             (GUI*, Graphics*);
-void Apply_GUI             (GUI*, FRAME*);
-void Apply_GUI             (GUI*, unsigned int);
-void Apply_Mouse_GUI       (GUI*, FRAME*);
-void Apply_Mouse_GUI       (GUI*, unsigned int);
-
-int  Render_GUI            (GUI*, char**);
-
-void Handle_Mouse_GUI      (GUI*);       // Default mouse handling. Can be uniquely called elsewhere
-void Handle_Keyboard_GUI   (GUI*);    // Default keyboard handling. Can be uniquely called elsewhere
-
-#endif /* GUI */
+void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
+#endif

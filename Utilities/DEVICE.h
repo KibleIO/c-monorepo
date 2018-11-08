@@ -6,7 +6,9 @@
 #include <linux/input.h>
 #include <thread>
 #include <Utilities/DynArr.h>
-#include "../UTILITIES/LOGGING.h"
+#include <Utilities/LOGGING.h>
+#include <Utilities/EVENT.h>
+#include <string>
 
 struct  EVENT_ELEMENT : public NXTElement{
 	input_event Event;
@@ -18,10 +20,11 @@ struct  DEVICE                           {
 	DynArr        Event_Stack;
 	volatile bool Listening;
 	thread*       Event_Listener;
+	EVENT*        Event_Status;
 };
 
-void    Initialize_Device(DEVICE*, char*);
-DEVICE* Construct_Device (char*);
+void    Initialize_Device(DEVICE*, char*, EVENT*);
+DEVICE* Construct_Device (char*, EVENT*);
 void    Delete_Device    (DEVICE*);
 void    Listen_Device    (DEVICE*);
 

@@ -2,6 +2,7 @@
 #define CLIENT_H_
 
 #include "Networking.h"
+#include <Utilities/LOGGING.h>
 
 class Client {
 private:
