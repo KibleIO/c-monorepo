@@ -13,29 +13,40 @@ bool Server::Init() {
 	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
         sizeof(iSetOption)); //potentially dangerous
-	return (startedUp = (!(mainSocket < 0)));
+	startedUp = (!(mainSocket < 0));
+	if_log_err((!startedUp), "Server socked failed to open");
+	log_dbg("Server initialized successfully");
+	return (startedUp);
 }
 
 bool Server::Listen(int port) {
-	if (!startedUp) return false;
+//	log_dbg("Server listening on port: " + to_string(port));
+	if (!startedUp) {
+//		log_err_no_kill("Server cannot listen because it is not started up");
+		return false;
+	}
 	destination.sin_port = htons(port);
 	destination.sin_addr.s_addr = INADDR_ANY;
 	if (bind(mainSocket, (sockaddr *) &destination, sizeof(destination)) < 0){
+//		log_err_no_kill("Unable to bind socket on port:" + to_string(port));
 		return false;
 	}
 	if (listen(mainSocket, 5) < 0){
+//		log_err_no_kill("Unable to listen to socket on port:" + to_string(port));
 		return false;
 	}
 	sockaddr_in clientAddress;
 	int clientSize = sizeof(clientAddress);
 	mainSocket = accept(mainSocket, (sockaddr *) &clientAddress, (socklen_t *) &clientSize);
 	if (mainSocket < 0) {
+//		log_err_no_kill("Unable to accept on port:" + to_string(port));
 		return false;
 	}
 	int buff_size = 700000;
 	setsockopt(mainSocket, SOL_SOCKET, SO_SNDBUF, &buff_size, (int) sizeof(buff_size));
 	int one = 1;
 	setsockopt(mainSocket, SOL_TCP, TCP_NODELAY, &one, sizeof(one));
+//	log_dbg("Connecting accepted on port: " + to_string(port));
 	return true;
 }
 

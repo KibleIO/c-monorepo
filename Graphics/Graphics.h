@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_H_
 #define GRAPHICS_H_
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -54,6 +55,7 @@ class Graphics {
 		void  drawLine               (int, int, int, int, Color);
 		void  drawSquare             (int, int, int, int, Color);
 		void  fillSquare             (int, int, int, int, Color);
+		void  clearScreen            (Color c); 
 		void  drawCircle             (int, int, int, Color);
 		void  fillCircle             (int, int, int, Color);
 		void  fillPolygon            (Polygon, Color);
