@@ -16,9 +16,11 @@ bool Client::Init() {
         sizeof(iSetOption)); //potentially dangerous
 
 	startedUp = (!(mainSocket < 0));
-	if_log_err(!startedUp, "Client socket failed to open");
-
-	log_dbg("Client initialized successfully");
+	if (startedUp) {
+		log_dbg("Client initialized successfully");
+	} else {
+	 	log_err("Client socket failed to open");
+	}
 
 	return (startedUp);
 }

@@ -34,7 +34,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 	while (!c->OpenConnection(ptr->port, dev_finder->address) && counterr-- > 0);
 
 	if (counterr <= 0) {
-		log_err_no_kill("couldn't connect " + ptr->str + " " + dev_finder->address + ":" + to_string(ptr->port));
+		log_err("couldn't connect " + ptr->str + " " + dev_finder->address + ":" + to_string(ptr->port));
 		ptr->running = false;
 		delete buffer;
 		c->CloseConnection();
@@ -44,7 +44,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 
 	int fd = open(ptr->str.c_str(), O_RDONLY);
 	if (fd == -1) {
-		log_err_no_kill("couldn't open file... " + ptr->str);
+		log_err("couldn't open file... " + ptr->str);
 		ptr->running = false;
 		delete buffer;
 		c->CloseConnection();
@@ -68,7 +68,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 				_temp.data = _DATA; //keep sending
 				if (!c->Send(_temp.bytes, 4) ||
 					!c->Send(buffer, sizeof(input_event))) {
-					log_err_no_kill("connection cut... exiting. port: " + to_string(ptr->port));
+					log_err("connection cut... exiting. port: " + to_string(ptr->port));
 					delete buffer;
 	    			close(fd);
 	    			return;
@@ -221,7 +221,7 @@ void Refresh_Devices(DEVICE_FINDER* dev_finder) {
 	bool found;
 
 	if ((dev_finder->dp = opendir(INPUT_PATH)) == NULL) {
-        log_err_no_kill("Error opening input directory " + to_string(errno));
+        log_err("Error opening input directory " + to_string(errno));
         return;
     }
 
@@ -307,7 +307,7 @@ bool Initialize_NSYNC(DEVICE_FINDER* dev_finder, int iris_id, string ip_address)
 			break;
 		}
 		if (counter <= 0) {
-			log_err_no_kill("couldn't connect");
+			log_err("couldn't connect");
 			return false;
 		}
 		sleep(1);
@@ -412,7 +412,7 @@ int Create_New_Keyboard(string& str2, int port) {
 
     fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
     if(fd < 0) {
-        log_err_no_kill("couldnt open file!!");
+        log_err("couldnt open file!!");
         return -1;
     }
 
@@ -430,22 +430,22 @@ int Create_New_Keyboard(string& str2, int port) {
 
     ret = write(fd, &uidev, sizeof(uidev));
 	if (ret < 0) {
-		log_err_no_kill("couldnt write to /dev/uinput");
+		log_err("couldnt write to /dev/uinput");
 		return -1;
 	}
     ret = ioctl(fd, UI_DEV_CREATE);
 	if (ret < 0) {
-		log_err_no_kill("couldnt create device");
+		log_err("couldnt create device");
 		return -1;
 	}
     ret = ioctl(fd, UI_GET_SYSNAME(sizeof(uidev.name)), uidev.name);
 	if (ret < 0) {
-		log_err_no_kill("couldnt get sysname");
+		log_err("couldnt get sysname");
 		return -1;
 	}
 
     if ((dp = opendir(string(string("/sys/devices/virtual/input/") + string(uidev.name)).c_str())) == NULL) {
-        log_err_no_kill("Error opening input directory " + to_string(errno) + " " + string(uidev.name));
+        log_err("Error opening input directory " + to_string(errno) + " " + string(uidev.name));
         exit(-1); //unrecoverable error
     }
 
@@ -509,7 +509,7 @@ int Create_New_Mouse(string& str2, int port, Mouse_Info mouse_info) {
 
 	fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
     if(fd < 0) {
-        log_err_no_kill("couldnt open file!!");
+        log_err("couldnt open file!!");
         return -1;
     }
 
@@ -521,7 +521,7 @@ int Create_New_Mouse(string& str2, int port, Mouse_Info mouse_info) {
 
 void Receive_Data(int _fd, int port, string path) {
 	if (path == "") {
-		log_err_no_kill("cannot listen to blank device");
+		log_err("cannot listen to blank device");
 		return;
 	}
 	Server* s = new Server();
@@ -600,7 +600,7 @@ void Device_Thread(int IRIS_ID, int type_id) {
 	log_dbg("preparing to listen on " +  to_string(temp_port));
 
 	if (!server->Listen(temp_port)) {
-		log_err_no_kill("failed on " + to_string(temp_port));
+		log_err("failed on " + to_string(temp_port));
 		return;
 	}
 

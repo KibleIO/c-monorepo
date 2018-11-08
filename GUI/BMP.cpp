@@ -7,7 +7,7 @@ void Initialize_BMP(BMP* bmp, string loc) {
   unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
 
 	if (n != 4) {
-		log_err_no_kill("File is wrong format");
+		log_err("File is wrong format");
 		return;
 	}
 
@@ -53,7 +53,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
   unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
 
 	if (n != 4) {
-		log_err_no_kill("File is wrong format");
+		log_err("File is wrong format");
 		return;
 	}
 

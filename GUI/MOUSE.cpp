@@ -8,10 +8,10 @@ int open_restricted(const char* path, int flags, void* user_data) {
     bool* grab = (bool*)user_data;
     int fd = open(path, flags);
     if (fd < 0) {
-        log_err_no_kill("Failed to open " + string(path));
+        log_err("Failed to open " + string(path));
 	}
     else if (*grab && ioctl(fd, EVIOCGRAB, (void*) 1) == -1) {
-        log_err_no_kill("grab request failed");
+        log_err("grab request failed");
 	}
     return fd < 0 ? -1 : fd;
 }
@@ -217,7 +217,7 @@ void         Listen_Mouse      (MOUSE* mouse)                                   
 void Handle_Mouse_X11(int display_ID, MOUSE** mouse, int len) {
 	Display* dpy = XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
 	if (!dpy) {
-		log_err_no_kill("Unable to open display :" + to_string(display_ID));
+		log_err("Unable to open display :" + to_string(display_ID));
 		return;
 	}
 

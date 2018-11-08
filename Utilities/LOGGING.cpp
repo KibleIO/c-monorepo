@@ -15,16 +15,12 @@ int get_local_start_time()
 	return 0;
 }
 
-void Write_Message(string type, string message, const char* file, int line, const char* func, bool kill) 
+void Write_Message(string type, string message, const char* file, int line, const char* func) 
 {
 	get_local_start_time();
 	ofstream out(LOG_FILE, ofstream::out | ofstream::app);
 	chrono::system_clock::time_point now = chrono::system_clock::now();
 	time_t now_t = chrono::system_clock::to_time_t(now);
 	out << type << "[" <<  put_time(localtime(&now_t), "%T thr") << syscall(__NR_gettid) << " \"" << file << "\":" << line << " " << func << "()] " << message << endl;
-	if (kill)
-	{
-		exit(EXIT_FAILURE);
-	}
 	out.close();
 }

@@ -13,9 +13,14 @@ bool Server::Init() {
 	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
         sizeof(iSetOption)); //potentially dangerous
+
 	startedUp = (!(mainSocket < 0));
-	if_log_err((!startedUp), "Server socked failed to open");
-	log_dbg("Server initialized successfully");
+	if (startedUp){
+		log_err("Server socked failed to open");
+	} else {
+		log_dbg("Server initialized successfully");
+	}
+
 	return (startedUp);
 }
 

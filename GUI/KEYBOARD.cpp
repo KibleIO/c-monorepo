@@ -78,7 +78,7 @@ void         Delete_Keyboard    (KEYBOARD* keyboard)                            
 void Handle_Keyboard_X11(int display_ID, KEYBOARD** keyboard, int len) {
 	Display*   dpy = XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
 	if (!dpy) {
-		log_err_no_kill("Could not open display :" + to_string(display_ID));
+		log_err("Could not open display :" + to_string(display_ID));
 		return;
 	}
 	KeyCode modcode = 0;
