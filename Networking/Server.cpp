@@ -16,9 +16,9 @@ bool Server::Init() {
 
 	startedUp = (!(mainSocket < 0));
 	if (startedUp){
-		log_err("Server socked failed to open");
-	} else {
 		log_dbg("Server initialized successfully");
+	} else {
+		log_err("Server socked failed to open");
 	}
 
 	return (startedUp);

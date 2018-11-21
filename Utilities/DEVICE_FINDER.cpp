@@ -540,7 +540,6 @@ void Receive_Data(int _fd, int port, string path) {
 
 
 	int fd = open(path.c_str(), O_RDWR);
-	cout << "couldn't open file..." << path << " " << strerror(errno) << endl;
 	while (fd == -1 && loopss > 0) {
 		sleep(1);
 		fd = open(path.c_str(), O_RDWR);

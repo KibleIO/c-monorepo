@@ -16,18 +16,13 @@ void Initialize_GUI_Themis(GUI* gui, int display_id) {
 	gui->Display_ID = display_id;
 }
 
-void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer, Server* server) {
+void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer) {
 	gui->Width        = width;
 	gui->Height       = height;
 	gui->Frame_Resolution	= width * height;
-	gui->Render_Type = GUI_EMPTY_BUFFER;
-	if (server) {
-		gui->server = server;
-	}
 
 	gui->NK_Context      = new nk_context;
 	gui->FontNK          = new nk_user_font;
-	gui->X264_Buffer     = new char[(gui->Frame_Resolution + 2) * 4];
 	if (frame_buffer) {
 		gui->Graphics_Handle              = new Graphics(frame_buffer, gui->Width, gui->Height, gui->Width, gui->Height);
 	} else {
@@ -429,7 +424,6 @@ void Render_Nuklear_GUI(GUI* gui) {
 	}
 	nk_clear(gui->NK_Context);
 	gui->Graphics_Handle->setClip(-1, -1, -1, -1); // sets clip to full 0, 0, width, height
-	gui->Render_Type = GUI_RGBA_BUFFER;
 }
 
 void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
@@ -443,7 +437,6 @@ void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
 			}
 		}
 	}
-	gui->Render_Type = GUI_RGBA_BUFFER;
 }
 
 void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_y) {
@@ -459,37 +452,11 @@ void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_
 	}
 }
 
-void Render_X264(GUI* gui, char* X264_Buffer, int size) {
-
-	if (!gui->server->Send((char*)&size, sizeof(unsigned int)) ||
-		!gui->server->Send(X264_Buffer,         size   )) {
-		//Write_Error("@IRIS::Main() Failed to send frame data to Rana3.");
-	}
-
-
-	/*
-	while (gui->Render_Type != GUI_EMPTY_BUFFER) {}
-	copy(X264_Buffer, X264_Buffer + size, gui->X264_Buffer);
-	gui->X264_Buffer_Size = size;
-	gui->Render_Type = GUI_X264_BUFFER;
-	*/
-
-	gui->X264_Buffer_Size = size;
-	gui->Render_Type = GUI_X264_BUFFER;
-}
-
-int  Render_GUI           (GUI* gui, char* output_buffer) {
-	if (gui->Render_Type == GUI_RGBA_BUFFER) {
-		copy(gui->Graphics_Handle_Buffer, gui->Graphics_Handle_Buffer + (gui->Frame_Resolution * 4), output_buffer);
-		gui->Render_Type = GUI_EMPTY_BUFFER;
-		return gui->Frame_Resolution * 4;
-
-	} else if (gui->Render_Type == GUI_X264_BUFFER) {
-		copy(gui->X264_Buffer, gui->X264_Buffer + gui->X264_Buffer_Size, output_buffer);
-		gui->Render_Type = GUI_EMPTY_BUFFER;
-		return gui->X264_Buffer_Size;
-	} else {
-		return 0;
-	}
+void Render_GUI(GUI* gui, char* output_buffer) {
+	//char* swapper;
+	copy(gui->Graphics_Handle_Buffer, gui->Graphics_Handle_Buffer + (gui->Frame_Resolution * 4), output_buffer);
+	//swapper = gui->Graphics_Handle_Buffer;
+	//gui->Graphics_Handle_Buffer = *output_buffer;
+	//*output_buffer = swapper;
 }
 
