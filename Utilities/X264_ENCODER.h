@@ -1,7 +1,9 @@
 #ifndef  X264_ENCODER_H_
 #define  X264_ENCODER_H_
 
+#include <cstring>
 #include <iostream>
+#include <thread>
 #include <Utilities/Timer.h>
 #include <Utilities/LOGGING.h>
 
@@ -36,7 +38,8 @@ struct Sws {
 	int rgbstride[1];
 	int yuvstride[4];
 	void* yuv[4];
-	void* yuvbase;
+	void* yuvbasef;
+	void* yuvbaseb;
 	uint8_t* rgb[1];
 };
 
