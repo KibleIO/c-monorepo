@@ -42,6 +42,18 @@
 
 using namespace std;
 
+struct x32_timeval {
+        __u64 tv_sec;
+        __u64 tv_usec;
+};
+
+struct x32_input_event {
+        x32_timeval time;
+        __u16 type;
+        __u16 code;
+        __s32 value;
+};
+
 struct DEVICE_NODE {
 	string str;
 	int port;
@@ -54,7 +66,7 @@ struct DEVICE_NODE {
 
 struct DEVICE_FINDER {
 	int type_id = 0;
-	
+
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
 	DEVICE_NODE** previous_dev;

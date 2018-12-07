@@ -1,3 +1,5 @@
+#ifndef __arm__
+
 #include "X264_DECODE.h"
 
 ISVCDecoder* pdc;
@@ -9,7 +11,7 @@ void Sws_setup(X264_Decode* x264) {
 	log_dbg("allocated swsrgb");
 	x264->sws->context = sws_getCachedContext(x264->sws->context,
 		x264->width, x264->height, AV_PIX_FMT_YUV420P,
-		x264->width, x264->height, AV_PIX_FMT_BGRA, 
+		x264->width, x264->height, AV_PIX_FMT_BGRA,
 		0, 0, 0, 0);
 	//log_dbg("sws width: " + to_string(x264->sws->context->srcW));
 	log_dbg("got sws context");
@@ -134,7 +136,7 @@ void X264_Decode_Decode_To_Frame_Buffer(X264_Decode* x264, char* x264_buff, int 
 	log_dbg("height" + to_string((x264->buffinfo.UsrData.sSystemBuffer.iHeight)));
 	log_dbg("stride1" + to_string((x264->buffinfo.UsrData.sSystemBuffer.iStride[0])));
 	log_dbg("stride2" + to_string((x264->buffinfo.UsrData.sSystemBuffer.iStride[1])));
-	
+
 	x264->sws->yuvstride[0] = x264->buffinfo.UsrData.sSystemBuffer.iStride[0];
 	x264->sws->yuvstride[1] = x264->buffinfo.UsrData.sSystemBuffer.iStride[1];
 	x264->sws->yuvstride[2] = x264->buffinfo.UsrData.sSystemBuffer.iStride[1];
@@ -246,11 +248,11 @@ void X264_Decode_Convert_yuv_to_packed32(const uint8_t** src, uint8_t* dst, int 
 //	unsigned int di = 0;
 //    unsigned int bi;
 //    unsigned int bl;
-//    
+//
 //    int out_size = 0;
 //    unsigned int index = 0;
 //    unsigned int length = 0;
-//	
+//
 //	while (di < index_arr_size) {
 //		if (*((unsigned char*)&index_arr[di]) % 2 != 0) {
 //			bi = *((unsigned int*)&index_arr[di]) - 1;
@@ -268,7 +270,7 @@ void X264_Decode_Convert_yuv_to_packed32(const uint8_t** src, uint8_t* dst, int 
 //			di += sizeof(unsigned char);
 //		}
 //		length = bl;
-//		
+//
 //		for (int i = bi; i < bi + bl; i++) {
 //			((int*) dst)[i / 4] = src[1][i / 4] + (src[0][i / 4] << 8) + (src[2][i / 4] << 16) + (0xff << 24);
 //		}
@@ -301,15 +303,15 @@ void X264_Decode_Delete(X264_Decode* x264) {
 //	int len;
 //	while(x264_buff_size) {
 //		len = av_parser_parse2(x264->parser, x264->c, &x264->pkt->data, &x264->pkt->size, (const uint8_t*) x264_buff, x264_buff_size, AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
-//		
+//
 //		if (len < 0) {
 //	        cout << "error parsing!" << endl;
 //	        return;
 //	    }
-//		
+//
 //		x264_buff += len;
 //		x264_buff_size  -= len;
-//		
+//
 //		if(x264->pkt->size) {
 //			X264_Decode_Core_Decode(x264, x264->c, x264->frame, x264->pkt, fbp, index_arr, index_arr_size);
 //		}
@@ -335,7 +337,7 @@ void X264_Decode_Delete(X264_Decode* x264) {
 //        cout << "error sending packet1 " << ret << endl;
 //        return;
 //    }
-//    
+//
 //    while (ret >= 0) {
 //        ret = avcodec_receive_frame(dec_ctx, x264->frame);
 //        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
@@ -351,3 +353,5 @@ void X264_Decode_Delete(X264_Decode* x264) {
 //		log_dbg("conversion took " + to_string(tv1) + " ms");
 //    }
 //}
+
+#endif

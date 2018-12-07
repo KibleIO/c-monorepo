@@ -1,3 +1,5 @@
+#ifndef __arm__
+
 #ifndef  X264_DECODE_H_
 #define  X264_DECODE_H_
 
@@ -13,10 +15,6 @@
 #define CLAMP(X) ( (X) < 0 ? 0 : ( (X) > 255 ? 255 : (X) ) )
 
 extern "C" {
-	//#include <libavcodec/avcodec.h>
-	//#include <libavutil/frame.h>
-	//#include <libavutil/imgutils.h>
-	//#include <libavutil/opt.h>
 	#include <libswscale/swscale.h>
 }
 
@@ -56,5 +54,7 @@ void X264_Decode_Convert_gbr24p_to_packed32(uint8_t**, int*, uint8_t*, int, int,
 void X264_Decode_Core_Decode(X264_Decode*, /*AVCodecContext*, AVFrame*, AVPacket*,*/ char*);
 //void X264_Decode_Core_Decode(X264_Decode*, AVCodecContext*, AVFrame*, AVPacket*, char*, char*, int);
 void X264_Decode_Delete(X264_Decode*);
+
+#endif
 
 #endif
