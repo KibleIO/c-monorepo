@@ -1,5 +1,5 @@
 # Declaration of variables
-CC = g++ -O3 -g -fPIC -Wall -Wextra -Wpedantic -Wl,--as-needed -I/home/j0ker/github/Rana_Core_Utils -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lX11 -lXtst -lXext -lgraphics -lUtil -lnetwork -linput -levdev -lavcodec -lavutil -lzstd -lcurl -lx264
+CC = g++ -O3 -g -fPIC -Wall -Wextra -Wpedantic -Wl,--as-needed -I/home/j0ker/github/Rana_Core_Utils -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lX11 -lXtst -lXext -lgraphics -lUtil -lnetwork -linput -levdev -lavcodec -lavutil -lcurl -lx264
 CC_FLAGS = -w
 
 # File names

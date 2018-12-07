@@ -1,5 +1,5 @@
 # Declaration of variables
-CC = g++ $(DEFINES) -g -Wall -Wextra -Wpedantic -O3 -fPIC -Wl,--as-needed -I/home/j0ker/github/Rana_Core_Utils -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lssh -lgraphics -lnetwork -linput -lgui -levdev -lavcodec -lavutil -lcurl -lx264 -lswscale
+CC = g++ $(DEFINES) -g -Wall -Wextra -Wpedantic -O3 -fPIC -Wl,--as-needed -I/home/j0ker/github/Rana_Core_Utils -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lssh -lgraphics -lnetwork -linput -levdev -lavcodec -lavutil -lcurl -lx264 -lswscale
 CC_FLAGS = -w
 
 UNAME_M = $(shell uname -m)
