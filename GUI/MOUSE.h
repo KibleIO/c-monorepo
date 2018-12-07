@@ -13,7 +13,7 @@
 #include <linux/input.h>
 #include <thread>
 #include <Utilities/DynArr.h>
-#include <libevdev.h>
+#include <libevdev/libevdev.h>
 #include <Utilities/EVENT.h>
 #include <Utilities/LOGGING.h>
 
@@ -31,7 +31,7 @@ struct Mouse_Info {
 	int product;
 	int version;
 	int busid;
-	
+
 	char properties[INPUT_PROP_MAX];
 
 	char name[MAX_STR_LEN];

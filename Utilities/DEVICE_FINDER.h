@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <iostream>
 #include <linux/input.h>
-#include <libevdev-uinput.h>
+#include <libevdev/libevdev-uinput.h>
 #include <linux/uinput.h>
 #include <thread>
 #include <string>
