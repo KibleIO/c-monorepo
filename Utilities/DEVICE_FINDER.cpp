@@ -25,6 +25,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 	log_dbg("adding " + ptr->str + " " + to_string(ptr->type) + " " + to_string(ptr->port));
 	Client* c = new Client();
 	Integer _temp;
+	x32_input_event input_event_convert;
 	fd_set set;
 	timeval timeout;
 	int rv;
@@ -66,6 +67,25 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 		} else {
 			if (read(fd, buffer, sizeof(input_event)) != -1) {
 				_temp.data = _DATA; //keep sending
+
+				#ifdef __arm__
+
+				input_event_convert.time.tv_sec  = (*((input_event*)buffer)).time.tv_sec;
+        input_event_convert.time.tv_usec = (*((input_event*)buffer)).time.tv_usec;
+        input_event_convert.type         = (*((input_event*)buffer)).type;
+        input_event_convert.code         = (*((input_event*)buffer)).code;
+        input_event_convert.value        = (*((input_event*)buffer)).value;
+
+				if (!c->Send(_temp.bytes, 4) ||
+					!c->Send((char*)&input_event_convert, sizeof(x32_input_event))) {
+					log_err("connection cut... exiting. port: " + to_string(ptr->port));
+					delete buffer;
+    			close(fd);
+    			return;
+				}
+
+				#else
+
 				if (!c->Send(_temp.bytes, 4) ||
 					!c->Send(buffer, sizeof(input_event))) {
 					log_err("connection cut... exiting. port: " + to_string(ptr->port));
@@ -73,6 +93,9 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 	    			close(fd);
 	    			return;
 				}
+
+				#endif
+
 			}
 		}
 	}
@@ -129,7 +152,7 @@ void Add_Device_Node(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 		for (int i = 0; i < dev_finder->p_d_size; i++) {
 			if (!Check_Device_Node(dev_finder->previous_dev[i])) { //any empty gaps?
 				dev_finder->previous_dev[i]->port = 4;
-				
+
 				log_dbg("adding device " + ptr->str + " " + to_string(ptr->type) + " " + to_string(temp_port));
 				Initialize_Device_Node(dev_finder->previous_dev[i], ptr->str, temp_port, ptr->type);
 				temp_index = i;
@@ -570,7 +593,7 @@ void Receive_Data(int _fd, int port, string path) {
 	log_dbg("Done receiveing data from " + path);
 
 	delete buffer;
-	
+
 	close (fd);
 	s->CloseConnection();
 	ioctl(_fd, UI_DEV_DESTROY);
