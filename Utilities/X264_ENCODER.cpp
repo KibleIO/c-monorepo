@@ -8,7 +8,7 @@ void Sws_setup(X264_Encoder* x264) {
 	x264->sws->rgb[0] = NULL;
 	log_dbg("allocated swsrgb");
 	x264->sws->context = sws_getCachedContext(x264->sws->context,
-		x264->width, x264->height, AV_PIX_FMT_BGRA, 
+		x264->width, x264->height, AV_PIX_FMT_BGRA,
 		x264->width, x264->height, AV_PIX_FMT_YUV420P,
 		SWS_FAST_BILINEAR, 0, 0, 0);
 	//log_dbg("sws width: " + to_string(x264->sws->srcW));
@@ -80,16 +80,17 @@ void X264_Encoder_Initialize(X264_Encoder* x264, int w, int h, int bitrate) {
     x264->param.i_threads = 8;
     x264->param.i_width = x264->width;
     x264->param.i_height = x264->height;
-    x264->param.i_fps_num = 60;
+    x264->param.i_fps_num = 30;
     x264->param.i_fps_den = 1;
-    x264->param.i_keyint_max = 250;
+    x264->param.i_keyint_max = 60;
     x264->param.b_intra_refresh = 1;
     x264->param.rc.i_rc_method = X264_RC_CRF;
-    x264->param.rc.i_vbv_buffer_size = 4000;
-    x264->param.rc.i_vbv_max_bitrate = 8000;
+    x264->param.rc.i_vbv_buffer_size = 100;
+    x264->param.rc.i_vbv_max_bitrate = 3000;
     x264->param.rc.f_rf_constant = 25;
     x264->param.rc.f_rf_constant_max = 35;
     x264->param.i_sps_id = 7;
+		x264->param.i_slice_max_size = 1500;
     // the following two value you should keep 1
     x264->param.b_repeat_headers = 1;    // to get header before every I-Frame
     x264->param.b_annexb = 1;
@@ -184,7 +185,7 @@ void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb) {
 				r = rgb[4 * i];
 				g = rgb[4 * i + 1];
 				b = rgb[4 * i + 2];
-				
+
 				destination[i++] = (RY*r + GY*g + BY*b + (33 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
 				//destination[i++] = ((77*r + 150*g + 29*b) >> 8) + 16;
 				//destination[i++] = ((66*r + 129*g + 25*b) >> 8) + 16;
@@ -203,8 +204,6 @@ void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb) {
 			}
 		}
 	}
-//	tv1 = tm1.Stop();
-//	log_dbg("convert took " + to_string(tv1));
 }
 
 int counter = 0;
@@ -266,7 +265,7 @@ int X264_Encoder_Encode_Frame_Buffer(X264_Encoder* x264, char* fbp, char** out) 
 	//log_dbg("joining took " + to_string(tv2));
 
 	swapBuffers(x264);
-	
+
 	//tv1 = tm1.Stop();
 	//log_dbg("x264_encode took " + to_string(tv1) + " ms for " + to_string(x264->i_frame_size) + " bytes");
 	//cout << "full encode time: " << ttt.Stop() << " " << x264->i_frame_size << " " << x264->i_nal << endl;
@@ -279,16 +278,6 @@ int X264_Encoder_Encode_Frame_Buffer(X264_Encoder* x264, char* fbp, char** out) 
 
     *out = (char*) x264->nal->p_payload;
 
-//	X264_Decode_Decode_To_Frame_Buffer(dcd, *out, x264->i_frame_size, fbp);
-//
-//	if (counter < 50) {
-//		//fwrite(x264->nal->p_payload, x264->i_frame_size, 1, fp1);
-//		fwrite(fbp, x264->width*x264->height*4, 1, fp1);
-//	} else if (counter == 50) {
-//		fclose(fp1);
-//	}
-//	counter++;
-	
     return x264->i_frame_size;
 }
 
