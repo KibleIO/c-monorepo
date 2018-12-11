@@ -3,4 +3,4 @@
 scp *.so root@104.216.12.229:/usr/local/lib
 scp *.so root@104.216.12.230:/usr/local/lib
 #scp *.so root@192.168.1.67:/usr/local/lib
-scp *.so root@192.168.1.33:/usr/local/lib
+#scp *.so root@192.168.1.33:/usr/local/lib

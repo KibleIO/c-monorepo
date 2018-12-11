@@ -94,16 +94,18 @@ void X264_Encoder_Initialize(X264_Encoder* x264, int w, int h, int bitrate) {
     // the following two value you should keep 1
     x264->param.b_repeat_headers = 1;    // to get header before every I-Frame
     x264->param.b_annexb = 1;
+	x264->param.b_opencl = 1;
+	x264->param.i_nal_hrd = 0;
 
 	//x264->param.i_bframe = 16;
 	//x264->param.i_bframe_adaptive = X264_B_ADAPT_NONE;
 	//x264->param.analyse.i_me_method = X264_ME_DIA;
 	//x264->param.analyse.i_subpel_refine = 0;
 	//x264->param.analyse.b_chroma_me = 0;
-	//x264->param.rc.b_stat_read = 0;
-	//x264->param.rc.b_stat_write = 1;
+	x264->param.rc.b_stat_read = 0;
+	x264->param.rc.b_stat_write = 1;
 
-	//x264_param_apply_fastfirstpass(&x264->param);
+	x264_param_apply_fastfirstpass(&x264->param);
 
     if (x264_param_apply_profile(&x264->param, "baseline") < 0) {
         cout << "we failed to apply profile" << endl;
@@ -149,6 +151,62 @@ uint8_t averageChroma(uint8_t* rgb, int i, int c, int w) {
 	return (rgb[4 * i + c] + rgb[4 * (i+1) + c] + rgb[4 * (i+w) + c] + rgb[4 * (i+w+1) + c]) / 4;
 }
 
+void rgb_to_y420p_no_x264(int width, int height, uint8_t* destination, uint8_t* rgb) {
+	//Timer tm1;
+	//long tv1;
+	//tm1.Start();
+	size_t image_size = width * height;
+	size_t upos = image_size;
+	size_t vpos = upos + upos / 4;
+	size_t i = 0;
+
+	for (size_t line = 0; line < height; line++) {
+		if (!(line & 1)) {
+			for (size_t x = 0; x < width; x += 2) {
+				uint8_t r = rgb[4 * i];
+				uint8_t g = rgb[4 * i + 1];
+				uint8_t b = rgb[4 * i + 2];
+
+				destination[i++] = (RY*r + GY*g + BY*b + (33 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
+				//destination[i++] = ((77*r + 150*g + 29*b) >> 8) + 16;
+				//destination[i++] = ((66*r + 129*g + 25*b) >> 8) + 16;
+				//destination[i++] = CLAMP(0.257*r + 0.504*g + 0.098*b + 16);
+
+				//U and V are switched, deal with it
+				destination[vpos++] = (RU*r + GU*g + BU*b + (257 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
+				//destination[vpos++] = ((-43*r + -84*g + 127*b) >> 8) + 128;
+				//destination[vpos++] = ((-38*r + -74*g + 112*b) >> 8) + 128;
+				//destination[vpos++] = CLAMP(-0.148*r + -0.291*g + 0.439*b + 128);
+				destination[upos++] = (RV*r + GV*g + BV*b + (257 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
+				//destination[upos++] = ((127*r + -106*g + -21*b) >> 8) + 128;
+				//destination[upos++] = ((112*r + -94*g + -18*b) >> 8) + 128;
+				//destination[upos++] = CLAMP(0.439*r + -0.368*g + -0.071*b + 128);
+
+				r = rgb[4 * i];
+				g = rgb[4 * i + 1];
+				b = rgb[4 * i + 2];
+				
+				destination[i++] = (RY*r + GY*g + BY*b + (33 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
+				//destination[i++] = ((77*r + 150*g + 29*b) >> 8) + 16;
+				//destination[i++] = ((66*r + 129*g + 25*b) >> 8) + 16;
+				//destination[i++] = CLAMP(0.257*r + 0.504*g + 0.098*b + 16);
+			}
+		} else {
+			for (size_t x = 0; x < width; x++) {
+				uint8_t r = rgb[4 * i];
+				uint8_t g = rgb[4 * i + 1];
+				uint8_t b = rgb[4 * i + 2];
+
+				destination[i++] = (RY*r + GY*g + BY*b + (33 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
+				//destination[i++] = ((77*r + 150*g + 29*b) >> 8) + 16;
+				//destination[i++] = ((66*r + 129*g + 25*b) >> 8) + 16;
+				//destination[i++] = CLAMP(0.257*r + 0.504*g + 0.098*b + 16);
+			}
+		}
+	}
+//	tv1 = tm1.Stop();
+//	log_dbg("convert took " + to_string(tv1));
+}
 void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb) {
 	//Timer tm1;
 	//long tv1;
@@ -208,15 +266,6 @@ void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb) {
 
 int counter = 0;
 
-void compress_wrapper(X264_Encoder* x264) {
-	Timer tm1;
-	long tv1;
-	tm1.Start();
-	x264->i_frame_size = x264_encoder_encode(x264->h, &x264->nal, &x264->i_nal, &x264->pic, &x264->pic_out);
-	tv1 = tm1.Stop();
-	log_dbg("compression took " + to_string(tv1));
-}
-
 void swapBuffers(X264_Encoder* x264) {
 	void* swapper = x264->sws->yuvbasef;
 	x264->sws->yuvbasef = x264->sws->yuvbaseb;
@@ -224,6 +273,23 @@ void swapBuffers(X264_Encoder* x264) {
 	x264->pic.img.plane[0] = (uint8_t*)x264->sws->yuvbaseb;
 	x264->pic.img.plane[1] = (uint8_t*)x264->sws->yuvbaseb + x264->width * x264->height;
 	x264->pic.img.plane[2] = (uint8_t*)x264->sws->yuvbaseb + x264->width * x264->height + x264->width * x264->height / 4;
+}
+
+int X264_Encoder_Encode_Frame_Buffer_No_Convert(X264_Encoder* x264, char* fbp, char** out) {
+	x264->pic.img.plane[0] = (uint8_t*)fbp;
+	x264->pic.img.plane[1] = (uint8_t*)fbp + x264->width * x264->height;
+	x264->pic.img.plane[2] = (uint8_t*)fbp + x264->width * x264->height + x264->width * x264->height / 4;
+
+	x264->i_frame_size = x264_encoder_encode(x264->h, &x264->nal, &x264->i_nal, &x264->pic, &x264->pic_out);
+
+    if (x264->i_frame_size < 0) {
+            cout << "failed encode" << endl;
+            return 0;
+    }
+
+    *out = (char*) x264->nal->p_payload;
+	
+    return x264->i_frame_size;
 }
 
 int X264_Encoder_Encode_Frame_Buffer(X264_Encoder* x264, char* fbp, char** out) {
