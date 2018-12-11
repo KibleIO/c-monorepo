@@ -59,7 +59,10 @@ struct X264_Encoder {
 
 void X264_Encoder_Initialize(X264_Encoder*, int, int, int);
 int X264_Encoder_Get_Header(X264_Encoder*, char**);
+void rgb_to_y420p_no_x264(int width, int height, uint8_t* destination, uint8_t* rgb);
+void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb);
 int X264_Encoder_Encode_Frame_Buffer(X264_Encoder*, char*, char**);
+int X264_Encoder_Encode_Frame_Buffer_No_Convert(X264_Encoder* x264, char* fbp, char** out);
 void X264_Encoder_Delete(X264_Encoder*);
 
 #endif
