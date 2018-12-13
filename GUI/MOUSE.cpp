@@ -33,8 +33,6 @@ void   Initialize_Mouse(MOUSE* mouse, int minimum_x, int maximum_x, int minimum_
 	mouse->Maximum_X   = maximum_x;
 	mouse->Minimum_Y   = minimum_y;
 	mouse->Maximum_Y   = maximum_y;
-	mouse->Current_X   = (minimum_x + maximum_x) / 2;
-	mouse->Current_Y   = (minimum_y + maximum_y) / 2;
 	mouse->Sensitivity = sensitivity;
 
 	fd = open(path.c_str(), O_RDONLY);

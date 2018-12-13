@@ -77,18 +77,18 @@ void X264_Encoder_Initialize(X264_Encoder* x264, int w, int h, int bitrate) {
 	//x264->param.i_csp = X264_CSP_BGRA;
 	x264->param.i_csp = X264_CSP_I420;
 	x264->param.i_log_level = X264_LOG_INFO;
-    x264->param.i_threads = 8;
+    x264->param.i_threads = 16;
     x264->param.i_width = x264->width;
     x264->param.i_height = x264->height;
-    x264->param.i_fps_num = 30;
+    x264->param.i_fps_num = 60;
     x264->param.i_fps_den = 1;
     x264->param.i_keyint_max = 60;
     x264->param.b_intra_refresh = 1;
     x264->param.rc.i_rc_method = X264_RC_CRF;
-    x264->param.rc.i_vbv_buffer_size = 100;
-    x264->param.rc.i_vbv_max_bitrate = 3000;
-    x264->param.rc.f_rf_constant = 25;
-    x264->param.rc.f_rf_constant_max = 35;
+    x264->param.rc.i_vbv_buffer_size = 2000;
+    x264->param.rc.i_vbv_max_bitrate = 4000;
+    x264->param.rc.f_rf_constant = 20;
+    x264->param.rc.f_rf_constant_max = 30;
     x264->param.i_sps_id = 7;
 		x264->param.i_slice_max_size = 1500;
     // the following two value you should keep 1
@@ -185,7 +185,7 @@ void rgb_to_y420p_no_x264(int width, int height, uint8_t* destination, uint8_t* 
 				r = rgb[4 * i];
 				g = rgb[4 * i + 1];
 				b = rgb[4 * i + 2];
-				
+
 				destination[i++] = (RY*r + GY*g + BY*b + (33 << (RGB2YUV_SHIFT - 1))) >> RGB2YUV_SHIFT;
 				//destination[i++] = ((77*r + 150*g + 29*b) >> 8) + 16;
 				//destination[i++] = ((66*r + 129*g + 25*b) >> 8) + 16;
@@ -288,7 +288,7 @@ int X264_Encoder_Encode_Frame_Buffer_No_Convert(X264_Encoder* x264, char* fbp, c
     }
 
     *out = (char*) x264->nal->p_payload;
-	
+
     return x264->i_frame_size;
 }
 
