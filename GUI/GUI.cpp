@@ -46,24 +46,25 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->FontNK->width = Font_Get_Text_Width;
 	nk_init_default(gui->NK_Context, gui->FontNK);
 
-    gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
-    gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
+	gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
+	gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
 
-    gui->NK_Context->style.button.normal = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
-    gui->NK_Context->style.button.hover = nk_style_item_color(nk_rgb(0x90,0x90,0x90));
-    gui->NK_Context->style.button.active = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
-    gui->NK_Context->style.button.text_normal = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.button.text_hover = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.button.text_active = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.button.normal = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+	gui->NK_Context->style.button.hover = nk_style_item_color(nk_rgb(0x90,0x90,0x90));
+	gui->NK_Context->style.button.active = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+	gui->NK_Context->style.button.text_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.button.text_hover = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.button.text_active = nk_rgb(0x25,0x25,0x25);
 
-    gui->NK_Context->style.button.padding = nk_vec2(0,0);
+	gui->NK_Context->style.button.padding = nk_vec2(0,0);
 	gui->NK_Context->style.button.border = 0;
 
 	gui->NK_Context->style.window.padding = nk_vec2(0,0);
 	gui->NK_Context->style.window.spacing = nk_vec2(0,0);
-	gui->NK_Context->style.window.scrollbar_size = nk_vec2(0,0);
+	gui->NK_Context->style.window.scrollbar_size = nk_vec2(10,0);
 	gui->NK_Context->style.window.min_size = nk_vec2(0,0);
 	gui->NK_Context->style.window.border = 0;
+	gui->NK_Context->style.window.group_border = 0;
 
 	gui->NK_Context->style.window.header.padding = nk_vec2(0,0);
 	gui->NK_Context->style.window.header.label_padding = nk_vec2(0,0);
@@ -73,15 +74,15 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	gui->NK_Context->style.edit.normal = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
 	gui->NK_Context->style.edit.hover = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
-    gui->NK_Context->style.edit.active = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+	gui->NK_Context->style.edit.active = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
 
 	gui->NK_Context->style.edit.cursor_text_normal = nk_rgb(0x0,0x0,0x0);
-    gui->NK_Context->style.edit.cursor_text_hover = nk_rgb(0x0,0x0,0x0);
-    gui->NK_Context->style.edit.text_normal = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.edit.text_hover = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
-    gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.cursor_text_hover = nk_rgb(0x0,0x0,0x0);
+	gui->NK_Context->style.edit.text_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.text_hover = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
 }
 
 void Delete_GUI(GUI* gui) {
@@ -116,7 +117,7 @@ void Draw_Text(GUI* gui, Graphics* graphics, const struct nk_command* command) {
 	int _y = t->y + gui->Font->Baseline;
 
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
-	unsigned char bg[] = {t->background.b,t->background.g,t->background.r,t->background.a};
+	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
 	if (((int*)fg)[0] == ((int*)bg)[0]) ((int*)bg)[0] = 0xff989898;
 	unsigned char result[] = {0,0,0,0xff};
 
@@ -151,6 +152,9 @@ void Draw_Text(GUI* gui, Graphics* graphics, string str, int _x, int _y, unsigne
 		unsigned char bytes[4];
 		int data;
 	} kk;
+
+	//unsigned char fg[] = {0x98,0x98,0x98,0xFF};
+	//unsigned char bg[] = {0x25,0x25,0x25,0xFF};
 
 	for (int i = 0; i < str.length(); i++) {
 		BAKED_GLYPH *c = &gui->Font->Baked_glyphs[int(str[i]) - 32];
@@ -357,7 +361,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = r->color.g;
 				color.bytes[2] = r->color.b;
 				color.bytes[3] = r->color.a;
-				gui->Graphics_Handle->drawSquare(r->x, r->y, r->w, r->h, color.data);
+				drawThickRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness, color.data);
 				break;
 			}
 			case NK_COMMAND_RECT_FILLED: {
@@ -366,7 +370,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = r->color.g;
 				color.bytes[2] = r->color.b;
 				color.bytes[3] = r->color.a;
-				gui->Graphics_Handle->fillSquare(r->x, r->y, r->w, r->h, color.data);
+				fillRoundedRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
 				break;
 			}
 			case NK_COMMAND_CIRCLE: {
@@ -479,4 +483,3 @@ void Render_GUI(GUI* gui, char* output_buffer) {
 	//gui->Graphics_Handle_Buffer = *output_buffer;
 	//*output_buffer = swapper;
 }
-

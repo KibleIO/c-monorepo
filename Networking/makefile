@@ -1,5 +1,5 @@
 # Declaration of variables
-CC = g++ -O3 -g -Wall -Wextra -Wpedantic -fPIC -I/home/j0ker/github/Rana_Core_Utils -lUtil -std=c++11 -Wno-write-strings
+CC = g++ -O3 -g -Wall -Wextra -Wpedantic -fPIC -I../ -lUtil -std=c++11 -Wno-write-strings
 CC_FLAGS = -w
 
 # File names
