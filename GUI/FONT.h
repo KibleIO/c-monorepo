@@ -7,6 +7,8 @@
 #include "stb_truetype.h"
 #include <Utilities/LOGGING.h>
 
+#define FONT_GLYPH_COUNT 96
+
 struct BAKED_GLYPH {
 	unsigned char*	Bitmap;
 	int				W;
@@ -19,12 +21,12 @@ struct BAKED_GLYPH {
 struct FONT{
 	stbtt_fontinfo	Font_info;
 	int 			Baseline;
-	BAKED_GLYPH*	Baked_glyphs = NULL;
+	BAKED_GLYPH*	Baked_glyphs;
 	string			Font_name;
 };
 
-void Initialize_Font(FONT* &font, const char* fname, float text_height);
+void Initialize_Font(FONT* font, const char* fname, float text_height);
 
-void Delete_Font(FONT* &font);
+void Delete_Font(FONT* font);
 
 #endif

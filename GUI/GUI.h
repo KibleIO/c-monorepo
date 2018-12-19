@@ -31,16 +31,16 @@
 using namespace std;
 
 struct GUI {
-	int			 Display_ID;
-	int          Width;
-	int          Height;
-	int			Frame_Resolution;
-	Graphics*    Graphics_Handle;
-	nk_context*  NK_Context;
-	FONT* Font;
-	nk_user_font*	FontNK;
+	int				Display_ID;
+	int				Width;
+	int				Height;
+	int				Frame_Resolution;
 
-	char*        Graphics_Handle_Buffer;
+	nk_context* 	NK_Context;
+	FONT* 			Font;
+	nk_user_font*	FontNK;
+	char*			Graphics_Handle_Buffer;
+	Graphics*		Graphics_Handle;
 };
 
 static float Font_Get_Text_Width(nk_handle, float, const char*, int);

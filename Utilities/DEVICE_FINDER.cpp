@@ -1,11 +1,14 @@
 #include <Utilities/DEVICE_FINDER.h>
 
+volatile bool DEVICE_FINDER::locked;
+
 void Initialize_Device_Node(DEVICE_NODE* init, string ss, int p, int t) {
 	init->str     = ss;
 	init->port    = p;
 	init->type    = t;
 	init->running = true;
 	init->okay    = true;
+	init->thr = NULL;
 }
 
 void Delete_Device_Node(DEVICE_NODE* init) {
@@ -31,6 +34,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 	int rv;
 	char* buffer = new char[sizeof(input_event)];
 	int counterr = 1000;
+	Timer wait;
 
 	while (!c->OpenConnection(ptr->port, dev_finder->address) && counterr-- > 0);
 
@@ -55,6 +59,16 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 
 	log_dbg("sending " + ptr->str + " " + to_string(ptr->type));
 	while (ptr->running) {
+		while (DEVICE_FINDER::locked) {
+			if (!ptr->running) {
+				delete buffer;
+    			close(fd);
+				c->CloseConnection();
+				delete c;
+				return;
+			}
+			wait.sleepMilli(16);
+		}
 		FD_ZERO(&set); /* clear the set */
 		FD_SET(fd, &set); /* add our file descriptor to the set */
 		timeout.tv_sec = 2; //wait two seconds before quitting
@@ -370,21 +384,46 @@ bool Initialize_NSYNC(DEVICE_FINDER* dev_finder, int iris_id, string ip_address)
 	return true;
 }
 
+void Delete_Device_Finder(DEVICE_FINDER* dev_finder) {
+	delete dev_finder->current_dev;
+	delete dev_finder->previous_dev;
+	delete dev_finder->mouse;
+	delete dev_finder->keyboard;
+	if (dev_finder->client != NULL) {
+		delete dev_finder->client;
+	}
+	if (dev_finder->index_queue != NULL) {
+		delete dev_finder->index_queue;
+	}
+}
+
 void Delete_NSYNC(DEVICE_FINDER* dev_finder) {
 	Integer _temp;
 	Client* c_temp = dev_finder->client;
 	dev_finder->client = NULL;
+	log_dbg("device size " + to_string(dev_finder->p_d_size));
 	for (int i = 0; i < dev_finder->p_d_size; i++) {
+		log_dbg("device " + to_string(i));
 		if (Check_Device_Node(dev_finder->previous_dev[i]) && dev_finder->previous_dev[i]->type != _GARBAGE) {
+			log_dbg("accessing device " + to_string(i));
 			//stop all running threads
+			log_dbg("running = false device  " + to_string(i));
 			if (dev_finder->previous_dev[i]->running) {
 				dev_finder->previous_dev[i]->running = false;
 			}
-			dev_finder->previous_dev[i]->thr->join();
-			delete dev_finder->previous_dev[i]->thr;
-			dev_finder->previous_dev[i]->thr = NULL;
+			log_dbg("joining thread device  " + to_string(i));
+			log_dbg("deleting thread device  " + to_string(i));
+			if (dev_finder->previous_dev[i]->thr != NULL) {
+				log_dbg("joining");
+				dev_finder->previous_dev[i]->thr->join();
+				log_dbg("deleting");
+				delete dev_finder->previous_dev[i]->thr;
+				log_dbg("NULLing");
+				dev_finder->previous_dev[i]->thr = NULL;
+			}
 		}
 	}
+	log_dbg("did we get here");
 	_temp.data = _NIL; //stop the thread
 	c_temp->Send(_temp.bytes, 4);
 	c_temp->CloseConnection();
@@ -408,6 +447,7 @@ void Initialize_Device_Finder(DEVICE_FINDER* dev_finder, int w, int h, int type_
 	for (int i = 0; i < MAX_DEV; i++) dev_finder->current_dev[i] = new DEVICE_NODE();
 	for (int i = 0; i < MAX_DEV; i++) dev_finder->previous_dev[i] = new DEVICE_NODE();
 
+	dev_finder->index_queue = NULL;
 	if (type_id == DFID_RANA || type_id == DFID_IRIS) {
 		dev_finder->index_queue = new INDEX_QUEUE(0, MAX_DEV);
 	}
@@ -423,7 +463,10 @@ void Initialize_Device_Finder(DEVICE_FINDER* dev_finder, int w, int h, int type_
 	dev_finder->w = w;
 	dev_finder->h = h;
 
+	dev_finder->client = NULL;
 	dev_finder->Event_Status = event_status;
+
+	DEVICE_FINDER::locked = false;
 }
 
 int Create_New_Keyboard(string& str2, int port) {
@@ -542,7 +585,7 @@ int Create_New_Mouse(string& str2, int port, Mouse_Info mouse_info) {
 	return fd;
 }
 
-void Receive_Data(int _fd, int port, string path) {
+void Receive_Data(int _fd, int port, string path, bool* complete) {
 	if (path == "") {
 		log_err("cannot listen to blank device");
 		return;
@@ -582,7 +625,7 @@ void Receive_Data(int _fd, int port, string path) {
 
 	log_dbg("Receiveing data from " + path);
 	if (!s->Receive(_temp.bytes, 4)) _temp.data = _STOP;
-	while (_temp.data == _DATA) {
+	while (!*complete && _temp.data == _DATA) {
 		if (!s->Receive(buffer, sizeof(input_event))) break;
 		//cout << "received data" << endl;
 		//gettimeofday (&       ((input_event*)buffer)[0].time   , NULL);
@@ -599,10 +642,26 @@ void Receive_Data(int _fd, int port, string path) {
 	ioctl(_fd, UI_DEV_DESTROY);
 	close(_fd);
 
-	cout << "closing out " << path << endl;
+	log_dbg("closed out " + path);
+	*complete = true;
 }
 
-void Device_Thread(int IRIS_ID, int type_id) {
+int get_recv_index(Recv_node* recv_nodes) {
+	for (int i = 0; i < MAX_DEV; i++) {
+		if (recv_nodes[i].complete) {
+			if (recv_nodes[i].thr) {
+				recv_nodes[i].thr->join();
+				delete recv_nodes[i].thr;
+				recv_nodes[i].thr = NULL;
+			}
+			recv_nodes[i].complete = false;
+			return i;
+		}
+	}
+	log_err("device recv threads are full");
+}
+
+void Device_Thread(int IRIS_ID, int type_id, volatile bool* running) {
 	log_dbg("IRIS_ID: " + to_string(IRIS_ID));
 	Server* server = new Server();
 	Integer int_;
@@ -611,6 +670,16 @@ void Device_Thread(int IRIS_ID, int type_id) {
 	char path[PATH_MAX];
 	string str, str2;
 	Mouse_Info mouse_info;
+	struct timespec wait = {0};
+	wait.tv_sec = 0;
+	wait.tv_nsec = 100000000;
+	Recv_node* recv_nodes = new Recv_node[MAX_DEV];
+	int temp_node_index;
+
+	for (int i = 0; i < MAX_DEV; i++) {
+		recv_nodes[i].thr = NULL;
+		recv_nodes[i].complete = true;
+	}
 
 	int temp_port;
 	if (type_id == DFID_IRIS) {
@@ -628,7 +697,12 @@ void Device_Thread(int IRIS_ID, int type_id) {
 
 	while (true) {
 		//keyboard/mouse
-		if (!server->Receive(int_.bytes, 4)){
+		if (!*running) {
+			log_dbg("exiting");
+			goto exit_loop;
+		}
+		if (!server->ReceiveNonBlocking(int_.bytes, 4)){
+			nanosleep(&wait, (struct timespec *)NULL);
 			continue;
 		}
 		dev = int_.data;
@@ -650,12 +724,22 @@ void Device_Thread(int IRIS_ID, int type_id) {
     	}
     	log_dbg("adding file " + str);
 
-		new thread(Receive_Data, temp_id, int_.data, str);
+		temp_node_index = get_recv_index(recv_nodes);
+		recv_nodes[temp_node_index].thr = new thread(Receive_Data, temp_id, int_.data, str, &recv_nodes[temp_node_index].complete);
 	}
 
 	exit_loop:
 
 	cout << "exiting" << endl;
+
+	log_dbg("joining recv threads");
+	for (int i = 0; i < MAX_DEV; i++) {
+		if (recv_nodes[i].thr) {
+			recv_nodes[i].complete = true;
+			recv_nodes[i].thr->join();
+			delete recv_nodes[i].thr;
+		}
+	}
 
 	server->CloseConnection();
 }

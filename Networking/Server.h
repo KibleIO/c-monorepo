@@ -18,6 +18,7 @@ public:
 	void  CloseConnection();
 	bool  Send(char *, int);
 	bool Receive(char *,int);
+	bool ReceiveNonBlocking(char *data, int size);
 };
 
 #endif /* SERVER_H_ */

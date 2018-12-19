@@ -16,6 +16,7 @@
 #include <libevdev/libevdev.h>
 #include <Utilities/EVENT.h>
 #include <Utilities/LOGGING.h>
+#include <Utilities/Timer.h>
 
 struct nk_context;
 

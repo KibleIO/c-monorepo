@@ -72,4 +72,8 @@ bool Server::Receive(char *data, int size) {
 	return (startedUp && recv(mainSocket, data, size, MSG_WAITALL) == size);
 }
 
+bool Server::ReceiveNonBlocking(char *data, int size) {
+	return (startedUp && recv(mainSocket, data, size, MSG_DONTWAIT) == size);
+}
+
 #endif

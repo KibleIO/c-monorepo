@@ -60,12 +60,16 @@ struct DEVICE_NODE {
 	int type;
 	bool running;
 	bool okay;
-	thread* thr = NULL;
+	thread* thr;
 };
 
+struct Recv_node {
+	thread* thr;
+	bool complete;
+};
 
 struct DEVICE_FINDER {
-	int type_id = 0;
+	int type_id;
 
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
@@ -85,10 +89,12 @@ struct DEVICE_FINDER {
     unsigned int types[EV_MAX];
     unsigned int events[(KEY_MAX - 1) / 32 + 1];
 
-	int iris_id = 0;
-	EVENT* Event_Status = NULL;
-	Client*       client = NULL;
-	INDEX_QUEUE*  index_queue = NULL;
+	int iris_id;
+	EVENT* Event_Status;
+	Client*       client;
+	INDEX_QUEUE*  index_queue;
+	
+	static volatile bool locked;
 };
 
 //DEVICE FINDER
@@ -101,14 +107,15 @@ void   Add_Device_Node(DEVICE_FINDER*, DEVICE_NODE*);
 void   Remove_Device_Node(DEVICE_FINDER*, DEVICE_NODE*);
 void   Refresh_Devices(DEVICE_FINDER*);
 void   Initialize_Device_Finder(DEVICE_FINDER*, int, int, int, EVENT*);
+void Delete_Device_Finder(DEVICE_FINDER* dev_finder);
 
 //NSYNC CLIENT
 bool   Initialize_NSYNC(DEVICE_FINDER*, int, string);
 void   Delete_NSYNC(DEVICE_FINDER*);
 
 //NSYNC SERVER
-void Device_Thread(int, int);
-void Receive_Data(int, int, string);
+void Device_Thread(int, int, volatile bool*);
+void Receive_Data(int, int, string, bool*);
 int Create_New_Mouse(string&, int);
 int Create_New_Keyboard(string&, int);
 

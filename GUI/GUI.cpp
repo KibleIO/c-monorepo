@@ -14,16 +14,23 @@ static float Font_Get_Text_Width(nk_handle handle, float height, const char* tex
 
 void Initialize_GUI_Themis(GUI* gui, int display_id) {
 	gui->Display_ID = display_id;
+	gui->NK_Context				= NULL;
+	gui->Font					= NULL;
+	gui->FontNK					= NULL;
+	gui->Graphics_Handle_Buffer	= NULL;
+	gui->Graphics_Handle		= NULL;
 }
 
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer) {
-	gui->Width        = width;
-	gui->Height       = height;
+	gui->Width				= width;
+	gui->Height				= height;
 	gui->Frame_Resolution	= width * height;
+	gui->NK_Context			= new nk_context;
+	gui->Font				= new FONT;
+	gui->FontNK				= new nk_user_font;
 
-	gui->NK_Context      = new nk_context;
-	gui->FontNK          = new nk_user_font;
 	if (frame_buffer) {
+		gui->Graphics_Handle_Buffer		  = NULL;
 		gui->Graphics_Handle              = new Graphics(frame_buffer, gui->Width, gui->Height, gui->Width, gui->Height);
 	} else {
 		gui->Graphics_Handle_Buffer       = new char[(gui->Frame_Resolution + 2) * 4];
@@ -79,13 +86,26 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 void Delete_GUI(GUI* gui) {
 	if (gui->NK_Context) {
+		log_dbg("deleting nk context");
+		nk_free(gui->NK_Context);
 		delete gui->NK_Context;
 	}
-	if (gui->Graphics_Handle) {
-		delete gui->Graphics_Handle;
-	}
 	if (gui->Font) {
+		log_dbg("deleting font");
 		Delete_Font(gui->Font);
+		delete gui->Font;
+	}
+	if (gui->FontNK) {
+		log_dbg("deleting fontNK");
+		delete gui->FontNK;
+	}
+	if (gui->Graphics_Handle_Buffer) {
+		log_dbg("deleting graphics handle buffer");
+		delete gui->Graphics_Handle_Buffer;
+	}
+	if (gui->Graphics_Handle) {
+		log_dbg("deleting graphics handle");
+		delete gui->Graphics_Handle;
 	}
 }
 

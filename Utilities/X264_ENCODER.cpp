@@ -288,6 +288,8 @@ int X264_Encoder_Encode_Frame_Buffer_No_Convert(X264_Encoder* x264, char* fbp, c
             return 0;
     }
 
+	swapBuffers(x264);
+
     *out = (char*) x264->nal->p_payload;
 	
     return x264->i_frame_size;
