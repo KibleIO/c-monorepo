@@ -30,6 +30,8 @@ struct GRAPHICS {
 void Initialize_GRAPHICS(GRAPHICS*, char*, int, int);
 void Delete_GRAPHICS(GRAPHICS*);
 
+void SwapBuffers_GRAPHICS(GRAPHICS*, char* buff);
+
 void ClearScreen_GRAPHICS(GRAPHICS*, int color);
 
 void Set_Clip_GRAPHICS(GRAPHICS*, int x, int y, int width, int height);

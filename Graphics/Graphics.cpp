@@ -16,6 +16,12 @@ void Delete_GRAPHICS(GRAPHICS* graphics) {
 	delete graphics->ContourX;
 }
 
+void SwapBuffers_GRAPHICS(GRAPHICS* graphics, char* buff) {
+	char* swapper = graphics->Buffer;
+	graphics->Buffer = buff;
+	buff = swapper;
+}
+
 void ClearScreen_GRAPHICS(GRAPHICS* graphics, int color) {
 	int *buff = (int*)graphics->Buffer;
 	for (int y = graphics->Height - 1; y >= 0; y--) {
