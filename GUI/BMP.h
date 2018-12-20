@@ -48,7 +48,7 @@ struct BMP {
 void Initialize_BMP(BMP*, string);
 void Initialize_BMP(BMP*, string, int, int);
 void resizeBilinear(int*, int*, int, int, int, int);
-void Draw_BMP(BMP*, Graphics*, int, int);
+void Draw_BMP(BMP*, GRAPHICS*, int, int);
 void Draw_BMP(BMP*, char*, int, int, int);
 void Delete_BMP(BMP*);
 

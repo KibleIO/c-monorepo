@@ -31,12 +31,14 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  = NULL;
-		gui->Graphics_Handle              = new Graphics(frame_buffer, gui->Width, gui->Height, gui->Width, gui->Height);
+		gui->Graphics_Handle              = new GRAPHICS;
+		Initialize_GRAPHICS(gui->Graphics_Handle, frame_buffer, gui->Width, gui->Height);
 	} else {
 		gui->Graphics_Handle_Buffer       = new char[(gui->Frame_Resolution + 2) * 4];
-		gui->Graphics_Handle              = new Graphics((char*)gui->Graphics_Handle_Buffer, gui->Width, gui->Height, gui->Width, gui->Height);
+		gui->Graphics_Handle              = new GRAPHICS;
+		Initialize_GRAPHICS(gui->Graphics_Handle, gui->Graphics_Handle_Buffer, gui->Width, gui->Height);
 	}
-	gui->Graphics_Handle->setTransparent(true);
+	gui->Graphics_Handle->Transparent = true;
 
 	float text_height = int((gui->Height * 3) / 100);
 	Initialize_Font(gui->Font, font_path.c_str(), text_height);
@@ -110,7 +112,7 @@ void Delete_GUI(GUI* gui) {
 	}
 }
 
-void Draw_Text(GUI* gui, Graphics* graphics, const struct nk_command* command) {
+void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command* command) {
 	const struct nk_command_text* t = (const struct nk_command_text*)command;
 	string str = string(t->string);
 	int _x = t->x;
@@ -138,14 +140,14 @@ void Draw_Text(GUI* gui, Graphics* graphics, const struct nk_command* command) {
 				result[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
 				result[3] = (unsigned char)((alpha * fg[3] + inv_alpha * bg[3]) >> 8);
 				memcpy(kk.bytes, result, 4);
-				graphics->drawPoint(_x + x + c->Xoff, _y + y + c->Yoff, kk.data);
+				DrawPoint_GRAPHICS(graphics, _x + x + c->Xoff, _y + y + c->Yoff, kk.data);
 			}
 		}
 		_x += c->Advance;
 	}
 }
 
-void Draw_Text(GUI* gui, Graphics* graphics, string str, int _x, int _y, unsigned char* fg, unsigned char* back) {
+void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigned char* fg, unsigned char* back) {
 	unsigned char result[] = {0,0,0,0xff};
 
 	union {
@@ -168,7 +170,7 @@ void Draw_Text(GUI* gui, Graphics* graphics, string str, int _x, int _y, unsigne
 				result[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
 				result[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
 				memcpy(kk.bytes, result, 4);
-				graphics->drawPoint(_x + x + c->Xoff, _y + y + c->Yoff, kk.data);
+				DrawPoint_GRAPHICS(graphics, _x + x + c->Xoff, _y + y + c->Yoff, kk.data);
 			}
 		}
 		_x += c->Advance;
@@ -343,7 +345,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 			case NK_COMMAND_NOP: break;
 			case NK_COMMAND_SCISSOR: {
 				const struct nk_command_scissor* s =(const struct nk_command_scissor*)command;
-				gui->Graphics_Handle->setClip(s->x, s->y, s->w, s->h);
+				Set_Clip_GRAPHICS(gui->Graphics_Handle, s->x, s->y, s->w, s->h);
 				break;
 			}
 			case NK_COMMAND_LINE: {
@@ -352,7 +354,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = l->color.g;
 				color.bytes[2] = l->color.b;
 				color.bytes[3] = l->color.a;
-				gui->Graphics_Handle->drawLine(l->begin.x, l->begin.y, l->end.x, l->end.y, color.data);
+				DrawLine_GRAPHICS(gui->Graphics_Handle, l->begin.x, l->begin.y, l->end.x, l->end.y, color.data);
 				break;
 			}
 			case NK_COMMAND_RECT: {
@@ -370,7 +372,8 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = r->color.g;
 				color.bytes[2] = r->color.b;
 				color.bytes[3] = r->color.a;
-				fillRoundedRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
+				//fillRoundedRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
+				FillSquare_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, color.data);
 				break;
 			}
 			case NK_COMMAND_CIRCLE: {
@@ -379,7 +382,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = c->color.g;
 				color.bytes[2] = c->color.b;
 				color.bytes[3] = c->color.a;
-				gui->Graphics_Handle->drawCircle(c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+				DrawCircle_GRAPHICS(gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
 				break;
 			}
 			case NK_COMMAND_CIRCLE_FILLED: {
@@ -388,7 +391,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = c->color.g;
 				color.bytes[2] = c->color.b;
 				color.bytes[3] = c->color.a;
-				gui->Graphics_Handle->fillCircle(c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+				FillCircle_GRAPHICS(gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
 				break;
 			}
 			case NK_COMMAND_TRIANGLE: {
@@ -405,7 +408,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				tri.addPoint(t->a.x, t->a.y);
 				tri.addPoint(t->b.x, t->b.y);
 				tri.addPoint(t->c.x, t->c.y);
-				gui->Graphics_Handle->fillPolygon(tri, color.data);
+				FillPolygon_GRAPHICS(gui->Graphics_Handle, tri, color.data);
 				break;
 			}
 			case NK_COMMAND_POLYGON: {
@@ -447,7 +450,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 		}
 	}
 	nk_clear(gui->NK_Context);
-	gui->Graphics_Handle->setClip(-1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
 
 void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
@@ -455,22 +458,22 @@ void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
 		for (int y = 0; y < 11; y++) {
 			int hg = mousie[x][y];
 			if (hg == 0x03ffffff) {
-				gui->Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
+				DrawPoint_GRAPHICS(gui->Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
 			} else if (hg == 0x03000000) {
-				gui->Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
+				DrawPoint_GRAPHICS(gui->Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
 			}
 		}
 	}
 }
 
-void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_y) {
+void Render_Mouse_GUI(GUI* gui, GRAPHICS* Graphics_Handle, double c_x, double c_y) {
 	for (int x = 0; x < 11; x++) {
 		for (int y = 0; y < 11; y++) {
 			int hg = mousie[x][y];
 			if (hg == 0x03ffffff) {
-				Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
+				DrawPoint_GRAPHICS(Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
 			} else if (hg == 0x03000000) {
-				Graphics_Handle->drawPoint((int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
+				DrawPoint_GRAPHICS(Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
 			}
 		}
 	}

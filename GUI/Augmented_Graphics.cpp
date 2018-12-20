@@ -1,6 +1,6 @@
 #include "Augmented_Graphics.h"
 
-void fillRoundedRect(Graphics* graphics, int x, int y, int w, int h, int r, Color color) {
+void fillRoundedRect(GRAPHICS* graphics, int x, int y, int w, int h, int r, Color color) {
 	// Check to see that the rect trying to be drawn is valid
 	if(x < 0 || y < 0 || w < 0 || h < 0) {
 		cout << "ERROR: The rect is invalid and cannot be drawn\n";
@@ -11,7 +11,7 @@ void fillRoundedRect(Graphics* graphics, int x, int y, int w, int h, int r, Colo
 	// If there is no rounding, the square doesn't have enough rounding to be significant
 	// Fill up a regular square
 	if(r <= 0) {
-		graphics->fillSquare(x, y, w, h, color);
+		FillSquare_GRAPHICS(graphics, x, y, w, h, color);
 	}
 	// Otherwise, we've got a long function ahead of us...
 	else {
@@ -51,7 +51,7 @@ void fillRoundedRect(Graphics* graphics, int x, int y, int w, int h, int r, Colo
 		innerRect.addPoint(x + r + innerWidth, y);
 
 		// Fill up the rectangular shape inside the quarter circles
-		graphics->fillPolygon(innerRect, color);
+		FillPolygon_GRAPHICS(graphics, innerRect, color);
 
 		// Fill arcs at the corners to created rounded edges
 		fillQuarterArc(graphics, x + innerWidth + r, y, r, r, FIRST_QUADRANT, color);
@@ -61,7 +61,7 @@ void fillRoundedRect(Graphics* graphics, int x, int y, int w, int h, int r, Colo
 	}
 }
 
-void fillQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant, Color color) {
+void fillQuarterArc(GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 	// Prevent function from continuing if dimensions are invalid
 	if(x < 0 || y < 0 || w < 0 || h < 0) {
 		cout << "ERROR: the arc is invalid and cannot be draw\n";
@@ -122,7 +122,7 @@ void fillQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
 		for(int point = 0; point < 3; ++point) {
 			poly.addPoint(xPoints[point], yPoints[point]);
 		}
-		graphics->fillPolygon(poly, color);
+		FillPolygon_GRAPHICS(graphics, poly, color);
 
 		// Ovewrite previous points with these points
 		xPoints[2] = xPoints[1];
@@ -153,7 +153,7 @@ void fillQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
 		for(int point = 0; point < 3; ++point) {
 			poly.addPoint(xPoints[point], yPoints[point]);
 		}
-		graphics->fillPolygon(poly, color);
+		FillPolygon_GRAPHICS(graphics, poly, color);
 
     // Ovewrite previous points with these points
 		xPoints[2] = xPoints[1];
@@ -172,24 +172,24 @@ void fillQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
 }
 
 // Drawing a thick "line" really involves drawing a rectangle where thickness is the height
-void drawThickHorizontalLine(Graphics* graphics, int x, int y, int w, int thickness, Color color) {
-	graphics->fillSquare(x, y, w, thickness, color);
+void drawThickHorizontalLine(GRAPHICS* graphics, int x, int y, int w, int thickness, Color color) {
+	FillSquare_GRAPHICS(graphics, x, y, w, thickness, color);
 }
 
 // Drawing a thick line is really a rectangle where thickness is the width
-void drawThickVerticalLine(Graphics* graphics, int x, int y, int h, int thickness, Color color) {
-  graphics->fillSquare(x, y, thickness, h, color);
+void drawThickVerticalLine(GRAPHICS* graphics, int x, int y, int h, int thickness, Color color) {
+  FillSquare_GRAPHICS(graphics, x, y, thickness, h, color);
 }
 
 // Draw a rect with the desired thickness by drawing four lines
-void drawThickRect(Graphics* graphics, int x, int y, int w, int h, int thickness, Color color) {
+void drawThickRect(GRAPHICS* graphics, int x, int y, int w, int h, int thickness, Color color) {
 	drawThickHorizontalLine(graphics, x, y, w, thickness, color);
 	drawThickHorizontalLine(graphics, x, y + h - thickness, w, thickness, color);
 	drawThickVerticalLine(graphics, x, y, h, thickness, color);
 	drawThickVerticalLine(graphics, x + w - thickness, y, h, thickness, color);
 }
 
-void drawThickRoundedRect(Graphics* graphics, int x, int y, int w, int h, int thickness, int r, Color color) {
+void drawThickRoundedRect(GRAPHICS* graphics, int x, int y, int w, int h, int thickness, int r, Color color) {
 	// Check to see that the rect trying to be drawn is valid
 	if(x < 0 || y < 0 || w < 0 || h < 0) {
 		cout << "ERROR: The rect is invalid and cannot be drawn\n";
@@ -228,7 +228,7 @@ void drawThickRoundedRect(Graphics* graphics, int x, int y, int w, int h, int th
 	}
 }
 
-void drawQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant, Color color) {
+void drawQuarterArc(GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
   // Prevent function from continuing if dimensions are invalid
   if(x < 0 || y < 0 || w < 0 || h < 0) {
     cout << "ERROR: the arc is invalid and cannot be draw\n";
@@ -273,7 +273,7 @@ void drawQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
   // Start a loop with the loop control vars
   for(controlX = 0, controlY = h; b2 * controlX <= a2 * controlY; ++controlX) {
     // Don't really get it yet
-    graphics->drawPoint(x + (controlX * quadrantXConst), y + (controlY * quadrantYConst), color);
+    DrawPoint_GRAPHICS(graphics, x + (controlX * quadrantXConst), y + (controlY * quadrantYConst), color);
 
     // If selector is positive, aggregate some mathy number into it
     // (hint: the number is almost always negative) and update control y value
@@ -292,7 +292,7 @@ void drawQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
   // Start a new loop for the next half (bottom half? right half? no idea)
   for(controlX = w, controlY = 0; a2 * controlY <= b2 * controlX; ++controlY) {
     // Still don't really get it
-    graphics->drawPoint(x + (controlX * quadrantXConst), y + (controlY * quadrantYConst), color);
+    DrawPoint_GRAPHICS(graphics, x + (controlX * quadrantXConst), y + (controlY * quadrantYConst), color);
 
     // If selector is positive, aggregate some mathy number into it
     // (hint: the number is almost always negative) and update control y value
@@ -307,7 +307,7 @@ void drawQuarterArc(Graphics* graphics, int x, int y, int w, int h, int quadrant
 }
 
 // Draw a quarter of an elliptical arc with the desired thickness
-void drawThickQuarterArc(Graphics* graphics, int x, int y, int w, int h, int thickness, int quadrant, Color color) {
+void drawThickQuarterArc(GRAPHICS* graphics, int x, int y, int w, int h, int thickness, int quadrant, Color color) {
   for(int arc = 0; arc < thickness; ++arc) {
     drawQuarterArc(graphics, x, y, w - arc, h - arc, quadrant, color);
   }

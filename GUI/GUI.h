@@ -7,6 +7,7 @@
 #include <GUI/BMP.h>
 #include <GUI/FONT.h>
 #include <Utilities/Assets.h>
+#include <Utilities/Integer.h>
 #include <GUI/MOUSE.h>
 #include <GUI/KEYBOARD.h>
 #include <GUI/Augmented_Graphics.h>
@@ -41,18 +42,18 @@ struct GUI {
 	FONT* 			Font;
 	nk_user_font*	FontNK;
 	char*			Graphics_Handle_Buffer;
-	Graphics*		Graphics_Handle;
+	GRAPHICS*		Graphics_Handle;
 };
 
 static float Font_Get_Text_Width(nk_handle, float, const char*, int);
 void Initialize_GUI_Themis(GUI* gui, int display_id);
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
 void Delete_GUI(GUI*);
-void Draw_Text(GUI*, Graphics*, const struct nk_command*);
-void Draw_Text(GUI*, Graphics*, string, int, int, unsigned char*, unsigned char*);
+void Draw_Text(GUI*, GRAPHICS*, const struct nk_command*);
+void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
 void Render_Mouse_GUI(GUI*, double, double);
-void Render_Mouse_GUI(GUI* gui, Graphics* Graphics_Handle, double c_x, double c_y);
+void Render_Mouse_GUI(GUI* gui, GRAPHICS* Graphics_Handle, double c_x, double c_y);
 void Render_X264(GUI* gui, char* X264_Buffer, int size);
 void Render_GUI(GUI* gui, char* output_buffer);
 

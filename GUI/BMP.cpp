@@ -146,10 +146,10 @@ void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
 	}
 }
 
-void Draw_BMP(BMP* bmp, Graphics* g, int X, int Y) {
+void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 	for (int x = 0; x < bmp->W; x++) {
     	for (int y = 0; y < bmp->H; y++) {
-			g->drawPoint(X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
+			DrawPoint_GRAPHICS(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
     	}
     }
 }
