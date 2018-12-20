@@ -17,9 +17,7 @@ void Delete_GRAPHICS(GRAPHICS* graphics) {
 }
 
 void SwapBuffers_GRAPHICS(GRAPHICS* graphics, char* buff) {
-	char* swapper = graphics->Buffer;
 	graphics->Buffer = buff;
-	buff = swapper;
 }
 
 void ClearScreen_GRAPHICS(GRAPHICS* graphics, int color) {
