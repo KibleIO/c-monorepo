@@ -10,7 +10,6 @@
 #include <Utilities/Integer.h>
 #include <GUI/MOUSE.h>
 #include <GUI/KEYBOARD.h>
-#include <GUI/Augmented_Graphics.h>
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO

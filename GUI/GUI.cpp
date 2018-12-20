@@ -363,7 +363,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = r->color.g;
 				color.bytes[2] = r->color.b;
 				color.bytes[3] = r->color.a;
-				drawThickRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness, color.data);
+				DrawThickRect_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness, color.data);
 				break;
 			}
 			case NK_COMMAND_RECT_FILLED: {
@@ -372,8 +372,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = r->color.g;
 				color.bytes[2] = r->color.b;
 				color.bytes[3] = r->color.a;
-				//fillRoundedRect(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
-				FillSquare_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, color.data);
+				FillRoundedRect_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
 				break;
 			}
 			case NK_COMMAND_CIRCLE: {

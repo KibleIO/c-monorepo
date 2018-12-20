@@ -11,6 +11,11 @@
 
 #define ABS(x) ((x >= 0) ? x : -x)
 
+#define FIRST_QUADRANT 1
+#define SECOND_QUADRANT 2
+#define THIRD_QUADRANT 3
+#define FOURTH_QUADRANT 4
+
 using namespace std;
 
 typedef int Color;
@@ -85,5 +90,21 @@ void FillCircle_Opaque_GRAPHICS(GRAPHICS*, int, int, int, int);
 void FillPolygon_GRAPHICS(GRAPHICS*, Polygon, int);
 void FillPolygon_Transparent_GRAPHICS(GRAPHICS*, Polygon, int);
 void FillPolygon_Opaque_GRAPHICS(GRAPHICS*, Polygon, int);
+
+void FillRoundedRect_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int rounding, Color);
+	// Draw a filled square with the desired rounding on the edges
+void FillQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int quadrant, Color);
+	// Fill a quarter of an elliptical arc in the quadrant specified
+void DrawThickHorizontalLine_GRAPHICS(GRAPHICS*, int x, int y, int w, int thickness, Color);
+	// Draw a line horizontally starting at the TOP LEFT and going w pixels to the right with the desired thickness
+void DrawThickVerticalLine_GRAPHICS(GRAPHICS*, int x, int y, int h, int thickness, Color);
+	// Draw a line vertically starting at the TOP LEFT and going h pixels down with the desired thickness
+void DrawThickRect_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int thickness, Color);
+	// Draw an unfilled rect area with the desired border thickness
+void DrawThickRoundedRect_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int thickness, int rounding, Color);
+	// Draw an unfilled rect area with the desired border thickness and rounding off of the edges
+void DrawQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int quadrant, Color);
+	// Draw a quarter of an elliptical arc in the quadrant specified
+void DrawThickQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int thickness, int quadrant, Color);
 
 #endif
