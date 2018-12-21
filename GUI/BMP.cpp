@@ -2,6 +2,38 @@
 #include "stb_image.h"
 #include "BMP.h"
 
+void BakeBackground_BMP(BMP* bmp, int color) {
+	unsigned int pixel;
+	unsigned int result;
+
+	for (int y = 0; y < bmp->H; y++) {
+		for (int x = 0; x < bmp->W; x++) {
+			pixel = *(((int*)bmp->Data) + y * bmp->W + x);
+
+			unsigned int alpha = ((unsigned char*)&pixel)[3] + 1;
+			unsigned int inv_alpha = 256 - alpha;
+
+    		((unsigned char*)&result)[0] = 
+				(unsigned char)((alpha * 
+				((unsigned char*)&pixel)[0] + inv_alpha * 
+				((unsigned char*)&color)[0]) >> 8);
+    		((unsigned char*)&result)[1] = 
+				(unsigned char)((alpha * 
+				((unsigned char*)&pixel)[1] + inv_alpha * 
+				((unsigned char*)&color)[1]) >> 8);
+    		((unsigned char*)&result)[2] = 
+				(unsigned char)((alpha * 
+				((unsigned char*)&pixel)[2] + inv_alpha *
+				((unsigned char*)&color)[2]) >> 8);
+    		((unsigned char*)&result)[3] = 0xff;
+
+			((int*)bmp->Data)[y * bmp->W + x] = result;
+		}
+	}
+
+	bmp->Baked = true;
+}
+
 void Initialize_BMP(BMP* bmp, string loc) {
 	int x,y,n;
   unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
@@ -46,6 +78,8 @@ void Initialize_BMP(BMP* bmp, string loc) {
 			}
 		}
 	}
+
+	bmp->Baked = false;
 }
 
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
@@ -101,6 +135,8 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 			}
 		}
 	}
+
+	bmp->Baked = false;
 }
 
 void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
@@ -147,9 +183,17 @@ void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
 }
 
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
+	void (*drawpoint)(GRAPHICS* gr, int _x, int _y, int _c);
+	if (bmp->Baked) {
+		drawpoint = DrawPoint_Opaque_GRAPHICS_UNSAFE;
+	} else {
+		drawpoint = DrawPoint_GRAPHICS_UNSAFE;
+	}
+
 	for (int x = 0; x < bmp->W; x++) {
     	for (int y = 0; y < bmp->H; y++) {
-			DrawPoint_GRAPHICS(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
+			drawpoint(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
+			//DrawPoint_GRAPHICS(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
     	}
     }
 }

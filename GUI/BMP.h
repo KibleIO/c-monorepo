@@ -41,10 +41,12 @@ struct BITMAPINFOHEADER {
 struct BMP {
 	char* Data;
 	int W, H;
+	bool Baked;
 	BITMAPFILEHEADER bmp_header;
     BITMAPINFOHEADER bmp_info_header;
 };
 
+void BakeBackground_BMP(BMP* bmp, int color);
 void Initialize_BMP(BMP*, string);
 void Initialize_BMP(BMP*, string, int, int);
 void resizeBilinear(int*, int*, int, int, int, int);
