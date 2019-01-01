@@ -23,6 +23,15 @@
 #define	RV ((int)( 0.439 * (1 << RGB2YUV_SHIFT) + 0.5))
 #define	RU ((int)(-0.148 * (1 << RGB2YUV_SHIFT) + 0.5))
 
+
+#define RGB2YUV_RF 77 
+#define RGB2YUV_RG 48
+#define RGB2YUV_RB 29
+#define RGB2YUV_CB 144
+#define RGB2YUV_CR 183
+#define RGB2YUV_Y_FACTOR 128
+#define RGB2YUV_Y_OFFSET 0
+
 extern "C" {
 	#include <x264.h>
 }
@@ -59,6 +68,7 @@ struct X264_Encoder {
 
 void X264_Encoder_Initialize(X264_Encoder*, int, int, int);
 int X264_Encoder_Get_Header(X264_Encoder*, char**);
+void rgb32_yuv420_std(uint32_t, uint32_t, const uint8_t*, uint32_t, uint8_t*, uint8_t*, uint8_t*, uint32_t, uint32_t);
 void rgb_to_y420p_no_x264(int width, int height, uint8_t* destination, uint8_t* rgb);
 void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb);
 int X264_Encoder_Encode_Frame_Buffer(X264_Encoder*, char*, char**);

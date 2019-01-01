@@ -31,7 +31,7 @@ void BakeBackground_BMP(BMP* bmp, int color) {
 		}
 	}
 
-	bmp->Baked = true;
+	bmp->Transparent = false;
 }
 
 void Initialize_BMP(BMP* bmp, string loc) {
@@ -79,7 +79,7 @@ void Initialize_BMP(BMP* bmp, string loc) {
 		}
 	}
 
-	bmp->Baked = false;
+	bmp->Transparent = false;
 }
 
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
@@ -136,7 +136,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 		}
 	}
 
-	bmp->Baked = false;
+	bmp->Transparent = false;
 }
 
 void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
@@ -183,25 +183,50 @@ void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
 }
 
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
-	void (*drawpoint)(GRAPHICS* gr, int _x, int _y, int _c);
-	if (bmp->Baked) {
-		drawpoint = DrawPoint_Opaque_GRAPHICS_UNSAFE;
-	} else {
-		drawpoint = DrawPoint_GRAPHICS_UNSAFE;
-	}
-
-	for (int x = 0; x < bmp->W; x++) {
-    	for (int y = 0; y < bmp->H; y++) {
-			drawpoint(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
-			//DrawPoint_GRAPHICS(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
+	if (bmp->Transparent) {
+		for (int x = 0; x < bmp->W; x++) {
+    		for (int y = 0; y < bmp->H; y++) {
+				DrawPoint_GRAPHICS(g, X + x, Y + y, ((int*)bmp->Data)[y * bmp->W + x]);
+    		}
     	}
-    }
+	} else {
+		for (int y = 0; y < bmp->H; y++) {
+			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + (y + 1) * bmp->W - 1, (int*)g->Buffer + (Y + y) * g->Width + X);
+		}
+	}
 }
 
 void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int X, int Y) {
-	for (int x = 0; x < bmp->W; x++) {
+	if (bmp->Transparent) {
+		unsigned int fg, bg, alpha, inv_alpha, result;
 		for (int y = 0; y < bmp->H; y++) {
-			((int*)fbp)[((Y + y) * fbp_w) + (X + x)] = ((int*)bmp->Data)[y * bmp->W + x];
+			for (int x = 0; x < bmp->W; x++) {
+				fg = *((int*)bmp->Data + y * bmp->W + x);
+				bg = *((int*)fbp + (y + Y) * fbp_w + x + X);
+				
+				alpha = ((unsigned char*)&fg)[3] + 1;
+				inv_alpha = 256 - alpha;
+
+    			((unsigned char*)&result)[0] = 
+					(unsigned char)((alpha * 
+					((unsigned char*)&fg)[0] + inv_alpha * 
+					((unsigned char*)&bg)[0]) >> 8);
+    			((unsigned char*)&result)[1] = 
+					(unsigned char)((alpha * 
+					((unsigned char*)&fg)[1] + inv_alpha * 
+					((unsigned char*)&bg)[1]) >> 8);
+    			((unsigned char*)&result)[2] = 
+					(unsigned char)((alpha * 
+					((unsigned char*)&fg)[2] + inv_alpha *
+					((unsigned char*)&bg)[2]) >> 8);
+    			((unsigned char*)&result)[3] = 0xff;
+
+				((int*)fbp)[(y + Y) * fbp_w + x + X] = result;
+			}
+		}
+	} else {
+		for (int y = 0; y < bmp->H; y++) {
+			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + (y + 1) * bmp->W, (int*)fbp + (Y + y) * fbp_w + X);
 		}
 	}
 }

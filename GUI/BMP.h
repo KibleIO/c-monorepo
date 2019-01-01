@@ -41,9 +41,9 @@ struct BITMAPINFOHEADER {
 struct BMP {
 	char* Data;
 	int W, H;
-	bool Baked;
+	bool Transparent;
 	BITMAPFILEHEADER bmp_header;
-    BITMAPINFOHEADER bmp_info_header;
+	BITMAPINFOHEADER bmp_info_header;
 };
 
 void BakeBackground_BMP(BMP* bmp, int color);

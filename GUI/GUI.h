@@ -42,6 +42,8 @@ struct GUI {
 	nk_user_font*	FontNK;
 	char*			Graphics_Handle_Buffer;
 	GRAPHICS*		Graphics_Handle;
+
+	bool			BakedBmp;
 };
 
 static float Font_Get_Text_Width(nk_handle, float, const char*, int);

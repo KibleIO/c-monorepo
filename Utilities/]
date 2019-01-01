@@ -151,15 +151,23 @@ uint8_t averageChroma(uint8_t* rgb, int i, int c, int w) {
 	return (rgb[4 * i + c] + rgb[4 * (i+1) + c] + rgb[4 * (i+w) + c] + rgb[4 * (i+w+1) + c]) / 4;
 }
 
+
+int rf = 77; 
+int rg = 48;
+int rb = 29;
+int cb = 144;
+int cr = 183;
+int y_factor = 128;
+int y_offset = 0;
+
+
 void rgb32_yuv420_std(
 	uint32_t width, uint32_t height, 
 	const uint8_t *RGBA, uint32_t RGBA_stride, 
-	uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_stride, uint32_t UV_stride)
+	uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_stride, uint32_t UV_stride, 
+	YCbCrType yuv_type)
 {
-	Timer tm1;
-	long tv1;
-	tm1.Start();
-	//const RGB2YUVParam *const param = &(RGB2YUV[yuv_type]);
+	const RGB2YUVParam *const param = &(RGB2YUV[yuv_type]);
 	
 	uint32_t x, y;
 	for(y=0; y<(height-1); y+=2)
@@ -178,28 +186,28 @@ void rgb32_yuv420_std(
 			uint8_t y_tmp;
 			int16_t u_tmp, v_tmp;
 			
-			y_tmp = (RGB2YUV_RF*rgb_ptr1[0] + RGB2YUV_RG*rgb_ptr1[1] + RGB2YUV_RB*rgb_ptr1[2])>>8;
+			y_tmp = (param->r_factor*rgb_ptr1[0] + param->g_factor*rgb_ptr1[1] + param->b_factor*rgb_ptr1[2])>>8;
 			u_tmp = rgb_ptr1[2]-y_tmp;
 			v_tmp = rgb_ptr1[0]-y_tmp;
-			y_ptr1[0]=((y_tmp*RGB2YUV_Y_FACTOR)>>7) + RGB2YUV_Y_OFFSET;
+			y_ptr1[0]=((y_tmp*param->y_factor)>>7) + param->y_offset;
 			
-			y_tmp = (RGB2YUV_RF*rgb_ptr1[4] + RGB2YUV_RG*rgb_ptr1[5] + RGB2YUV_RB*rgb_ptr1[6])>>8;
-			//u_tmp += rgb_ptr1[6]-y_tmp;
-			//v_tmp += rgb_ptr1[4]-y_tmp;
-			y_ptr1[1]=((y_tmp*RGB2YUV_Y_FACTOR)>>7) + RGB2YUV_Y_OFFSET;
+			y_tmp = (param->r_factor*rgb_ptr1[4] + param->g_factor*rgb_ptr1[5] + param->b_factor*rgb_ptr1[6])>>8;
+			u_tmp += rgb_ptr1[6]-y_tmp;
+			v_tmp += rgb_ptr1[4]-y_tmp;
+			y_ptr1[1]=((y_tmp*param->y_factor)>>7) + param->y_offset;
 
-			y_tmp = (RGB2YUV_RF*rgb_ptr2[0] + RGB2YUV_RG*rgb_ptr2[1] + RGB2YUV_RB*rgb_ptr2[2])>>8;
-			//u_tmp += rgb_ptr2[2]-y_tmp;
-			//v_tmp += rgb_ptr2[0]-y_tmp;
-			y_ptr2[0]=((y_tmp*RGB2YUV_Y_FACTOR)>>7) + RGB2YUV_Y_OFFSET;
+			y_tmp = (param->r_factor*rgb_ptr2[0] + param->g_factor*rgb_ptr2[1] + param->b_factor*rgb_ptr2[2])>>8;
+			u_tmp += rgb_ptr2[2]-y_tmp;
+			v_tmp += rgb_ptr2[0]-y_tmp;
+			y_ptr2[0]=((y_tmp*param->y_factor)>>7) + param->y_offset;
 			
-			y_tmp = (RGB2YUV_RF*rgb_ptr2[4] + RGB2YUV_RG*rgb_ptr2[5] + RGB2YUV_RB*rgb_ptr2[6])>>8;
-			//u_tmp += rgb_ptr2[6]-y_tmp;
-			//v_tmp += rgb_ptr2[4]-y_tmp;
-			y_ptr2[1]=((y_tmp*RGB2YUV_Y_FACTOR)>>7) + RGB2YUV_Y_OFFSET;
+			y_tmp = (param->r_factor*rgb_ptr2[4] + param->g_factor*rgb_ptr2[5] + param->b_factor*rgb_ptr2[6])>>8;
+			u_tmp += rgb_ptr2[6]-y_tmp;
+			v_tmp += rgb_ptr2[4]-y_tmp;
+			y_ptr2[1]=((y_tmp*param->y_factor)>>7) + param->y_offset;
 
-			u_ptr[0] = (((u_tmp)*RGB2YUV_CB)>>8) + 128;
-			v_ptr[0] = (((v_tmp)*RGB2YUV_CB)>>8) + 128;
+			u_ptr[0] = (((u_tmp>>2)*param->cb_factor)>>8) + 128;
+			v_ptr[0] = (((v_tmp>>2)*param->cb_factor)>>8) + 128;
 			
 			rgb_ptr1 += 8;
 			rgb_ptr2 += 8;
@@ -209,8 +217,6 @@ void rgb32_yuv420_std(
 			v_ptr += 1;
 		}
 	}
-	tv1 = tm1.Stop();
-	log_dbg("convert took " + to_string(tv1));
 }
 
 void rgb_to_y420p_no_x264(int width, int height, uint8_t* destination, uint8_t* rgb) {
@@ -324,8 +330,6 @@ void rgb_to_y420p(X264_Encoder* x264, uint8_t* destination, uint8_t* rgb) {
 			}
 		}
 	}
-	//tv1 = tm1.Stop();
-	//log_dbg("convert took " + to_string(tv1));
 }
 
 int counter = 0;
@@ -337,9 +341,6 @@ void swapBuffers(X264_Encoder* x264) {
 	x264->pic.img.plane[0] = (uint8_t*)x264->sws->yuvbaseb;
 	x264->pic.img.plane[1] = (uint8_t*)x264->sws->yuvbaseb + x264->width * x264->height;
 	x264->pic.img.plane[2] = (uint8_t*)x264->sws->yuvbaseb + x264->width * x264->height + x264->width * x264->height / 4;
-	x264->sws->yuv[0] = x264->sws->yuvbasef;
-	x264->sws->yuv[1] = (uint8_t*)x264->sws->yuvbasef + x264->width * x264->height;
-	x264->sws->yuv[2] = (uint8_t*)x264->sws->yuvbasef + x264->width * x264->height + x264->width * x264->height / 4;
 }
 
 int X264_Encoder_Encode_Frame_Buffer_No_Convert(X264_Encoder* x264, char* fbp, char** out) {
@@ -371,11 +372,6 @@ int X264_Encoder_Encode_Frame_Buffer(X264_Encoder* x264, char* fbp, char** out) 
 	//tm1.Start();
 
 	thread convert(rgb_to_y420p, x264, (uint8_t*)x264->sws->yuvbasef, (uint8_t*)fbp);
-	//thread convert(rgb32_yuv420_std, x264->width, x264->height, 
-	//				(uint8_t*)fbp, x264->sws->rgbstride[0], 
-	//				(uint8_t*)x264->sws->yuv[0], (uint8_t*)x264->sws->yuv[1], (uint8_t*)x264->sws->yuv[2],
-	//				x264->sws->yuvstride[0], x264->sws->yuvstride[1]);
-
 	//convert.join();
 	//thread compress(compress_wrapper, x264);
 	//compress.join();

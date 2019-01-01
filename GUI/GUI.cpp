@@ -28,6 +28,7 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->NK_Context			= new nk_context;
 	gui->Font				= new FONT;
 	gui->FontNK				= new nk_user_font;
+	gui->BakedBmp 			= false;
 
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  = NULL;
@@ -437,8 +438,10 @@ void Render_Nuklear_GUI(GUI* gui) {
 			case NK_COMMAND_CURVE:
 			case NK_COMMAND_RECT_MULTI_COLOR:
 			case NK_COMMAND_IMAGE: {
-				const struct nk_command_image* image = (const struct nk_command_image*)command;
-				Draw_BMP((BMP*)image->img.handle.ptr, gui->Graphics_Handle, image->x, image->y);
+				if (!gui->BakedBmp) {
+					const struct nk_command_image* image = (const struct nk_command_image*)command;
+					Draw_BMP((BMP*)image->img.handle.ptr, gui->Graphics_Handle, image->x, image->y);
+				}
 				break;
 			}
 			case NK_COMMAND_ARC:
