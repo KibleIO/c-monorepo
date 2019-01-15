@@ -36,7 +36,7 @@ void Send_Data(DEVICE_FINDER* dev_finder, DEVICE_NODE* ptr) {
 	int counterr = 1000;
 	Timer wait;
 
-	while (!c->OpenConnection(ptr->port, dev_finder->address) && counterr-- > 0);
+	while (!c->OpenConnection(ptr->port, dev_finder->address) && counterr-- > 0) { usleep(100); }
 
 	if (counterr <= 0) {
 		log_err("couldn't connect " + ptr->str + " " + dev_finder->address + ":" + to_string(ptr->port));
