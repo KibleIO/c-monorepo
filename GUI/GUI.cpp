@@ -197,6 +197,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EV
 	for (int i = k_events->size(); i > 0; i--) {
 		KEYBOARD_EVENT* k_event;
 		k_events->pop(k_event);
+
 		switch(k_event->code) {
 			case KEY_LEFTSHIFT:
 			case KEY_RIGHTSHIFT:
