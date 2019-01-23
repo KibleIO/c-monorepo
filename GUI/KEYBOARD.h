@@ -26,17 +26,18 @@ struct nk_context;
 
 struct       KEYBOARD {
 	DEVICE* Device;
-	bool    Shift;
-	bool    Caps_Lock;
-	char*   Keys;
-	char*   Keys_Shifted;
+	static bool    Shift;
+	static bool    Caps_Lock;
+	static char*   Keys;
+	static char*   Keys_Shifted;
 };
 
 void      Initialize_Keyboard(KEYBOARD*, string, EVENT*);
 KEYBOARD* Construct_Keyboard (string, EVENT*);
 void      Delete_Keyboard    (KEYBOARD*);
 
-void Handle_Keyboard_X11(int display_ID, KEYBOARD** keyboard, int len);
+//void Handle_Keyboard_X11(int display_ID, KEYBOARD** keyboard, int len);
+void Handle_Keyboard_X11(int display_ID, Queue<EVENT_ELEMENT*>* events);
 //void Handle_Keyboard_NK(nk_context* context, KEYBOARD** keyboard, int len);
 
 #endif

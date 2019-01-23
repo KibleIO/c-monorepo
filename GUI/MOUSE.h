@@ -17,6 +17,7 @@
 #include <Utilities/EVENT.h>
 #include <Utilities/LOGGING.h>
 #include <Utilities/Timer.h>
+#include <Utilities/CONCURRENT_QUEUE.h>
 
 struct nk_context;
 
@@ -24,6 +25,12 @@ struct MOUSE_EVENT_ELEMENT : public NXTElement {
 	libinput_event* Event;
 };
 
+struct MOUSE_EVENT {
+	int x;
+	int y;
+	bool clicked;
+	int state;
+};
 
 #define MAX_STR_LEN 256
 
@@ -49,6 +56,7 @@ struct MOUSE{
 	int     	   Maximum_Y;
 	static int     Current_X;
 	static int     Current_Y;
+	static bool 	Clicked;
 	float          Sensitivity;
 
 	libinput_device *device;
@@ -60,7 +68,7 @@ struct MOUSE{
 
 	volatile bool Listening;
 	thread*       Event_Listener;
-	DynArr        Mouse_Event_Stack;
+	Queue<MOUSE_EVENT_ELEMENT*> Mouse_Event_Stack;
 
 	Mouse_Info mouse_info;
 
@@ -77,7 +85,6 @@ int open_restricted(const char* path, int flags, void* user_data);
 void close_restricted(int fd, void* user_data);
 void sighandler(int signal, siginfo_t* siginfo, void* userdata);
 
-//void Handle_Mouse_NK(nk_context* context, MOUSE** mouse, int len);
-
-void Handle_Mouse_X11(int display_ID, MOUSE** mouse, int len);
+//void Handle_Mouse_X11(int display_ID, MOUSE** mouse, int len);
+void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT*>* events);
 #endif

@@ -178,163 +178,131 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigne
 	}
 }
 
-void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len) {
+void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<EVENT_ELEMENT*>* k_events) {
 	nk_input_begin (gui->NK_Context);
 	// Mouse
 
-	for (int k = 0; k < len; k++) {
-		if (mouse[k] != NULL) {
-			for (int i = mouse[k]->Mouse_Event_Stack.getLength(); i > 0; i--) {
-				libinput_event_pointer* lep;
-				MOUSE_EVENT_ELEMENT* element = (MOUSE_EVENT_ELEMENT*)mouse[k]->Mouse_Event_Stack.GetElement(0);
-				switch(libinput_event_get_type(element->Event)) {
-					case LIBINPUT_EVENT_POINTER_MOTION:
-	                    lep = libinput_event_get_pointer_event(element->Event);
-						mouse[k]->Current_X += libinput_event_pointer_get_dx_unaccelerated(lep) * mouse[k]->Sensitivity;
-						if (mouse[k]->Current_X > mouse[k]->Maximum_X) {
-							mouse[k]->Current_X = mouse[k]->Maximum_X;
-						} else if (mouse[k]->Current_X < mouse[k]->Minimum_X) {
-							mouse[k]->Current_X = mouse[k]->Minimum_X;
-						}
-						mouse[k]->Current_Y += libinput_event_pointer_get_dy_unaccelerated(lep) * mouse[k]->Sensitivity;
-						if (mouse[k]->Current_Y > mouse[k]->Maximum_Y) {
-							mouse[k]->Current_Y = mouse[k]->Maximum_Y;
-						} else if(mouse[k]->Current_Y < mouse[k]->Minimum_Y) {
-							mouse[k]->Current_Y = mouse[k]->Minimum_Y;
-						}
-	                    break;
-	                case LIBINPUT_EVENT_POINTER_BUTTON:
-	                	lep = libinput_event_get_pointer_event(element->Event);
-	                	if (libinput_event_pointer_get_button(lep) == BTN_LEFT) {
-							log_dbg("left mouse clicked " + to_string(mouse[k]->Current_X) + " " + to_string(mouse[k]->Current_Y));
-	                		nk_input_button(gui->NK_Context, NK_BUTTON_LEFT,   mouse[k]->Current_X, mouse[k]->Current_Y, libinput_event_pointer_get_button_state(lep));
-	                	}
-	                	break;
-					default:
-						//Write_Notice(string("Unexpected mouse type ") + to_string(libinput_event_get_type(element->Event)));
-						break;
-				}
-				libinput_event_destroy(element->Event);
-				mouse[k]->Mouse_Event_Stack.Remove(element);
-				delete element;
-			}
-			nk_input_motion(gui->NK_Context, mouse[k]->Current_X, mouse[k]->Current_Y);
-		}
+	for (int i = m_events->size(); i > 0; i--) {
+		MOUSE_EVENT* m_event;
+		m_events->pop(m_event);
+		if (m_event->clicked) {
+	    	nk_input_button(gui->NK_Context, NK_BUTTON_LEFT, m_event->x, m_event->y, m_event->state);
+			log_dbg("mouse clicked at " + to_string(m_event->x) + " " + to_string(m_event->y));
+		} 
+		nk_input_motion(gui->NK_Context, m_event->x, m_event->y);
+		delete m_event;
 	}
 
 	// Keyboard
-	for (int k = 0; k < len; k++) {
-		if (keyboard[k] != NULL) {
-			for(int i = keyboard[k]->Device->Event_Stack.getLength(); i > 0; i--){
-				EVENT_ELEMENT* element = (EVENT_ELEMENT*)keyboard[k]->Device->Event_Stack.GetElement(0);
-				switch(element->Event.type){
-					case EV_SYN:
-					case EV_REL:
-						break;
-					case EV_KEY:
-						switch(element->Event.code){
-							case KEY_LEFTSHIFT:
-							case KEY_RIGHTSHIFT:
-								nk_input_key(gui->NK_Context, NK_KEY_SHIFT, element->Event.value);
-								switch(element->Event.value){
-									case 0: // Key Release
-										keyboard[k]->Shift = false;
-										break;
-									case 1: // Key Press
-									case 2: // Auto Repeat
-										keyboard[k]->Shift = true;
-										break;
-									default:
-										//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
-										break;
-								}
+	for (int i = k_events->size(); i > 0; i--) {
+		EVENT_ELEMENT* element;
+		k_events->pop(element);
+		switch(element->Event.type){
+			case EV_SYN:
+			case EV_REL:
+				break;
+			case EV_KEY:
+				switch(element->Event.code){
+					case KEY_LEFTSHIFT:
+					case KEY_RIGHTSHIFT:
+						nk_input_key(gui->NK_Context, NK_KEY_SHIFT, element->Event.value);
+						switch(element->Event.value){
+							case 0: // Key Release
+								KEYBOARD::Shift = false;
 								break;
-							case KEY_CAPSLOCK:
-								switch(element->Event.value){
-									case 0: // Key Release
-										keyboard[k]->Caps_Lock = false;
-										break;
-									case 1: // Key Press
-									case 2: // Auto Repeat
-										keyboard[k]->Caps_Lock = true;
-										break;
-									default:
-										//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-										break;
-								}
-								break;
-							case KEY_BACKSPACE:
-								nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, element->Event.value);
-								break;
-							case KEY_UP:
-								nk_input_key(gui->NK_Context, NK_KEY_UP,        element->Event.value);
-								break;
-							case KEY_DOWN:
-								nk_input_key(gui->NK_Context, NK_KEY_DOWN,      element->Event.value);
-								break;
-							case KEY_LEFT:
-								nk_input_key(gui->NK_Context, NK_KEY_LEFT,      element->Event.value);
-								break;
-							case KEY_RIGHT:
-								nk_input_key(gui->NK_Context, NK_KEY_RIGHT,     element->Event.value);
-								break;
-							case KEY_ENTER:
-								nk_input_key(gui->NK_Context, NK_KEY_ENTER,     element->Event.value);
+							case 1: // Key Press
+							case 2: // Auto Repeat
+								KEYBOARD::Shift = true;
 								break;
 							default:
-								if(element->Event.code <= 111){
-									switch(element->Event.value){
-										case 0:
-											break;
-										case 1: // Key Press
-										case 2: // Auto Repeat
-											char key_value;
-											if(keyboard[k]->Caps_Lock){
-												if (keyboard[k]->Shift) {
-													key_value = lower_key_strings[element->Event.code];
-												} else {
-													key_value = upper_key_strings[element->Event.code];
-												}
-											} else {
-												if (keyboard[k]->Shift) {
-													key_value = upper_key_strings[element->Event.code];
-												} else {
-													key_value = lower_key_strings[element->Event.code];
-												}
-											}
-											if(key_value > 0){
-												nk_input_char(gui->NK_Context, key_value);
-											}
-											break;
-										default:
-											//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-											break;
-									}
-								}
+								//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
 								break;
 						}
 						break;
-					case EV_ABS:
-					case EV_MSC:
-					case EV_SW:
-					case EV_LED:
-					case EV_SND:
-					case EV_REP:
-					case EV_FF:
-					case EV_PWR:
-					case EV_FF_STATUS:
-					case EV_MAX:
-					case EV_CNT:
+					case KEY_CAPSLOCK:
+						switch(element->Event.value){
+							case 0: // Key Release
+								KEYBOARD::Caps_Lock = false;
+								break;
+							case 1: // Key Press
+							case 2: // Auto Repeat
+								KEYBOARD::Caps_Lock = true;
+								break;
+							default:
+								//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+								break;
+						}
+						break;
+					case KEY_BACKSPACE:
+						nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, element->Event.value);
+						break;
+					case KEY_UP:
+						nk_input_key(gui->NK_Context, NK_KEY_UP,        element->Event.value);
+						break;
+					case KEY_DOWN:
+						nk_input_key(gui->NK_Context, NK_KEY_DOWN,      element->Event.value);
+						break;
+					case KEY_LEFT:
+						nk_input_key(gui->NK_Context, NK_KEY_LEFT,      element->Event.value);
+						break;
+					case KEY_RIGHT:
+						nk_input_key(gui->NK_Context, NK_KEY_RIGHT,     element->Event.value);
+						break;
+					case KEY_ENTER:
+						nk_input_key(gui->NK_Context, NK_KEY_ENTER,     element->Event.value);
 						break;
 					default:
-						//Write_Notice(string("@Listen_Keyboard() Unexpected event type: ") + to_string(element->Event.type) + " (code: " + to_string(element->Event.code) + " and value: " + to_string(element->Event.value) + ")");
+						if(element->Event.code <= 111){
+							switch(element->Event.value){
+								case 0:
+									break;
+								case 1: // Key Press
+								case 2: // Auto Repeat
+									char key_value;
+									if(KEYBOARD::Caps_Lock){
+										if (KEYBOARD::Shift) {
+											key_value = KEYBOARD::Keys[element->Event.code];
+										} else {
+											key_value = KEYBOARD::Keys_Shifted[element->Event.code];
+										}
+									} else {
+										if (KEYBOARD::Shift) {
+											key_value = KEYBOARD::Keys_Shifted[element->Event.code];
+										} else {
+											key_value = KEYBOARD::Keys[element->Event.code];
+										}
+									}
+									if(key_value > 0){
+										nk_input_char(gui->NK_Context, key_value);
+									}
+									break;
+								default:
+									//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+									break;
+							}
+						}
 						break;
 				}
-				keyboard[k]->Device->Event_Stack.Remove(element);
-				delete element;
-			}
+				break;
+			case EV_ABS:
+			case EV_MSC:
+			case EV_SW:
+			case EV_LED:
+			case EV_SND:
+			case EV_REP:
+			case EV_FF:
+			case EV_PWR:
+			case EV_FF_STATUS:
+			case EV_MAX:
+			case EV_CNT:
+				break;
+			default:
+				//Write_Notice(string("@Listen_Keyboard() Unexpected event type: ") + to_string(element->Event.type) + " (code: " + to_string(element->Event.code) + " and value: " + to_string(element->Event.value) + ")");
+				break;
 		}
+		delete element;
 	}
+	
 	nk_input_end(gui->NK_Context);
 }
 void Render_Nuklear_GUI(GUI* gui) {

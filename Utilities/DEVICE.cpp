@@ -29,8 +29,15 @@ void    Delete_Device    (DEVICE* device)                   {
 		delete device->Event_Listener;
 	}
 	close(device->File);
+	while (device->Event_Stack.size() > 0) {
+		EVENT_ELEMENT* event;
+		device->Event_Stack.pop(event);
+		delete event;
+	}
 	delete device;
+	device = NULL;
 }
+
 void    Listen_Device    (DEVICE* device)                   {
 	log_dbg("Beginning to listen to device " + string(device->Path));
 	while (device->Listening) {
@@ -39,7 +46,7 @@ void    Listen_Device    (DEVICE* device)                   {
 		   event_element->Event.type != EV_SYN                                  &&
 		   device->Listening) {
 			log_dbg("Adding to stack " + string(device->Path));
-			device->Event_Stack.Add(event_element);
+			device->Event_Stack.push(event_element);
 			Set_Event(device->Event_Status);
 		} else {
 			delete event_element;

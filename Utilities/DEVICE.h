@@ -8,6 +8,7 @@
 #include <Utilities/DynArr.h>
 #include <Utilities/LOGGING.h>
 #include <Utilities/EVENT.h>
+#include <Utilities/CONCURRENT_QUEUE.h>
 #include <string>
 
 struct  EVENT_ELEMENT : public NXTElement{
@@ -17,7 +18,7 @@ struct  EVENT_ELEMENT : public NXTElement{
 struct  DEVICE                           {
 	int           File;
 	char*         Path;
-	DynArr        Event_Stack;
+	Queue<EVENT_ELEMENT*> Event_Stack;
 	volatile bool Listening;
 	thread*       Event_Listener;
 	EVENT*        Event_Status;

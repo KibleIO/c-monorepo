@@ -3,6 +3,7 @@
 
 int MOUSE::Current_X;
 int MOUSE::Current_Y;
+bool MOUSE::Clicked;
 
 int open_restricted(const char* path, int flags, void* user_data) {
     bool* grab = (bool*)user_data;
@@ -126,15 +127,32 @@ void   Initialize_Mouse(MOUSE* mouse, int minimum_x, int maximum_x, int minimum_
 	log_dbg("Mouse " + string(mouse->mouse_info.name) + " initialized");
 }
 
-MOUSE* Construct_Mouse (int minimum_x, int maximum_x, int minimum_y, int maximum_y, float sensitivity, string path, EVENT* event_status)              {
+MOUSE* Construct_Mouse(int minimum_x, int maximum_x, int minimum_y, int maximum_y, float sensitivity, string path, EVENT* event_status) {
 	MOUSE* mouse = new MOUSE();
 	Initialize_Mouse(mouse, minimum_x, maximum_x, minimum_y, maximum_y, sensitivity, path, event_status);
 	return mouse;
 }
 
-void   Delete_Mouse    (MOUSE* mouse)                                                                               {
-	//delete mouse;
+void Delete_Mouse(MOUSE* mouse) {
 	log_dbg("Deleting mouse " + string(mouse->mouse_info.name));
+	mouse->Listening = false;
+	if (mouse->Event_Listener) {
+		mouse->Event_Listener->join();
+		delete mouse->Event_Listener;
+	}
+	if (mouse->device) {
+		libinput_device_unref(mouse->device);
+	}
+	if (mouse->li) {
+		libinput_unref(mouse->li);
+	}
+	while (mouse->Mouse_Event_Stack.size() > 0) {
+		MOUSE_EVENT_ELEMENT* event;
+		mouse->Mouse_Event_Stack.pop(event);
+		delete event;
+	}
+	delete mouse;
+	mouse = NULL;
 }
 
 void         Listen_Mouse      (MOUSE* mouse)                                                                             {
@@ -146,120 +164,30 @@ void         Listen_Mouse      (MOUSE* mouse)                                   
 	        while ((Event = libinput_get_event(mouse->li))) {
 	        	MOUSE_EVENT_ELEMENT* event_element = new MOUSE_EVENT_ELEMENT();
 	        	event_element->Event = Event;
-	            mouse->Mouse_Event_Stack.Add(event_element);
+	            mouse->Mouse_Event_Stack.push(event_element);
 				Set_Event(mouse->Event_Status);
 
 	            libinput_dispatch(mouse->li);
 	        }
 	    }
-
 	}
 }
 
-//void Handle_Mouse_NK(nk_context* context, MOUSE** mouse, int len) {
-//	if (!context) {
-//		log_err("Context is null");
-//		return;
-//	}
-//
-//	if (!mouse) {
-//		log_err("Mouse list is null");
-//		return;
-//	}
-//
-//	nk_input_begin (context);
-//
-//	for (int k = 0; k < len; k++) {
-//		if (mouse[k] != NULL) {
-//			for (int i = mouse[k]->Mouse_Event_Stack.getLength(); i > 0; i--) {
-//				libinput_event_pointer* lep;
-//				MOUSE_EVENT_ELEMENT* element = (MOUSE_EVENT_ELEMENT*)mouse[k]->Mouse_Event_Stack.GetElement(0);
-//				switch(libinput_event_get_type(element->Event)) {
-//					case LIBINPUT_EVENT_POINTER_MOTION:
-//	                    lep = libinput_event_get_pointer_event(element->Event);
-//						mouse[k]->Current_X += libinput_event_pointer_get_dx_unaccelerated(lep) * mouse[k]->Sensitivity;
-//						if(mouse[k]->Current_X > mouse[k]->Maximum_X) {
-//							mouse[k]->Current_X = mouse[k]->Maximum_X;
-//						} else if (mouse[k]->Current_X < mouse[k]->Minimum_X) {
-//							mouse[k]->Current_X = mouse[k]->Minimum_X;
-//						}
-//						mouse[k]->Current_Y += libinput_event_pointer_get_dy_unaccelerated(lep) * mouse[k]->Sensitivity;
-//						if (mouse[k]->Current_Y > mouse[k]->Maximum_Y) {
-//							mouse[k]->Current_Y = mouse[k]->Maximum_Y;
-//						} else if(mouse[k]->Current_Y < mouse[k]->Minimum_Y) {
-//							mouse[k]->Current_Y = mouse[k]->Minimum_Y;
-//						}
-//	                    break;
-//	                case LIBINPUT_EVENT_POINTER_BUTTON:
-//	                	lep = libinput_event_get_pointer_event(element->Event);
-//	                	if (libinput_event_pointer_get_button(lep) == BTN_LEFT) {
-//							log_dbg("Left click registered");
-//	                		nk_input_button(context, NK_BUTTON_LEFT, mouse[k]->Current_X, mouse[k]->Current_Y, libinput_event_pointer_get_button_state(lep));
-//							log_dbg(to_string(mouse[k]->Current_X) + " " + to_string(mouse[k]->Current_Y));
-//	                	}
-//	                	break;
-//					default:
-//						//Write_Notice(string("Unexpected mouse type ") + to_string(libinput_event_get_type(element->Event)));
-//						break;
-//				}
-//				libinput_event_destroy(element->Event);
-//				mouse[k]->Mouse_Event_Stack.Remove(element);
-//				delete element;
-//			}
-//			nk_input_motion(context, mouse[k]->Current_X, mouse[k]->Current_Y);
-//		}
-//	}
-//	nk_input_end(context);
-//}
-
-void Handle_Mouse_X11(int display_ID, MOUSE** mouse, int len) {
+void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT*>* events) {
 	Display* dpy = XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
 	if (!dpy) {
 		log_err("Unable to open display :" + to_string(display_ID));
 		return;
 	}
 
-	for (int k = 0; k < len; k++) {
-		if (mouse[k] != NULL) {
-			for (int i = mouse[k]->Mouse_Event_Stack.getLength(); i > 0; i--) {
-				libinput_event_pointer* lep;
-				MOUSE_EVENT_ELEMENT* element = (MOUSE_EVENT_ELEMENT*)mouse[k]->Mouse_Event_Stack.GetElement(0);
-				switch(libinput_event_get_type(element->Event)) {
-					case LIBINPUT_EVENT_POINTER_MOTION:
-	                    lep = libinput_event_get_pointer_event(element->Event);
-						mouse[k]->Current_X += libinput_event_pointer_get_dx_unaccelerated(lep) * mouse[k]->Sensitivity;
-						if(mouse[k]->Current_X > mouse[k]->Maximum_X) {
-							mouse[k]->Current_X = mouse[k]->Maximum_X;
-						} else if (mouse[k]->Current_X < mouse[k]->Minimum_X) {
-							mouse[k]->Current_X = mouse[k]->Minimum_X;
-						}
-						mouse[k]->Current_Y += libinput_event_pointer_get_dy_unaccelerated(lep) * mouse[k]->Sensitivity;
-						if (mouse[k]->Current_Y > mouse[k]->Maximum_Y) {
-							mouse[k]->Current_Y = mouse[k]->Maximum_Y;
-						} else if(mouse[k]->Current_Y < mouse[k]->Minimum_Y) {
-							mouse[k]->Current_Y = mouse[k]->Minimum_Y;
-						}
-	                    break;
-	                case LIBINPUT_EVENT_POINTER_BUTTON:
-	                	lep = libinput_event_get_pointer_event(element->Event);
-	                	if (libinput_event_pointer_get_button(lep) == BTN_LEFT) {
-							log_dbg("left click registered " + to_string(mouse[k]->Current_X) + " " + to_string(mouse[k]->Current_Y));
-	                		XTestFakeButtonEvent(dpy, 1, libinput_event_pointer_get_button_state(lep), CurrentTime);
-	                	} else if (libinput_event_pointer_get_button(lep) == BTN_RIGHT) {
-							log_dbg("right click registered " + to_string(mouse[k]->Current_X) + " " + to_string(mouse[k]->Current_Y));
-	                		XTestFakeButtonEvent(dpy, 3, libinput_event_pointer_get_button_state(lep), CurrentTime);
-	                	}
-	                	break;
-					default:
-						//Write_Notice(string("Unexpected mouse type ") + to_string(libinput_event_get_type(element->Event)));
-						break;
-				}
-				libinput_event_destroy(element->Event);
-				mouse[k]->Mouse_Event_Stack.Remove(element);
-				delete element;
-			}
-			XTestFakeMotionEvent(dpy, 0, mouse[k]->Current_X, mouse[k]->Current_Y, CurrentTime);
-		}
+	for (int i = events->size(); i > 0; i--) {
+		MOUSE_EVENT* m_event;
+		events->pop(m_event);
+		if (m_event->clicked) {
+			XTestFakeButtonEvent(dpy, 1, m_event->state, CurrentTime);
+		} 
+		XTestFakeMotionEvent(dpy, 0, m_event->x, m_event->y, CurrentTime);
+		delete m_event;
 	}
 
 	XFlush(dpy);

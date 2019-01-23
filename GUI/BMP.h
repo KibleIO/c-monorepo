@@ -5,6 +5,7 @@
 #include <string>
 #include <Graphics/Graphics.h>
 #include <Utilities/LOGGING.h>
+#include "avir.h"
 
 using namespace std;
 
