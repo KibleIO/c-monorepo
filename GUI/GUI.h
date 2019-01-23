@@ -59,5 +59,5 @@ void Render_X264(GUI* gui, char* X264_Buffer, int size);
 void Render_GUI(GUI* gui, char* output_buffer);
 
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
-void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<EVENT_ELEMENT*>* k_events);
+void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EVENT*>* k_events);
 #endif

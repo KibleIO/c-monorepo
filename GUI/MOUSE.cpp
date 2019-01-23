@@ -146,9 +146,9 @@ void Delete_Mouse(MOUSE* mouse) {
 	if (mouse->li) {
 		libinput_unref(mouse->li);
 	}
-	while (mouse->Mouse_Event_Stack.size() > 0) {
+	while (mouse->Events.size() > 0) {
 		MOUSE_EVENT_ELEMENT* event;
-		mouse->Mouse_Event_Stack.pop(event);
+		mouse->Events.pop(event);
 		delete event;
 	}
 	delete mouse;
@@ -164,7 +164,7 @@ void         Listen_Mouse      (MOUSE* mouse)                                   
 	        while ((Event = libinput_get_event(mouse->li))) {
 	        	MOUSE_EVENT_ELEMENT* event_element = new MOUSE_EVENT_ELEMENT();
 	        	event_element->Event = Event;
-	            mouse->Mouse_Event_Stack.push(event_element);
+	            mouse->Events.push(event_element);
 				Set_Event(mouse->Event_Status);
 
 	            libinput_dispatch(mouse->li);

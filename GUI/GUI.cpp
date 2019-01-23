@@ -178,7 +178,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigne
 	}
 }
 
-void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<EVENT_ELEMENT*>* k_events) {
+void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EVENT*>* k_events) {
 	nk_input_begin (gui->NK_Context);
 	// Mouse
 
@@ -195,112 +195,90 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<EVENT_ELEME
 
 	// Keyboard
 	for (int i = k_events->size(); i > 0; i--) {
-		EVENT_ELEMENT* element;
-		k_events->pop(element);
-		switch(element->Event.type){
-			case EV_SYN:
-			case EV_REL:
-				break;
-			case EV_KEY:
-				switch(element->Event.code){
-					case KEY_LEFTSHIFT:
-					case KEY_RIGHTSHIFT:
-						nk_input_key(gui->NK_Context, NK_KEY_SHIFT, element->Event.value);
-						switch(element->Event.value){
-							case 0: // Key Release
-								KEYBOARD::Shift = false;
-								break;
-							case 1: // Key Press
-							case 2: // Auto Repeat
-								KEYBOARD::Shift = true;
-								break;
-							default:
-								//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
-								break;
-						}
+		KEYBOARD_EVENT* k_event;
+		k_events->pop(k_event);
+		switch(k_event->code) {
+			case KEY_LEFTSHIFT:
+			case KEY_RIGHTSHIFT:
+				nk_input_key(gui->NK_Context, NK_KEY_SHIFT, k_event->value);
+				switch(k_event->value){
+					case 0: // Key Release
+						KEYBOARD::Shift = false;
 						break;
-					case KEY_CAPSLOCK:
-						switch(element->Event.value){
-							case 0: // Key Release
-								KEYBOARD::Caps_Lock = false;
-								break;
-							case 1: // Key Press
-							case 2: // Auto Repeat
-								KEYBOARD::Caps_Lock = true;
-								break;
-							default:
-								//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-								break;
-						}
-						break;
-					case KEY_BACKSPACE:
-						nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, element->Event.value);
-						break;
-					case KEY_UP:
-						nk_input_key(gui->NK_Context, NK_KEY_UP,        element->Event.value);
-						break;
-					case KEY_DOWN:
-						nk_input_key(gui->NK_Context, NK_KEY_DOWN,      element->Event.value);
-						break;
-					case KEY_LEFT:
-						nk_input_key(gui->NK_Context, NK_KEY_LEFT,      element->Event.value);
-						break;
-					case KEY_RIGHT:
-						nk_input_key(gui->NK_Context, NK_KEY_RIGHT,     element->Event.value);
-						break;
-					case KEY_ENTER:
-						nk_input_key(gui->NK_Context, NK_KEY_ENTER,     element->Event.value);
+					case 1: // Key Press
+					case 2: // Auto Repeat
+						KEYBOARD::Shift = true;
 						break;
 					default:
-						if(element->Event.code <= 111){
-							switch(element->Event.value){
-								case 0:
-									break;
-								case 1: // Key Press
-								case 2: // Auto Repeat
-									char key_value;
-									if(KEYBOARD::Caps_Lock){
-										if (KEYBOARD::Shift) {
-											key_value = KEYBOARD::Keys[element->Event.code];
-										} else {
-											key_value = KEYBOARD::Keys_Shifted[element->Event.code];
-										}
-									} else {
-										if (KEYBOARD::Shift) {
-											key_value = KEYBOARD::Keys_Shifted[element->Event.code];
-										} else {
-											key_value = KEYBOARD::Keys[element->Event.code];
-										}
-									}
-									if(key_value > 0){
-										nk_input_char(gui->NK_Context, key_value);
-									}
-									break;
-								default:
-									//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
-									break;
-							}
-						}
+						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
 						break;
 				}
 				break;
-			case EV_ABS:
-			case EV_MSC:
-			case EV_SW:
-			case EV_LED:
-			case EV_SND:
-			case EV_REP:
-			case EV_FF:
-			case EV_PWR:
-			case EV_FF_STATUS:
-			case EV_MAX:
-			case EV_CNT:
+			case KEY_CAPSLOCK:
+				switch(k_event->value){
+					case 0: // Key Release
+						KEYBOARD::Caps_Lock = false;
+						break;
+					case 1: // Key Press
+					case 2: // Auto Repeat
+						KEYBOARD::Caps_Lock = true;
+						break;
+					default:
+						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+						break;
+				}
+				break;
+			case KEY_BACKSPACE:
+				nk_input_key(gui->NK_Context, NK_KEY_BACKSPACE, k_event->value);
+				break;
+			case KEY_UP:
+				nk_input_key(gui->NK_Context, NK_KEY_UP,        k_event->value);
+				break;
+			case KEY_DOWN:
+				nk_input_key(gui->NK_Context, NK_KEY_DOWN,      k_event->value);
+				break;
+			case KEY_LEFT:
+				nk_input_key(gui->NK_Context, NK_KEY_LEFT,      k_event->value);
+				break;
+			case KEY_RIGHT:
+				nk_input_key(gui->NK_Context, NK_KEY_RIGHT,     k_event->value);
+				break;
+			case KEY_ENTER:
+				nk_input_key(gui->NK_Context, NK_KEY_ENTER,     k_event->value);
 				break;
 			default:
-				//Write_Notice(string("@Listen_Keyboard() Unexpected event type: ") + to_string(element->Event.type) + " (code: " + to_string(element->Event.code) + " and value: " + to_string(element->Event.value) + ")");
+				if(k_event->code <= 111){
+					switch(k_event->value){
+						case 0:
+							break;
+						case 1: // Key Press
+						case 2: // Auto Repeat
+							char key_value;
+							if(KEYBOARD::Caps_Lock){
+								if (KEYBOARD::Shift) {
+									key_value = KEYBOARD::Keys[k_event->code];
+								} else {
+									key_value = KEYBOARD::Keys_Shifted[k_event->code];
+								}
+							} else {
+								if (KEYBOARD::Shift) {
+									key_value = KEYBOARD::Keys_Shifted[k_event->code];
+								} else {
+									key_value = KEYBOARD::Keys[k_event->code];
+								}
+							}
+							if(key_value > 0){
+								nk_input_char(gui->NK_Context, key_value);
+							}
+							break;
+						default:
+							//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
+							break;
+					}
+				}
 				break;
 		}
-		delete element;
+		delete k_event;
 	}
 	
 	nk_input_end(gui->NK_Context);

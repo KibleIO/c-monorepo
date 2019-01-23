@@ -64,7 +64,7 @@ struct DEVICE_MANAGER {
 	int           p_d_size;
 	int 		  w, h; //these are only needed to initialize the mouse, sue me
 
-	static Queue<EVENT_ELEMENT*> Keyboard_Events;
+	static Queue<KEYBOARD_EVENT*> Keyboard_Events;
 	static Queue<MOUSE_EVENT*> Mouse_Events;
 
 	//stuff for reading /dev/input files

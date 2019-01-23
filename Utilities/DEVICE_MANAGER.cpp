@@ -1,6 +1,6 @@
 #include <Utilities/DEVICE_MANAGER.h>
 
-Queue<EVENT_ELEMENT*> DEVICE_MANAGER::Keyboard_Events;
+Queue<KEYBOARD_EVENT*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT*> DEVICE_MANAGER::Mouse_Events;
 
 mutex s_lock;
@@ -41,17 +41,17 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 			}
 			c_lock.unlock();
 		} else if (ptype == KEY_PACKET) {
-			EVENT_ELEMENT* element = new EVENT_ELEMENT;
+			KEYBOARD_EVENT* k_event = new KEYBOARD_EVENT;
 			s_lock.lock();
-			if (!dev_man->server->Receive((char*)element, sizeof(EVENT_ELEMENT))) {
+			if (!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not receive keyboard event");
 			}
 			s_lock.unlock();
-			DEVICE_MANAGER::Keyboard_Events.push(element);
+			DEVICE_MANAGER::Keyboard_Events.push(k_event);
 			c_lock.lock();
 			if (dev_man->client) {
 				if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)element, sizeof(EVENT_ELEMENT))) {
+					!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 					log_err("could not forward keyboard event");
 				}
 			}
@@ -75,19 +75,19 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, Client* client) {
 		log_err("keyboard is null");
 		return;
 	}
-	for (int i = keyboard->Device->Event_Stack.size(); i > 0; i--) {
-		EVENT_ELEMENT* element; 
-		keyboard->Device->Event_Stack.pop(element);
+	for (int i = keyboard->Events.size(); i > 0; i--) {
+		KEYBOARD_EVENT* k_event; 
+		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
 		c_lock.lock();
 		if (client) {
 			if (!client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!client->Send((char*)element, sizeof(EVENT_ELEMENT))) {
+				!client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not send keyboard event");
 			}
 		}
 		c_lock.unlock();
-		DEVICE_MANAGER::Keyboard_Events.push(element);
+		DEVICE_MANAGER::Keyboard_Events.push(k_event);
 	}
 }
 
@@ -101,10 +101,10 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 		return;
 	}
 
-	for (int i = mouse->Mouse_Event_Stack.size(); i > 0; i--) {
+	for (int i = mouse->Events.size(); i > 0; i--) {
 		libinput_event_pointer* lep;
 		MOUSE_EVENT_ELEMENT* element; 
-		mouse->Mouse_Event_Stack.pop(element);
+		mouse->Events.pop(element);
 		switch (libinput_event_get_type(element->Event)) {
 			case LIBINPUT_EVENT_POINTER_MOTION:
 	            lep = libinput_event_get_pointer_event(element->Event);
@@ -262,10 +262,12 @@ void Initialize_Device_Node(DEVICE_NODE* init, string ss, int t) {
 	init->okay    = true;
 }
 
+
 void Delete_Device_Node(DEVICE_NODE* init) {
 	if (!init->okay) {
 		return;
 	}
+	init->okay = false;
 	if (init->type == _MOUSE &&
 		init->hw.mouse != NULL) {
 		Delete_Mouse(init->hw.mouse);

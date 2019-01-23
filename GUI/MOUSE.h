@@ -68,7 +68,7 @@ struct MOUSE{
 
 	volatile bool Listening;
 	thread*       Event_Listener;
-	Queue<MOUSE_EVENT_ELEMENT*> Mouse_Event_Stack;
+	Queue<MOUSE_EVENT_ELEMENT*> Events;
 
 	Mouse_Info mouse_info;
 
