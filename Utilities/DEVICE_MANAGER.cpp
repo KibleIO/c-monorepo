@@ -3,59 +3,47 @@
 Queue<KEYBOARD_EVENT*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT*> DEVICE_MANAGER::Mouse_Events;
 
-//mutex s_lock;
-//mutex c_lock;
-
 void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 	Timer tm;
 	uint8_t ptype;
 	dev_man->receiving = true;
 	while (dev_man->receiving) {
-		//s_lock.lock();
 		tm.sleepMilli(16);
 		if (!dev_man->server) {
-			//s_lock.unlock();
 			continue;
 		} 
 		
-		//s_lock.unlock();
-		//s_lock.lock();
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
 			log_err("could not receive input packet");
 		}
-		//s_lock.unlock();
 		if (ptype == MOUSE_PACKET) {
 			MOUSE_EVENT* m_event = new MOUSE_EVENT;
-			//s_lock.lock();
 			if (!dev_man->server->Receive((char*)m_event, sizeof(MOUSE_EVENT))) {
 				log_err("could not receive mouse event");
 			}
-			//s_lock.unlock();
-			DEVICE_MANAGER::Mouse_Events.push(m_event);
-			//c_lock.lock();
 			if (dev_man->client) {
 				if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
 					!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
 					log_err("could not forward mouse event");
 				}
+				delete m_event;
+			} else {
+				DEVICE_MANAGER::Mouse_Events.push(m_event);
 			}
-			//c_lock.unlock();
 		} else if (ptype == KEY_PACKET) {
 			KEYBOARD_EVENT* k_event = new KEYBOARD_EVENT;
-			//s_lock.lock();
 			if (!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not receive keyboard event");
 			}
-			//s_lock.unlock();
-			DEVICE_MANAGER::Keyboard_Events.push(k_event);
-			//c_lock.lock();
 			if (dev_man->client) {
 				if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
 					!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 					log_err("could not forward keyboard event");
 				}
+				delete k_event;
+			} else {
+				DEVICE_MANAGER::Keyboard_Events.push(k_event);
 			}
-			//c_lock.unlock();
 		} else {
 			log_err("unknown packet type");
 		}
@@ -79,15 +67,15 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, Client* client) {
 		KEYBOARD_EVENT* k_event; 
 		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
-		//c_lock.lock();
 		if (client) {
 			if (!client->Send((char*)&ptype, sizeof(uint8_t)) ||
 				!client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not send keyboard event");
 			}
+			delete k_event;
+		} else {
+			DEVICE_MANAGER::Keyboard_Events.push(k_event);
 		}
-		//c_lock.unlock();
-		DEVICE_MANAGER::Keyboard_Events.push(k_event);
 	}
 }
 
@@ -130,16 +118,16 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 				m_event->y = mouse->Current_Y;
 				m_event->clicked = false;
 				m_event->state = 0;
-				//c_lock.lock();
 				if (client) {
 					ptype = MOUSE_PACKET;
 					if (!client->Send((char*)&ptype, sizeof(uint8_t)) || 
 						!client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
 						log_err("could not sent mouse movement");
 					}
+					delete m_event;
+				} else {
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
 				}
-				//c_lock.unlock();
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
 				break;
 
 			case LIBINPUT_EVENT_POINTER_BUTTON:
@@ -154,16 +142,16 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 				m_event->y = mouse->Current_Y;
 				m_event->clicked = true;
 				m_event->state = libinput_event_pointer_get_button_state(lep);
-				//c_lock.lock();
 				if (client) {
 					ptype = MOUSE_PACKET;
 					if (!client->Send((char*)&ptype, sizeof(uint8_t)) ||
 						!client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
 						log_err("could not send mouse click");
 					}
+					delete m_event;
+				} else {
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
 				}
-				//c_lock.unlock();
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
 				break;
 
 			default:
@@ -212,19 +200,15 @@ void Device_Server_Listen(DEVICE_MANAGER* dev_man, int port) {
 	}
 	log_dbg("bound");
 
-	//s_lock.lock();
 	dev_man->server = server;
-	//s_lock.unlock();
 }
 
 void Device_Server_Close_Connection(DEVICE_MANAGER* dev_man) {
-	//s_lock.lock();
 	if (dev_man->server) {
 		dev_man->server->CloseConnection();
 		delete dev_man->server;
 		dev_man->server = NULL;
 	}
-	//s_lock.unlock();
 }
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, int port, string ip) {
@@ -240,20 +224,15 @@ void Device_Client_Connect(DEVICE_MANAGER* dev_man, int port, string ip) {
 	}
 	log_dbg("connected");
 
-
-	//c_lock.lock();
 	dev_man->client = client;
-	//c_lock.unlock();
 }
 
 void Device_Client_Close_Connection(DEVICE_MANAGER* dev_man) {
-	//c_lock.lock();
 	if (dev_man->client) {
 		dev_man->client->CloseConnection();
 		delete dev_man->client;
 		dev_man->client = NULL;
 	}
-	//c_lock.unlock();
 }
 
 void Initialize_Device_Node(DEVICE_NODE* init, string ss, int t) {

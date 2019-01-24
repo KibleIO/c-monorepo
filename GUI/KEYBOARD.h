@@ -1,9 +1,12 @@
 #ifndef  KEYBOARD_H_
 #define  KEYBOARD_H_
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <linux/input.h>
 #include <Utilities/EVENT.h>
-#include <Utilities/DEVICE.h>
 #include <Utilities/LOGGING.h>
+#include <Utilities/CONCURRENT_QUEUE.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
 
