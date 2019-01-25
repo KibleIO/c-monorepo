@@ -28,6 +28,10 @@
 #define GUI_X264_BUFFER 1
 #define GUI_EMPTY_BUFFER 2
 
+#define GUI_FONT_SMALL 0
+#define GUI_FONT_MEDIUM 1
+#define GUI_FONT_LARGE 2
+
 #define MAX_BUFFER 64
 using namespace std;
 
@@ -38,8 +42,16 @@ struct GUI {
 	int				Frame_Resolution;
 
 	nk_context* 	NK_Context;
-	FONT* 			Font;
-	nk_user_font*	FontNK;
+
+	FONT*				SmallFont;
+	FONT* 			MediumFont;
+	FONT*				LargeFont;
+	FONT*				CurrentFont;
+
+	nk_user_font*	SmallFontNK;
+	nk_user_font*	MediumFontNK;
+	nk_user_font* LargeFontNK;
+
 	char*			Graphics_Handle_Buffer;
 	GRAPHICS*		Graphics_Handle;
 
@@ -49,8 +61,10 @@ struct GUI {
 static float Font_Get_Text_Width(nk_handle, float, const char*, int);
 void Initialize_GUI_Themis(GUI* gui, int display_id);
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
+void Pair_Fonts(nk_user_font*, FONT*, float height, const char* font_path);
+void Set_Font(GUI*, int fontFlag);
 void Delete_GUI(GUI*);
-void Draw_Text(GUI*, GRAPHICS*, const struct nk_command*);
+void Draw_Text(GUI*, GRAPHICS*, const struct nk_command_text*);
 void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
 void Render_Mouse_GUI(GUI*, double, double);

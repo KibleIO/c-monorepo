@@ -2,7 +2,6 @@
 
 #include "GUI.h"
 
-
 static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length) {
 	BAKED_GLYPH* glyphs = (BAKED_GLYPH*)handle.ptr;
 	int _x = 0;
@@ -15,8 +14,15 @@ static float Font_Get_Text_Width(nk_handle handle, float height, const char* tex
 void Initialize_GUI_Themis(GUI* gui, int display_id) {
 	gui->Display_ID = display_id;
 	gui->NK_Context				= NULL;
-	gui->Font					= NULL;
-	gui->FontNK					= NULL;
+
+	gui->SmallFont = NULL;
+	gui->MediumFont = NULL;
+	gui->LargeFont = NULL;
+
+	gui->SmallFontNK = NULL;
+	gui->MediumFontNK = NULL;
+	gui->LargeFontNK = NULL;
+
 	gui->Graphics_Handle_Buffer	= NULL;
 	gui->Graphics_Handle		= NULL;
 }
@@ -26,12 +32,19 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->Height				= height;
 	gui->Frame_Resolution	= width * height;
 	gui->NK_Context			= new nk_context;
-	gui->Font				= new FONT;
-	gui->FontNK				= new nk_user_font;
+
+	gui->SmallFont = new FONT;
+	gui->MediumFont = new FONT;
+	gui->LargeFont = new FONT;
+
+	gui->SmallFontNK = new nk_user_font;
+	gui->MediumFontNK	= new nk_user_font;
+	gui->LargeFontNK	= new nk_user_font;
+
 	gui->BakedBmp 			= false;
 
 	if (frame_buffer) {
-		gui->Graphics_Handle_Buffer		  = NULL;
+		gui->Graphics_Handle_Buffer		  	= NULL;
 		gui->Graphics_Handle              = new GRAPHICS;
 		Initialize_GRAPHICS(gui->Graphics_Handle, frame_buffer, gui->Width, gui->Height);
 	} else {
@@ -41,13 +54,12 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	}
 	gui->Graphics_Handle->Transparent = true;
 
-	float text_height = int((gui->Height * 3) / 100);
-	Initialize_Font(gui->Font, font_path.c_str(), text_height);
+	Pair_Fonts(gui->SmallFontNK, gui->SmallFont, int((gui->Height * 2) / 100), font_path.c_str());
+	Pair_Fonts(gui->MediumFontNK, gui->MediumFont, int((gui->Height * 3) / 100), font_path.c_str());
+	Pair_Fonts(gui->LargeFontNK, gui->LargeFont, int((gui->Height * 6) / 100), font_path.c_str());
 
-	gui->FontNK->userdata.ptr = gui->Font->Baked_glyphs;
-	gui->FontNK->height = text_height;
-	gui->FontNK->width = Font_Get_Text_Width;
-	nk_init_default(gui->NK_Context, gui->FontNK);
+	nk_init_default(gui->NK_Context, gui->MediumFontNK);
+	Set_Font(gui, GUI_FONT_MEDIUM);
 
 	gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
 	gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
@@ -88,21 +100,65 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
 }
 
+void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
+	Initialize_Font(userFont, font_path, height);
+	nkFont->userdata.ptr = userFont->Baked_glyphs;
+	nkFont->height = height;
+	nkFont->width = Font_Get_Text_Width;
+}
+
+void Set_Font(GUI* gui, int fontFlag) {
+	if(fontFlag == GUI_FONT_SMALL) {
+		gui->CurrentFont = gui->SmallFont;
+		nk_style_set_font(gui->NK_Context, gui->SmallFontNK);
+	}
+	else if(fontFlag == GUI_FONT_MEDIUM) {
+		gui->CurrentFont = gui->MediumFont;
+		nk_style_set_font(gui->NK_Context, gui->MediumFontNK);
+	}
+	else if(fontFlag == GUI_FONT_LARGE) {
+		gui->CurrentFont = gui->LargeFont;
+		nk_style_set_font(gui->NK_Context, gui->LargeFontNK);
+	}
+}
+
 void Delete_GUI(GUI* gui) {
 	if (gui->NK_Context) {
 		log_dbg("deleting nk context");
 		nk_free(gui->NK_Context);
 		delete gui->NK_Context;
 	}
-	if (gui->Font) {
-		log_dbg("deleting font");
-		Delete_Font(gui->Font);
-		delete gui->Font;
+
+	if (gui->SmallFont) {
+		log_dbg("deleting small font");
+		Delete_Font(gui->SmallFont);
+		delete gui->SmallFont;
 	}
-	if (gui->FontNK) {
-		log_dbg("deleting fontNK");
-		delete gui->FontNK;
+	if (gui->SmallFontNK) {
+		log_dbg("deleting small fontNK");
+		delete gui->SmallFontNK;
 	}
+
+	if (gui->MediumFont) {
+		log_dbg("deleting medium font");
+		Delete_Font(gui->MediumFont);
+		delete gui->MediumFont;
+	}
+	if (gui->MediumFontNK) {
+		log_dbg("deleting medium fontNK");
+		delete gui->MediumFontNK;
+	}
+
+	if (gui->LargeFont) {
+		log_dbg("deleting large font");
+		Delete_Font(gui->LargeFont);
+		delete gui->LargeFont;
+	}
+	if (gui->LargeFontNK) {
+		log_dbg("deleting large fontNK");
+		delete gui->LargeFontNK;
+	}
+
 	if (gui->Graphics_Handle_Buffer) {
 		log_dbg("deleting graphics handle buffer");
 		delete gui->Graphics_Handle_Buffer;
@@ -113,11 +169,11 @@ void Delete_GUI(GUI* gui) {
 	}
 }
 
-void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command* command) {
+void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* command) {
 	const struct nk_command_text* t = (const struct nk_command_text*)command;
 	string str = string(t->string);
 	int _x = t->x;
-	int _y = t->y + gui->Font->Baseline;
+	int _y = t->y + gui->CurrentFont->Baseline;
 
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
 	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
@@ -130,7 +186,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command* command) {
 	} kk;
 
 	for (int i = 0; i < str.length(); i++) {
-		BAKED_GLYPH *c = &gui->Font->Baked_glyphs[int(str[i]) - 32];
+		BAKED_GLYPH* c = &((BAKED_GLYPH*)command->font->userdata.ptr)[int(str[i]) - 32];//&gui->Font->Baked_glyphs[int(str[i]) - 32];
 
 		for (int x = 0; x < c->W; x++){
 			for (int y = 0; y < c->H; y++){
@@ -160,7 +216,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigne
 	//unsigned char bg[] = {0x25,0x25,0x25,0xFF};
 
 	for (int i = 0; i < str.length(); i++) {
-		BAKED_GLYPH *c = &gui->Font->Baked_glyphs[int(str[i]) - 32];
+		BAKED_GLYPH *c = &gui->CurrentFont->Baked_glyphs[int(str[i]) - 32];
 
 		for (int x = 0; x < c->W; x++){
 			for (int y = 0; y < c->H; y++){
@@ -337,6 +393,7 @@ void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len) {
 	}
 	nk_input_end(gui->NK_Context);
 }
+
 void Render_Nuklear_GUI(GUI* gui) {
 	const struct nk_command* command;
 	Integer color;
@@ -430,7 +487,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[2] = t->foreground.b;
 				color.bytes[3] = t->foreground.a;
 
-				Draw_Text(gui, gui->Graphics_Handle, command);
+				Draw_Text(gui, gui->Graphics_Handle, t);
 
 				//Draw_Text(gui, gui->Graphics_Handle, string(t->string), t->x, t->y + gui->Font->Baseline, (unsigned char*) color.bytes, (unsigned char*) gui->Graphics_Handle->buffer_i);
 				break;
@@ -451,8 +508,9 @@ void Render_Nuklear_GUI(GUI* gui) {
 				break;
 		}
 	}
+
 	nk_clear(gui->NK_Context);
-	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	//Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
 
 void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
