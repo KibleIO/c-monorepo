@@ -44,8 +44,8 @@ void Set_Clip_GRAPHICS(GRAPHICS* graphics, int x, int y, int width, int height) 
 	  }
 	  graphics->X_clip      = x;
 	  graphics->Y_clip      = y;
-	  graphics->Width_Clip  = width + x;
-	  graphics->Height_Clip = height + y;
+	  graphics->Width_Clip  = width;
+	  graphics->Height_Clip = height;
 	}
 }
 
@@ -66,7 +66,7 @@ void DrawPoint_GRAPHICS_UNSAFE(GRAPHICS* graphics, int x, int y, int color) {
 }
 
 void DrawPoint_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int col1) {
-	if (x < graphics->Width_Clip && x >= graphics->X_clip && y < graphics->Height_Clip && y >= graphics->Y_clip) {
+	if (x < graphics->Width_Clip + graphics->X_clip && x >= graphics->X_clip && y < graphics->Height_Clip + graphics->Y_clip && y >= graphics->Y_clip) {
 		unsigned char* fg = (unsigned char*) &col1;
 		unsigned char* bg = (unsigned char*) &((int*)graphics->Buffer)[x + (y * graphics->Width)];
 		unsigned int result;
@@ -100,7 +100,7 @@ void DrawPoint_Transparent_GRAPHICS_UNSAFE(GRAPHICS* graphics, int x, int y, int
 }
 
 void DrawPoint_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int color) {
-	if (x < graphics->Width_Clip && x >= graphics->X_clip && y < graphics->Height_Clip && y >= graphics->Y_clip) {
+	if (x < graphics->Width_Clip + graphics->X_clip && x >= graphics->X_clip && y < graphics->Height_Clip + graphics->Y_clip && y >= graphics->Y_clip) {
  		((int*)graphics->Buffer)[x + (y * graphics->Width)]= color;
 	}
 }
@@ -326,7 +326,7 @@ void DrawLine_Height_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int 
 	if (x < graphics->X_clip || x > graphics->Width_Clip + graphics->X_clip) return;
 	if (y < graphics->Y_clip) { height -= graphics->Y_clip - y; y = graphics->Y_clip; }
 	if (height <= 0) return;
-	if (height + y > graphics->Height_Clip + graphics->Y_clip) height = (height + y) - (graphics->Height_Clip + graphics->Y_clip);
+	if (height + y > graphics->Height_Clip + graphics->Y_clip) height = (graphics->Height_Clip + graphics->Y_clip) - y;
 
 	for (int i = 0; i < height; i++) {
 		DrawPoint_Transparent_GRAPHICS_UNSAFE(graphics, x, y + i, color);
@@ -343,7 +343,7 @@ void DrawLine_Height_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int heigh
 	if (x < graphics->X_clip || x > graphics->Width_Clip + graphics->X_clip) return;
 	if (y < graphics->Y_clip) { height -= graphics->Y_clip - y; y = graphics->Y_clip; }
 	if (height <= 0) return;
-	if (height + y > graphics->Height_Clip + graphics->Y_clip) height = (height + y) - (graphics->Height_Clip + graphics->Y_clip);
+	if (height + y > graphics->Height_Clip + graphics->Y_clip) height = (graphics->Height_Clip + graphics->Y_clip) - y;
 
 	for (int i = 0; i < height; i++) {
 		DrawPoint_Opaque_GRAPHICS_UNSAFE(graphics, x, y + i, color);
@@ -376,7 +376,7 @@ void DrawLine_Width_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w
 	if (y < graphics->Y_clip || y > graphics->Height_Clip + graphics->Y_clip) return;
 	if (x < graphics->X_clip) { width -= graphics->X_clip - x; x = graphics->X_clip; }
 	if (width <= 0) return;
-	if (width + x > graphics->Width_Clip + graphics->X_clip) width = (width + x) - (graphics->Width_Clip + graphics->X_clip);
+	if (width + x > graphics->Width_Clip + graphics->X_clip) width = (graphics->Width_Clip + graphics->X_clip) - x;
 
 	for (int i = 0; i < width; i++) {
 		DrawPoint_Transparent_GRAPHICS_UNSAFE(graphics, x + i, y, color);
@@ -393,7 +393,7 @@ void DrawLine_Width_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int width,
 	if (y < graphics->Y_clip || y > graphics->Height_Clip + graphics->Y_clip) return;
 	if (x < graphics->X_clip) { width -= graphics->X_clip - x; x = graphics->X_clip; }
 	if (width <= 0) return;
-	if (width + x > graphics->Width_Clip + graphics->X_clip) width = (width + x) - (graphics->Width_Clip + graphics->X_clip);
+	if (width + x > graphics->Width_Clip + graphics->X_clip) width = (graphics->Width_Clip + graphics->X_clip) - x;
 
 	for (int i = 0; i < width; i++) {
 		DrawPoint_Opaque_GRAPHICS_UNSAFE(graphics, x + i, y, color);
@@ -421,8 +421,8 @@ void DrawSquare_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, in
 	if (y < graphics->Y_clip) { h -= graphics->Y_clip - y; y = graphics->Y_clip; }
 	if (w <= 0) return;
 	if (h <= 0) return;
-	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (x + w) - (graphics->Width_Clip  + graphics->X_clip);
-	if (y + h > graphics->Height_Clip + graphics->Y_clip) w = (y + h) - (graphics->Height_Clip + graphics->Y_clip);
+	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (graphics->Width_Clip  + graphics->X_clip) - x;
+	if (y + h > graphics->Height_Clip + graphics->Y_clip) h = (graphics->Height_Clip + graphics->Y_clip) - y;
 
 	DrawLine_Width_Transparent_GRAPHICS_UNSAFE(graphics, x, y, w, color);
 	DrawLine_Height_Transparent_GRAPHICS_UNSAFE(graphics, x, y, h, color);
@@ -437,8 +437,8 @@ void DrawSquare_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, 
 	if (y < graphics->Y_clip) { h -= graphics->Y_clip - y; y = graphics->Y_clip; }
 	if (w <= 0) return;
 	if (h <= 0) return;
-	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (x + w) - (graphics->Width_Clip  + graphics->X_clip);
-	if (y + h > graphics->Height_Clip + graphics->Y_clip) w = (y + h) - (graphics->Height_Clip + graphics->Y_clip);
+	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (graphics->Width_Clip  + graphics->X_clip) - x;
+	if (y + h > graphics->Height_Clip + graphics->Y_clip) h = (graphics->Height_Clip + graphics->Y_clip) - y;
 
 	DrawLine_Width_Opaque_GRAPHICS_UNSAFE(graphics, x, y, w, color);
 	DrawLine_Height_Opaque_GRAPHICS_UNSAFE(graphics, x, y, h, color);
@@ -463,11 +463,11 @@ void FillSquare_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, in
 	}
 	if (x < graphics->X_clip) {
 		w -= graphics->X_clip - x;
-		x = graphics->X_clip; 
+		x = graphics->X_clip;
 	}
-	if (y < graphics->Y_clip) { 
-		h -= graphics->Y_clip - y; 
-		y = graphics->Y_clip; 
+	if (y < graphics->Y_clip) {
+		h -= graphics->Y_clip - y;
+		y = graphics->Y_clip;
 	}
 	if (w <= 0) {
 		return;
@@ -476,10 +476,10 @@ void FillSquare_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, in
 		return;
 	}
 	if (x + w > graphics->Width_Clip  + graphics->X_clip) {
-		w = (x + w) - (graphics->Width_Clip  + graphics->X_clip);
+		w = (graphics->Width_Clip  + graphics->X_clip) - x;
 	}
 	if (y + h > graphics->Height_Clip + graphics->Y_clip) {
-		w = (y + h) - (graphics->Height_Clip + graphics->Y_clip);
+		h = (graphics->Height_Clip + graphics->Y_clip) - y;
 	}
 
 	for (int i = 0; i < h; i++) {
@@ -494,8 +494,8 @@ void FillSquare_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, 
 	if (y < graphics->Y_clip) { h -= graphics->Y_clip - y; y = graphics->Y_clip; }
 	if (w <= 0) return;
 	if (h <= 0) return;
-	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (x + w) - (graphics->Width_Clip  + graphics->X_clip);
-	if (y + h > graphics->Height_Clip + graphics->Y_clip) w = (y + h) - (graphics->Height_Clip + graphics->Y_clip);
+	if (x + w > graphics->Width_Clip  + graphics->X_clip) w = (graphics->Width_Clip  + graphics->X_clip) - x;
+	if (y + h > graphics->Height_Clip + graphics->Y_clip) h = (graphics->Height_Clip + graphics->Y_clip) - y;
 
 	for (int i = 0; i < h; i++) {
 		DrawLine_Width_Opaque_GRAPHICS_UNSAFE(graphics, x, y + i, w, color);
@@ -753,7 +753,7 @@ void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, in
 
 void FillQuarterArc_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 	// Prevent function from continuing if dimensions are invalid
-	if(x < 0 || y < 0 || w < 0 || h < 0) {
+	if(x < 0 || y < 0 || w < 2 || h < 2) {
 		cout << "ERROR: the arc is invalid and cannot be draw\n";
 		cout << "Arc rect: " << x << ", " << y << ", " << w << ", " << h << endl;
 		return;

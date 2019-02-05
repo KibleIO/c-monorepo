@@ -13,16 +13,16 @@ void BakeBackground_BMP(BMP* bmp, int color) {
 			unsigned int alpha = ((unsigned char*)&pixel)[3] + 1;
 			unsigned int inv_alpha = 256 - alpha;
 
-    		((unsigned char*)&result)[0] = 
-				(unsigned char)((alpha * 
-				((unsigned char*)&pixel)[0] + inv_alpha * 
+    		((unsigned char*)&result)[0] =
+				(unsigned char)((alpha *
+				((unsigned char*)&pixel)[0] + inv_alpha *
 				((unsigned char*)&color)[0]) >> 8);
-    		((unsigned char*)&result)[1] = 
-				(unsigned char)((alpha * 
-				((unsigned char*)&pixel)[1] + inv_alpha * 
+    		((unsigned char*)&result)[1] =
+				(unsigned char)((alpha *
+				((unsigned char*)&pixel)[1] + inv_alpha *
 				((unsigned char*)&color)[1]) >> 8);
-    		((unsigned char*)&result)[2] = 
-				(unsigned char)((alpha * 
+    		((unsigned char*)&result)[2] =
+				(unsigned char)((alpha *
 				((unsigned char*)&pixel)[2] + inv_alpha *
 				((unsigned char*)&color)[2]) >> 8);
     		((unsigned char*)&result)[3] = 0xff;
@@ -37,6 +37,12 @@ void BakeBackground_BMP(BMP* bmp, int color) {
 void Initialize_BMP(BMP* bmp, string loc) {
 	int x,y,n;
   unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
+
+	// stbi_load returns null if it could not load the image at loc
+	if(data == nullptr) {
+		cout << "No image file exists at " << loc << endl;
+		return;
+	}
 
 	if (n != 4) {
 		log_err("File is wrong format");
@@ -85,6 +91,12 @@ void Initialize_BMP(BMP* bmp, string loc) {
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	int x,y,n;
   unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
+
+	// stbi_load returns null if it could not load the image at loc
+	if(data == nullptr) {
+		cout << "No image file exists at " << loc << endl;
+		return;
+	}
 
 	if (n != 4) {
 		log_err("File is wrong format");
@@ -206,20 +218,20 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int X, int Y) {
 			for (int x = 0; x < bmp->W; x++) {
 				fg = *((int*)bmp->Data + y * bmp->W + x);
 				bg = *((int*)fbp + (y + Y) * fbp_w + x + X);
-				
+
 				alpha = ((unsigned char*)&fg)[3] + 1;
 				inv_alpha = 256 - alpha;
 
-    			((unsigned char*)&result)[0] = 
-					(unsigned char)((alpha * 
-					((unsigned char*)&fg)[0] + inv_alpha * 
+    			((unsigned char*)&result)[0] =
+					(unsigned char)((alpha *
+					((unsigned char*)&fg)[0] + inv_alpha *
 					((unsigned char*)&bg)[0]) >> 8);
-    			((unsigned char*)&result)[1] = 
-					(unsigned char)((alpha * 
-					((unsigned char*)&fg)[1] + inv_alpha * 
+    			((unsigned char*)&result)[1] =
+					(unsigned char)((alpha *
+					((unsigned char*)&fg)[1] + inv_alpha *
 					((unsigned char*)&bg)[1]) >> 8);
-    			((unsigned char*)&result)[2] = 
-					(unsigned char)((alpha * 
+    			((unsigned char*)&result)[2] =
+					(unsigned char)((alpha *
 					((unsigned char*)&fg)[2] + inv_alpha *
 					((unsigned char*)&bg)[2]) >> 8);
     			((unsigned char*)&result)[3] = 0xff;

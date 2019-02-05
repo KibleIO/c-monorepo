@@ -244,7 +244,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EV
 		if (m_event->clicked) {
 	    	nk_input_button(gui->NK_Context, NK_BUTTON_LEFT, m_event->x, m_event->y, m_event->state);
 			log_dbg("mouse clicked at " + to_string(m_event->x) + " " + to_string(m_event->y));
-		} 
+		}
 		nk_input_motion(gui->NK_Context, m_event->x, m_event->y);
 		delete m_event;
 	}
@@ -337,7 +337,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EV
 		}
 		delete k_event;
 	}
-	
+
 	nk_input_end(gui->NK_Context);
 }
 
@@ -433,7 +433,6 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[1] = t->foreground.g;
 				color.bytes[2] = t->foreground.b;
 				color.bytes[3] = t->foreground.a;
-
 				Draw_Text(gui, gui->Graphics_Handle, t);
 
 				//Draw_Text(gui, gui->Graphics_Handle, string(t->string), t->x, t->y + gui->Font->Baseline, (unsigned char*) color.bytes, (unsigned char*) gui->Graphics_Handle->buffer_i);
@@ -457,7 +456,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 	}
 
 	nk_clear(gui->NK_Context);
-	//Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
 
 void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
