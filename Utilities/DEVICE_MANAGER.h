@@ -86,12 +86,15 @@ void Device_Client_Start(DEVICE_MANAGER* dev_finder);
 void Device_Client_Stop(DEVICE_MANAGER* dev_finder);
 
 void Device_Server_Listen(DEVICE_MANAGER* dev_finder, int port);
+void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server);
 void Device_Server_Close_Connection(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_finder, int port, string ip);
+void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
 void Device_Client_Close_Connection(DEVICE_MANAGER* dev_finder);
 
 void Refresh_Devices(DEVICE_MANAGER* dev_finder);
 void Initialize_Device_Manager(DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status);
 
+void Delete_Device_Manager(DEVICE_MANAGER* dev_man);
 #endif

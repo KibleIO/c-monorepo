@@ -14,6 +14,8 @@ public:
 	Server();
 	~Server();
 	bool Init();
+	bool Bind(int port);
+	bool ListenBound();
 	bool Listen(int);
 	void  CloseConnection();
 	bool  Send(char *, int);

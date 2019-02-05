@@ -8,8 +8,8 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype;
 	dev_man->receiving = true;
 	while (dev_man->receiving) {
-		tm.sleepMilli(16);
 		if (!dev_man->server) {
+			tm.sleepMilli(16);
 			continue;
 		} 
 		
@@ -18,13 +18,16 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 		}
 		if (ptype == MOUSE_PACKET) {
 			MOUSE_EVENT* m_event = new MOUSE_EVENT;
-			if (!dev_man->server->Receive((char*)m_event, sizeof(MOUSE_EVENT))) {
+			if (
+			!dev_man->server->Receive((char*)m_event, sizeof(MOUSE_EVENT))) {
 				log_err("could not receive mouse event");
 			}
 			if (dev_man->client) {
-				if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
+				if (
+				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+				!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
 					log_err("could not forward mouse event");
+					dev_man->client = NULL;
 				}
 				delete m_event;
 			} else {
@@ -32,13 +35,17 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 			}
 		} else if (ptype == KEY_PACKET) {
 			KEYBOARD_EVENT* k_event = new KEYBOARD_EVENT;
-			if (!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT))) {
+			if (
+			!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not receive keyboard event");
 			}
 			if (dev_man->client) {
-				if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
+				if (
+				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+				!dev_man->client->Send((char*)k_event,
+				sizeof(KEYBOARD_EVENT))) {
 					log_err("could not forward keyboard event");
+					dev_man->client = NULL;
 				}
 				delete k_event;
 			} else {
@@ -52,11 +59,11 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 
 void Device_Server_Stop(DEVICE_MANAGER* dev_man) {
 	dev_man->receiving = false;
-	Device_Client_Close_Connection(dev_man);
-	Device_Server_Close_Connection(dev_man);
+	//Device_Client_Close_Connection(dev_man);
+	//Device_Server_Close_Connection(dev_man);
 }
 
-void Send_Keyboard_Data(DEVICE_NODE* dev, Client* client) {
+void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	uint8_t ptype;
 	KEYBOARD* keyboard = dev->hw.keyboard;
 	if (!keyboard) {
@@ -67,10 +74,12 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, Client* client) {
 		KEYBOARD_EVENT* k_event; 
 		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
-		if (client) {
-			if (!client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
+		if (dev_man->client) {
+			if (
+			!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+			!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not send keyboard event");
+				dev_man->client = NULL;
 			}
 			delete k_event;
 		} else {
@@ -79,7 +88,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, Client* client) {
 	}
 }
 
-void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
+void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	MOUSE_EVENT* m_event;
 	uint8_t ptype;
 
@@ -101,7 +110,6 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 					mouse->Sensitivity;
 				if (mouse->Current_X > mouse->Maximum_X) {
 					mouse->Current_X = mouse->Maximum_X;
-
 				} else if (mouse->Current_X < mouse->Minimum_X) {
 					mouse->Current_X = mouse->Minimum_X;
 				}
@@ -118,11 +126,14 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 				m_event->y = mouse->Current_Y;
 				m_event->clicked = false;
 				m_event->state = 0;
-				if (client) {
+				if (dev_man->client) {
 					ptype = MOUSE_PACKET;
-					if (!client->Send((char*)&ptype, sizeof(uint8_t)) || 
-						!client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
+					if (
+					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) || 
+					!dev_man->client->Send((char*)m_event,
+					sizeof(MOUSE_EVENT))) {
 						log_err("could not sent mouse movement");
+						dev_man->client = NULL;
 					}
 					delete m_event;
 				} else {
@@ -142,11 +153,14 @@ void Send_Mouse_Data(DEVICE_NODE* dev, Client* client) {
 				m_event->y = mouse->Current_Y;
 				m_event->clicked = true;
 				m_event->state = libinput_event_pointer_get_button_state(lep);
-				if (client) {
+				if (dev_man->client) {
 					ptype = MOUSE_PACKET;
-					if (!client->Send((char*)&ptype, sizeof(uint8_t)) ||
-						!client->Send((char*)m_event, sizeof(MOUSE_EVENT))) {
+					if (
+					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+					!dev_man->client->Send((char*)m_event,
+					sizeof(MOUSE_EVENT))) {
 						log_err("could not send mouse click");
+						dev_man->client = NULL;
 					}
 					delete m_event;
 				} else {
@@ -176,9 +190,9 @@ void Device_Client_Start(DEVICE_MANAGER* dev_man) {
 			DEVICE_NODE* dev = dev_man->previous_dev[i];
 			if (Check_Device_Node(dev)) {
 				if (dev->type == _MOUSE) {
-					Send_Mouse_Data(dev, dev_man->client);
+					Send_Mouse_Data(dev, dev_man);
 				} else if (dev->type == _KEYBOARD) {
-					Send_Keyboard_Data(dev, dev_man->client);
+					Send_Keyboard_Data(dev, dev_man);
 				} 
 			}
 		}
@@ -187,7 +201,11 @@ void Device_Client_Start(DEVICE_MANAGER* dev_man) {
 
 void Device_Client_Stop(DEVICE_MANAGER* dev_man) {
 	dev_man->sending = false;
-	Device_Client_Close_Connection(dev_man);
+	//Device_Client_Close_Connection(dev_man);
+}
+
+void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server) {
+	dev_man->server = server;
 }
 
 void Device_Server_Listen(DEVICE_MANAGER* dev_man, int port) {
@@ -209,6 +227,10 @@ void Device_Server_Close_Connection(DEVICE_MANAGER* dev_man) {
 		delete dev_man->server;
 		dev_man->server = NULL;
 	}
+}
+
+void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client) {
+	dev_man->client = client;
 }
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, int port, string ip) {
@@ -264,15 +286,22 @@ int Get_Bit(unsigned int *bits, unsigned int bit) {
 void Add_Device_Node(DEVICE_MANAGER* dev_man, DEVICE_NODE* ptr) {
 	if (ptr->type == _GARBAGE) {
 		for (int i = 0; i < dev_man->p_d_size; i++) {
-			if (!Check_Device_Node(dev_man->previous_dev[i])) { //any empty gaps?
-				log_dbg("adding garbage " + ptr->str + " " + to_string(ptr->type) + " 0");
-				Initialize_Device_Node(dev_man->previous_dev[i], ptr->str, ptr->type);
+			//if an empty spot is found
+			if (!Check_Device_Node(dev_man->previous_dev[i])) {
+				log_dbg(
+				"adding garbage " + ptr->str + " " + to_string(ptr->type) +
+				" 0");
+				Initialize_Device_Node(
+				dev_man->previous_dev[i], ptr->str, ptr->type);
 				return;
 			}
 		}
-		if (dev_man->p_d_size < MAX_DEV) { //no gaps! create new device
-			log_dbg("adding empty " + ptr->str + " " + to_string(ptr->type) + " 0");
-			Initialize_Device_Node(dev_man->previous_dev[dev_man->p_d_size++], ptr->str, ptr->type);
+		//or create new device
+		if (dev_man->p_d_size < MAX_DEV) {
+			log_dbg(
+			"adding empty " + ptr->str + " " + to_string(ptr->type) + " 0");
+			Initialize_Device_Node(
+			dev_man->previous_dev[dev_man->p_d_size++], ptr->str, ptr->type);
 		} else {
 			cout << "Max devices reached" << endl;
 			return; //whoa, max devices reached
@@ -280,9 +309,12 @@ void Add_Device_Node(DEVICE_MANAGER* dev_man, DEVICE_NODE* ptr) {
 	} else {
 		int temp_index;
 		for (int i = 0; i < dev_man->p_d_size; i++) {
-			if (!Check_Device_Node(dev_man->previous_dev[i])) { //any empty gaps?
-				log_dbg("adding device " + ptr->str + " " + to_string(ptr->type));
-				Initialize_Device_Node(dev_man->previous_dev[i], ptr->str, ptr->type);
+			//if an empty spot is found
+			if (!Check_Device_Node(dev_man->previous_dev[i])) {
+				log_dbg(
+				"adding device " + ptr->str + " " + to_string(ptr->type));
+				Initialize_Device_Node(
+				dev_man->previous_dev[i], ptr->str, ptr->type);
 				temp_index = i;
 				goto label1;
 			}
@@ -291,7 +323,8 @@ void Add_Device_Node(DEVICE_MANAGER* dev_man, DEVICE_NODE* ptr) {
 		if (dev_man->p_d_size < MAX_DEV) { //no gaps! create new device
 			temp_index = dev_man->p_d_size;
 			log_dbg("adding empty " + ptr->str + " " + to_string(ptr->type));
-			Initialize_Device_Node(dev_man->previous_dev[dev_man->p_d_size++], ptr->str, ptr->type);
+			Initialize_Device_Node(
+			dev_man->previous_dev[dev_man->p_d_size++], ptr->str, ptr->type);
 		} else {
 			cout << "Max devices reached" << endl;
 			return; //whoa, max devices reached
@@ -301,10 +334,13 @@ void Add_Device_Node(DEVICE_MANAGER* dev_man, DEVICE_NODE* ptr) {
 
 		if (ptr->type == _MOUSE) { 
 			log_dbg("constructing mouse");
-			dev_man->previous_dev[temp_index]->hw.mouse = Construct_Mouse(0, dev_man->w, 0, dev_man->h, 0.5, ptr->str, dev_man->Event_Status);
+			dev_man->previous_dev[temp_index]->hw.mouse = 
+			Construct_Mouse(0, dev_man->w, 0, dev_man->h, 0.5, ptr->str,
+			dev_man->Event_Status);
 		} else {
 			log_dbg("constructing keyboard");
-			dev_man->previous_dev[temp_index]->hw.keyboard = Construct_Keyboard(ptr->str, dev_man->Event_Status);
+			dev_man->previous_dev[temp_index]->hw.keyboard =
+			Construct_Keyboard(ptr->str, dev_man->Event_Status);
 		}
 	}
 }
@@ -330,7 +366,7 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 		sprintf(dev_man->path, "%s/%s", INPUT_PATH, dev_man->dirp->d_name);
 		lstat(dev_man->path, &dev_man->buffer);
 		if (!S_ISDIR(dev_man->buffer.st_mode)) {
-			DEVICE_NODE* temp = Exists_Device_Node(dev_man, dev_man->path); //variable name kevin
+			DEVICE_NODE* temp = Exists_Device_Node(dev_man, dev_man->path);
 			if (temp == NULL) {
 				if ((dev_man->fd = open(dev_man->path, O_RDONLY)) < 0) {
 					log_err("could not open " + string(dev_man->path));
@@ -341,53 +377,66 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 				
 				if (Get_Bit(dev_man->types, EV_KEY)) {
 					memset(dev_man->events, 0, sizeof(dev_man->events));
-					ioctl(dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX), dev_man->events);
+					ioctl(
+					dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX), dev_man->events);
 					if (Get_Bit(dev_man->events, KEY_B)) {
-						Initialize_Device_Node(dev_man->current_dev[dev_man->c_d_size++], string(dev_man->path), _KEYBOARD);
+						Initialize_Device_Node(
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _KEYBOARD);
 					} else if (Get_Bit(dev_man->events, BTN_LEFT)) {
-						Initialize_Device_Node(dev_man->current_dev[dev_man->c_d_size++], string(dev_man->path), _MOUSE);
+						Initialize_Device_Node(
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _MOUSE);
 					} else {
-						Initialize_Device_Node(dev_man->current_dev[dev_man->c_d_size++], string(dev_man->path), _GARBAGE);
+						Initialize_Device_Node(
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _GARBAGE);
 					}
 				} else {
-					Initialize_Device_Node(dev_man->current_dev[dev_man->c_d_size++], string(dev_man->path), _GARBAGE);
+					Initialize_Device_Node(
+					dev_man->current_dev[dev_man->c_d_size++],
+					string(dev_man->path), _GARBAGE);
 				}
 				close(dev_man->fd);
 			} else {
-				Initialize_Device_Node(dev_man->current_dev[dev_man->c_d_size++], string(dev_man->path), temp->type);
+				Initialize_Device_Node(
+				dev_man->current_dev[dev_man->c_d_size++],
+				string(dev_man->path), temp->type);
 			}
 		}
 	}
 	closedir(dev_man->dp);
 
 	for (int i = 0; i < dev_man->p_d_size; i++) { //for all history elements
-		if (Check_Device_Node(dev_man->previous_dev[i])) { //if the device is valid
+		if (Check_Device_Node(dev_man->previous_dev[i])) {
 			found = false;
 			int k;
-			for (k = 0; k < dev_man->c_d_size; k++) { //search the current array for any duplicates
-				if (Check_Device_Node(dev_man->current_dev[k]) &&
-					dev_man->current_dev[k]->str == dev_man->previous_dev[i]->str) {
+			for (k = 0; k < dev_man->c_d_size; k++) { //search for duplicates
+				if (
+				Check_Device_Node(dev_man->current_dev[k]) &&
+				dev_man->current_dev[k]->str == dev_man->previous_dev[i]->str) {
 					found = true;
 					break;
 				}
 			}
-			if (found) { //if there was a duplicate then the history element is okay
+			if (found) { //if there was a duplicate, element is okay
 				Delete_Device_Node(dev_man->current_dev[k]);
 			} else { //otherwise the device was unplugged
 				Delete_Device_Node(dev_man->previous_dev[i]);
 			}
 		}
 	}
-	for (int i = 0; i < dev_man->c_d_size; i++) { //for all elements not touched...
+	for (int i = 0; i < dev_man->c_d_size; i++) { //for all not touched...
 		if (Check_Device_Node(dev_man->current_dev[i])) {
-			Add_Device_Node(dev_man, dev_man->current_dev[i]); //add them into the list as they are new!
+			Add_Device_Node(dev_man, dev_man->current_dev[i]); //add new!
 		}
 	}
 
 	dev_man->c_d_size = 0;
 }
 
-void Initialize_Device_Manager(DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
+void Initialize_Device_Manager(
+DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
 	//local device list
 	dev_man->current_dev = new DEVICE_NODE*[MAX_DEV];
 	dev_man->c_d_size = 0;
@@ -430,6 +479,4 @@ void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
 	}
 	delete dev_man->current_dev;
 	delete dev_man->previous_dev;
-	delete dev_man;
-	dev_man = NULL;
 }
