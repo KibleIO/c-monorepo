@@ -123,7 +123,7 @@ void   Initialize_Mouse(MOUSE* mouse, int minimum_x, int maximum_x, int minimum_
 
 	mouse->Event_Status = event_status;
     mouse->Listening      = true;
-    mouse->Event_Listener = new thread(Listen_Mouse, mouse);
+    //mouse->Event_Listener = new thread(Listen_Mouse, mouse);
 	log_dbg("Mouse " + string(mouse->mouse_info.name) + " initialized");
 }
 
@@ -155,6 +155,21 @@ void Delete_Mouse(MOUSE* mouse) {
 	mouse = NULL;
 }
 
+void Listen_Mouse_Once(MOUSE* mouse) {
+	if (poll(&mouse->fds, 1, 1) > 0) {
+		libinput_event* Event;
+	    libinput_dispatch(mouse->li);
+	    while ((Event = libinput_get_event(mouse->li))) {
+	    	MOUSE_EVENT_ELEMENT* event_element = new MOUSE_EVENT_ELEMENT();
+	    	event_element->Event = Event;
+	        mouse->Events.push(event_element);
+			Set_Event(mouse->Event_Status);
+
+	        libinput_dispatch(mouse->li);
+	    }
+	}
+}
+
 void         Listen_Mouse      (MOUSE* mouse)                                                                             {
 	log_dbg("Listening to mouse " + string(mouse->mouse_info.name));
 	while (mouse->Listening) {
@@ -184,7 +199,7 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT*>* events) {
 		MOUSE_EVENT* m_event;
 		events->pop(m_event);
 		if (m_event->clicked) {
-			XTestFakeButtonEvent(dpy, 1, m_event->state, CurrentTime);
+			XTestFakeButtonEvent(dpy, m_event->button, m_event->state, CurrentTime);
 		} 
 		XTestFakeMotionEvent(dpy, 0, m_event->x, m_event->y, CurrentTime);
 		delete m_event;

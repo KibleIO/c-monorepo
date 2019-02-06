@@ -257,6 +257,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			hs->cmutx.unlock();
 		}	
 	}
+	hs->shouldexit = true;
 	Hermes_Server_Close_Connections(hs);
 }
 

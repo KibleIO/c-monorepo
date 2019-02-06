@@ -15,12 +15,16 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 		
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
 			log_err("could not receive input packet");
+			dev_man->receiving = false;
+			continue;
 		}
 		if (ptype == MOUSE_PACKET) {
 			MOUSE_EVENT* m_event = new MOUSE_EVENT;
 			if (
 			!dev_man->server->Receive((char*)m_event, sizeof(MOUSE_EVENT))) {
 				log_err("could not receive mouse event");
+				dev_man->receiving = false;
+				continue;
 			}
 			if (dev_man->client) {
 				if (
@@ -38,6 +42,8 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 			if (
 			!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT))) {
 				log_err("could not receive keyboard event");
+				dev_man->receiving = false;
+				continue;
 			}
 			if (dev_man->client) {
 				if (
@@ -98,6 +104,8 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		return;
 	}
 
+	Listen_Mouse_Once(dev->hw.mouse);
+
 	for (int i = mouse->Events.size(); i > 0; i--) {
 		libinput_event_pointer* lep;
 		MOUSE_EVENT_ELEMENT* element; 
@@ -142,13 +150,26 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 				break;
 
 			case LIBINPUT_EVENT_POINTER_BUTTON:
+				m_event = new MOUSE_EVENT;
 				lep = libinput_event_get_pointer_event(element->Event);
 				if (libinput_event_pointer_get_button(lep) == BTN_LEFT) {
 					log_dbg("left mouse clicked " +
 						to_string(mouse->Current_X) + " " +
 						to_string(mouse->Current_Y));
-				}
-				m_event = new MOUSE_EVENT;
+					m_event->button = MOUSE_BUTTON_LEFT;
+				} else if (
+				libinput_event_pointer_get_button(lep) == BTN_RIGHT) {
+					log_dbg("right mouse clicked " +
+						to_string(mouse->Current_X) + " " +
+						to_string(mouse->Current_Y));
+					m_event->button = MOUSE_BUTTON_RIGHT;
+				} else if (
+				libinput_event_pointer_get_button(lep) == BTN_MIDDLE) {
+					log_dbg("middle mouse clicked " +
+						to_string(mouse->Current_X) + " " +
+						to_string(mouse->Current_Y));
+					m_event->button = MOUSE_BUTTON_MIDDLE;
+				} 
 				m_event->x = mouse->Current_X;
 				m_event->y = mouse->Current_Y;
 				m_event->clicked = true;
@@ -168,6 +189,9 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 				}
 				break;
 
+			case LIBINPUT_EVENT_POINTER_AXIS:
+				log_dbg("scrolling?");
+				break;
 			default:
 				log_err("unknown mouse event type");
 				break;
@@ -185,7 +209,6 @@ void Device_Client_Start(DEVICE_MANAGER* dev_man) {
 	dev_man->sending = true;
 
 	while (dev_man->sending) {
-		tm.sleepMilli(16);
 		for (int i = 0; i < dev_man->p_d_size; i++) {
 			DEVICE_NODE* dev = dev_man->previous_dev[i];
 			if (Check_Device_Node(dev)) {

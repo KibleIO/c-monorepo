@@ -19,6 +19,10 @@
 #include <Utilities/Timer.h>
 #include <Utilities/CONCURRENT_QUEUE.h>
 
+#define MOUSE_BUTTON_LEFT	1
+#define MOUSE_BUTTON_RIGHT	3
+#define MOUSE_BUTTON_MIDDLE	2
+
 struct nk_context;
 
 struct MOUSE_EVENT_ELEMENT : public NXTElement {
@@ -26,10 +30,11 @@ struct MOUSE_EVENT_ELEMENT : public NXTElement {
 };
 
 struct MOUSE_EVENT {
-	int x;
-	int y;
+	uint16_t x;
+	uint16_t y;
 	bool clicked;
-	int state;
+	uint16_t button;
+	uint16_t state;
 };
 
 #define MAX_STR_LEN 256
@@ -80,6 +85,7 @@ MOUSE* Construct_Mouse (int, int, int, int, float, string, EVENT*);
 void   Delete_Mouse    (MOUSE*);
 void   Update_Mouse    (MOUSE*);
 void   Listen_Mouse    (MOUSE*);
+void Listen_Mouse_Once(MOUSE* mouse);
 
 int open_restricted(const char* path, int flags, void* user_data);
 void close_restricted(int fd, void* user_data);
