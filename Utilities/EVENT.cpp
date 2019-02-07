@@ -1,8 +1,17 @@
 #include "EVENT.h"
 
-void   Initialize_Event(EVENT* event) { event->Changed = false; event->count_down = 0; }
+void Initialize_Event(EVENT* event) { 
+	if (!event) {
+		return;
+	}
+	event->Changed = false;
+	event->count_down = 0; 
+}
 
 bool   Check_Event(EVENT* event) {
+	if (!event) {
+		return false;
+	}
 	bool ean; //lol ;)
 	event->Mutex.lock();
 	ean = event->Changed;
@@ -14,6 +23,9 @@ bool   Check_Event(EVENT* event) {
 }
 
 void   Set_Event(EVENT* event) {
+	if (!event) {
+		return;
+	}
 	event->Mutex.lock();
 	event->Changed = true;
 	event->count_down = 3;

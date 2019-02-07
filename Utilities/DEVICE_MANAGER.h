@@ -94,7 +94,7 @@ void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
 void Device_Client_Close_Connection(DEVICE_MANAGER* dev_finder);
 
 void Refresh_Devices(DEVICE_MANAGER* dev_finder);
-void Initialize_Device_Manager(DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status);
+void Initialize_Device_Manager(DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status = NULL);
 
 void Delete_Device_Manager(DEVICE_MANAGER* dev_man);
 #endif
