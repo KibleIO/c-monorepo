@@ -45,7 +45,7 @@ void Initialize_BMP(BMP* bmp, string loc) {
 	}
 
 	if (n != 4) {
-		log_err("File is wrong format");
+		log_err(string("File ") + loc + " is wrong format");
 		return;
 	}
 
@@ -99,7 +99,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	}
 
 	if (n != 4) {
-		log_err("File is wrong format");
+		log_err(string("File ") + loc + " is wrong format");
 		return;
 	}
 

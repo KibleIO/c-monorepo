@@ -28,12 +28,17 @@
 #define GUI_X264_BUFFER 1
 #define GUI_EMPTY_BUFFER 2
 
-#define GUI_FONT_SMALL 0
-#define GUI_FONT_MEDIUM 1
-#define GUI_FONT_LARGE 2
+#define GUI_TOTAL_FONTS 3
+#define GUI_FONT_DEFAULT_SIZE 2
 
 #define MAX_BUFFER 64
 using namespace std;
+
+// All info the GUI struct needs to draw a font
+struct GUI_FONT {
+	FONT userFont;
+	nk_user_font nkFont;
+};
 
 struct GUI {
 	int				Display_ID;
@@ -43,14 +48,9 @@ struct GUI {
 
 	nk_context* 	NK_Context;
 
-	FONT*				SmallFont;
-	FONT* 			MediumFont;
-	FONT*				LargeFont;
-	FONT*				CurrentFont;
-
-	nk_user_font*	SmallFontNK;
-	nk_user_font*	MediumFontNK;
-	nk_user_font* LargeFontNK;
+	GUI_FONT* fonts;
+	int* fontHeights;
+	int currentFont;
 
 	char*			Graphics_Handle_Buffer;
 	GRAPHICS*		Graphics_Handle;
@@ -74,4 +74,8 @@ void Render_GUI(GUI* gui, char* output_buffer);
 
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
 void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EVENT*>* k_events);
+
+void Initialize_GUI_Font(GUI_FONT*, int height, const char* font_file_name);
+void Set_GUI_Style_Default(GUI*);
+
 #endif

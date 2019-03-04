@@ -17,7 +17,7 @@ struct BAKED_GLYPH {
 	int				Yoff;
 	int				Advance;
 };
-
+// User specific font info
 struct FONT{
 	stbtt_fontinfo	Font_info;
 	int 			Baseline;
@@ -26,7 +26,6 @@ struct FONT{
 };
 
 void Initialize_Font(FONT* font, const char* fname, float text_height);
-
 void Delete_Font(FONT* font);
 
 #endif

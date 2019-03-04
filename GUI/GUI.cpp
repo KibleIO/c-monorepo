@@ -13,15 +13,10 @@ static float Font_Get_Text_Width(nk_handle handle, float height, const char* tex
 
 void Initialize_GUI_Themis(GUI* gui, int display_id) {
 	gui->Display_ID = display_id;
-	gui->NK_Context				= NULL;
+	gui->NK_Context	= NULL;
 
-	gui->SmallFont = NULL;
-	gui->MediumFont = NULL;
-	gui->LargeFont = NULL;
-
-	gui->SmallFontNK = NULL;
-	gui->MediumFontNK = NULL;
-	gui->LargeFontNK = NULL;
+	gui->fonts = NULL;
+	gui->fontHeights = NULL;
 
 	gui->Graphics_Handle_Buffer	= NULL;
 	gui->Graphics_Handle		= NULL;
@@ -33,15 +28,14 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->Frame_Resolution	= width * height;
 	gui->NK_Context			= new nk_context;
 
-	gui->SmallFont = new FONT;
-	gui->MediumFont = new FONT;
-	gui->LargeFont = new FONT;
+	gui->fonts = new GUI_FONT[GUI_TOTAL_FONTS];
+	gui->fontHeights = new int[GUI_TOTAL_FONTS] {
+		int(gui->Height * 0.02),
+	 	int(gui->Height * 0.025),
+		int(gui->Height * 0.03)
+	};
 
-	gui->SmallFontNK = new nk_user_font;
-	gui->MediumFontNK	= new nk_user_font;
-	gui->LargeFontNK	= new nk_user_font;
-
-	gui->BakedBmp 			= false;
+	gui->BakedBmp = false;
 
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  	= NULL;
@@ -53,51 +47,14 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 		Initialize_GRAPHICS(gui->Graphics_Handle, gui->Graphics_Handle_Buffer, gui->Width, gui->Height);
 	}
 	gui->Graphics_Handle->Transparent = true;
-
-	Pair_Fonts(gui->SmallFontNK, gui->SmallFont, int((gui->Height * 2) / 100), font_path.c_str());
-	Pair_Fonts(gui->MediumFontNK, gui->MediumFont, int((gui->Height * 3) / 100), font_path.c_str());
-	Pair_Fonts(gui->LargeFontNK, gui->LargeFont, int((gui->Height * 6) / 100), font_path.c_str());
-
-	nk_init_default(gui->NK_Context, gui->MediumFontNK);
-	Set_Font(gui, GUI_FONT_MEDIUM);
-
-	gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
-	gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
-
-	gui->NK_Context->style.button.normal = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
-	gui->NK_Context->style.button.hover = nk_style_item_color(nk_rgb(0x90,0x90,0x90));
-	gui->NK_Context->style.button.active = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
-	gui->NK_Context->style.button.text_normal = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.button.text_hover = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.button.text_active = nk_rgb(0x25,0x25,0x25);
-
-	gui->NK_Context->style.button.padding = nk_vec2(0,0);
-	gui->NK_Context->style.button.border = 0;
-
-	gui->NK_Context->style.window.padding = nk_vec2(0,0);
-	gui->NK_Context->style.window.spacing = nk_vec2(0,0);
-	gui->NK_Context->style.window.scrollbar_size = nk_vec2(10,0);
-	gui->NK_Context->style.window.min_size = nk_vec2(0,0);
-	gui->NK_Context->style.window.border = 0;
-	gui->NK_Context->style.window.group_border = 0;
-
-	gui->NK_Context->style.window.header.padding = nk_vec2(0,0);
-	gui->NK_Context->style.window.header.label_padding = nk_vec2(0,0);
-	gui->NK_Context->style.window.header.spacing = nk_vec2(0,0);
-
-	gui->NK_Context->style.text.color = nk_rgb(0xc1,0xc0,0xc0);
-
-	gui->NK_Context->style.edit.normal = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
-	gui->NK_Context->style.edit.hover = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
-	gui->NK_Context->style.edit.active = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
-
-	gui->NK_Context->style.edit.cursor_text_normal = nk_rgb(0x0,0x0,0x0);
-	gui->NK_Context->style.edit.cursor_text_hover = nk_rgb(0x0,0x0,0x0);
-	gui->NK_Context->style.edit.text_normal = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.edit.text_hover = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
-	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
+	// Initialize each of the gui fonts
+	for(int i = 0; i < GUI_TOTAL_FONTS; i++) {
+		Initialize_GUI_Font(&gui->fonts[i], gui->fontHeights[i], font_path.c_str());
+	}
+	// Initialize the nk context with the default font size
+	nk_init_default(gui->NK_Context, &gui->fonts[GUI_FONT_DEFAULT_SIZE].nkFont);
+	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
+	Set_GUI_Style_Default(gui);
 }
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
@@ -107,18 +64,17 @@ void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* 
 	nkFont->width = Font_Get_Text_Width;
 }
 
-void Set_Font(GUI* gui, int fontFlag) {
-	if(fontFlag == GUI_FONT_SMALL) {
-		gui->CurrentFont = gui->SmallFont;
-		nk_style_set_font(gui->NK_Context, gui->SmallFontNK);
-	}
-	else if(fontFlag == GUI_FONT_MEDIUM) {
-		gui->CurrentFont = gui->MediumFont;
-		nk_style_set_font(gui->NK_Context, gui->MediumFontNK);
-	}
-	else if(fontFlag == GUI_FONT_LARGE) {
-		gui->CurrentFont = gui->LargeFont;
-		nk_style_set_font(gui->NK_Context, gui->LargeFontNK);
+void Initialize_GUI_Font(GUI_FONT* gfont, int height, const char* fname) {
+	Initialize_Font(&gfont->userFont, fname, height);
+	gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
+	gfont->nkFont.height = height;
+	gfont->nkFont.width = Font_Get_Text_Width;
+}
+
+void Set_Font(GUI* gui, int font_index) {
+	if(font_index >= 0 && font_index < GUI_TOTAL_FONTS) {
+		gui->currentFont = font_index;
+		nk_style_set_font(gui->NK_Context, &gui->fonts[font_index].nkFont);
 	}
 }
 
@@ -129,34 +85,9 @@ void Delete_GUI(GUI* gui) {
 		delete gui->NK_Context;
 	}
 
-	if (gui->SmallFont) {
-		log_dbg("deleting small font");
-		Delete_Font(gui->SmallFont);
-		delete gui->SmallFont;
-	}
-	if (gui->SmallFontNK) {
-		log_dbg("deleting small fontNK");
-		delete gui->SmallFontNK;
-	}
-
-	if (gui->MediumFont) {
-		log_dbg("deleting medium font");
-		Delete_Font(gui->MediumFont);
-		delete gui->MediumFont;
-	}
-	if (gui->MediumFontNK) {
-		log_dbg("deleting medium fontNK");
-		delete gui->MediumFontNK;
-	}
-
-	if (gui->LargeFont) {
-		log_dbg("deleting large font");
-		Delete_Font(gui->LargeFont);
-		delete gui->LargeFont;
-	}
-	if (gui->LargeFontNK) {
-		log_dbg("deleting large fontNK");
-		delete gui->LargeFontNK;
+	if (gui->fonts) {
+		log_dbg("deleting gui fonts");
+		delete [] gui->fonts;
 	}
 
 	if (gui->Graphics_Handle_Buffer) {
@@ -173,7 +104,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* comma
 	const struct nk_command_text* t = (const struct nk_command_text*)command;
 	string str = string(t->string);
 	int _x = t->x;
-	int _y = t->y + gui->CurrentFont->Baseline;
+	int _y = t->y + gui->fonts[gui->currentFont].userFont.Baseline;
 
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
 	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
@@ -216,7 +147,9 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigne
 	//unsigned char bg[] = {0x25,0x25,0x25,0xFF};
 
 	for (int i = 0; i < str.length(); i++) {
-		BAKED_GLYPH *c = &gui->CurrentFont->Baked_glyphs[int(str[i]) - 32];
+		// TEMP
+		// Change to current index in array of fonts
+		BAKED_GLYPH *c = &gui->fonts[gui->currentFont].userFont.Baked_glyphs[int(str[i]) - 32];
 
 		for (int x = 0; x < c->W; x++){
 			for (int y = 0; y < c->H; y++){
@@ -434,7 +367,6 @@ void Render_Nuklear_GUI(GUI* gui) {
 				color.bytes[2] = t->foreground.b;
 				color.bytes[3] = t->foreground.a;
 				Draw_Text(gui, gui->Graphics_Handle, t);
-
 				//Draw_Text(gui, gui->Graphics_Handle, string(t->string), t->x, t->y + gui->Font->Baseline, (unsigned char*) color.bytes, (unsigned char*) gui->Graphics_Handle->buffer_i);
 				break;
 			}
@@ -491,4 +423,44 @@ void Render_GUI(GUI* gui, char* output_buffer) {
 	//swapper = gui->Graphics_Handle_Buffer;
 	//gui->Graphics_Handle_Buffer = *output_buffer;
 	//*output_buffer = swapper;
+}
+
+void Set_GUI_Style_Default(GUI* gui) {
+	gui->NK_Context->style.window.fixed_background.type = NK_STYLE_ITEM_COLOR;
+	gui->NK_Context->style.window.fixed_background.data.color = nk_rgba(0x25,0x25,0x25,0xff);
+
+	gui->NK_Context->style.button.normal = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+	gui->NK_Context->style.button.hover = nk_style_item_color(nk_rgb(0x90,0x90,0x90));
+	gui->NK_Context->style.button.active = nk_style_item_color(nk_rgb(0x98,0x98,0x98));
+	gui->NK_Context->style.button.text_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.button.text_hover = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.button.text_active = nk_rgb(0x25,0x25,0x25);
+
+	gui->NK_Context->style.button.padding = nk_vec2(0,0);
+	gui->NK_Context->style.button.border = 0;
+
+	gui->NK_Context->style.window.padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.spacing = nk_vec2(0,0);
+	gui->NK_Context->style.window.scrollbar_size = nk_vec2(10,0);
+	gui->NK_Context->style.window.min_size = nk_vec2(0,0);
+	gui->NK_Context->style.window.border = 0;
+	gui->NK_Context->style.window.group_border = 0;
+
+	gui->NK_Context->style.window.header.padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.header.label_padding = nk_vec2(0,0);
+	gui->NK_Context->style.window.header.spacing = nk_vec2(0,0);
+
+	gui->NK_Context->style.text.color = nk_rgb(0xc1,0xc0,0xc0);
+
+	gui->NK_Context->style.edit.normal = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+	gui->NK_Context->style.edit.hover = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+	gui->NK_Context->style.edit.active = nk_style_item_color(nk_rgb(0xcc,0xcc,0xcb));
+
+	gui->NK_Context->style.edit.cursor_text_normal = nk_rgb(0x0,0x0,0x0);
+	gui->NK_Context->style.edit.cursor_text_hover = nk_rgb(0x0,0x0,0x0);
+	gui->NK_Context->style.edit.text_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.text_hover = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
+	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
 }
