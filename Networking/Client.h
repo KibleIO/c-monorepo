@@ -3,6 +3,8 @@
 
 #include "Networking.h"
 #include <Utilities/LOGGING.h>
+#include <netdb.h>
+#include <string.h>
 
 class Client {
 private:
