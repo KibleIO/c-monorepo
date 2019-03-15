@@ -12,7 +12,6 @@
 #include <X11/extensions/XTest.h>
 #include <linux/input.h>
 #include <thread>
-#include <Utilities/DynArr.h>
 #include <libevdev/libevdev.h>
 #include <Utilities/EVENT.h>
 #include <Utilities/LOGGING.h>
@@ -25,7 +24,7 @@
 
 struct nk_context;
 
-struct MOUSE_EVENT_ELEMENT : public NXTElement {
+struct MOUSE_EVENT_ELEMENT {
 	libinput_event* Event;
 };
 

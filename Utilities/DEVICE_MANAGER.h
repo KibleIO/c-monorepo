@@ -17,7 +17,6 @@
 #include <Networking/Networking.h>
 #include <Networking/Client.h>
 #include <Networking/Server.h>
-#include <Utilities/Integer.h>
 #include <Utilities/Timer.h>
 #include <Utilities/INDEX_QUEUE.h>
 #include <Utilities/EVENT.h>
@@ -57,7 +56,7 @@ struct DEVICE_MANAGER {
 	volatile bool sending;
 	Server*		  server;
 	volatile bool receiving;
-	
+
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
 	DEVICE_NODE** previous_dev;

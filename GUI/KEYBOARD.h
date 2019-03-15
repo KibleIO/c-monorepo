@@ -10,7 +10,6 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
 
-
 #define XK_Return                        0xff0d
 #define XK_Shift_L                       0xffe1
 #define XK_Shift_R                       0xffe2

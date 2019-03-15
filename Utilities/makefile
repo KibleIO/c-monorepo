@@ -1,12 +1,8 @@
 # Declaration of variables
-CC = g++ -g -Wall -Wextra -Wpedantic -O3 -fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lssh -lgraphics -lnetwork -linput -levdev -lavcodec -lavutil -lcurl -lswscale
-CC_FLAGS = -w
+CC = g++ -O3
 
-UNAME_M = $(shell uname -m)
-
-ifeq ($(UNAME_M),x86_64)
-	CC += -lopenh264
-endif
+CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 \
+					-std=c++11 -Wno-write-strings
 
 # File names
 EXEC = libUtil.so
@@ -20,7 +16,7 @@ $(EXEC): $(OBJECTS)
 
 # To obtain object files
 %.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
+	$(CC) -c $(CC_BUILD_FLAGS) $< -o $@
 
 # To remove generated files
 clean:

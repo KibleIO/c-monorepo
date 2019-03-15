@@ -7,7 +7,6 @@
 #include <GUI/BMP.h>
 #include <GUI/FONT.h>
 #include <Utilities/Assets.h>
-#include <Utilities/Integer.h>
 #include <GUI/MOUSE.h>
 #include <GUI/KEYBOARD.h>
 

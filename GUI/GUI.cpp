@@ -276,7 +276,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT*>* m_events, Queue<KEYBOARD_EV
 
 void Render_Nuklear_GUI(GUI* gui) {
 	const struct nk_command* command;
-	Integer color;
 
 	nk_foreach(command, gui->NK_Context) {
 		switch (command->type) {
@@ -288,47 +287,52 @@ void Render_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_LINE: {
 				const struct nk_command_line* l = (const struct nk_command_line*)command;
-				color.bytes[0] = l->color.r;
-				color.bytes[1] = l->color.g;
-				color.bytes[2] = l->color.b;
-				color.bytes[3] = l->color.a;
-				DrawLine_GRAPHICS(gui->Graphics_Handle, l->begin.x, l->begin.y, l->end.x, l->end.y, color.data);
+
+				DrawLine_GRAPHICS(
+				gui->Graphics_Handle, l->begin.x, l->begin.y, l->end.x,
+				l->end.y, l->color.a << 24 | l->color.r << 16 | l->color.g << 8 |
+				l->color.b);
+
 				break;
 			}
 			case NK_COMMAND_RECT: {
 				const struct nk_command_rect* r = (const struct nk_command_rect*)command;
-				color.bytes[0] = r->color.r;
-				color.bytes[1] = r->color.g;
-				color.bytes[2] = r->color.b;
-				color.bytes[3] = r->color.a;
-				DrawThickRect_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness, color.data);
+
+				DrawThickRect_GRAPHICS(
+				gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness,
+				r->color.a << 24 | r->color.r << 16 | r->color.g << 8 |
+				r->color.b);
+
 				break;
 			}
 			case NK_COMMAND_RECT_FILLED: {
 				const struct nk_command_rect_filled* r = (const struct nk_command_rect_filled*)command;
-				color.bytes[0] = r->color.r;
-				color.bytes[1] = r->color.g;
-				color.bytes[2] = r->color.b;
-				color.bytes[3] = r->color.a;
-				FillRoundedRect_GRAPHICS(gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding, color.data);
+
+				FillRoundedRect_GRAPHICS(
+				gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding,
+				r->color.a << 24 | r->color.b << 16 | r->color.g << 8 |
+				r->color.r);
+
 				break;
 			}
 			case NK_COMMAND_CIRCLE: {
 				const struct nk_command_circle* c = (const struct nk_command_circle*)command;
-				color.bytes[0] = c->color.r;
-				color.bytes[1] = c->color.g;
-				color.bytes[2] = c->color.b;
-				color.bytes[3] = c->color.a;
-				DrawCircle_GRAPHICS(gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+
+				DrawCircle_GRAPHICS(
+				gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2),
+				c->w / 2, c->color.a << 24 | c->color.r << 16 | c->color.g << 8 |
+				c->color.b);
+
 				break;
 			}
 			case NK_COMMAND_CIRCLE_FILLED: {
 				const struct nk_command_circle_filled* c = (const struct nk_command_circle_filled*)command;
-				color.bytes[0] = c->color.r;
-				color.bytes[1] = c->color.g;
-				color.bytes[2] = c->color.b;
-				color.bytes[3] = c->color.a;
-				FillCircle_GRAPHICS(gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2), c->w / 2, color.data);
+
+				FillCircle_GRAPHICS(
+				gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2),
+				c->w / 2, c->color.a << 24 | c->color.r << 16 | c->color.g << 8 |
+				c->color.b);
+
 				break;
 			}
 			case NK_COMMAND_TRIANGLE: {
@@ -337,15 +341,15 @@ void Render_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_TRIANGLE_FILLED: {
 				const struct nk_command_triangle_filled* t = (const struct nk_command_triangle_filled*)command;
-				color.bytes[0] = t->color.r;
-				color.bytes[1] = t->color.g;
-				color.bytes[2] = t->color.b;
-				color.bytes[3] = t->color.a;
 				Polygon tri;
 				tri.addPoint(t->a.x, t->a.y);
 				tri.addPoint(t->b.x, t->b.y);
 				tri.addPoint(t->c.x, t->c.y);
-				FillPolygon_GRAPHICS(gui->Graphics_Handle, tri, color.data);
+
+				FillPolygon_GRAPHICS(
+				gui->Graphics_Handle, tri, t->color.a << 24 | t->color.r << 16 | t->color.g << 8 |
+				t->color.b);
+
 				break;
 			}
 			case NK_COMMAND_POLYGON: {
@@ -362,12 +366,9 @@ void Render_Nuklear_GUI(GUI* gui) {
 			case NK_COMMAND_TEXT: {
 				const struct nk_command_text* t = (const struct nk_command_text*)command;
 
-				color.bytes[0] = t->foreground.r;
-				color.bytes[1] = t->foreground.g;
-				color.bytes[2] = t->foreground.b;
-				color.bytes[3] = t->foreground.a;
-				Draw_Text(gui, gui->Graphics_Handle, t);
-				//Draw_Text(gui, gui->Graphics_Handle, string(t->string), t->x, t->y + gui->Font->Baseline, (unsigned char*) color.bytes, (unsigned char*) gui->Graphics_Handle->buffer_i);
+				Draw_Text(
+				gui, gui->Graphics_Handle, t);
+
 				break;
 			}
 			case NK_COMMAND_CURVE:

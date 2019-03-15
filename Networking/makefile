@@ -1,6 +1,5 @@
 # Declaration of variables
-CC = g++ -O3 -g -Wall -Wextra -Wpedantic -fPIC -I../ -lUtil -std=c++11 -Wno-write-strings
-CC_FLAGS = -w
+CC = g++ -O3 -fPIC -I../ -std=c++11 -Wno-write-strings
 
 # File names
 EXEC = libnetwork.so
@@ -14,7 +13,7 @@ $(EXEC): $(OBJECTS)
 
 # To obtain object files
 %.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
+	$(CC) -c $< -o $@
 
 # To remove generated files
 clean:

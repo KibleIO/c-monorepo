@@ -205,8 +205,23 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
     		}
     	}
 	} else {
-		for (int y = 0; y < bmp->H; y++) {
-			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + (y + 1) * bmp->W, (int*)g->Buffer + (Y + y) * g->Width + X);
+		int temp_width = bmp->W;
+		int temp_height = bmp->H;
+
+		if (X >= g->Width_Clip + g->X_clip) return;
+		if (X < g->X_clip) { temp_width -= g->X_clip - X; X = g->X_clip; }
+		if (temp_width <= 0) return;
+
+		if (Y >= g->Height_Clip + g->Y_clip) return;
+		if (Y < g->Y_clip) { temp_height -= g->Y_clip - Y; Y = g->Y_clip; }
+		if (temp_height <= 0) return;
+
+		if (X + temp_width > g->Width_Clip + g->X_clip) { temp_width = (g->Width_Clip + g->X_clip) - X; }
+
+		if (Y + temp_height > g->Height_Clip + g->Y_clip) { temp_height = (g->Height_Clip + g->Y_clip) - Y; }
+
+		for (int y = 0; y < temp_height; y++) {
+			copy((int*)bmp->Data + y * temp_width, (int*)bmp->Data + (y + 1) * temp_width, (int*)g->Buffer + (Y + y) * g->Width_Clip + X);
 		}
 	}
 }

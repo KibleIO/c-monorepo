@@ -1,12 +1,11 @@
 # Declaration of variables
-CC = g++ -O3 -g -fPIC -Wall -Wextra -Wpedantic -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 -std=c++11 -Wno-write-strings -lX11 -lXtst -lXext -lgraphics -lUtil -lnetwork -linput -levdev -lavcodec -lavutil -lcurl -lx264
-CC_FLAGS = -w
+CC =	g++ -O3 -fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 \
+		-std=c++11 -Wno-write-strings
 
 # File names
 EXEC = libgui.so
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
-
 
 # Main target
 $(EXEC): $(OBJECTS)
@@ -14,7 +13,7 @@ $(EXEC): $(OBJECTS)
 
 # To obtain object files
 %.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
+	$(CC) -c $< -o $@
 
 # To remove generated files
 clean:
