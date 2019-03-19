@@ -221,7 +221,7 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 		if (Y + temp_height > g->Height_Clip + g->Y_clip) { temp_height = (g->Height_Clip + g->Y_clip) - Y; }
 
 		for (int y = 0; y < temp_height; y++) {
-			copy((int*)bmp->Data + y * temp_width, (int*)bmp->Data + (y + 1) * temp_width, (int*)g->Buffer + (Y + y) * g->Width_Clip + X);
+			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + y * bmp->W + temp_width, (int*)g->Buffer + (Y + y) * g->Width_Clip + X);
 		}
 	}
 }
