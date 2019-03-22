@@ -5,6 +5,7 @@
 
 #include <Networking/Client.h>
 #include <Networking/Server.h>
+#include <Networking/ENCRYPTION_ENGINE.h>
 #include <Utilities/CONCURRENT_QUEUE.h>
 #include <Utilities/LOGGING.h>
 
@@ -43,10 +44,12 @@ struct HermesServer {
 	mutex cmutx;
 
 	uint8_t err;
+
+	ENCRYPTION_ENGINE* enc_eng;
 };
 
 //Run this first on an allocated hs pointer
-void Hermes_Server_Init(HermesServer* hs);
+void Hermes_Server_Init(HermesServer* hs, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this in a thread
 void Hermes_Server_Connect(HermesServer* hs, int port);
 //Then this to get servers
@@ -78,10 +81,12 @@ struct HermesClient {
 	mutex cmutx;
 
 	uint8_t err;
+
+	ENCRYPTION_ENGINE* enc_eng;
 };
 
 //Run this first on an allocated hc pointer
-void Hermes_Client_Init(HermesClient* hc);
+void Hermes_Client_Init(HermesClient* hc, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this, but not in a thread
 void Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types);
 //Then this to get clients

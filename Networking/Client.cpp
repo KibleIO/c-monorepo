@@ -3,12 +3,26 @@
 
 #include "Client.h"
 
+void Client::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
+	if (_enc) {
+		enc = _enc;
+		if (enc_buf_auth) {
+			delete enc_buf_auth;
+		}
+		enc_buf_auth = new char[3000];
+		enc_buf_data = enc_buf_auth + crypto_onetimeauth_BYTES;
+	}
+}
+
 Client::Client() {
 	Init();
 }
 
 bool Client::Init() {
 	StartService();
+	enc = NULL;
+	enc_buf_auth = NULL;
+	enc_buf_data = NULL;
 	int iSetOption = 1;
 	destination.sin_family = AF_INET; //ipv4
 	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -32,36 +46,13 @@ bool Client::OpenConnection(int port, string ip) {
 		return false;
 	}
 	destination.sin_port = htons(port);
-	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
-		struct addrinfo hints, *res;
-
-		memset (&hints, 0, sizeof (hints));
-		  hints.ai_family = PF_UNSPEC;
-		  hints.ai_socktype = SOCK_STREAM;
-		  hints.ai_flags |= AI_CANONNAME;
-
-		if (getaddrinfo (ip.c_str(), NULL, &hints, &res) != 0) {
-		  return false;
-		}
-
-		while (res) {
-			if (res->ai_family == AF_INET) {
-				destination.sin_addr.s_addr = ((struct sockaddr_in *) res->ai_addr)->sin_addr.s_addr;
-				goto success;
-			}
-			res = res->ai_next;
-	    }
-
-		return false;
-	}
-	success:
-	//destination.sin_addr.s_addr = inet_addr(ip.c_str());
+	destination.sin_addr.s_addr = inet_addr(ip.c_str());
 	bool r = connect(mainSocket, (sockaddr *) &destination, sizeof destination) == 0;
 	int buff_size = 700000;
 	setsockopt(mainSocket, SOL_SOCKET, SO_RCVBUF, &buff_size, (int) sizeof(buff_size));
 	if (r) {
 		log_dbg("Connection successful " + to_string(port) + " : " + ip);
-	}
+	} 
 	return r;
 }
 
@@ -71,15 +62,83 @@ void Client::CloseConnection() {
 	startedUp = false;
 }
 
+void print_bytes2(uint8_t* bytes, int n) {
+	string str;
+	for (int i = 0; i < n; i++) {
+		str += to_string(bytes[i]) + " ";
+	}
+	log_dbg(str);
+}
+
 bool Client::Send(char *data, int size) {
-	return (startedUp && send(mainSocket, data, size, MSG_WAITALL) == size);
+	if (!startedUp) {
+		return false;
+	}
+
+	if (enc) {
+		//log_dbg(enc->identifier);
+		//print_bytes2(enc->poly1305_key, crypto_onetimeauth_KEYBYTES);
+		//print_bytes2(enc->poly1305_nonce, crypto_onetimeauth_KEYBYTES);
+		if (!Encrypt_Data_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)data, size, (uint8_t*)enc_buf_data)) {
+			log_err("unable to encrypt data");
+			return false;
+		}
+		if (!Generate_Auth_Code_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
+			log_err("unable to generate auth code");
+			return false;
+		}
+		size += crypto_onetimeauth_BYTES;
+		data = enc_buf_auth;
+	}
+
+	return send(mainSocket, data, size, MSG_WAITALL) == size;
 }
 
 bool Client::Receive(char *data, int size) {
-	return (startedUp && recv(mainSocket, data, size, MSG_WAITALL) == size);
+	if (!startedUp) {
+		return false;
+	}
+
+	if (enc) {
+		//log_dbg(enc->identifier);
+		//print_bytes2(enc->poly1305_key, crypto_onetimeauth_KEYBYTES);
+		//print_bytes2(enc->poly1305_nonce, crypto_onetimeauth_KEYBYTES);
+		size += crypto_onetimeauth_BYTES;
+		if (recv(mainSocket, enc_buf_auth, size, MSG_WAITALL) != size) {
+			log_err("unable to receive");
+			return false;
+		}
+		size -= crypto_onetimeauth_BYTES;
+		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
+			log_err("unable to authenticate data");
+			return false;
+		}
+		if (!Decrypt_Data_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
+			log_err("unable to decrypt data");
+			return false;
+		}
+	} else {
+		if (recv(mainSocket, data, size, MSG_WAITALL) != size) {
+			log_err("unable to receive");
+			return false;
+		}
+	}
+
+	return true;
 }
 
-bool Client::Receive_b(char *data, int size) {
-	return (startedUp && recv(mainSocket, data, size, MSG_DONTWAIT) == size);
-}
+//bool Client::Receive_b(char *data, int size) {
+//	bool ret = (startedUp && recv(mainSocket, data, size, MSG_DONTWAIT) == size);
+//
+//	if (ret) { 
+//		//TODO decrypt 
+//	}
+//	
+//	return ret;
+//}
+
 #endif /* CLIENT_H_ */
