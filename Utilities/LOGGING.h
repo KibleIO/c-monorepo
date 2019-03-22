@@ -22,20 +22,12 @@
 
 #define log_note(_MSG_) Write_Message("NOTE:    ", _MSG_, __FILE__ , __LINE__, __func__)
 
-//#define log_dbg(_MSG_)
-//
-//#define log_err(_MSG_)
-//
-//#define log_warn(_MSG_)
-//
-//#define if_log_note(_CON_, _MSG_)
-
 using namespace std;
 
-extern bool GOT_LOCAL_TIME; 
+extern bool GOT_LOCAL_TIME;
 extern string LOG_FILE;
 
 int get_local_start_time();
-void Write_Message(string type, string message, const char* file, int line, const char* func);
+void Write_Message(string, string, const char*, int, const char*);
 
 #endif

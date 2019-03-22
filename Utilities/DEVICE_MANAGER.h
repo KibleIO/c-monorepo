@@ -18,11 +18,10 @@
 #include <Networking/Client.h>
 #include <Networking/Server.h>
 #include <Utilities/Timer.h>
-#include <Utilities/INDEX_QUEUE.h>
 #include <Utilities/EVENT.h>
 #include <GUI/KEYBOARD.h>
 #include <GUI/MOUSE.h>
-#include <Utilities/CONCURRENT_QUEUE.h>
+#include "CONCURRENT_QUEUE.h"
 
 #define INPUT_PATH "/dev/input"
 #define PORT_IRIS 8880
@@ -60,7 +59,7 @@ struct DEVICE_MANAGER {
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
 	DEVICE_NODE** previous_dev;
-	int           p_d_size;
+	volatile int  p_d_size;
 	int 		  w, h; //these are only needed to initialize the mouse, sue me
 
 	static Queue<KEYBOARD_EVENT*> Keyboard_Events;

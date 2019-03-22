@@ -392,32 +392,6 @@ void Render_Nuklear_GUI(GUI* gui) {
 	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
 
-void Render_Mouse_GUI(GUI* gui, double c_x, double c_y) {
-	for (int x = 0; x < 11; x++) {
-		for (int y = 0; y < 11; y++) {
-			int hg = mousie[x][y];
-			if (hg == 0x03ffffff) {
-				DrawPoint_GRAPHICS(gui->Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
-			} else if (hg == 0x03000000) {
-				DrawPoint_GRAPHICS(gui->Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
-			}
-		}
-	}
-}
-
-void Render_Mouse_GUI(GUI* gui, GRAPHICS* Graphics_Handle, double c_x, double c_y) {
-	for (int x = 0; x < 11; x++) {
-		for (int y = 0; y < 11; y++) {
-			int hg = mousie[x][y];
-			if (hg == 0x03ffffff) {
-				DrawPoint_GRAPHICS(Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xffffffff);
-			} else if (hg == 0x03000000) {
-				DrawPoint_GRAPHICS(Graphics_Handle, (int) (c_x + 0.5) + x, (int) (c_y + 0.5) + y, 0xff000000);
-			}
-		}
-	}
-}
-
 void Render_GUI(GUI* gui, char* output_buffer) {
 	//char* swapper;
 	copy(gui->Graphics_Handle_Buffer, gui->Graphics_Handle_Buffer + (gui->Frame_Resolution * 4), output_buffer);
