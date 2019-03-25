@@ -31,7 +31,7 @@ void set_local_start_time() {
 	free(file_name_list[1]);
 
 	for (int i = 2; i < num_files; i++) {
-		if (i < num_files - 20) {
+		if (i < num_files - MAX_LOGS) {
 			unlink(
 			string(string(LOG_DIR) + "/" + file_name_list[i]->d_name).c_str());
 		}

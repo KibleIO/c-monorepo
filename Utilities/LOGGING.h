@@ -25,6 +25,8 @@
 
 #define LOG_DIR "logs"
 
+#define MAX_LOGS 20
+
 using namespace std;
 
 extern uint8_t GOT_LOCAL_TIME;
