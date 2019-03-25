@@ -185,7 +185,6 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 	uint8_t flag;
 
 	while (hs->connected) {
-		cout << "waiting on a new connection..." << endl;
 		if (!hs->server->Receive((char*)&flag, sizeof(uint8_t))) {
 			hs->connected = false;
 			hs->err = EPIPE;
