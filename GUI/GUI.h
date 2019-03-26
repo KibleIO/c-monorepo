@@ -6,7 +6,7 @@
 #include <Graphics/Graphics.h>
 #include <GUI/BMP.h>
 #include <GUI/FONT.h>
-#include <Utilities/Assets.h>
+//#include <Utilities/Assets.h>
 #include <GUI/MOUSE.h>
 #include <GUI/KEYBOARD.h>
 
@@ -66,8 +66,6 @@ void Delete_GUI(GUI*);
 void Draw_Text(GUI*, GRAPHICS*, const struct nk_command_text*);
 void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
-void Render_Mouse_GUI(GUI*, double, double);
-void Render_Mouse_GUI(GUI* gui, GRAPHICS* Graphics_Handle, double c_x, double c_y);
 void Render_X264(GUI* gui, char* X264_Buffer, int size);
 void Render_GUI(GUI* gui, char* output_buffer);
 

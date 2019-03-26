@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <dirent.h>
 
 #define log_dbg(_MSG_) Write_Message("DEBUG:   ", _MSG_, __FILE__ , __LINE__, __func__)
 
@@ -22,20 +23,16 @@
 
 #define log_note(_MSG_) Write_Message("NOTE:    ", _MSG_, __FILE__ , __LINE__, __func__)
 
-//#define log_dbg(_MSG_)
-//
-//#define log_err(_MSG_)
-//
-//#define log_warn(_MSG_)
-//
-//#define if_log_note(_CON_, _MSG_)
+#define LOG_DIR "logs"
+
+#define MAX_LOGS 20
 
 using namespace std;
 
-extern bool GOT_LOCAL_TIME; 
+extern uint8_t GOT_LOCAL_TIME;
 extern string LOG_FILE;
 
-int get_local_start_time();
-void Write_Message(string type, string message, const char* file, int line, const char* func);
+void set_local_start_time();
+void Write_Message(string, string, string, uint32_t, string);
 
 #endif

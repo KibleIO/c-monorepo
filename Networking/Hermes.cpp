@@ -285,7 +285,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				hs->err = EPIPE;
 				continue;
 			}
-			
+
 			int index = Hermes_Server_Get_Index(hs);
 			if (index < 0) {
 				log_err("max connections reached");
@@ -324,7 +324,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				log_dbg("server bound on " + to_string(port));
 			}
 			hs->cmutx.unlock();
-		}	
+		}
 	}
 	hs->shouldexit = true;
 	Hermes_Server_Close_Connections(hs);
@@ -335,6 +335,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 		log_err("hermes client not connected");
 		return false;
 	}
+	cout << "obligatory cout" << endl;
 	uint8_t flag = HERMES_GET_CONNECTION;
 	cout << "hello" << endl;
 	log_dbg("sending flag");
@@ -388,7 +389,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 	}
 	hc->connections[index].type = type;
 	hc->connections[index].active = true;
-	
+
 	log_dbg("connecting " + to_string(port));
 	while (!hc->connections[index].client->OpenConnection(port, hc->ip));
 	log_dbg("connected " + to_string(port));

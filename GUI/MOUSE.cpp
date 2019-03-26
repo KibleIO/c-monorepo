@@ -170,7 +170,7 @@ void Listen_Mouse_Once(MOUSE* mouse) {
 	}
 }
 
-void         Listen_Mouse      (MOUSE* mouse)                                                                             {
+void         Listen_Mouse      (MOUSE* mouse) {
 	log_dbg("Listening to mouse " + string(mouse->mouse_info.name));
 	while (mouse->Listening) {
 	    if (poll(&mouse->fds, 1, 1) > 0) {
@@ -200,7 +200,7 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT*>* events) {
 		events->pop(m_event);
 		if (m_event->clicked) {
 			XTestFakeButtonEvent(dpy, m_event->button, m_event->state, CurrentTime);
-		} 
+		}
 		XTestFakeMotionEvent(dpy, 0, m_event->x, m_event->y, CurrentTime);
 		delete m_event;
 	}
