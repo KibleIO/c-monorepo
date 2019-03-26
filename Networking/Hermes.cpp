@@ -160,7 +160,6 @@ void Hermes_Delete_Server(HermesServer* hs) {
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		Hermes_Delete_Server_Connection(hs->connections[i]);
 	}
-	delete hs;
 }
 
 void Hermes_Delete_Client_Connection(ClientConnection &cc) {
@@ -181,7 +180,6 @@ void Hermes_Delete_Client(HermesClient* hc) {
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		Hermes_Delete_Client_Connection(hc->connections[i]);
 	}
-	delete hc;
 }
 
 void print_nonce(uint8_t* nonce) {
@@ -338,6 +336,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 		return false;
 	}
 	uint8_t flag = HERMES_GET_CONNECTION;
+	cout << "hello" << endl;
 	log_dbg("sending flag");
 	if (!hc->client->Send((char*)&flag, sizeof(uint8_t))) {
 		log_err("could not send flag");

@@ -60,9 +60,9 @@ bool Server::ListenBound() {
 	}
 	sockaddr_in clientAddress;
 	int clientSize = sizeof(clientAddress);
-	//int tempSocket = mainSocket;
+	int tempSocket = mainSocket;
 	mainSocket = accept(mainSocket, (sockaddr *) &clientAddress, (socklen_t *) &clientSize);
-	//close(tempSocket);
+	close(tempSocket);
 	if (mainSocket < 0) {
 //		log_err_no_kill("Unable to accept on port:" + to_string(port));
 		return false;
