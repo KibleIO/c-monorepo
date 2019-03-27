@@ -1,6 +1,17 @@
 # Declaration of variables
 CC = g++ -O3 -fPIC -I../ -std=c++11 -Wno-write-strings
 
+CC = g++ -O3
+
+UNAME_M = $(shell uname -m)
+USER=`whoami`
+
+CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -Wno-write-strings
+
+ifeq ($(UNAME_M),armv7l)
+	CC_BUILD_FLAGS += -D_FILE_OFFSET_BITS=64
+endif
+
 # File names
 EXEC = libgraphics.so
 SOURCES = $(wildcard *.cpp)
@@ -12,7 +23,7 @@ $(EXEC): $(OBJECTS)
 
 # To obtain object files
 %.o: %.cpp
-	$(CC) -c $< -o $@
+	$(CC) -c $(CC_BUILD_FLAGS) $< -o $@
 
 # To remove generated files
 clean:
