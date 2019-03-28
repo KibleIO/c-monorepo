@@ -207,7 +207,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			return;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hs->enc_eng->profiles_available[hs->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -265,7 +265,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			uint16_t port = HERMES_PORT_MIN + port_counter++;
 
 			Server* server = new Server();
-			
+
 			while (port <= HERMES_PORT_MAX) {
 				if (server->Bind(port)) {
 					break;
@@ -303,7 +303,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 					continue;
 				}
 
-				ENCRYPTION_PROFILE* enc_prof = 
+				ENCRYPTION_PROFILE* enc_prof =
 				hs->enc_eng->profiles_available[hs->enc_eng->number_of_profiles - 1];
 
 				if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -311,7 +311,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 					continue;
 				}
 
-				hs->connections[index].server->Set_Encryption_Profile(enc_prof); 
+				hs->connections[index].server->Set_Encryption_Profile(enc_prof);
 			}
 			hs->connections[index].active = true;
 			hs->connections[index].type = flag;
@@ -337,7 +337,6 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 	}
 	cout << "obligatory cout" << endl;
 	uint8_t flag = HERMES_GET_CONNECTION;
-	cout << "hello" << endl;
 	log_dbg("sending flag");
 	if (!hc->client->Send((char*)&flag, sizeof(uint8_t))) {
 		log_err("could not send flag");
@@ -377,7 +376,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 			return false;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hc->enc_eng->profiles_available[hc->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -385,7 +384,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 			return false;
 		}
 
-		hc->connections[index].client->Set_Encryption_Profile(enc_prof); 
+		hc->connections[index].client->Set_Encryption_Profile(enc_prof);
 	}
 	hc->connections[index].type = type;
 	hc->connections[index].active = true;
@@ -416,7 +415,7 @@ void Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types) {
 			return;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hc->enc_eng->profiles_available[hc->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -424,7 +423,7 @@ void Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types) {
 			return;
 		}
 
-		hc->client->Set_Encryption_Profile(enc_prof); 
+		hc->client->Set_Encryption_Profile(enc_prof);
 	}
 
 	log_dbg("connecting to " + hc->ip + ":" + to_string(hc->baseport));

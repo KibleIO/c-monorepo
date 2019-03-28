@@ -14,5 +14,6 @@ struct EVENT {
 void   Initialize_Event(EVENT*);
 bool   Check_Event(EVENT*);
 void   Set_Event(EVENT*);
+void Delete_Event(EVENT*);
 
 #endif
