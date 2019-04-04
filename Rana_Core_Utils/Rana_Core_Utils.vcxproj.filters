@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{75b4796d-21a5-4759-a7c2-f75df4499660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{6e0d7f4d-3903-4460-98a5-27addd5c76f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{cd1eab4f-ce86-4ecf-88f8-616de0714eb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{78f7ea17-1cad-4c0a-b16b-a769a032f84c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Polygon.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\BMP.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\FONT.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\GUI.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\KEYBOARD.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MOUSE.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\Client.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\ENCRYPTION_ENGINE.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\ENCRYPTION_PROFILE.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\Hermes.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\Server.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\DEVICE_MANAGER.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\EVENT.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\INDEX_QUEUE.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\LOGGING.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Utils.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking\UDP_Client.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\FPS_LIMITER.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Polygon.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\avir.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\BMP.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\FONT.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\GUI.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\KEYBOARD.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\MOUSE.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\nuklear.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\stb_image.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\stb_truetype.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Client.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\ENCRYPTION_ENGINE.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\ENCRYPTION_PROFILE.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Hermes.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Networking.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\Server.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\CONCURRENT_QUEUE.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\DEVICE_MANAGER.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\EVENT.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\INDEX_QUEUE.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\LOGGING.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Timer.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Utils.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\direntwin.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\input-event-codeswin.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\UDP_Client.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\FPS_LIMITER.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
