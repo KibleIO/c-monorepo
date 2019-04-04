@@ -11,6 +11,3 @@ push:
 
 reload:
 	make clean; make; make push
-	cd ../Rana; make reload
-	cd ../Iris; make reload
-	cd ../Themis; make reload
