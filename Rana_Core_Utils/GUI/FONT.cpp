@@ -5,9 +5,7 @@
 #include "FONT.h"
 
 void Initialize_Font(FONT* font, const char* fname, float text_height){
-	log_dbg("tmp: setting baked glyphs");
 	font->Baked_glyphs = new BAKED_GLYPH[FONT_GLYPH_COUNT];
-	log_dbg("tmp: setting name");
 	font->Font_name = string(fname);
 
 	log_dbg("Initializing font : " + string(fname) + ", size: " + 
@@ -20,7 +18,6 @@ void Initialize_Font(FONT* font, const char* fname, float text_height){
 		log_err("Failed to load font\n");
 		return;
 	}
-	log_dbg("Successfully opened font file");
 
 	stbtt_InitFont(&font->Font_info, ttf_buffer, 0);
 	scale = stbtt_ScaleForPixelHeight(&font->Font_info, text_height);
@@ -39,8 +36,6 @@ void Initialize_Font(FONT* font, const char* fname, float text_height){
 		&font->Font_info, char(32+i), &advance, &lsb);
 		font->Baked_glyphs[i].Advance = advance * scale;
 	}
-
-	log_dbg("Font prepared");
 }
 
 void Delete_Font(FONT* font){

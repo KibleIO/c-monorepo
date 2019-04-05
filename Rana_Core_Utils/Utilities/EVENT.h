@@ -13,8 +13,10 @@ struct EVENT {
 	mutex Mutex;
 };
 
-void   Initialize_Event(EVENT*);
-bool   Check_Event(EVENT*);
-void   Set_Event(EVENT*);
+void Initialize_Event(EVENT*);
+bool Check_Event(EVENT*);
+void Set_Event(EVENT*);
+void Delete_Event(EVENT*);
+
 
 #endif

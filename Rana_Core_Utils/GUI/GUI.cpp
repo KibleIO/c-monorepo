@@ -28,7 +28,6 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	gui->Frame_Resolution	= width * height;
 	gui->NK_Context			= new nk_context;
 
-	log_dbg("tmp: allocating gui stuff");
 	gui->fonts = new GUI_FONT[GUI_TOTAL_FONTS];
 	gui->fontHeights = new int[GUI_TOTAL_FONTS] {
 		int(gui->Height * 0.02),
@@ -38,7 +37,6 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	gui->BakedBmp = false;
 
-	log_dbg("tmp: frame buffer alloc");
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  	= NULL;
 		gui->Graphics_Handle              = new GRAPHICS;
@@ -52,7 +50,6 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	// Initialize each of the gui fonts
 	for(int i = 0; i < GUI_TOTAL_FONTS; i++) {
-		log_dbg("tmp: init fonts " + to_string(i));
 		Initialize_GUI_Font(&gui->fonts[i], gui->fontHeights[i], font_path.c_str());
 	}
 	// Initialize the nk context with the default font size
@@ -69,9 +66,7 @@ void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* 
 }
 
 void Initialize_GUI_Font(GUI_FONT* gfont, int height, const char* fname) {
-	log_dbg("tmp: initializing font");
 	Initialize_Font(&gfont->userFont, fname, height);
-	log_dbg("tmp: setting up gui font");
 	gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
 	gfont->nkFont.height = height;
 	gfont->nkFont.width = Font_Get_Text_Width;

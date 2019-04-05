@@ -34,9 +34,7 @@
 
 #define log_err(_MSG_) Write_Message("ERROR:   ", _MSG_, __FILE__ , __LINE__, __func__)
 
-#define log_warn(_MSG_) Write_Message("WARNING: ", _MSG_, __FILE__ , __LINE__, __func__)
-
-#define log_note(_MSG_) Write_Message("NOTE:    ", _MSG_, __FILE__ , __LINE__, __func__)
+#define log_tmp(_MSG_) Write_Message("DELETE:  ", _MSG_, __FILE__ , __LINE__, __func__)
 
 #define LOG_DIR "./logs"
 

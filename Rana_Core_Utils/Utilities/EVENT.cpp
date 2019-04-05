@@ -33,3 +33,7 @@ void Set_Event(EVENT* event) {
 	event->count_down = 3;
 	event->Mutex.unlock();
 }
+
+void Delete_Event(EVENT*) {
+	//dummy
+}

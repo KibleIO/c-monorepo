@@ -182,7 +182,6 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 	MOUSE* mouse = dev->hw.mouse;
 	if (!mouse) {
-		log_err("mouse is null");
 		return;
 	}
 

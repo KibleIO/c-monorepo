@@ -27,6 +27,8 @@
 #endif
 // }}}
 
+#define NETWORKING_BUFFER_SIZE 3000
+
 using namespace std;
 
 #endif /* NETWORKING_H_ */

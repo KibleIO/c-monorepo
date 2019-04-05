@@ -45,7 +45,7 @@ void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 		if (enc_buf_auth) {
 			delete enc_buf_auth;
 		}
-		enc_buf_auth = new char[3000];
+		enc_buf_auth = new char[NETWORKING_BUFFER_SIZE];
 		enc_buf_data = enc_buf_auth + crypto_onetimeauth_BYTES;
 	}
 }

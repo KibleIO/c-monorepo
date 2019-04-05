@@ -2,8 +2,6 @@
 
 #include "Hermes.h"
 
-int port_counter = 0;
-
 string Hermes_Error_Str(int n) {
 	switch (n) {
 	case 0:
@@ -264,7 +262,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				continue;
 			}
 
-			uint16_t port = HERMES_PORT_MIN + port_counter++;
+			uint16_t port = HERMES_PORT_MIN;
 
 			Server* server = new Server();
 			
