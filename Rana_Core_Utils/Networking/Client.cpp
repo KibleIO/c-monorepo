@@ -3,6 +3,10 @@
 #include "Client.h"
 
 Client::Client() {
+	Init();
+}
+
+void Client::Init() {
 	enc = NULL;
 	enc_buf_auth = NULL;
 	enc_buf_data = NULL;

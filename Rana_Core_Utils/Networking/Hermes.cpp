@@ -374,6 +374,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
 		hc->enc_eng, Connection_Name(type), hc->enc_eng->active_profile)) {
 			log_err("could not add encryption profile " + Connection_Name(type));
+			delete hc->connections[index].client;
 			return false;
 		}
 
@@ -382,6 +383,7 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
 			log_err("failed to load poly1305 key and nonce");
+			delete hc->connections[index].client;
 			return false;
 		}
 

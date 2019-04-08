@@ -29,6 +29,7 @@ private:
 
 public:
 	Client();
+	void Init();
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
 	bool OpenConnection(int, string);
 	void CloseConnection();

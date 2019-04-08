@@ -32,6 +32,7 @@ private:
 
 public:
 	Server();
+	void Init();
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
 	bool Bind(int port);
 	bool ListenBound();
