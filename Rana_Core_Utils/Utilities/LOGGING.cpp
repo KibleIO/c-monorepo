@@ -12,7 +12,7 @@ void set_local_start_time() {
 	GOT_LOCAL_TIME = true;
 
     dirent**							file_name_list;
-	uint32_t							num_files;
+	int32_t							num_files;
 	ostringstream						ss;
 	chrono::system_clock::time_point	now;
 	time_t								now_t;
@@ -25,7 +25,7 @@ void set_local_start_time() {
 	LOG_FILE += ss.str();
 
 	num_files = scandir(LOG_DIR, &file_name_list, NULL, alphasort);
-	if (num_files < 0) {
+	if (num_files < 2) {
 		cout << "logging is disabled: " << to_string(errno) << endl;
 		return;
 	}
