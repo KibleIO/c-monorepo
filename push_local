@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo cp Rana_Core_Utils/*.so /usr/local/lib
