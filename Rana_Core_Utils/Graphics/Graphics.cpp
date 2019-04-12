@@ -707,8 +707,8 @@ void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, in
 	}
 	// Otherwise, we've got a long function ahead of us...
 	else {
-    // Assign half the height or width - whichever is smaller
-    int halfMinDimension = h < w ? h >> 1 : w >> 1;
+	    // Assign half the height or width - whichever is smaller
+	    int halfMinDimension = h < w ? h >> 1 : w >> 1;
 
 		// Clamp the rounding constant so that it cannot be bigger than half the smallest dimension
 		if(r > halfMinDimension) {
@@ -718,32 +718,12 @@ void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, in
 		int innerWidth = w - (r << 1);	// Internal width of the rectangular drawing between the quarter circles
 		int innerHeight = h - (r << 1);	// Internal height of the rectangular drawing between the quarter circles
 
-		class POLYGON innerRect;	// Inner rectangular drawing inside the four quarter circles
-
-		// The +1's and -1's correct an unidentifiable off-by-one error
-
-		// Top-left corner
-		innerRect.addPoint(x + r, y);
-		innerRect.addPoint(x + r, y + r - 1);
-		innerRect.addPoint(x, y + r - 1);
-
-		// Bottom-left corner
-		innerRect.addPoint(x, y + r + innerHeight + 1);
-		innerRect.addPoint(x + r, y + r + innerHeight + 1);
-		innerRect.addPoint(x + r, y + h);
-
-		// Bottom-right corner
-		innerRect.addPoint(x + r + innerWidth, y + h);
-		innerRect.addPoint(x + r + innerWidth, y + r + innerHeight + 1);
-		innerRect.addPoint(x + w, y + r + innerHeight + 1);
-
-		// Top-right corner
-		innerRect.addPoint(x + w, y + r - 1);
-		innerRect.addPoint(x + r + innerWidth, y + r - 1);
-		innerRect.addPoint(x + r + innerWidth, y);
-
-		// Fill up the rectangular shape inside the quarter circles
-		FillPolygon_GRAPHICS(graphics, innerRect, color);
+		// Fill the square in the middle of the rect
+		FillSquare_GRAPHICS(graphics, x + r, y, innerWidth, h, color);
+		// Fill the square on the left of the rect
+		FillSquare_GRAPHICS(graphics, x, y + r, r, innerHeight + 1, color);
+		// Fill the square on the right of the rect
+		FillSquare_GRAPHICS(graphics, x + r + innerWidth, y + r, r, innerHeight + 1, color);
 
 		// Fill arcs at the corners to created rounded edges
 		FillQuarterArc_GRAPHICS(graphics, x + innerWidth + r, y, r, r, FIRST_QUADRANT, color);
