@@ -42,4 +42,7 @@ bool Initialize_ENCRYPTION_ENGINE	(ENCRYPTION_ENGINE*);
 bool Add_Profile_ENCRYPTION_ENGINE	(ENCRYPTION_ENGINE*, string, uint8_t = 0);
 void Delete_ENCRYPTION_ENGINE		(ENCRYPTION_ENGINE*);
 
+bool Write_Active_Profile_ENCRYPTION_ENGINE(
+ENCRYPTION_ENGINE* encryption_engine);
+
 #endif

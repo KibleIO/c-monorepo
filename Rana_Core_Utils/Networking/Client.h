@@ -31,6 +31,7 @@ public:
 	Client();
 	void Init();
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
+	void Set_Recv_Timeout(int seconds, int useconds = 0);
 	bool OpenConnection(int, string);
 	void CloseConnection();
 	bool Send(char *, int);

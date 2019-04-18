@@ -92,9 +92,6 @@ ENCRYPTION_PROFILE* encryption_profile) {
 		return false;
     }
 
-	uint8_t* refill_buffer = new uint8_t[crypto_stream_chacha20_NONCEBYTES +
-	crypto_stream_chacha20_KEYBYTES];
-
 	encryption_profile->master_nonce	=
 	new uint8_t[crypto_stream_chacha20_NONCEBYTES];
 
@@ -115,26 +112,6 @@ ENCRYPTION_PROFILE* encryption_profile) {
 
 	encryption_profile->entropy_pool_index += crypto_stream_chacha20_KEYBYTES;
 
-	if (
-	!Get_Entropy_ENCRYPTION_PROFILE(encryption_profile, refill_buffer,
-	crypto_stream_chacha20_NONCEBYTES + crypto_stream_chacha20_KEYBYTES)) {
-		log_err("Failed to get entropy");
-		delete refill_buffer;
-		return false;
-    }
-
-	sodium_increment(
-	encryption_profile->master_nonce, crypto_stream_chacha20_NONCEBYTES);
-
-	if (
-	!Update_ENCRYPTION_PROFILE(encryption_profile, refill_buffer,
-	crypto_stream_chacha20_NONCEBYTES + crypto_stream_chacha20_KEYBYTES)) {
-		log_err("Failed to update profile file");
-		delete refill_buffer;
-		return false;
-    }
-
-	delete refill_buffer;
 	return true;
 }
 
@@ -310,21 +287,21 @@ uint32_t message_size, uint8_t* auth_buffer) {
 }
 
 void Delete_ENCRYPTION_PROFILE(ENCRYPTION_PROFILE* encryption_profile) {
-	delete encryption_profile->entropy_pool;
+	delete [] encryption_profile->entropy_pool;
 
 	if (encryption_profile->master_nonce != NULL) {
-		delete encryption_profile->master_nonce;
+		delete [] encryption_profile->master_nonce;
 	}
 	if (encryption_profile->master_key != NULL) {
-		delete encryption_profile->master_key;
+		delete [] encryption_profile->master_key;
 	}
 	if (encryption_profile->poly1305_nonce != NULL) {
-		delete encryption_profile->poly1305_nonce;
+		delete [] encryption_profile->poly1305_nonce;
 	}
 	if (encryption_profile->poly1305_key != NULL) {
-		delete encryption_profile->poly1305_key;
+		delete [] encryption_profile->poly1305_key;
 	}
 	if (encryption_profile->generichash_buffer != NULL) {
-		delete encryption_profile->generichash_buffer;
+		delete [] encryption_profile->generichash_buffer;
 	}
 }

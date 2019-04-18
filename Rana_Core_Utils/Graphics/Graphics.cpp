@@ -15,7 +15,7 @@ void Initialize_GRAPHICS(GRAPHICS* graphics, char* buffer, int width, int height
 }
 
 void Delete_GRAPHICS(GRAPHICS* graphics) {
-	delete graphics->ContourX;
+	delete [] graphics->ContourX;
 }
 
 void SwapBuffers_GRAPHICS(GRAPHICS* graphics, char* buff) {
@@ -612,7 +612,7 @@ void FillCircle_Opaque_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, 
 	}
 }
 
-void FillPolygon_GRAPHICS(GRAPHICS* graphics, POLYGON p, int color) {
+void FillPolygon_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int color) {
 	if (graphics->Transparent) {
 		FillPolygon_Transparent_GRAPHICS(graphics, p, color);
 	} else {
@@ -620,7 +620,7 @@ void FillPolygon_GRAPHICS(GRAPHICS* graphics, POLYGON p, int color) {
 	}
 }
 
-void FillPolygon_Transparent_GRAPHICS(GRAPHICS* graphics, POLYGON p, int c) {
+void FillPolygon_Transparent_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 	int  nodes, pixelY, i, j, swap;
 	int nodeX[10];
 	for (pixelY = p.top; pixelY < p.bottom; pixelY++) {
@@ -656,7 +656,7 @@ void FillPolygon_Transparent_GRAPHICS(GRAPHICS* graphics, POLYGON p, int c) {
 	}
 }
 
-void FillPolygon_Opaque_GRAPHICS(GRAPHICS* graphics, POLYGON p, int c) {
+void FillPolygon_Opaque_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 	int  nodes, pixelY, i, j, swap;
 	int nodeX[10];
 	for (pixelY = p.top; pixelY < p.bottom; pixelY++) {

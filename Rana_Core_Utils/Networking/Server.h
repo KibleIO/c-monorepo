@@ -34,6 +34,7 @@ public:
 	Server();
 	void Init();
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
+	void Set_Recv_Timeout(int seconds, int useconds = 0);
 	bool Bind(int port);
 	bool ListenBound();
 	bool Listen(int);

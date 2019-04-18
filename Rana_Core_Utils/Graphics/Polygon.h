@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+#include "../Utilities/LOGGING.h"
+
 using namespace std;
 
 class POLYGON {
@@ -17,6 +19,7 @@ class POLYGON {
 		double left, right; //minX, maxX
 		POLYGON();
 		~POLYGON();
+		void operator=(const POLYGON &other);
 		void addPoint(double x, double y);
 		double GetX(int i);
 		double GetY(int i);

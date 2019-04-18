@@ -5,6 +5,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <mutex>
+
+using namespace std;
 
 //alec <3 2013-2018 you will be missed
 struct INDEX_QUEUE {
@@ -12,6 +15,7 @@ struct INDEX_QUEUE {
 	uint32_t	index;
 	uint32_t	minimum;
 	uint32_t	capacity;
+	mutex		mtx;
 };
 
 void		Initialize_INDEX_QUEUE(INDEX_QUEUE*, uint32_t, uint32_t);

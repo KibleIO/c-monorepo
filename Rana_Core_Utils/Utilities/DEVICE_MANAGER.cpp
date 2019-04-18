@@ -517,17 +517,24 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 }
 
 void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
+	log_dbg("deleting device manager");
+	log_tmp("stop server");
 	Device_Server_Stop(dev_man);
+	log_tmp("stop client");
 	Device_Client_Stop(dev_man);
 
 	for (int i = 0; i < MAX_DEV; i++) {
+		log_tmp(to_string(i));
 		Delete_Device_Node(dev_man->current_dev[i]);
 		delete dev_man->current_dev[i];
 		Delete_Device_Node(dev_man->previous_dev[i]);
 		delete dev_man->previous_dev[i];
 	}
-	delete dev_man->current_dev;
-	delete dev_man->previous_dev;
+	log_dbg("cd");
+	delete [] dev_man->current_dev;
+	log_dbg("pd");
+	delete [] dev_man->previous_dev;
+	log_dbg("done deleting device manager");
 }
 
 #endif

@@ -3,14 +3,14 @@
 #include "Client.h"
 
 Client::Client() {
-	Init();
-}
-
-void Client::Init() {
 	enc = NULL;
 	enc_buf_auth = NULL;
 	enc_buf_data = NULL;
 
+	Init();
+}
+
+void Client::Init() {
 	connected = false;
 
 	// Linux specific code {{{
@@ -45,11 +45,34 @@ void Client::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 	if (_enc) {
 		enc = _enc;
 		if (enc_buf_auth) {
-			delete enc_buf_auth;
+			delete [] enc_buf_auth;
 		}
 		enc_buf_auth = new char[NETWORKING_BUFFER_SIZE];
 		enc_buf_data = enc_buf_auth + crypto_onetimeauth_BYTES;
 	}
+}
+
+void Client::Set_Recv_Timeout(int seconds, int useconds) {
+	// Linux specific code {{{
+	#ifdef __linux__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} Windows specific code {{{
+	#ifdef _WIN64
+	DWORD tv = seconds * 1000 + useconds / 1000;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} OSX specific code {{{
+	#ifdef __APPLE__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}}
 }
 
 bool Client::OpenConnection(int port, string ip) {
@@ -250,6 +273,6 @@ bool Client::Receive(char *data, int size) {
 Client::~Client() {
 	CloseConnection();
 	if (enc_buf_auth) {
-		delete enc_buf_auth;
+		delete [] enc_buf_auth;
 	}
 }

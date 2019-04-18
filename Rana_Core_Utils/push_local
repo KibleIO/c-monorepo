@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo cp *.so /usr/local/lib

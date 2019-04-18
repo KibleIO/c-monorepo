@@ -26,6 +26,8 @@
 #define HERMES_EXIT 			2
 #define HERMES_STATUS 			3
 
+#define HERMES_TIMEOUT_TRIES 1000
+
 //
 //  Server
 //
@@ -41,6 +43,7 @@ struct HermesServer {
 	Server* server;
 	volatile bool connected;
 	volatile bool shouldexit;
+	volatile bool exiting;
 
 	ServerConnection connections[HERMES_CONNECTIONS_MAX];
 	mutex cmutx;
@@ -48,6 +51,8 @@ struct HermesServer {
 	uint8_t err;
 
 	ENCRYPTION_ENGINE* enc_eng;
+	
+	bool server_init_failed;
 };
 
 //Run this first on an allocated hs pointer
@@ -90,7 +95,7 @@ struct HermesClient {
 //Run this first on an allocated hc pointer
 void Hermes_Client_Init(HermesClient* hc, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this, but not in a thread
-void Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types);
+bool Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types);
 //Then this to get clients
 Client* Hermes_Get_Client(HermesClient* hc, uint8_t type);
 //Or this for blocking behavior (though you shouldnt need it)

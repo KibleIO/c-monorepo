@@ -93,10 +93,12 @@ KEYBOARD* Construct_Keyboard(string path, EVENT* event_status) {
 }
 
 void Delete_Keyboard(KEYBOARD* keyboard) {
-	log_dbg("Keyboard " + keyboard->path + " deleted");
+	log_dbg("deleting keyboard " + keyboard->path);
 	keyboard->Listening = false;
 	if (keyboard->Event_Listener) {
+		log_tmp("join");
 		keyboard->Event_Listener->join();
+		log_tmp("delete");
 		delete keyboard->Event_Listener;
 	}
 	close(keyboard->fd);
@@ -105,14 +107,29 @@ void Delete_Keyboard(KEYBOARD* keyboard) {
 		keyboard->Events.pop(k_event);
 		delete k_event;
 	}
-	delete keyboard;
-	keyboard = NULL;
+	log_dbg("done deleting keyboard " + keyboard->path);
 }
 
 void Listen_Keyboard(KEYBOARD* keyboard) {
+	fd_set set;
+	timeval tv;
+	input_event event;
+	int rv;
+
 	log_dbg("Beginning to listen to keyboard " + keyboard->path);
 	while (keyboard->Listening) {
-		input_event event;
+		FD_ZERO(&set);
+		FD_SET(keyboard->fd, &set);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100000;
+
+		rv = select(keyboard->fd + 1, &set, NULL, NULL, &tv);
+		if (rv == -1) {
+			break;
+		} else if (rv == 0) {
+			continue;
+		}
+
 		if (read(keyboard->fd, &event, sizeof(input_event)) != -1 &&
 			event.type == EV_KEY && keyboard->Listening) {
 			KEYBOARD_EVENT_T* k_event = 	new KEYBOARD_EVENT_T;
