@@ -72,6 +72,9 @@
     <ClCompile Include="Utilities\FPS_LIMITER.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\TIMER.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Graphics.h">
@@ -140,9 +143,6 @@
     <ClInclude Include="Utilities\LOGGING.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities\Timer.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Utilities\Utils.h">
       <Filter>Utilities</Filter>
     </ClInclude>
@@ -156,6 +156,9 @@
       <Filter>Networking</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\FPS_LIMITER.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\TIMER.h">
       <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>

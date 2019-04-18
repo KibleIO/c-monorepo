@@ -37,6 +37,7 @@
     <ClCompile Include="Utilities\FPS_LIMITER.cpp" />
     <ClCompile Include="Utilities\INDEX_QUEUE.cpp" />
     <ClCompile Include="Utilities\LOGGING.cpp" />
+    <ClCompile Include="Utilities\TIMER.cpp" />
     <ClCompile Include="Utilities\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +67,7 @@
     <ClInclude Include="Utilities\FPS_LIMITER.h" />
     <ClInclude Include="Utilities\INDEX_QUEUE.h" />
     <ClInclude Include="Utilities\LOGGING.h" />
-    <ClInclude Include="Utilities\Timer.h" />
+    <ClInclude Include="Utilities\TIMER.h" />
     <ClInclude Include="Utilities\Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -126,12 +127,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\user\Desktop\libsodium\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\user\Desktop\libsodium\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -153,11 +158,14 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,7 +173,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>libsodium.lib;Ws2_32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -199,6 +207,8 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -208,7 +218,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>libsodium.lib;Ws2_32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
