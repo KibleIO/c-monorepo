@@ -58,8 +58,8 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 		if (!dev_man->server) {
 			tm.sleepMilli(16);
 			continue;
-		} 
-		
+		}
+
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
 			log_err("could not receive input packet");
 			dev_man->receiving = false;
@@ -159,7 +159,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		return;
 	}
 	for (int i = keyboard->Events.size(); i > 0; i--) {
-		KEYBOARD_EVENT_T* k_event; 
+		KEYBOARD_EVENT_T* k_event;
 		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
 		if (dev_man->client) {
@@ -195,8 +195,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		case LIBINPUT_EVENT_POINTER_MOTION:
 			lep = libinput_event_get_pointer_event(element->Event);
 			mouse->Current_X +=
-				libinput_event_pointer_get_dx_unaccelerated(lep) *
-				mouse->Sensitivity;
+				libinput_event_pointer_get_dx(lep);
 			if (mouse->Current_X > mouse->Maximum_X) {
 				mouse->Current_X = mouse->Maximum_X;
 			}
@@ -204,8 +203,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 				mouse->Current_X = mouse->Minimum_X;
 			}
 			mouse->Current_Y +=
-				libinput_event_pointer_get_dy_unaccelerated(lep) *
-				mouse->Sensitivity;
+				libinput_event_pointer_get_dy(lep);
 			if (mouse->Current_Y > mouse->Maximum_Y) {
 				mouse->Current_Y = mouse->Maximum_Y;
 			}

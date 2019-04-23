@@ -3,6 +3,8 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
+#include <string.h>
+#include <netdb.h>
 #include "Networking.h"
 
 class Client {
