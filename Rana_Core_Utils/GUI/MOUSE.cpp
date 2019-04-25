@@ -252,6 +252,43 @@ void Handle_Mouse_WINAPI(MOUSE_EVENT_T* m_event) {
 	SendInput(1, &ip, sizeof(INPUT));
 	delete m_event;
 }
+
+void Handle_Mouse_WINAPI(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
+	INPUT ip;
+
+	//Set up the INPUT structure
+	ip.type = INPUT_MOUSE;
+	ip.mi.time = 0;
+	ip.mi.mouseData = 0;
+	ip.mi.dwExtraInfo = 0;
+
+	for (int i = events->size(); i > 0; i--) {
+		MOUSE_EVENT_T* m_event;
+		events->pop(m_event);
+
+		//This let's you do a hardware scan instead of a virtual keypress
+
+		ip.mi.dx = (m_event->x * 0xFFFF) / (GetSystemMetrics(SM_CXSCREEN) - 1);  //Set a unicode character to use (A)
+		ip.mi.dy = (m_event->y * 0xFFFF) / (GetSystemMetrics(SM_CYSCREEN) - 1);  //Set a unicode character to use (A)
+
+		if (m_event->clicked) {
+			if (m_event->state) {
+				ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE;
+			}
+			else {
+				ip.mi.dwFlags = MOUSEEVENTF_LEFTUP | MOUSEEVENTF_ABSOLUTE;
+			}
+
+			SendInput(1, &ip, sizeof(INPUT));
+
+		}
+
+		ip.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+		SendInput(1, &ip, sizeof(INPUT));
+
+		delete m_event;
+	}
+}
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__

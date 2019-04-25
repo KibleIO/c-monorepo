@@ -17,8 +17,8 @@
 #include "../GUI/MOUSE.h"
 #include "../Networking/Client.h"
 #include "../Networking/Server.h"
-#include "../Utilities/Timer.h"
-#include "../Utilities/EVENT.h"
+#include "TIMER.h"
+#include "EVENT.h"
 
 // Linux specific includes {{{
 #ifdef __linux__

@@ -8,19 +8,23 @@ FPS_LIMITER* fps_limiter, uint32_t fps, uint8_t verbose) {
 	fps_limiter->frame_rate = 0;
 	fps_limiter->fps = fps;
 	fps_limiter->verbose = verbose;
+
+	fps_limiter->frame_timer = new TIMER;
+	Initialize_TIMER(fps_limiter->frame_timer);
 }
 
 void Start_FPS_LIMITER(FPS_LIMITER* fps_limiter) {
-	fps_limiter->frame_timer.Start();
+	Start_TIMER(fps_limiter->frame_timer);
 }
 
 void Stop_FPS_LIMITER(FPS_LIMITER* fps_limiter) {
-	fps_limiter->frame_time = fps_limiter->frame_timer.Stop();
+	fps_limiter->frame_time = Stop_TIMER(fps_limiter->frame_timer);
 	if (fps_limiter->verbose) {
 		cout << fps_limiter->frame_time << endl;
 	}
 	if (MILLISECONDS_IN_A_SECOND / fps_limiter->fps > fps_limiter->frame_time) {
-		fps_limiter->frame_timer.sleepMilli(
+		Sleep_Milli_TIMER(
+		fps_limiter->frame_timer,
 		(MILLISECONDS_IN_A_SECOND / fps_limiter->fps) -
 		fps_limiter->frame_time);
 	}
@@ -37,4 +41,7 @@ void Stop_FPS_LIMITER(FPS_LIMITER* fps_limiter) {
 	}
 }
 
-void Delete_FPS_LIMITER(FPS_LIMITER* fps_limiter) {}
+void Delete_FPS_LIMITER(FPS_LIMITER* fps_limiter) {
+	Delete_TIMER(fps_limiter->frame_timer);
+	delete fps_limiter->frame_timer;
+}

@@ -11,7 +11,7 @@
 
 #include "../Utilities/EVENT.h"
 #include "../Utilities/LOGGING.h"
-#include "../Utilities/Timer.h"
+#include "../Utilities/TIMER.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 
 // Linux specific includes {{{
@@ -139,6 +139,7 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events);
 // }}} Windows specific code {{{
 #ifdef _WIN64
 void Handle_Mouse_WINAPI(MOUSE_EVENT_T* m_event);
+void Handle_Mouse_WINAPI(int display_ID, Queue<MOUSE_EVENT_T*>* events);
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__

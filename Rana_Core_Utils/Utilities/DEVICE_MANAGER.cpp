@@ -50,13 +50,16 @@ void Initialize_Device_Manager(
 }
 
 void Device_Server_Start(DEVICE_MANAGER* dev_man) {
-	Timer tm;
+	TIMER* tm;
 	uint8_t ptype;
+
+	tm = new TIMER;
+	Initialize_TIMER(tm);
 
 	dev_man->receiving = true;
 	while (dev_man->receiving) {
 		if (!dev_man->server) {
-			tm.sleepMilli(16);
+			Sleep_Milli_TIMER(tm, 16);
 			continue;
 		}
 
@@ -135,6 +138,9 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 			log_err("unknown packet type");
 		}
 	}
+
+	Delete_TIMER(tm);
+	delete tm;
 }
 
 void Device_Server_Stop(DEVICE_MANAGER* dev_man) {
@@ -289,8 +295,6 @@ bool Check_Device_Node(DEVICE_NODE* init) {
 }
 
 void Device_Client_Start(DEVICE_MANAGER* dev_man) {
-	Timer tm;
-
 	dev_man->sending = true;
 
 	while (dev_man->sending) {
