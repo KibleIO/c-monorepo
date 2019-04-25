@@ -88,7 +88,14 @@ void Delete_GUI(GUI* gui) {
 	}
 	if (gui->fonts) {
 		log_dbg("deleting gui fonts");
+		for (int i = 0; i < GUI_TOTAL_FONTS; i++) {
+			Delete_Font(&gui->fonts[i].userFont);
+		}
 		delete [] gui->fonts;
+	}
+	if (gui->fontHeights) {
+		log_dbg("deleting font heights");
+		delete [] gui->fontHeights;
 	}
 	if (gui->Graphics_Handle_Buffer) {
 		log_dbg("deleting graphics handle buffer");
@@ -96,6 +103,7 @@ void Delete_GUI(GUI* gui) {
 	}
 	if (gui->Graphics_Handle) {
 		log_dbg("deleting graphics handle");
+		Delete_GRAPHICS(gui->Graphics_Handle);
 		delete gui->Graphics_Handle;
 	}
 	log_dbg("done deleting gui");

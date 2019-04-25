@@ -1,12 +1,10 @@
 # Declaration of variables
-CC = g++ -O3 -fPIC -I../ -std=c++11 -Wno-write-strings
-
-CC = g++ -O3
+CC = g++ -O3 -Wall -Wextra -Wpedantic
 
 UNAME_M = $(shell uname -m)
 USER=`whoami`
 
-CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -Wno-write-strings
+CC_BUILD_FLAGS =-fPIC -Wl,--as-needed -I../ -Wno-write-strings
 
 ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS += -D_FILE_OFFSET_BITS=64

@@ -43,6 +43,6 @@ void Delete_Font(FONT* font){
 		stbtt_FreeBitmap(
 		font->Baked_glyphs[i].Bitmap, font->Font_info.userdata);
 	}
-	delete font->Baked_glyphs;
+	delete [] font->Baked_glyphs;
 	log_dbg("Deleted font: " + font->Font_name);
 }

@@ -102,7 +102,6 @@ Server* Hermes_Get_Server(HermesServer* hs, uint8_t type) {
 	return NULL;
 }
 
-
 int Hermes_Client_Get_Index(HermesClient* hc) {
 	if (!hc->connected) {
 		log_err("hermes client not connected");
@@ -136,7 +135,6 @@ int Hermes_Server_Get_Index(HermesServer* hs) {
 	hs->cmutx.unlock();
 	return -1;
 }
-
 
 void Hermes_Delete_Server_Connection(ServerConnection &sc) {
 	if (!sc.active) {
