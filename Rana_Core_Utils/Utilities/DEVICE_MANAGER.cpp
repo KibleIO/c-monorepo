@@ -295,8 +295,6 @@ bool Check_Device_Node(DEVICE_NODE* init) {
 }
 
 void Device_Client_Start(DEVICE_MANAGER* dev_man) {
-	Timer tm;
-
 	dev_man->sending = true;
 
 	while (dev_man->sending) {
