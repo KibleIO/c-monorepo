@@ -3,14 +3,14 @@
 #include "Server.h"
 
 Server::Server() {
-	Init();
-}
-
-void Server::Init() {
 	enc = NULL;
 	enc_buf_auth = NULL;
 	enc_buf_data = NULL;
 
+	Init();
+}
+
+void Server::Init() {
 	connected = false;
 
 	// Linux specific code {{{
@@ -47,11 +47,34 @@ void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 	if (_enc) {
 		enc = _enc;
 		if (enc_buf_auth) {
-			delete enc_buf_auth;
+			delete [] enc_buf_auth;
 		}
 		enc_buf_auth = new char[NETWORKING_BUFFER_SIZE];
 		enc_buf_data = enc_buf_auth + crypto_onetimeauth_BYTES;
 	}
+}
+
+void Server::Set_Recv_Timeout(int seconds, int useconds) {
+	// Linux specific code {{{
+	#ifdef __linux__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} Windows specific code {{{
+	#ifdef _WIN64
+	DWORD tv = seconds * 1000 + useconds / 1000;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} OSX specific code {{{
+	#ifdef __APPLE__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}}
 }
 
 bool Server::Bind(int port) {
@@ -110,13 +133,14 @@ bool Server::Bind(int port) {
 	#endif
 	// }}}
 
-	log_dbg("sever bound on port " + to_string(port));
+	log_dbg("bound on port " + to_string(port));
 	c_port = port;
 
 	return true;
 }
 
 bool Server::ListenBound() {
+	log_dbg("listening on port " + to_string(c_port));
 	// Linux specific code {{{
 	#ifdef __linux__
 	if (listen(lSocket, 5) < 0) {
@@ -328,6 +352,6 @@ bool Server::Receive(char *data, int size) {
 Server::~Server() {
 	CloseConnection();
 	if (enc_buf_auth) {
-		delete enc_buf_auth;
+		delete [] enc_buf_auth;
 	}
 }

@@ -120,8 +120,6 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	//	}
 	//}
 
-	//stbi_image_free(data);
-
 	bmp->Data = (char*)data;
 
 	avir::CImageResizer<> air(8);
@@ -129,7 +127,9 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	//resizeBilinear((int*) bmp->Data, (int*) resized_buffer, bmp->W + 1, bmp->H + 1, w, h);
 	air.resizeImage((uint8_t*)bmp->Data, bmp->W, bmp->H, 0, (uint8_t*)resized_buffer, w, h, 4, 0);
 
-	delete bmp->Data;
+	stbi_image_free(data);
+
+	//delete [] bmp->Data;
 	bmp->Data = (char*) resized_buffer;
 
 	bmp->W = w;
@@ -264,5 +264,5 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int X, int Y) {
 }
 
 void Delete_BMP(BMP* bmp) {
-	delete bmp->Data;
+	delete [] bmp->Data;
 }

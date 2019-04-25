@@ -2,14 +2,6 @@
 
 #include "ENCRYPTION_ENGINE.h"
 
-void print_nonce4(uint8_t* nonce) {
-	string nonce_str;
-	for (int i = 0; i < 20; i++) {
-		nonce_str += to_string(nonce[i]) + " ";
-	}
-	log_dbg(nonce_str);
-}
-
 bool Initialize_ENCRYPTION_ENGINE(ENCRYPTION_ENGINE* encryption_engine) {
 	encryption_engine->profiles_available	=
 	new ENCRYPTION_PROFILE*[MAX_PROFILES];
@@ -136,7 +128,7 @@ uint8_t origin_profile_index) {
 		delete encryption_engine->profiles_available[
 		encryption_engine->number_of_profiles];
 
-		delete origin_entropy_buffer;
+		delete [] origin_entropy_buffer;
 
 		encryption_engine->profiles_available[
 		encryption_engine->number_of_profiles] = NULL;
@@ -153,7 +145,40 @@ uint8_t origin_profile_index) {
 	}
 
 	encryption_engine->number_of_profiles++;
-	delete origin_entropy_buffer;
+	delete [] origin_entropy_buffer;
+	return true;
+}
+
+bool Write_Active_Profile_ENCRYPTION_ENGINE(
+ENCRYPTION_ENGINE* encryption_engine) {
+	log_dbg("writing active profile");
+	ENCRYPTION_PROFILE* encryption_profile = 
+	encryption_engine->profiles_available[encryption_engine->active_profile];
+
+	uint8_t* refill_buffer = new uint8_t[crypto_stream_chacha20_NONCEBYTES +
+	crypto_stream_chacha20_KEYBYTES];
+
+	if (
+	!Get_Entropy_ENCRYPTION_PROFILE(encryption_profile, refill_buffer,
+	crypto_stream_chacha20_NONCEBYTES + crypto_stream_chacha20_KEYBYTES)) {
+		log_err("unable to get entropy");
+		delete [] refill_buffer;
+		return false;
+	}
+
+	sodium_increment(
+	encryption_profile->master_nonce, crypto_stream_chacha20_NONCEBYTES);
+
+	if (
+	!Update_ENCRYPTION_PROFILE(encryption_profile, refill_buffer,
+	crypto_stream_chacha20_NONCEBYTES + crypto_stream_chacha20_KEYBYTES)) {
+		log_err("Failed to update profile file");
+		delete [] refill_buffer;
+		return false;
+    }
+
+	delete [] refill_buffer;
+	log_dbg("done writing active profile");
 	return true;
 }
 
@@ -166,8 +191,8 @@ void Delete_ENCRYPTION_ENGINE(ENCRYPTION_ENGINE* encryption_engine) {
 		}
 	}
 	log_dbg("deleting profiles array");
-	delete encryption_engine->profiles_available;
+	delete [] encryption_engine->profiles_available;
 	log_dbg("deleting path");
-	delete encryption_engine->path;
+	delete [] encryption_engine->path;
 	log_dbg("done deleting path");
 }

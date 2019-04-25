@@ -3,14 +3,14 @@
 #include "Client.h"
 
 Client::Client() {
-	Init();
-}
-
-void Client::Init() {
 	enc = NULL;
 	enc_buf_auth = NULL;
 	enc_buf_data = NULL;
 
+	Init();
+}
+
+void Client::Init() {
 	connected = false;
 
 	// Linux specific code {{{
@@ -45,11 +45,34 @@ void Client::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 	if (_enc) {
 		enc = _enc;
 		if (enc_buf_auth) {
-			delete enc_buf_auth;
+			delete [] enc_buf_auth;
 		}
 		enc_buf_auth = new char[NETWORKING_BUFFER_SIZE];
 		enc_buf_data = enc_buf_auth + crypto_onetimeauth_BYTES;
 	}
+}
+
+void Client::Set_Recv_Timeout(int seconds, int useconds) {
+	// Linux specific code {{{
+	#ifdef __linux__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} Windows specific code {{{
+	#ifdef _WIN64
+	DWORD tv = seconds * 1000 + useconds / 1000;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}} OSX specific code {{{
+	#ifdef __APPLE__
+	struct timeval tv;
+	tv.tv_sec = seconds;
+	tv.tv_usec = useconds;
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	#endif
+	// }}}
 }
 
 bool Client::OpenConnection(int port, string ip) {
@@ -58,9 +81,32 @@ bool Client::OpenConnection(int port, string ip) {
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
 	destination.sin_port = htons(port);
-	destination.sin_addr.s_addr = inet_addr(ip.c_str());
 
-	bool ret = 
+	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
+		struct addrinfo hints, *res;
+
+		memset (&hints, 0, sizeof (hints));
+		  hints.ai_family = PF_UNSPEC;
+		  hints.ai_socktype = SOCK_STREAM;
+		  hints.ai_flags |= AI_CANONNAME;
+
+		if (getaddrinfo (ip.c_str(), NULL, &hints, &res) != 0) {
+			log_err("Could not connect to " + ip + ":" + to_string(port));
+		  return false;
+		}
+
+		while (res) {
+			if (res->ai_family == AF_INET) {
+				destination.sin_addr.s_addr = ((struct sockaddr_in *) res->ai_addr)->sin_addr.s_addr;
+				goto success;
+			}
+			res = res->ai_next;
+	    }
+		log_err("Could not connect to " + ip + ":" + to_string(port));
+		return false;
+	}
+	success:
+	bool ret =
 	connect(cSocket, (sockaddr*)&destination, sizeof(destination)) == 0;
 
 	int o_rcvbuf = 700000;
@@ -250,6 +296,6 @@ bool Client::Receive(char *data, int size) {
 Client::~Client() {
 	CloseConnection();
 	if (enc_buf_auth) {
-		delete enc_buf_auth;
+		delete [] enc_buf_auth;
 	}
 }

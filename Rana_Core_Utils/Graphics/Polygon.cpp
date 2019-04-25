@@ -11,7 +11,24 @@ POLYGON::POLYGON() {
 	corners = 0;
 }
 
-POLYGON::~POLYGON() { /*delete [] x_coords; delete [] y_coords;*/ }
+POLYGON::~POLYGON() {
+	delete [] x_coords;
+	delete [] y_coords;
+}
+
+//void POLYGON::operator=(const POLYGON &other) {
+//	corners = other.corners;
+//	double *x_temp = new double[corners];
+//	double *y_temp = new double[corners];
+//	for (int i = corners - 1; i >= 0; i--) {
+//		x_temp[i] = other.x_coords[i];
+//		y_temp[i] = other.y_coords[i];
+//	}
+//	delete [] x_coords;
+//	delete [] y_coords;
+//	x_coords = x_temp;
+//	y_coords = y_temp;
+//}
 
 void POLYGON::addPoint(double x, double y) {
 	if (x_coords == NULL) {

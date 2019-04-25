@@ -61,8 +61,8 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 		if (!dev_man->server) {
 			Sleep_Milli_TIMER(tm, 16);
 			continue;
-		} 
-		
+		}
+
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
 			log_err("could not receive input packet");
 			dev_man->receiving = false;
@@ -165,7 +165,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		return;
 	}
 	for (int i = keyboard->Events.size(); i > 0; i--) {
-		KEYBOARD_EVENT_T* k_event; 
+		KEYBOARD_EVENT_T* k_event;
 		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
 		if (dev_man->client) {
@@ -201,8 +201,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		case LIBINPUT_EVENT_POINTER_MOTION:
 			lep = libinput_event_get_pointer_event(element->Event);
 			mouse->Current_X +=
-				libinput_event_pointer_get_dx_unaccelerated(lep) *
-				mouse->Sensitivity;
+				libinput_event_pointer_get_dx(lep);
 			if (mouse->Current_X > mouse->Maximum_X) {
 				mouse->Current_X = mouse->Maximum_X;
 			}
@@ -210,8 +209,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 				mouse->Current_X = mouse->Minimum_X;
 			}
 			mouse->Current_Y +=
-				libinput_event_pointer_get_dy_unaccelerated(lep) *
-				mouse->Sensitivity;
+				libinput_event_pointer_get_dy(lep);
 			if (mouse->Current_Y > mouse->Maximum_Y) {
 				mouse->Current_Y = mouse->Maximum_Y;
 			}
@@ -523,17 +521,24 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 }
 
 void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
+	log_dbg("deleting device manager");
+	log_tmp("stop server");
 	Device_Server_Stop(dev_man);
+	log_tmp("stop client");
 	Device_Client_Stop(dev_man);
 
 	for (int i = 0; i < MAX_DEV; i++) {
+		log_tmp(to_string(i));
 		Delete_Device_Node(dev_man->current_dev[i]);
 		delete dev_man->current_dev[i];
 		Delete_Device_Node(dev_man->previous_dev[i]);
 		delete dev_man->previous_dev[i];
 	}
-	delete dev_man->current_dev;
-	delete dev_man->previous_dev;
+	log_dbg("cd");
+	delete [] dev_man->current_dev;
+	log_dbg("pd");
+	delete [] dev_man->previous_dev;
+	log_dbg("done deleting device manager");
 }
 
 #endif

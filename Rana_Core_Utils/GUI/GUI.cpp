@@ -80,25 +80,25 @@ void Set_Font(GUI* gui, int font_index) {
 }
 
 void Delete_GUI(GUI* gui) {
+	log_dbg("deleting gui");
 	if (gui->NK_Context) {
 		log_dbg("deleting nk context");
 		nk_free(gui->NK_Context);
 		delete gui->NK_Context;
 	}
-
 	if (gui->fonts) {
 		log_dbg("deleting gui fonts");
 		delete [] gui->fonts;
 	}
-
 	if (gui->Graphics_Handle_Buffer) {
 		log_dbg("deleting graphics handle buffer");
-		delete gui->Graphics_Handle_Buffer;
+		delete [] gui->Graphics_Handle_Buffer;
 	}
 	if (gui->Graphics_Handle) {
 		log_dbg("deleting graphics handle");
 		delete gui->Graphics_Handle;
 	}
+	log_dbg("done deleting gui");
 }
 
 void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* command) {

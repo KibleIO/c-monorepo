@@ -90,9 +90,9 @@ void FillCircle_GRAPHICS(GRAPHICS*, int, int, int, int);
 void FillCircle_Transparent_GRAPHICS(GRAPHICS*, int, int, int, int);
 void FillCircle_Opaque_GRAPHICS(GRAPHICS*, int, int, int, int);
 
-void FillPolygon_GRAPHICS(GRAPHICS*, POLYGON, int);
-void FillPolygon_Transparent_GRAPHICS(GRAPHICS*, POLYGON, int);
-void FillPolygon_Opaque_GRAPHICS(GRAPHICS*, POLYGON, int);
+void FillPolygon_GRAPHICS(GRAPHICS*, POLYGON&, int);
+void FillPolygon_Transparent_GRAPHICS(GRAPHICS*, POLYGON&, int);
+void FillPolygon_Opaque_GRAPHICS(GRAPHICS*, POLYGON&, int);
 
 void FillRoundedRect_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int rounding, Color);
 	// Draw a filled square with the desired rounding on the edges

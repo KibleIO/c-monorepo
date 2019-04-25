@@ -3,6 +3,8 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
+#include <string.h>
+#include <netdb.h>
 #include "Networking.h"
 
 class Client {
@@ -31,6 +33,7 @@ public:
 	Client();
 	void Init();
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
+	void Set_Recv_Timeout(int seconds, int useconds = 0);
 	bool OpenConnection(int, string);
 	void CloseConnection();
 	bool Send(char *, int);
