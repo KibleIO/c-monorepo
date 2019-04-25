@@ -4,7 +4,7 @@
 #define FPS_LIMITER_H_
 
 #include <iostream>
-#include "Timer.h"
+#include "TIMER.h"
 #include "LOGGING.h"
 
 #define MILLISECONDS_IN_A_SECOND 1000
@@ -15,7 +15,7 @@ struct FPS_LIMITER {
 	uint32_t	fps;
 	uint8_t		verbose;
 	uint64_t	frame_time;
-	Timer		frame_timer;
+	TIMER*		frame_timer;
 	double		frame_rate;
 	uint32_t	frame_count;
 };

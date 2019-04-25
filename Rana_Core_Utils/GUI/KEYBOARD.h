@@ -76,6 +76,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events);
 // }}} Windows specific code {{{
 #ifdef _WIN64
 void Handle_Keyboard_WINAPI(KEYBOARD_EVENT_T *k_event);
+void Handle_Keyboard_WINAPI(int display_ID, Queue<KEYBOARD_EVENT_T*>* events);
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__
