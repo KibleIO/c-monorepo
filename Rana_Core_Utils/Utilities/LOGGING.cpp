@@ -47,6 +47,14 @@ void set_local_start_time() {
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
+	if (GOT_LOCAL_TIME) return;
+	GOT_LOCAL_TIME = true;
+
+	chrono::system_clock::time_point now = chrono::system_clock::now();
+	time_t now_t = chrono::system_clock::to_time_t(now);
+	ostringstream ss;
+	ss << put_time(localtime(&now_t), "_%F_%H.%M.%S");
+	LOG_FILE += ss.str();
 	#endif
 	// }}} OSX specific code {{{
 	#ifdef __APPLE__
@@ -71,12 +79,14 @@ string type, string message, string file, uint32_t line, string func) {
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
-	int thread = GetCurrentThreadId();
+	set_local_start_time();
+	ofstream out(LOG_FILE, ofstream::out | ofstream::app);
 	chrono::system_clock::time_point now = chrono::system_clock::now();
 	time_t now_t = chrono::system_clock::to_time_t(now);
-	cout << type << "[" << put_time(localtime(&now_t), "%T thr") <<
-		thread << " \"" << file << "\":" << line << " " << func <<
-		"()] " << message << endl;
+	out << type << "[" << put_time(localtime(&now_t), "%T thr") << " \"" <<
+	file << "\":" << line << " " << func << "()] " << message << endl;
+
+	out.close();
 	#endif
 	// }}} OSX specific code {{{
 	#ifdef __APPLE__
