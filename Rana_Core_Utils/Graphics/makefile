@@ -1,19 +1,18 @@
 # Declaration of variables
-CC = g++ -O3 -Wall -Wextra -Wpedantic
+CC =g++ -O3 -Wall -Wextra -Wpedantic
 
-UNAME_M = $(shell uname -m)
-USER=`whoami`
+UNAME_M =$(shell uname -m)
 
-CC_BUILD_FLAGS =-fPIC -Wl,--as-needed -I../ -Wno-write-strings
+CC_BUILD_FLAGS =-fPIC -I../ -Wno-write-strings
 
 ifeq ($(UNAME_M),armv7l)
-	CC_BUILD_FLAGS += -D_FILE_OFFSET_BITS=64
+	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64
 endif
 
 # File names
-EXEC = libgraphics.so
-SOURCES = $(wildcard *.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
+EXEC =libgraphics.so
+SOURCES =$(wildcard *.cpp)
+OBJECTS =$(SOURCES:.cpp=.o)
 
 # Main target
 $(EXEC): $(OBJECTS)

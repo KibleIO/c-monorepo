@@ -1,6 +1,7 @@
 #include "TIMER.h"
 
 bool Initialize_TIMER(TIMER* timer) {
+	log_dbg("timer initialized");
 	return true;
 }
 
@@ -63,4 +64,6 @@ void Sleep_Milli_TIMER(TIMER* timer, unsigned int milli) {
 	// }}}
 }
 
-void Delete_TIMER(TIMER* timer) {}
+void Delete_TIMER(TIMER* timer) {
+	log_dbg("timer deleted");
+}
