@@ -103,7 +103,7 @@ void Delete_Keyboard(KEYBOARD* keyboard) {
 	}
 	close(keyboard->fd);
 	while (keyboard->Events.size() > 0) {
-		KEYBOARD_EVENT_T* k_event;
+		KEYBOARD_EVENT_T* k_event = NULL;
 		keyboard->Events.pop(k_event);
 		delete k_event;
 	}
@@ -181,7 +181,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 	KeyCode modcode = 0;
 
 	for (int i = events->size(); i > 0; i--) {
-		KEYBOARD_EVENT_T* k_event;
+		KEYBOARD_EVENT_T* k_event = NULL;
 		events->pop(k_event);
 
 		switch (k_event->code) {

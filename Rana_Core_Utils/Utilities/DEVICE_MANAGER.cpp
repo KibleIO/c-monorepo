@@ -165,7 +165,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		return;
 	}
 	for (int i = keyboard->Events.size(); i > 0; i--) {
-		KEYBOARD_EVENT_T* k_event;
+		KEYBOARD_EVENT_T* k_event = NULL;
 		keyboard->Events.pop(k_event);
 		ptype = KEY_PACKET;
 		if (dev_man->client) {
@@ -195,7 +195,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 	for (int i = mouse->Events.size(); i > 0; i--) {
 		libinput_event_pointer* lep;
-		MOUSE_EVENT_ELEMENT* element;
+		MOUSE_EVENT_ELEMENT* element = NULL;
 		mouse->Events.pop(element);
 		switch (libinput_event_get_type(element->Event)) {
 		case LIBINPUT_EVENT_POINTER_MOTION:

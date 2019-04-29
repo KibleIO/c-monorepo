@@ -3,6 +3,7 @@
 #include "GUI.h"
 
 static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length) {
+	(void)height;
 	BAKED_GLYPH* glyphs = (BAKED_GLYPH*)handle.ptr;
 	int _x = 0;
 	for (int i = 0; i < length; i++) {
@@ -117,7 +118,11 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* comma
 
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
 	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
-	if (((int*)fg)[0] == ((int*)bg)[0]) ((int*)bg)[0] = 0xff989898;
+	int* ifg = (int*)fg;
+	int* ibg = (int*)bg;
+	if (ifg[0] == ibg[0]) {
+		ibg[0] = 0xff989898;
+	}
 	unsigned char result[] = {0,0,0,0xff};
 
 	union {
@@ -125,7 +130,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* comma
 		int data;
 	} kk;
 
-	for (int i = 0; i < str.length(); i++) {
+	for (unsigned int i = 0; i < str.length(); i++) {
 		BAKED_GLYPH* c = &((BAKED_GLYPH*)command->font->userdata.ptr)[int(str[i]) - 32];//&gui->Font->Baked_glyphs[int(str[i]) - 32];
 
 		for (int x = 0; x < c->W; x++){
@@ -155,7 +160,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, string str, int _x, int _y, unsigne
 	//unsigned char fg[] = {0x98,0x98,0x98,0xFF};
 	//unsigned char bg[] = {0x25,0x25,0x25,0xFF};
 
-	for (int i = 0; i < str.length(); i++) {
+	for (unsigned int i = 0; i < str.length(); i++) {
 		// TEMP
 		// Change to current index in array of fonts
 		BAKED_GLYPH *c = &gui->fonts[gui->currentFont].userFont.Baked_glyphs[int(str[i]) - 32];
@@ -181,7 +186,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 	// Mouse
 
 	for (int i = m_events->size(); i > 0; i--) {
-		MOUSE_EVENT_T* m_event;
+		MOUSE_EVENT_T* m_event = NULL;
 		m_events->pop(m_event);
 		if (m_event->clicked) {
 	    	nk_input_button(gui->NK_Context, NK_BUTTON_LEFT, m_event->x, m_event->y, m_event->state);
@@ -193,7 +198,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 
 	// Keyboard
 	for (int i = k_events->size(); i > 0; i--) {
-		KEYBOARD_EVENT_T* k_event;
+		KEYBOARD_EVENT_T* k_event = NULL;
 		k_events->pop(k_event);
 
 		switch(k_event->code) {
@@ -346,6 +351,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_TRIANGLE: {
 				const struct nk_command_triangle* t = (const struct nk_command_triangle*)command;
+				(void)t;
 				break;
 			}
 			case NK_COMMAND_TRIANGLE_FILLED: {
@@ -363,10 +369,12 @@ void Render_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_POLYGON: {
 				const struct nk_command_polygon* p = (const struct nk_command_polygon*)command;
+				(void)p;
 				break;
 			}
 			case NK_COMMAND_POLYGON_FILLED: {
 				const struct nk_command_polygon_filled* p = (const struct nk_command_polygon_filled*)command;
+				(void)p;
 				break;
 			}
 			case NK_COMMAND_POLYLINE: {

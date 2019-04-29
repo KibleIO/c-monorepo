@@ -12,9 +12,11 @@ void Initialize_Font(FONT* font, const char* fname, float text_height){
 	to_string(text_height));
 
 	float scale;
-	int ascent, baseline, c_w, c_h, c_xoff, c_yoff, advance, lsb;
+	int ascent, c_w, c_h, c_xoff, c_yoff, advance, lsb;
 	unsigned char ttf_buffer[1<<20];
-	if (fread(ttf_buffer, 1, 1<<20, fopen(fname, "rb")) < 0){
+	FILE* fd = fopen(fname, "rb");
+	size_t read_size = fread(ttf_buffer, 1, 1<<20, fd);
+	if (read_size != 1<<20 && !feof(fd)){
 		log_err("Failed to load font\n");
 		return;
 	}
