@@ -3,6 +3,8 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include "LOGGING.h"
+
 // Linux specific includes {{{
 #ifdef __linux__
 #include <unistd.h>

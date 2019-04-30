@@ -1,6 +1,8 @@
 #include "TIMER.h"
 
 bool Initialize_TIMER(TIMER* timer) {
+	(void)timer;
+	log_dbg("timer initialized");
 	return true;
 }
 
@@ -48,6 +50,7 @@ long Stop_TIMER(TIMER* timer) {
 }
 
 void Sleep_Milli_TIMER(TIMER* timer, unsigned int milli) {
+	(void)timer;
 	// Linux specific includes {{{
 	#ifdef __linux__
 	usleep(milli * 1000);
@@ -63,4 +66,7 @@ void Sleep_Milli_TIMER(TIMER* timer, unsigned int milli) {
 	// }}}
 }
 
-void Delete_TIMER(TIMER* timer) {}
+void Delete_TIMER(TIMER* timer) {
+	(void)timer;
+	log_dbg("timer deleted");
+}

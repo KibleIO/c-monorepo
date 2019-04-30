@@ -76,9 +76,9 @@ void DrawPoint_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int col1) 
     unsigned int inv_alpha = 256 - fg[3];
 
     ((unsigned char*)&result)[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
-    ((char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
-    ((char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
-    ((char*)&result)[3] = 0xff;
+    ((unsigned char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+    ((unsigned char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+    ((unsigned char*)&result)[3] = 0xFF;
 		((int*)graphics->Buffer)[x + (y * graphics->Width)] = result;
 	}
 }
@@ -95,9 +95,9 @@ void DrawPoint_Transparent_GRAPHICS_UNSAFE(GRAPHICS* graphics, int x, int y, int
   unsigned int inv_alpha = 256 - fg[3];
 
   ((unsigned char*)&result)[0] = (unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
-  ((char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
-  ((char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
-  ((char*)&result)[3] = 0xff;
+  ((unsigned char*)&result)[1] = (unsigned char)((alpha * fg[1] + inv_alpha * bg[1]) >> 8);
+  ((unsigned char*)&result)[2] = (unsigned char)((alpha * fg[2] + inv_alpha * bg[2]) >> 8);
+  ((unsigned char*)&result)[3] = 0xff;
 	((int*)graphics->Buffer)[x + (y * graphics->Width)] = result;
 }
 
@@ -633,7 +633,7 @@ void FillPolygon_Transparent_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 			j = i;
 		}
 		i = 0;
-		while (i < nodes - 1) {
+		while (i < nodes - 1 && i < 9) {
 			if (nodeX[i]>nodeX[i+1]) {
 				swap = nodeX[i];
 				nodeX[i] = nodeX[i + 1];
@@ -669,8 +669,8 @@ void FillPolygon_Opaque_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 			j = i;
 		}
 		i = 0;
-		while (i < nodes - 1) {
-			if (nodeX[i]>nodeX[i+1]) {
+		while (i < nodes - 1 && i < 9) {
+			if (nodeX[i] > nodeX[i+1]) {
 				swap = nodeX[i];
 				nodeX[i] = nodeX[i + 1];
 				nodeX[i + 1] = swap;

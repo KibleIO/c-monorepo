@@ -22,11 +22,14 @@ int open_restricted(const char* path, int flags, void* user_data) {
 }
 
 void close_restricted(int fd, void* user_data) {
+	(void)user_data;
     close(fd);
 }
 
 void sighandler(int signal, siginfo_t* siginfo, void* userdata) {
-    //stop = 1;
+	(void)signal;
+	(void)siginfo;
+	(void)userdata;
 }
 
 void Initialize_Mouse(
@@ -100,10 +103,8 @@ float sensitivity, string path, EVENT* event_status) {
 	libevdev_free(dev);
 	close(fd);
 
-	mouse->interface = {
-        .open_restricted = open_restricted,
-        .close_restricted = close_restricted,
-	};
+	mouse->interface.open_restricted = open_restricted;
+	mouse->interface.close_restricted = close_restricted;
 
 	mouse->grab = false;
 	mouse->li = libinput_path_create_context(&mouse->interface, &mouse->grab);
@@ -164,7 +165,7 @@ void Delete_Mouse(MOUSE* mouse) {
 		libinput_unref(mouse->li);
 	}
 	while (mouse->Events.size() > 0) {
-		MOUSE_EVENT_ELEMENT* event;
+		MOUSE_EVENT_ELEMENT* event = NULL;
 		mouse->Events.pop(event);
 		delete event;
 	}
@@ -215,7 +216,7 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 	}
 
 	for (int i = events->size(); i > 0; i--) {
-		MOUSE_EVENT_T* m_event;
+		MOUSE_EVENT_T* m_event = NULL;
 		events->pop(m_event);
 		if (m_event->clicked) {
 			XTestFakeButtonEvent(
