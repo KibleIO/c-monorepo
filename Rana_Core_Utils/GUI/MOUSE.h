@@ -35,9 +35,11 @@
 #endif
 // }}}
 
-#define MOUSE_BUTTON_LEFT	1
-#define MOUSE_BUTTON_RIGHT	3
-#define MOUSE_BUTTON_MIDDLE	2
+#define MOUSE_BUTTON_LEFT			1
+#define MOUSE_BUTTON_RIGHT			3
+#define MOUSE_BUTTON_MIDDLE			2
+#define MOUSE_BUTTON_SCROLL_UP		4
+#define MOUSE_BUTTON_SCROLL_DOWN	5
 
 // Linux specific code {{{
 #ifdef __linux__
