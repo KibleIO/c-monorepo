@@ -184,6 +184,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	MOUSE_EVENT_T* m_event;
+	double vert, horiz;
 	uint8_t ptype;
 
 	MOUSE* mouse = dev->hw.mouse;
@@ -245,15 +246,13 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 					to_string(mouse->Current_X) + " " +
 					to_string(mouse->Current_Y));
 				m_event->button = MOUSE_BUTTON_LEFT;
-			}
-			else if (
+			} else if (
 				libinput_event_pointer_get_button(lep) == BTN_RIGHT) {
 				log_dbg("right mouse clicked " +
 					to_string(mouse->Current_X) + " " +
 					to_string(mouse->Current_Y));
 				m_event->button = MOUSE_BUTTON_RIGHT;
-			}
-			else if (
+			} else if (
 				libinput_event_pointer_get_button(lep) == BTN_MIDDLE) {
 				log_dbg("middle mouse clicked " +
 					to_string(mouse->Current_X) + " " +
@@ -274,14 +273,61 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 					dev_man->client = NULL;
 				}
 				delete m_event;
-			}
-			else {
+			} else {
 				DEVICE_MANAGER::Mouse_Events.push(m_event);
 			}
 			break;
 
 		case LIBINPUT_EVENT_POINTER_AXIS:
-			log_dbg("scrolling?");
+			m_event = new MOUSE_EVENT_T;
+			lep = libinput_event_get_pointer_event(element->Event);
+
+			vert = 0;
+
+			if (
+			libinput_event_pointer_has_axis(lep,
+			LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL)) {
+				vert = libinput_event_pointer_get_axis_value(
+				lep, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
+			}
+
+			m_event->x = mouse->Current_X;
+			m_event->y = mouse->Current_Y;
+			m_event->button = (
+			vert > 0) ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
+
+			m_event->clicked = true;
+			m_event->state = true;
+			if (dev_man->client) {
+				ptype = MOUSE_PACKET;
+				if (
+					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+					!dev_man->client->Send((char*)m_event,
+						sizeof(MOUSE_EVENT_T))) {
+					log_err("could not send mouse click");
+					dev_man->client = NULL;
+				}
+				delete m_event;
+				m_event = new MOUSE_EVENT_T;
+				m_event->x = mouse->Current_X;
+				m_event->y = mouse->Current_Y;
+				m_event->button = (
+				vert > 0) ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
+				
+				m_event->clicked = true;
+				m_event->state = false;
+				ptype = MOUSE_PACKET;
+				if (
+					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+					!dev_man->client->Send((char*)m_event,
+						sizeof(MOUSE_EVENT_T))) {
+					log_err("could not send mouse click");
+					dev_man->client = NULL;
+				}
+				delete m_event;
+			} else {
+				DEVICE_MANAGER::Mouse_Events.push(m_event);
+			}
 			break;
 		default:
 			log_err("unknown mouse event type");
