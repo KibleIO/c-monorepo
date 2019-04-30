@@ -24,6 +24,7 @@
 
 struct TIMER {
 // Linux specific includes {{{
+bool logging;
 #ifdef __linux__
 	timeval start, end;
 	long seconds, useconds;
@@ -40,7 +41,7 @@ struct TIMER {
 // }}}
 };
 
-bool Initialize_TIMER(TIMER*);
+bool Initialize_TIMER(TIMER*, bool = true);
 void Start_TIMER(TIMER*);
 long Stop_TIMER(TIMER*);
 void Sleep_Milli_TIMER(TIMER*, unsigned int);

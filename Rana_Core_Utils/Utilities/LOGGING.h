@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <mutex>
 
 // Linux specific includes {{{
 #ifdef __linux__

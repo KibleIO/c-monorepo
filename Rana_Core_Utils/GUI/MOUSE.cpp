@@ -207,9 +207,7 @@ void Listen_Mouse(MOUSE* mouse) {
 }
 
 void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
-	Display* dpy =
-	XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
-
+	Display* dpy = XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
 	if (!dpy) {
 		log_err("Unable to open display :" + to_string(display_ID));
 		return;

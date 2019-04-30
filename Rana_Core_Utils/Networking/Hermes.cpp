@@ -190,6 +190,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 	hs->baseport = port;
 	hs->connected = true;
 	hs->server = new Server();
+	hs->server->Set_Recv_Timeout(1);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
@@ -223,36 +224,39 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 	while (hs->connected) {
 		if (!hs->server->Receive((char*)&flag, sizeof(uint8_t))) {
 			log_err("failed to receive flag");
-			hs->connected = false;
 			hs->server_init_failed = true;
 			hs->err = EPIPE;
-			continue;
+			break;
 		}
 		if (flag == HERMES_STATUS) {
 			flag = hs->shouldexit;
+			if (hs->shouldexit) {
+				log_dbg("sending quit packet");
+			}
 			if (!hs->server->Send((char*)&flag, sizeof(uint8_t))) {
 				log_err("failed to send status");
-				hs->connected = false;
+				hs->shouldexit = false;
 				hs->err = EPIPE;
-				continue;
+				break;
+			}
+			if (hs->shouldexit) {
+				log_dbg("quit packet sent");
 			}
 		} else if (flag == HERMES_EXIT) {
 			log_dbg("Exiting");
 			if (!hs->server->Send((char*)&flag, sizeof(uint8_t))) {
 				log_err("failed to send exit confirmation");
-				hs->connected = false;
 				hs->err = EPIPE;
-				continue;
+				break;
 			}
+			hs->shouldexit = false;
 			hs->connected = false;
-			hs->exiting = true;
 		} else if (flag == HERMES_GET_CONNECTION) {
 			if (!hs->server->Receive((char*)&flag, sizeof(uint8_t))) {
 				log_err("failed to receive connection type");
-				hs->connected = false;
 				hs->server_init_failed = true;
 				hs->err = EPIPE;
-				continue;
+				break;
 			}
 
 			uint16_t port = HERMES_PORT_MIN;
@@ -269,21 +273,23 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			if (port > HERMES_PORT_MAX) {
 				log_err("out of ports");
 				delete server;
-				continue;
+				hs->err = EPIPE;
+				break;
 			}
 
 			if (!hs->server->Send((char*)&port, sizeof(uint16_t))) {
+				log_err("failed to send port");
 				delete server;
-				hs->connected = false;
 				hs->err = EPIPE;
-				continue;
+				break;
 			}
 
 			int index = Hermes_Server_Get_Index(hs);
 			if (index < 0) {
 				log_err("max connections reached");
 				delete server;
-				continue;
+				hs->err = EPIPE;
+				break;
 			}
 
 			hs->cmutx.lock();
@@ -295,7 +301,8 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				hs->enc_eng->active_profile)) {
 					log_err("could not add encryption profile " +
 					Connection_Name(flag));
-					continue;
+					hs->err = EPIPE;
+					break;
 				}
 
 				ENCRYPTION_PROFILE* enc_prof = 
@@ -304,7 +311,8 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 
 				if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
 					log_err("failed to load poly1305 key and nonce");
-					continue;
+					hs->err = EPIPE;
+					break;
 				}
 
 				hs->connections[index].server->Set_Encryption_Profile(enc_prof); 
@@ -322,7 +330,10 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			hs->cmutx.unlock();
 		}
 	}
-	hs->shouldexit = true;
+	if (hs->shouldexit) {
+		hs->shouldexit = false;
+	}
+	hs->connected = false;
 	Hermes_Server_Close_Connections(hs);
 }
 
@@ -492,7 +503,7 @@ bool Hermes_Client_Status(HermesClient* hc) {
 		return false;
 	}
 	if (!hc->client->Receive((char*)&flag, sizeof(uint8_t))) {
-		log_err("could not send status flag");
+		log_err("could not receive status flag");
 		hc->connected = false;
 		hc->err = EPIPE;
 		return false;
