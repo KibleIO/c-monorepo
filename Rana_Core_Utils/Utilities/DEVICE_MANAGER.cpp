@@ -46,6 +46,9 @@ void Initialize_Device_Manager(
 	dev_man->server = NULL;
 	dev_man->Event_Status = event_status;
 
+	MOUSE::Current_X = 0;
+	MOUSE::Current_Y = 0;
+
 	dev_man->receiving = false;
 }
 
@@ -184,7 +187,8 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	MOUSE_EVENT_T* m_event;
-	double vert, horiz;
+	double vert;
+	int rel_x, rel_y;
 	uint8_t ptype;
 
 	MOUSE* mouse = dev->hw.mouse;
@@ -201,27 +205,30 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 		switch (libinput_event_get_type(element->Event)) {
 		case LIBINPUT_EVENT_POINTER_MOTION:
 			lep = libinput_event_get_pointer_event(element->Event);
-			mouse->Current_X +=
-				libinput_event_pointer_get_dx(lep);
+			rel_x = libinput_event_pointer_get_dx(lep);
+			rel_y = libinput_event_pointer_get_dy(lep);
+			mouse->Current_X += rel_x;
 			if (mouse->Current_X > mouse->Maximum_X) {
 				mouse->Current_X = mouse->Maximum_X;
-			}
-			else if (mouse->Current_X < mouse->Minimum_X) {
+			} else if (mouse->Current_X < mouse->Minimum_X) {
 				mouse->Current_X = mouse->Minimum_X;
 			}
-			mouse->Current_Y +=
-				libinput_event_pointer_get_dy(lep);
+			mouse->Current_Y += rel_y;
 			if (mouse->Current_Y > mouse->Maximum_Y) {
 				mouse->Current_Y = mouse->Maximum_Y;
-			}
-			else if (mouse->Current_Y < mouse->Minimum_Y) {
+			} else if (mouse->Current_Y < mouse->Minimum_Y) {
 				mouse->Current_Y = mouse->Minimum_Y;
 			}
 			m_event = new MOUSE_EVENT_T;
+			/*
+			m_event->x = rel_x;
+			m_event->y = rel_y;
+			m_event->state = MOUSE_REL_COORD;
+			*/
 			m_event->x = mouse->Current_X;
 			m_event->y = mouse->Current_Y;
+			m_event->state = MOUSE_ABS_COORD;
 			m_event->clicked = false;
-			m_event->state = 0;
 			if (dev_man->client) {
 				ptype = MOUSE_PACKET;
 				if (
@@ -313,7 +320,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 				m_event->y = mouse->Current_Y;
 				m_event->button = (
 				vert > 0) ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
-				
+
 				m_event->clicked = true;
 				m_event->state = false;
 				ptype = MOUSE_PACKET;
