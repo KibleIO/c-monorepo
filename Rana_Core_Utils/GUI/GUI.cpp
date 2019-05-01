@@ -191,8 +191,26 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 		if (m_event->clicked) {
 	    	nk_input_button(gui->NK_Context, NK_BUTTON_LEFT, m_event->x, m_event->y, m_event->state);
 			log_dbg("mouse clicked at " + to_string(m_event->x) + " " + to_string(m_event->y));
+		} else {
+			if (m_event->state == MOUSE_ABS_COORD) {
+				nk_input_motion(gui->NK_Context, m_event->x, m_event->y);
+			} else {
+				MOUSE::Current_X += m_event->x;
+				MOUSE::Current_Y += m_event->y;
+				if (MOUSE::Current_X > gui->Width) {
+					MOUSE::Current_X = gui->Width;
+				} else if (MOUSE::Current_X < 0) {
+					MOUSE::Current_X = 0;
+				}
+				if (MOUSE::Current_Y > gui->Height) {
+					MOUSE::Current_Y = gui->Height;
+				} else if (MOUSE::Current_Y < 0) {
+					MOUSE::Current_Y = 0;
+				}
+				nk_input_motion(gui->NK_Context, MOUSE::Current_X, MOUSE::Current_Y);
+			}
 		}
-		nk_input_motion(gui->NK_Context, m_event->x, m_event->y);
+
 		delete m_event;
 	}
 

@@ -35,6 +35,8 @@
 #endif
 // }}}
 
+#define MOUSE_ABS_COORD				0
+#define MOUSE_REL_COORD				1
 #define MOUSE_BUTTON_LEFT			1
 #define MOUSE_BUTTON_RIGHT			3
 #define MOUSE_BUTTON_MIDDLE			2
@@ -73,8 +75,8 @@ struct Mouse_Info {
 // }}}
 
 struct MOUSE_EVENT_T {
-	uint16_t x;
-	uint16_t y;
+	int16_t x;
+	int16_t y;
 	bool clicked;
 	uint16_t button;
 	uint16_t state;
@@ -136,7 +138,7 @@ void close_restricted(int fd, void* user_data);
 
 void sighandler(int signal, siginfo_t* siginfo, void* userdata);
 
-void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events);
+void Handle_Mouse_X11(int, Queue<MOUSE_EVENT_T*>*);
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64
