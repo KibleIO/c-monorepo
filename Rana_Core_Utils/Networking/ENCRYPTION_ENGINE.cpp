@@ -106,10 +106,19 @@ uint8_t origin_profile_index) {
 	new uint8_t[crypto_stream_chacha20_NONCEBYTES +
 	crypto_stream_chacha20_KEYBYTES];
 
-	Get_Entropy_ENCRYPTION_PROFILE(
+	if (
+	!Get_Entropy_ENCRYPTION_PROFILE(
 	encryption_engine->profiles_available[origin_profile_index],
 	origin_entropy_buffer, crypto_stream_chacha20_NONCEBYTES +
-	crypto_stream_chacha20_KEYBYTES);
+	crypto_stream_chacha20_KEYBYTES)) {
+		log_err("unable to get entropy");
+		delete [] origin_entropy_buffer;
+		return false;
+	}
+
+	sodium_increment(
+	encryption_engine->profiles_available[origin_profile_index]->master_nonce,
+	crypto_stream_chacha20_NONCEBYTES);
 
 	encryption_engine->profiles_available[
 	encryption_engine->number_of_profiles] = new ENCRYPTION_PROFILE;
