@@ -1,6 +1,6 @@
 # Declaration of variables
 CC =	g++ -O3 -Wall -Wextra -Wpedantic -Werror -Wno-unused-function \
-		-Wno-implicit-fallthrough
+		-Wno-implicit-fallthrough -Wno-switch-unreachable
 
 
 CC_BUILD_FLAGS =-fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 \
