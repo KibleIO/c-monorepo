@@ -57,7 +57,7 @@ struct GUI {
 	bool			BakedBmp;
 };
 
-static float Font_Get_Text_Width(nk_handle, float, const char*, int);
+//static float Font_Get_Text_Width(nk_handle, float, const char*, int);
 void Initialize_GUI_Themis(GUI* gui, int display_id);
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
 void Pair_Fonts(nk_user_font*, FONT*, float height, const char* font_path);
