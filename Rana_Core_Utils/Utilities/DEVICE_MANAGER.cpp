@@ -184,7 +184,7 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	MOUSE_EVENT_T* m_event;
-	double vert, horiz;
+	double vert;
 	uint8_t ptype;
 
 	MOUSE* mouse = dev->hw.mouse;
