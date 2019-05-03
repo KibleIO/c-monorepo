@@ -694,9 +694,24 @@ void FillPolygon_Opaque_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 
 void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int r, Color color) {
 	// Check to see that the rect trying to be drawn is valid
-	if(x < 0 || y < 0 || w < 0 || h < 0) {
-		cout << "ERROR: The rect is invalid and cannot be drawn\n";
-		cout << "Rect: " << x << ", " << y << ", " << w << ", " << h << endl;
+	if (x > graphics->Width_Clip + graphics->X_clip) {
+		return;
+	}
+	if (y > graphics->Height_Clip + graphics->Y_clip) {
+		return;
+	}
+	if (x < graphics->X_clip) {
+		w -= graphics->X_clip - x;
+		x = graphics->X_clip;
+	}
+	if (y < graphics->Y_clip) {
+		h -= graphics->Y_clip - y;
+		y = graphics->Y_clip;
+	}
+	if (w <= 0) {
+		return;
+	}
+	if (h <= 0) {
 		return;
 	}
 
