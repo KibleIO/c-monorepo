@@ -579,8 +579,8 @@ void FillCircle_Transparent_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int rad
 	int radiusError = 1 - x;
 
 	while(x >= y) {
-		DrawLine_Width_Transparent_GRAPHICS(graphics, x + x0, y + y0, x * 2, c);
-		DrawLine_Width_Transparent_GRAPHICS(graphics, y + x0, x + y0, y * 2, c);
+		DrawLine_Width_Transparent_GRAPHICS(graphics, -x + x0, y + y0, x * 2, c);
+		DrawLine_Width_Transparent_GRAPHICS(graphics, -y + x0, x + y0, y * 2, c);
 		DrawLine_Width_Transparent_GRAPHICS(graphics, -x + x0, -y + y0, x * 2, c);
 		DrawLine_Width_Transparent_GRAPHICS(graphics, -y + x0, -x + y0, y * 2, c);
 		y++;
@@ -598,10 +598,10 @@ void FillCircle_Opaque_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, 
 	int radiusError = 1 - x;
 
 	while(x >= y) {
-		DrawLine_Width_Transparent_GRAPHICS(graphics, x + x0, y + y0, x * 2, c);
-		DrawLine_Width_Transparent_GRAPHICS(graphics, y + x0, x + y0, y * 2, c);
-		DrawLine_Width_Transparent_GRAPHICS(graphics, -x + x0, -y + y0, x * 2, c);
-		DrawLine_Width_Transparent_GRAPHICS(graphics, -y + x0, -x + y0, y * 2, c);
+		DrawLine_Width_Opaque_GRAPHICS(graphics, -x + x0, y + y0, x * 2, c);
+		DrawLine_Width_Opaque_GRAPHICS(graphics, -y + x0, x + y0, y * 2, c);
+		DrawLine_Width_Opaque_GRAPHICS(graphics, -x + x0, -y + y0, x * 2, c);
+		DrawLine_Width_Opaque_GRAPHICS(graphics, -y + x0, -x + y0, y * 2, c);
 		y++;
 		if (radiusError < 0) {
 			radiusError += 2 * y + 1;
