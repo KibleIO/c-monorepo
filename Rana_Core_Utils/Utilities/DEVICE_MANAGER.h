@@ -80,8 +80,8 @@ struct DEVICE_MANAGER {
 
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
-	DEVICE_NODE** previous_dev;
-	volatile int  p_d_size;
+	static DEVICE_NODE** previous_dev;
+	static volatile int  p_d_size;
 
 	char path[PATH_MAX];
 	DIR *dp;
@@ -124,6 +124,8 @@ void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server);
 void Device_Server_Stop(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
+
+void Set_Mouse_Speed(double);
 
 // Linux specific code {{{
 #ifdef __linux__
