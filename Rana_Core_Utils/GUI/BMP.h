@@ -10,6 +10,9 @@
 #include "../Graphics/Graphics.h"
 #include "../Utilities/LOGGING.h"
 
+#define BMP_FALLBACK_C1 0xFF00FF
+#define BMP_FALLBACK_C2 0xCC00CC
+
 using namespace std;
 
 // Linux specific code {{{
@@ -57,6 +60,7 @@ struct BMP {
 	bool Transparent;
 	BITMAPFILEHEADER bmp_header;
 	BITMAPINFOHEADER bmp_info_header;
+	string name;
 };
 
 void BakeBackground_BMP(BMP* bmp, int color);

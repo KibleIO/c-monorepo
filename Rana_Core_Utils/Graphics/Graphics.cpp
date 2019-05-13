@@ -51,6 +51,54 @@ void Set_Clip_GRAPHICS(GRAPHICS* graphics, int x, int y, int width, int height) 
 	}
 }
 
+void Clip_GRAPHICS(GRAPHICS* graphics, int &x, int &y, int &w, int &h) {
+	uint8_t invalid = false;
+	if (x < 0 || y < 0) {
+		log_err("negative coordinates not implemented");
+		invalid = true;
+	}
+
+	if (x >= graphics->Width_Clip + graphics->X_clip ||
+	y >= graphics->Height_Clip + graphics->Y_clip) {
+		log_err("offscreen coordinates not allowed");
+		invalid = true;
+	}
+
+	if (invalid) {
+		x = 0;
+		y = 0;
+		w = 0;
+		h = 0;
+		return;
+	}
+
+	if (x < graphics->X_clip) {
+		w -= graphics->X_clip - x;
+		x = graphics->X_clip;
+	}
+
+	if (w < 0) {
+		w = 0;
+	}
+
+	if (y < graphics->Y_clip) {
+		h -= graphics->Y_clip - y;
+		y = graphics->Y_clip;
+	}
+
+	if (h < 0) {
+		h = 0;
+	}
+
+	if (x + w > graphics->Width_Clip + graphics->X_clip) {
+		w = graphics->Width_Clip + graphics->X_clip - x;
+	}
+
+	if (y + h > graphics->Height_Clip + graphics->X_clip) {
+		h = graphics->Height_Clip + graphics->Y_clip - y;
+	}
+}
+
 void DrawPoint_GRAPHICS(GRAPHICS* graphics, int x, int y, int color) {
 	if (graphics->Transparent) {
 		DrawPoint_Transparent_GRAPHICS(graphics, x, y, color);
