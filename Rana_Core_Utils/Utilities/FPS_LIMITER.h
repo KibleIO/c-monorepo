@@ -9,9 +9,6 @@
 
 #define MILLISECONDS_IN_A_SECOND 1000
 
-#define NULL_FPS_LIMITER {}
-#define NEW_NULL_FPS_LIMITER &(*(new FPS_LIMITER) = NULL_FPS_LIMITER)
-
 using namespace std;
 
 struct FPS_LIMITER {

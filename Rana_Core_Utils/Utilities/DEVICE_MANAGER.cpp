@@ -4,6 +4,18 @@
 
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
+DEVICE_NODE** DEVICE_MANAGER::previous_dev;
+volatile int  DEVICE_MANAGER::p_d_size;
+
+void Set_Mouse_Speed(double speed) {
+	for (int i = 0; i < DEVICE_MANAGER::p_d_size; i++) {
+		DEVICE_NODE* dev = DEVICE_MANAGER::previous_dev[i];
+		if (dev->type == _MOUSE) {
+			libinput_device_config_accel_set_speed(
+			dev->hw.mouse->device, speed);
+		}
+	}
+}
 
 bool Initialize_Device_Manager(
 DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {

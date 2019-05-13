@@ -73,15 +73,16 @@ struct DEVICE_MANAGER {
 	Server*		  server;
 	EVENT* Event_Status;
 #ifdef __linux__
-	DEVICE_NODE** current_dev;
-	DEVICE_NODE** previous_dev;
 	DIR* dp;
 	dirent* dirp;
 
 	volatile bool sending;
 
+	DEVICE_NODE** current_dev;
 	int           c_d_size;
-	volatile int  p_d_size;
+
+	static DEVICE_NODE** previous_dev;
+	static volatile int  p_d_size;
 
 	char path[PATH_MAX];
 	int fd;
@@ -111,6 +112,8 @@ void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server);
 void Device_Server_Stop(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
+
+void Set_Mouse_Speed(double);
 
 // Linux specific code {{{
 #ifdef __linux__

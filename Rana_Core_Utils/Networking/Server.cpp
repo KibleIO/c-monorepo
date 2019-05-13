@@ -134,7 +134,7 @@ bool Server::Bind(int port) {
 		return false;
 	}
 
-	ret = bind(lSocket, result->ai_addr, (int)result->ai_addrlen);
+	ret = ::bind(lSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (ret == SOCKET_ERROR) {
 		log_err(name + ": bind failed with error: " + to_string(WSAGetLastError()));
 		freeaddrinfo(result);
