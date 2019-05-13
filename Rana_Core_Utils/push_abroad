@@ -7,4 +7,4 @@ scp *.so root@162.211.122.170:/usr/local/lib
 scp *.so root@162.211.122.171:/usr/local/lib
 
 # Rana
-scp *.so root@192.168.0.5:/usr/local/lib
+scp *.so root@192.168.1.12:/usr/local/lib

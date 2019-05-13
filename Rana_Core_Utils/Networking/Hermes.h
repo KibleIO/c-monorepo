@@ -10,6 +10,7 @@
 #include "ENCRYPTION_ENGINE.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Utilities/LOGGING.h"
+#include "../Utilities/Stuff.h"
 
 #define HERMES_CONNECTIONS_MAX 20
 
@@ -31,81 +32,82 @@
 //
 //  Server
 //
-struct ServerConnection {
+struct SERVER_CONNECTION {
 	Server* server;
 	uint8_t type;
 	bool active;
 };
 
-struct HermesServer {
+struct HERMES_SERVER {
+	Server* server;
+	ENCRYPTION_ENGINE* enc_eng;
+	mutex* cmutx;
+
 	uint16_t baseport;
 
-	Server* server;
 	volatile bool connected;
 	volatile bool shouldexit;
-	volatile bool exiting;
 
-	ServerConnection connections[HERMES_CONNECTIONS_MAX];
-	mutex cmutx;
+	SERVER_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
 	uint8_t err;
-
-	ENCRYPTION_ENGINE* enc_eng;
 	
 	bool server_init_failed;
 };
 
 //Run this first on an allocated hs pointer
-void Hermes_Server_Init(HermesServer* hs, ENCRYPTION_ENGINE* _enc_eng = NULL);
+bool Initialize_HERMES_SERVER(
+HERMES_SERVER* hs, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this in a thread
-void Hermes_Server_Connect(HermesServer* hs, int port);
+void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port);
 //Then this to get servers
-Server* Hermes_Get_Server(HermesServer* hs, uint8_t type);
+Server* Get_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type);
 //Or this for blocking behavior
-Server* Hermes_Get_Server_Blocking(HermesServer* hs, uint8_t type);
+Server* Get_Blocking_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type);
 //Closes all connections except main
-void Hermes_Server_Close_Connections(HermesServer* hs);
+void Close_Connections_HERMES_SERVER(HERMES_SERVER* hs);
 //Deletes all heap resources
-void Hermes_Delete_Server(HermesServer* hs);
+void Delete_HERMES_SERVER(HERMES_SERVER* hs);
 
 //
 //  Client
 //
-struct ClientConnection {
+struct CLIENT_CONNECTION {
 	Client* client;
 	uint8_t type;
 	bool active;
 };
 
-struct HermesClient {
+struct HERMES_CLIENT {
+	Client* client;
+	ENCRYPTION_ENGINE* enc_eng;
+	mutex* cmutx;
+
 	string ip;
 	uint16_t baseport;
 
-	Client* client;
 	volatile bool connected;
 
-	ClientConnection connections[HERMES_CONNECTIONS_MAX];
-	mutex cmutx;
+	CLIENT_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
 	uint8_t err;
-
-	ENCRYPTION_ENGINE* enc_eng;
 };
 
 //Run this first on an allocated hc pointer
-void Hermes_Client_Init(HermesClient* hc, ENCRYPTION_ENGINE* _enc_eng = NULL);
+bool Initialize_HERMES_CLIENT(
+HERMES_CLIENT* hc, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this, but not in a thread
-bool Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types);
+bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types);
 //Then this to get clients
-Client* Hermes_Get_Client(HermesClient* hc, uint8_t type);
+Client* Get_HERMES_CLIENT(HERMES_CLIENT* hc, uint8_t type);
 //Or this for blocking behavior (though you shouldnt need it)
-Client* Hermes_Get_Client_Blocking(HermesClient* hc, uint8_t type);
+Client* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, uint8_t type);
 //And this once per main loop
-bool Hermes_Client_Status(HermesClient* hc);
+bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Closes all connections except main
-void Hermes_Client_Close_Connections(HermesClient* hc);
+void Close_Connections_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Deletes all heap resources
-void Hermes_Delete_Client(HermesClient* hc);
+void Delete_HERMES_CLIENT(HERMES_CLIENT* hc);
 
 string Hermes_Error_Str(int n);
 

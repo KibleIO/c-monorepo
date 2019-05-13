@@ -17,11 +17,16 @@ void Client::Init() {
 	#ifdef __linux__
 	cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	int o_raddr = 1;
-	setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, &o_raddr, sizeof(o_raddr));
+	int o;
+	o = 1;
+	setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+
+	setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
+
+	setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
 
 	if (cSocket < 0) {
-		log_err("Client socket failed to open");
+		log_err(name + ": Client socket failed to open");
 	}
 	#endif
 	// }}} Windows specific code {{{
@@ -31,7 +36,7 @@ void Client::Init() {
 	WSADATA wsaData;
 	int ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (ret != 0) {
-		log_err("WSAStartup failed with error " + to_string(ret));
+		log_err(name + ": WSAStartup failed with error " + to_string(ret));
 	}
 	#endif
 	// }}} OSX specific code {{{
@@ -39,6 +44,12 @@ void Client::Init() {
 	//TODO apple code
 	#endif
 	// }}}
+
+	Set_Recv_Timeout(1);
+}
+
+void Client::Set_Name(string _name) {
+	name = _name;
 }
 
 void Client::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
@@ -75,6 +86,14 @@ void Client::Set_Recv_Timeout(int seconds, int useconds) {
 	// }}}
 }
 
+void Client::Set_High_Priority() {
+	#ifdef __linux__
+	int32_t o;
+	o = 6;
+	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o, sizeof o);
+	#endif
+}
+
 bool Client::OpenConnection(int port, string ip) {
 	// Linux specific code {{{
 	#ifdef __linux__
@@ -91,7 +110,8 @@ bool Client::OpenConnection(int port, string ip) {
 		  hints.ai_flags |= AI_CANONNAME;
 
 		if (getaddrinfo (ip.c_str(), NULL, &hints, &res) != 0) {
-			log_err("Could not connect to " + ip + ":" + to_string(port));
+			log_err(
+			name + ": Could not connect to " + ip + ":" + to_string(port));
 		  return false;
 		}
 
@@ -102,7 +122,7 @@ bool Client::OpenConnection(int port, string ip) {
 			}
 			res = res->ai_next;
 	    }
-		log_err("Could not connect to " + ip + ":" + to_string(port));
+		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
 		return false;
 	}
 	success:
@@ -113,7 +133,7 @@ bool Client::OpenConnection(int port, string ip) {
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o_rcvbuf, sizeof(o_rcvbuf));
 
 	if (!ret) {
-		log_err("Could not connect to " + ip + ":" + to_string(port));
+		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
 		return false;
 	}
 	#endif
@@ -127,14 +147,16 @@ bool Client::OpenConnection(int port, string ip) {
 
 	int ret = getaddrinfo(ip.c_str(), to_string(port).c_str(), &hints, &result);
 	if (ret != 0) {
-		log_dbg("getaddrinfo failed with error " + to_string(ret));
+		log_dbg(name + ": getaddrinfo failed with error " + to_string(ret));
 		return false;
 	}
 
 	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 		cSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 		if (cSocket == INVALID_SOCKET) {
-			log_err("socket failed with error " + to_string(WSAGetLastError()));
+			log_err(
+			name + ": socket failed with error " +
+			to_string(WSAGetLastError()));
 			return false;
 		}
 
@@ -155,7 +177,7 @@ bool Client::OpenConnection(int port, string ip) {
 	freeaddrinfo(result);
 
 	if (cSocket == INVALID_SOCKET) {
-		log_err("Could not connect to " + ip + ":" + to_string(port));
+		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
 		return false;
 	}
 	#endif
@@ -165,7 +187,7 @@ bool Client::OpenConnection(int port, string ip) {
 	#endif
 	// }}}
 
-	log_dbg("Connection successful " + ip + ":" + to_string(port));
+	log_dbg(name + ": Connection successful " + ip + ":" + to_string(port));
 	connected = true;
 
 	return true;
@@ -187,26 +209,26 @@ void Client::CloseConnection() {
 	//TODO apple code
 	#endif
 	// }}}
-	log_dbg("Client connection closed");
+	log_dbg(name + ": Client connection closed");
 	connected = false;
 }
 
 bool Client::Send(char *data, int size) {
 	if (!connected) {
-		log_dbg("client not connected, can't send");
+		log_dbg(name + ": client not connected, can't send");
 		return false;
 	}
 
 	if (enc) {
 		if (!Encrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)data, size, (uint8_t*)enc_buf_data)) {
-			log_err("unable to encrypt data");
+			log_err(name + ": unable to encrypt data");
 			return false;
 		}
 
 		if (!Generate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err("unable to generate auth code");
+			log_err(name + ": unable to generate auth code");
 			return false;
 		}
 
@@ -231,7 +253,7 @@ bool Client::Send(char *data, int size) {
 
 bool Client::Receive(char *data, int size) {
 	if (!connected) {
-		log_dbg("client not connected, can't receive");
+		log_dbg(name + ": client not connected, can't receive");
 		return false;
 	}
 
@@ -253,7 +275,7 @@ bool Client::Receive(char *data, int size) {
 		// }}}
 
 		if (!recvd) {
-			log_err("unable to receive");
+			log_err(name + ": unable to receive");
 			return false;
 		}
 
@@ -261,13 +283,13 @@ bool Client::Receive(char *data, int size) {
 
 		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err("unable to authenticate data");
+			log_err(name + ": unable to authenticate data");
 			return false;
 		}
 
 		if (!Decrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
-			log_err("unable to decrypt data");
+			log_err(name + ": unable to decrypt data");
 			return false;
 		}
 	} else {
@@ -286,7 +308,7 @@ bool Client::Receive(char *data, int size) {
 		// }}}
 
 		if (!recvd) {
-			log_err("unable to receive");
+			log_err(name + ": unable to receive");
 			return false;
 		}
 	}

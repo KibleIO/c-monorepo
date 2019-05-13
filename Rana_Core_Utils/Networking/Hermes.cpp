@@ -33,8 +33,8 @@ string Connection_Name(int n) {
 	}
 }
 
-void Hermes_Server_Close_Connections(HermesServer* hs) {
-	ServerConnection* sc = hs->connections;
+void Close_Connections_HERMES_SERVER(HERMES_SERVER* hs) {
+	SERVER_CONNECTION* sc = hs->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (sc[i].active) {
 			sc[i].server->CloseConnection();
@@ -42,8 +42,8 @@ void Hermes_Server_Close_Connections(HermesServer* hs) {
 	}
 }
 
-void Hermes_Client_Close_Connections(HermesClient* hc) {
-	ClientConnection* cc = hc->connections;
+void Close_Connections_HERMES_CLIENT(HERMES_CLIENT* hc) {
+	CLIENT_CONNECTION* cc = hc->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (cc[i].active) {
 			cc[i].client->CloseConnection();
@@ -51,137 +51,120 @@ void Hermes_Client_Close_Connections(HermesClient* hc) {
 	}
 }
 
-Client* Hermes_Get_Client_Blocking(HermesClient* hc, uint8_t type) {
+Client* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, uint8_t type) {
 	Client* client = NULL;
 	while (!client) {
-		client = Hermes_Get_Client(hc, type);
+		client = Get_HERMES_CLIENT(hc, type);
 	}
 	return client;
 }
 
-Client* Hermes_Get_Client(HermesClient* hc, uint8_t type) {
+Client* Get_HERMES_CLIENT(HERMES_CLIENT* hc, uint8_t type) {
 	if (!hc->connected) {
 		log_err("hermes server not connected");
 		return NULL;
 	}
-	hc->cmutx.lock();
-	ClientConnection* cc = hc->connections;
+	hc->cmutx->lock();
+	CLIENT_CONNECTION* cc = hc->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (cc[i].active && cc[i].type == type) {
 			Client* client = cc[i].client;
-			hc->cmutx.unlock();
+			hc->cmutx->unlock();
 			return client;
 		}
 	}
-	hc->cmutx.unlock();
+	hc->cmutx->unlock();
 	return NULL;
 }
 
-Server* Hermes_Get_Server_Blocking(HermesServer* hs, uint8_t type) {
+Server* Get_Blocking_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type) {
 	Server* server = NULL;
 	while (!server && !hs->server_init_failed) {
-		server = Hermes_Get_Server(hs, type);
+		server = Get_HERMES_SERVER(hs, type);
 	}
 	return server;
 }
 
-Server* Hermes_Get_Server(HermesServer* hs, uint8_t type) {
+Server* Get_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type) {
 	if (!hs->connected) {
 		return NULL;
 	}
-	hs->cmutx.lock();
-	ServerConnection* sc = hs->connections;
+	hs->cmutx->lock();
+	SERVER_CONNECTION* sc = hs->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (sc[i].active && sc[i].type == type) {
 			Server* server = sc[i].server;
-			hs->cmutx.unlock();
+			hs->cmutx->unlock();
 			return server;
 		}
 	}
-	hs->cmutx.unlock();
+	hs->cmutx->unlock();
 	return NULL;
 }
 
-int Hermes_Client_Get_Index(HermesClient* hc) {
+int Get_Index_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
 		log_err("hermes client not connected");
 		return -1;
 	}
-	hc->cmutx.lock();
-	ClientConnection* cc = hc->connections;
+	hc->cmutx->lock();
+	CLIENT_CONNECTION* cc = hc->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (!cc[i].active) {
-			hc->cmutx.unlock();
+			hc->cmutx->unlock();
 			return i;
 		}
 	}
-	hc->cmutx.unlock();
+	hc->cmutx->unlock();
 	return -1;
 }
 
-int Hermes_Server_Get_Index(HermesServer* hs) {
+int Get_Index_HERMES_SERVER(HERMES_SERVER* hs) {
 	if (!hs->connected) {
 		log_err("hermes server not connected");
 		return -1;
 	}
-	hs->cmutx.lock();
-	ServerConnection* sc = hs->connections;
+	hs->cmutx->lock();
+	SERVER_CONNECTION* sc = hs->connections;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (!sc[i].active) {
-			hs->cmutx.unlock();
+			hs->cmutx->unlock();
 			return i;
 		}
 	}
-	hs->cmutx.unlock();
+	hs->cmutx->unlock();
 	return -1;
 }
 
-void Hermes_Delete_Server_Connection(ServerConnection &sc) {
-	if (!sc.active) {
-		return;
-	}
-	sc.server->CloseConnection();
+void Delete_SERVER_CONNECTION(SERVER_CONNECTION &sc) {
 	delete sc.server;
-	sc.server = NULL;
-	sc.active = false;
+	sc = NULLIFY;
 }
 
-void Hermes_Delete_Server(HermesServer* hs) {
-	if (!hs->connected) {
-		log_err("hermes server not connected");
-	}
-	hs->connected = false;
-	hs->server->CloseConnection();
+void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	delete hs->server;
-	hs->server = NULL;
-	hs->shouldexit = false;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		Hermes_Delete_Server_Connection(hs->connections[i]);
+		Delete_SERVER_CONNECTION(hs->connections[i]);
 	}
+	delete hs->cmutx;
+	*hs = NULLIFY;
 }
 
-void Hermes_Delete_Client_Connection(ClientConnection &cc) {
-	if (!cc.active) {
-		return;
-	}
-	cc.client->CloseConnection();
+void Delete_CLIENT_CONNECTION(CLIENT_CONNECTION &cc) {
 	delete cc.client;
-	cc.client = NULL;
-	cc.active = false;
+	cc = NULLIFY;
 }
 
-void Hermes_Delete_Client(HermesClient* hc) {
-	hc->connected = false;
-	hc->client->CloseConnection();
+void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	delete hc->client;
-	hc->client= NULL;
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		log_tmp("deleting connection " + to_string(i));
-		Hermes_Delete_Client_Connection(hc->connections[i]);
+		Delete_CLIENT_CONNECTION(hc->connections[i]);
 	}
+	delete hc->cmutx;
+	*hc = NULLIFY;
 }
 
-void Hermes_Server_Connect(HermesServer* hs, int port) {
+void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	if (hs->connected) {
 		log_err("hermes server already connected");
 		return;
@@ -190,7 +173,8 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 	hs->baseport = port;
 	hs->connected = true;
 	hs->server = new Server();
-	hs->server->Set_Recv_Timeout(1);
+	hs->server->Set_Name("hermes server");
+	hs->server->Set_Recv_Timeout(5);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
@@ -284,7 +268,7 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				break;
 			}
 
-			int index = Hermes_Server_Get_Index(hs);
+			int index = Get_Index_HERMES_SERVER(hs);
 			if (index < 0) {
 				log_err("max connections reached");
 				delete server;
@@ -292,9 +276,10 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 				break;
 			}
 
-			hs->cmutx.lock();
+			hs->cmutx->lock();
 
 			hs->connections[index].server = server;
+			hs->connections[index].server->Set_Name(Connection_Name(flag));
 			if (hs->enc_eng) {
 				if (!Add_Profile_ENCRYPTION_ENGINE(
 				hs->enc_eng, Connection_Name(flag),
@@ -323,21 +308,21 @@ void Hermes_Server_Connect(HermesServer* hs, int port) {
 			log_dbg("server listening on " + to_string(port));
 			if (!hs->connections[index].server->ListenBound()) {
 				log_err("could not listen on port " + to_string(port));
-				Hermes_Delete_Server_Connection(hs->connections[index]);
+				Delete_SERVER_CONNECTION(hs->connections[index]);
 			} else {
 				log_dbg("server bound on " + to_string(port));
 			}
-			hs->cmutx.unlock();
+			hs->cmutx->unlock();
 		}
 	}
 	if (hs->shouldexit) {
 		hs->shouldexit = false;
 	}
 	hs->connected = false;
-	Hermes_Server_Close_Connections(hs);
+	Close_Connections_HERMES_SERVER(hs);
 }
 
-bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
+bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 	if (!hc->connected) {
 		log_err("hermes client not connected");
 		return false;
@@ -369,14 +354,15 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 		return false;
 	}
 
-	int index = Hermes_Client_Get_Index(hc);
+	int index = Get_Index_HERMES_CLIENT(hc);
 	if (index < 0) {
 		log_err("max connections reached");
 	}
 
-	hc->cmutx.lock();
+	hc->cmutx->lock();
 
 	hc->connections[index].client = new Client;
+	hc->connections[index].client->Set_Name(Connection_Name(type));
 	if (hc->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
 		hc->enc_eng, Connection_Name(type), hc->enc_eng->active_profile)) {
@@ -406,19 +392,20 @@ bool Hermes_Client_Create(HermesClient* hc, uint8_t type) {
 	attempts-- > 0);
 	log_dbg("connected " + to_string(port));
 
-	hc->cmutx.unlock();
+	hc->cmutx->unlock();
 
 	return true;
 }
 
-bool Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types) {
+bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	if (hc->connected) {
 		log_err("hermes client already connected");
 		return false;
 	}
 
 	hc->client = new Client();
-	hc->client->Set_Recv_Timeout(1);
+	hc->client->Set_Recv_Timeout(5);
+	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;
 
@@ -455,7 +442,7 @@ bool Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types) {
 	log_dbg("creating connections");
 	while (*types != 0) {
 		log_dbg(to_string(*types));
-		Hermes_Client_Create(hc, *types);
+		Create_CLIENT_CONNECTION(hc, *types);
 		types++;
 	}
 	log_dbg("hermes connected");
@@ -463,7 +450,7 @@ bool Hermes_Client_Connect(HermesClient* hc, string ip, int port, int* types) {
 	return true;
 }
 
-void Hermes_Client_Disconnect(HermesClient* hc) {
+void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
 		log_err("hermes client not connected");
 		return;
@@ -489,7 +476,7 @@ void Hermes_Client_Disconnect(HermesClient* hc) {
 	}
 }
 
-bool Hermes_Client_Status(HermesClient* hc) {
+bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
 		log_err("hermes client not connected");
 		return false;
@@ -509,39 +496,49 @@ bool Hermes_Client_Status(HermesClient* hc) {
 		return false;
 	}
 	if (flag) { //shouldexit
-		Hermes_Client_Disconnect(hc);
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	return true;
 }
 
-void Hermes_Client_Init(HermesClient* hc, ENCRYPTION_ENGINE* _enc_eng) {
+bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, ENCRYPTION_ENGINE* _enc_eng) {
+	if (hc->client || hc->enc_eng || hc->cmutx || hc->baseport ||
+	hc->connected || hc->err) {
+		log_err("hermes client struct not properly nullified");
+		return false;
+	}
 	hc->enc_eng		= _enc_eng;
 	hc->err			= 0;
 	hc->client		= NULL;
 	hc->connected	= false;
-	hc->cmutx.lock();
+	hc->cmutx = new mutex;
+	hc->cmutx->lock();
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		hc->connections[i].client = NULL;
-		hc->connections[i].active = false;
+		hc->connections[i] = NULLIFY;
 	}
-	hc->cmutx.unlock();
+	hc->cmutx->unlock();
 	log_dbg("Hermes client initialized");
+	return true;
 }
 
-void Hermes_Server_Init(HermesServer* hs, ENCRYPTION_ENGINE* _enc_eng) {
+bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, ENCRYPTION_ENGINE* _enc_eng) {
+	if (hs->server || hs->enc_eng || hs->cmutx || hs->baseport ||
+	hs->connected || hs->shouldexit || hs->err | hs->server_init_failed) {
+		log_err("hermes client struct not properly nullified");
+		return false;
+	}
 	hs->enc_eng		= _enc_eng;
 	hs->err			= 0;
-	hs->server		= NULL;
 	hs->connected	= false;
 	hs->shouldexit	= false;
-	hs->exiting		= false;
 	hs->server_init_failed = false;
-	hs->cmutx.lock();
+	hs->cmutx = new mutex;
+	hs->cmutx->lock();
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		hs->connections[i].server = NULL;
-		hs->connections[i].active = false;
+		hs->connections[i] = NULLIFY;
 	}
-	hs->cmutx.unlock();
+	hs->cmutx->unlock();
 	log_dbg("Hermes server initialized");
+	return true;
 }

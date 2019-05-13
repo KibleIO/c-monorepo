@@ -28,6 +28,7 @@
 // }}}
 
 #define NETWORKING_BUFFER_SIZE 3000
+#define NETWORKING_NO_TIMEOUT 0
 
 using namespace std;
 

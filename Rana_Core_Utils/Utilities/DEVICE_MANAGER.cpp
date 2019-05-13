@@ -5,8 +5,26 @@
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
 
-void Initialize_Device_Manager(
-	DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
+bool Initialize_Device_Manager(
+DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
+	if (dev_man->client || dev_man->server || dev_man->Event_Status) {
+		log_err("device manager struct not properly nullified");
+		return false;
+	}
+#ifdef __linux__
+	if (dev_man->current_dev || dev_man->previous_dev || dev_man->dp ||
+	dev_man->dirp || dev_man->sending || dev_man->receiving ||
+	dev_man->c_d_size || dev_man->p_d_size) {
+		log_err("device manager struct not properly nullified");
+		return false;
+	}
+#endif
+#ifdef _WIN64
+	if (dev_man->client_mtx) {
+		log_err("device manager struct not properly nullified");
+		return false;
+	}
+#endif
 
 	// Linux specific code {{{
 	#ifdef __linux__
@@ -20,24 +38,17 @@ void Initialize_Device_Manager(
 
 	for (int i = 0; i < MAX_DEV; i++) {
 		dev_man->current_dev[i] = new DEVICE_NODE();
-		dev_man->current_dev[i]->hw.mouse = NULL;
-		dev_man->current_dev[i]->hw.keyboard = NULL;
+		dev_man->current_dev[i]->hw = NULLIFY;
 	}
 	for (int i = 0; i < MAX_DEV; i++) {
 		dev_man->previous_dev[i] = new DEVICE_NODE();
-		dev_man->previous_dev[i]->hw.mouse = NULL;
-		dev_man->previous_dev[i]->hw.keyboard = NULL;
+		dev_man->previous_dev[i]->hw = NULLIFY;
 	}
 	dev_man->sending = false;
 	#endif
-	// }}} Windows specific code {{{
 	#ifdef _WIN64
+	dev_man->client_mtx = new mutex;
 	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
 
 	dev_man->w = w;
 	dev_man->h = h;
@@ -50,19 +61,16 @@ void Initialize_Device_Manager(
 	MOUSE::Current_Y = 0;
 
 	dev_man->receiving = false;
+	return false;
 }
 
 void Device_Server_Start(DEVICE_MANAGER* dev_man) {
-	TIMER* tm;
 	uint8_t ptype;
-
-	tm = new TIMER;
-	Initialize_TIMER(tm);
 
 	dev_man->receiving = true;
 	while (dev_man->receiving) {
 		if (!dev_man->server) {
-			Sleep_Milli_TIMER(tm, 16);
+			Sleep_Milli(16);
 			continue;
 		}
 
@@ -141,9 +149,6 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 			log_err("unknown packet type");
 		}
 	}
-
-	Delete_TIMER(tm);
-	delete tm;
 }
 
 void Device_Server_Stop(DEVICE_MANAGER* dev_man) {
@@ -152,10 +157,18 @@ void Device_Server_Stop(DEVICE_MANAGER* dev_man) {
 
 void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server) {
 	dev_man->server = server;
+	if (dev_man->server) {
+		dev_man->server->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
+		dev_man->server->Set_High_Priority();
+	}
 }
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client) {
 	dev_man->client = client;
+	if (dev_man->client) {
+		dev_man->client->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
+		dev_man->client->Set_High_Priority();
+	}
 }
 
 // Linux specific code {{{
@@ -392,18 +405,15 @@ void Initialize_Device_Node(DEVICE_NODE* init, string ss, int t) {
 }
 
 void Delete_Device_Node(DEVICE_NODE* init) {
-	if (!init->okay) {
-		return;
-	}
 	init->okay = false;
 	if (init->type == _MOUSE &&
 		init->hw.mouse != NULL) {
 		Delete_Mouse(init->hw.mouse);
-	}
-	else if (init->type == _KEYBOARD &&
+	} else if (init->type == _KEYBOARD &&
 		init->hw.keyboard != NULL) {
 		Delete_Keyboard(init->hw.keyboard);
 	}
+	init->hw = NULLIFY;
 }
 
 int Get_Bit(unsigned int *bits, unsigned int bit) {
@@ -573,23 +583,25 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 
 void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
 	log_dbg("deleting device manager");
-	log_tmp("stop server");
 	Device_Server_Stop(dev_man);
-	log_tmp("stop client");
 	Device_Client_Stop(dev_man);
 
-	for (int i = 0; i < MAX_DEV; i++) {
-		log_tmp(to_string(i));
-		Delete_Device_Node(dev_man->current_dev[i]);
-		delete dev_man->current_dev[i];
-		Delete_Device_Node(dev_man->previous_dev[i]);
-		delete dev_man->previous_dev[i];
+	if (dev_man->current_dev && dev_man->previous_dev) {
+		for (int i = 0; i < MAX_DEV; i++) {
+			Delete_Device_Node(dev_man->current_dev[i]);
+			delete dev_man->current_dev[i];
+			Delete_Device_Node(dev_man->previous_dev[i]);
+			delete dev_man->previous_dev[i];
+		}
+		delete [] dev_man->current_dev;
+		delete [] dev_man->previous_dev;
 	}
-	log_dbg("cd");
-	delete [] dev_man->current_dev;
-	log_dbg("pd");
-	delete [] dev_man->previous_dev;
+
 	log_dbg("done deleting device manager");
+	#ifdef _WIN64
+	delete dev_man->client_mtx;
+	#endif
+	*dev_man = NULLIFY;
 }
 
 #endif
