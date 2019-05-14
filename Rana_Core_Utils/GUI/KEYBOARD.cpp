@@ -96,9 +96,7 @@ void Delete_Keyboard(KEYBOARD* keyboard) {
 	log_dbg("deleting keyboard " + keyboard->path);
 	keyboard->Listening = false;
 	if (keyboard->Event_Listener) {
-		log_tmp("join");
 		keyboard->Event_Listener->join();
-		log_tmp("delete");
 		delete keyboard->Event_Listener;
 	}
 	close(keyboard->fd);

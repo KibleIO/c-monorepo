@@ -38,7 +38,7 @@ void BakeBackground_BMP(BMP* bmp, int color) {
 
 void Initialize_BMP(BMP* bmp, string loc) {
 	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
-		log_err("bmp struct not properly nullified");
+		log_err("bmp struct for " + loc + " not properly nullified");
 		return;
 	}
 
@@ -103,7 +103,7 @@ void Initialize_BMP(BMP* bmp, string loc) {
 
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
-		log_err("bmp struct not properly nullified");
+		log_err("bmp struct not " + loc + " properly nullified");
 		return;
 	}
 

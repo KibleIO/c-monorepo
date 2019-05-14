@@ -108,8 +108,22 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 				!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
 					log_err("could not forward mouse event");
 					dev_man->client = NULL;
+					// Linux specific code {{{
+					#ifdef __linux__
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
+					#endif
+					// }}} Windows specific code {{{
+					#ifdef _WIN64
+					Handle_Mouse_WINAPI(m_event);
+					#endif
+					// }}} OSX specific code {{{
+					#ifdef __APPLE__
+					//TODO apple code
+					#endif
+					// }}}
+				} else {
+					delete m_event;
 				}
-				delete m_event;
 			} else {
 				// Linux specific code {{{
 				#ifdef __linux__
@@ -140,8 +154,22 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 				sizeof(KEYBOARD_EVENT_T))) {
 					log_err("could not forward keyboard event");
 					dev_man->client = NULL;
+					// Linux specific code {{{
+					#ifdef __linux__
+					DEVICE_MANAGER::Keyboard_Events.push(k_event);
+					#endif
+					// }}} Windows specific code {{{
+					#ifdef _WIN64
+					Handle_Keyboard_WINAPI(k_event);
+					#endif
+					// }}} OSX specific code {{{
+					#ifdef __APPLE__
+					//TODO apple code
+					#endif
+					// }}}
+				} else {
+					delete k_event;
 				}
-				delete k_event;
 			} else {
 				// Linux specific code {{{
 				#ifdef __linux__
@@ -202,8 +230,10 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 			!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
 				log_err("could not send keyboard event");
 				dev_man->client = NULL;
+				DEVICE_MANAGER::Keyboard_Events.push(k_event);
+			} else {
+				delete k_event;
 			}
-			delete k_event;
 		} else {
 			DEVICE_MANAGER::Keyboard_Events.push(k_event);
 		}
@@ -257,17 +287,18 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 			if (dev_man->client) {
 				ptype = MOUSE_PACKET;
 				if (
-					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)m_event,
-						sizeof(MOUSE_EVENT_T))) {
+				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+				!dev_man->client->Send((char*)m_event,
+				sizeof(MOUSE_EVENT_T))) {
 					log_err("could not sent mouse movement");
 					dev_man->client = NULL;
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
+				} else {
+					delete m_event;
 				}
-				delete m_event;
-			}
-			else {
+			} else {
 				DEVICE_MANAGER::Mouse_Events.push(m_event);
-				}
+			}
 			break;
 
 		case LIBINPUT_EVENT_POINTER_BUTTON:
@@ -298,13 +329,15 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 			if (dev_man->client) {
 				ptype = MOUSE_PACKET;
 				if (
-					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)m_event,
-						sizeof(MOUSE_EVENT_T))) {
+				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+				!dev_man->client->Send((char*)m_event,
+				sizeof(MOUSE_EVENT_T))) {
 					log_err("could not send mouse click");
 					dev_man->client = NULL;
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
+				} else {
+					delete m_event;
 				}
-				delete m_event;
 			} else {
 				DEVICE_MANAGER::Mouse_Events.push(m_event);
 			}
@@ -338,8 +371,9 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 						sizeof(MOUSE_EVENT_T))) {
 					log_err("could not send mouse click");
 					dev_man->client = NULL;
+				} else {
+					delete m_event;
 				}
-				delete m_event;
 				m_event = new MOUSE_EVENT_T;
 				m_event->x = mouse->Current_X;
 				m_event->y = mouse->Current_Y;
@@ -355,8 +389,10 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 						sizeof(MOUSE_EVENT_T))) {
 					log_err("could not send mouse click");
 					dev_man->client = NULL;
+					DEVICE_MANAGER::Mouse_Events.push(m_event);
+				} else {
+					delete m_event;
 				}
-				delete m_event;
 			} else {
 				DEVICE_MANAGER::Mouse_Events.push(m_event);
 			}

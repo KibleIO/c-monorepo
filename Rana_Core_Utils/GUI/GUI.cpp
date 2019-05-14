@@ -410,11 +410,9 @@ void Render_Nuklear_GUI(GUI* gui) {
 			case NK_COMMAND_RECT_MULTI_COLOR:
 			case NK_COMMAND_IMAGE: {
 				const struct nk_command_image* image = (const struct nk_command_image*)command;
-				log_tmp("image " + ((BMP*)image->img.handle.ptr)->name);
 				if (!gui->BakedBmp) {
 					Draw_BMP((BMP*)image->img.handle.ptr, gui->Graphics_Handle, image->x, image->y);
 				}
-				log_tmp("done image");
 				break;
 			}
 			case NK_COMMAND_ARC:
@@ -425,9 +423,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 		}
 	}
 
-	log_tmp("nk clear");
 	nk_clear(gui->NK_Context);
-	log_tmp("set clip");
 	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
 
