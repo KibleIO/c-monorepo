@@ -71,7 +71,16 @@ void Render_GUI(GUI* gui, char* output_buffer);
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
 void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_EVENT_T*>* k_events);
 
+/*
+Initialize helpers
+*/
 void Initialize_GUI_Font(GUI_FONT*, int height, const char* font_file_name);
 void Set_GUI_Style_Default(GUI*);
+
+/*
+Runtime helpers
+*/
+float Font_Text_Width(
+nk_handle handle, float height, const char* text, int length);
 
 #endif

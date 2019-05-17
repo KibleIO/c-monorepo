@@ -2,7 +2,8 @@
 
 #include "GUI.h"
 
-static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length) {
+static float Font_Get_Text_Width(
+nk_handle handle, float height, const char* text, int length) {
 	(void)height;
 	BAKED_GLYPH* glyphs = (BAKED_GLYPH*)handle.ptr;
 	int _x = 0;
@@ -473,4 +474,9 @@ void Set_GUI_Style_Default(GUI* gui) {
 	gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
 	gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
 	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
+}
+
+float Font_Text_Width(
+nk_handle handle, float height, const char* text, int length) {
+	return Font_Get_Text_Width(handle, height, text, length);
 }
