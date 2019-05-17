@@ -2,6 +2,9 @@
 
 #include "GUI.h"
 
+int GUI::Width = 0;
+int GUI::Height = 0;
+
 static float Font_Get_Text_Width(
 nk_handle handle, float height, const char* text, int length) {
 	(void)height;

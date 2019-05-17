@@ -40,9 +40,10 @@ struct GUI_FONT {
 };
 
 struct GUI {
+	static int 		Width;
+	static int 		Height;
+
 	int				Display_ID;
-	int				Width;
-	int				Height;
 	int				Frame_Resolution;
 
 	nk_context* 	NK_Context;
