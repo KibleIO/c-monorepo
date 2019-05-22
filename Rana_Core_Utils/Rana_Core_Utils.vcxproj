@@ -173,7 +173,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>libsodium.lib;Ws2_32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\usr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -218,7 +218,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>libsodium.lib;Ws2_32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\user\Desktop\libsodium\x64\Release\v141\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\usr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

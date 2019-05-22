@@ -4,6 +4,7 @@
 
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
+#ifdef __linux__
 DEVICE_NODE** DEVICE_MANAGER::previous_dev;
 volatile int  DEVICE_MANAGER::p_d_size;
 
@@ -16,6 +17,7 @@ void Set_Mouse_Speed(double speed) {
 		}
 	}
 }
+#endif
 
 bool Initialize_Device_Manager(
 DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
@@ -659,7 +661,7 @@ void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
 void Send_Keyboard_Data(DEVICE_MANAGER* dev_man, KEYBOARD_EVENT_T* k_event) {
 	uint8_t ptype;
 
-	dev_man->client_mtx.lock();
+	dev_man->client_mtx->lock();
 	if (dev_man->client) {
 		ptype = KEY_PACKET;
 		if (
@@ -673,7 +675,7 @@ void Send_Keyboard_Data(DEVICE_MANAGER* dev_man, KEYBOARD_EVENT_T* k_event) {
 	else {
 		DEVICE_MANAGER::Keyboard_Events.push(k_event);
 	}
-	dev_man->client_mtx.unlock();
+	dev_man->client_mtx->unlock();
 }
 
 void Send_Mouse_Data(DEVICE_MANAGER* dev_man, MOUSE_EVENT_T* m_event) {
@@ -682,7 +684,7 @@ void Send_Mouse_Data(DEVICE_MANAGER* dev_man, MOUSE_EVENT_T* m_event) {
 	MOUSE::Current_X = m_event->x;
 	MOUSE::Current_Y = m_event->y;
 
-	dev_man->client_mtx.lock();
+	dev_man->client_mtx->lock();
 	if (dev_man->client) {
 		ptype = MOUSE_PACKET;
 		if (
@@ -696,7 +698,7 @@ void Send_Mouse_Data(DEVICE_MANAGER* dev_man, MOUSE_EVENT_T* m_event) {
 	else {
 		DEVICE_MANAGER::Mouse_Events.push(m_event);
 	}
-	dev_man->client_mtx.unlock();
+	dev_man->client_mtx->unlock();
 }
 #endif
 // }}} OSX specific code {{{
