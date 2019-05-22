@@ -44,3 +44,8 @@ string system_output(string cmd) {
 	}
 	return data;
 }
+
+uint8_t file_exists(string file) {
+	struct stat buffer;
+	return (stat(file.c_str(), &buffer) == 0);
+}

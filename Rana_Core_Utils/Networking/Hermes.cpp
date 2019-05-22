@@ -174,7 +174,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	hs->connected = true;
 	hs->server = new Server();
 	hs->server->Set_Name("hermes server");
-	hs->server->Set_Recv_Timeout(5);
+	//hs->server->Set_Recv_Timeout(10);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
@@ -205,6 +205,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 
 	uint8_t flag;
 
+	log_dbg("starting server loop");
 	while (hs->connected) {
 		if (!hs->server->Receive((char*)&flag, sizeof(uint8_t))) {
 			log_err("failed to receive flag");
@@ -315,6 +316,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 			hs->cmutx->unlock();
 		}
 	}
+	log_dbg("ending server loop");
 	if (hs->shouldexit) {
 		hs->shouldexit = false;
 	}
@@ -404,7 +406,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	}
 
 	hc->client = new Client();
-	hc->client->Set_Recv_Timeout(5);
+	//hc->client->Set_Recv_Timeout(10);
 	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;

@@ -121,6 +121,7 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 					//TODO apple code
 					#endif
 					// }}}
+					MOUSE::Clicked = false;
 				} else {
 					delete m_event;
 				}
