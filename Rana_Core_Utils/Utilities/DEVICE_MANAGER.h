@@ -114,10 +114,10 @@ void Device_Server_Stop(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
 
-void Set_Mouse_Speed(double);
-
 // Linux specific code {{{
 #ifdef __linux__
+void Set_Mouse_Speed(double);
+
 void Device_Client_Start(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Stop(DEVICE_MANAGER* dev_finder);
