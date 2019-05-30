@@ -245,19 +245,50 @@ void Handle_Mouse_WINAPI(MOUSE_EVENT_T* m_event) {
 	ip.mi.time = 0;
 	ip.mi.mouseData = 0;
 	ip.mi.dwExtraInfo = 0;
-	ip.mi.dx = (m_event->x * 0xFFFF) / (GetSystemMetrics(SM_CXSCREEN) - 1);
-	ip.mi.dy = (m_event->y * 0xFFFF) / (GetSystemMetrics(SM_CYSCREEN) - 1);
 	if (m_event->clicked) {
-		if (m_event->state) {
-			ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE;
-		}
-		else {
-			ip.mi.dwFlags = MOUSEEVENTF_LEFTUP | MOUSEEVENTF_ABSOLUTE;
+		switch (m_event->button) {
+		case MOUSE_BUTTON_LEFT:
+			if (m_event->state) {
+				ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+			}
+			else {
+				ip.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+			}
+			break;
+		case MOUSE_BUTTON_RIGHT:
+			if (m_event->state) {
+				ip.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+			}
+			else {
+				ip.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+			}
+			break;
+		case MOUSE_BUTTON_MIDDLE:
+			if (m_event->state) {
+				ip.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+			}
+			else {
+				ip.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+			}
+			break;
+		case MOUSE_BUTTON_SCROLL_UP:
+			ip.mi.dwFlags = MOUSEEVENTF_WHEEL;
+			ip.mi.mouseData = m_event->state * 45;
+			break;
+		case MOUSE_BUTTON_SCROLL_DOWN:
+			ip.mi.dwFlags = MOUSEEVENTF_WHEEL;
+			ip.mi.mouseData = m_event->state * -45;
+			break;
 		}
 		SendInput(1, &ip, sizeof(INPUT));
+	} else {
+		ip.mi.dx = (m_event->x * 0xFFFF) / (GetSystemMetrics(SM_CXSCREEN) - 1);
+
+		ip.mi.dy = (m_event->y * 0xFFFF) / (GetSystemMetrics(SM_CYSCREEN) - 1);
+
+		ip.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+		SendInput(1, &ip, sizeof(INPUT));
 	}
-	ip.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-	SendInput(1, &ip, sizeof(INPUT));
 	delete m_event;
 }
 
@@ -273,26 +304,52 @@ void Handle_Mouse_WINAPI(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 	for (int i = events->size(); i > 0; i--) {
 		MOUSE_EVENT_T* m_event;
 		events->pop(m_event);
-
-		//This let's you do a hardware scan instead of a virtual keypress
-
-		ip.mi.dx = (m_event->x * 0xFFFF) / (GetSystemMetrics(SM_CXSCREEN) - 1);  //Set a unicode character to use (A)
-		ip.mi.dy = (m_event->y * 0xFFFF) / (GetSystemMetrics(SM_CYSCREEN) - 1);  //Set a unicode character to use (A)
-
 		if (m_event->clicked) {
-			if (m_event->state) {
-				ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE;
+			switch (m_event->button) {
+			case MOUSE_BUTTON_LEFT:
+				if (m_event->state) {
+					ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+				}
+				else {
+					ip.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+				}
+				break;
+			case MOUSE_BUTTON_RIGHT:
+				if (m_event->state) {
+					ip.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+				}
+				else {
+					ip.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+				}
+				break;
+			case MOUSE_BUTTON_MIDDLE:
+				if (m_event->state) {
+					ip.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+				}
+				else {
+					ip.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+				}
+				break;
+			case MOUSE_BUTTON_SCROLL_UP:
+				ip.mi.dwFlags = MOUSEEVENTF_WHEEL;
+				ip.mi.mouseData = m_event->state * 45;
+				break;
+			case MOUSE_BUTTON_SCROLL_DOWN:
+				ip.mi.dwFlags = MOUSEEVENTF_WHEEL;
+				ip.mi.mouseData = m_event->state * -45;
+				break;
 			}
-			else {
-				ip.mi.dwFlags = MOUSEEVENTF_LEFTUP | MOUSEEVENTF_ABSOLUTE;
-			}
-
 			SendInput(1, &ip, sizeof(INPUT));
+		} else {
+			ip.mi.dx = (
+			m_event->x * 0xFFFF) / (GetSystemMetrics(SM_CXSCREEN) - 1);
 
+			ip.mi.dy = (
+			m_event->y * 0xFFFF) / (GetSystemMetrics(SM_CYSCREEN) - 1);
+
+			ip.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+			SendInput(1, &ip, sizeof(INPUT));
 		}
-
-		ip.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-		SendInput(1, &ip, sizeof(INPUT));
 
 		delete m_event;
 	}
