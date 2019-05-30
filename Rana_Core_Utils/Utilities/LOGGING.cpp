@@ -2,21 +2,17 @@
 
 #include "LOGGING.h"
 
-mutex log_lock;
-
 uint8_t GOT_LOCAL_TIME = false;
 string LOG_FILE = string(LOG_DIR) + "/log";
 
 void set_local_start_time() {
 	// Linux specific code {{{
 	#ifdef __linux__
-	log_lock.lock();
 	if (GOT_LOCAL_TIME) {
 		log_lock.unlock();
 		return;
 	}
 	GOT_LOCAL_TIME = true;
-	log_lock.unlock();
 
     dirent**							file_name_list;
 	int32_t							num_files;
@@ -54,10 +50,8 @@ void set_local_start_time() {
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
-	log_lock.lock();
 	if (GOT_LOCAL_TIME) return;
 	GOT_LOCAL_TIME = true;
-	log_lock.unlock();
 
 	chrono::system_clock::time_point now = chrono::system_clock::now();
 	time_t now_t = chrono::system_clock::to_time_t(now);
