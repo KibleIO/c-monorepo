@@ -75,16 +75,16 @@ void Skip_Animation(ANIMATOR*, int frame);
 // Skip the animation straight to the frame that the animation is clamped to
 void Skip_Animation_To_Clamp(ANIMATOR*);
 
-// Call this function if you want a non-looping animation to start from the beginning
+// Call this function if you want a non-looping animation
+// to start from the beginning
 void Restart_Animation(ANIMATOR*);
 // Start the animation from the beginning and remove all clamps
 void Reset_Animation(ANIMATOR*);
 
 // Clamps the animation so that the animation cannot advance more than
 // #numFrames past the current frame
-// NOTE: if numFrames >= totalFrames, the animation
-// will not procede for the number of frames given
-void Clamp_Animation(ANIMATOR*, int numFrames);
+bool Clamp_Animation_Forward(ANIMATOR*, int numFrames);
+bool Clamp_Animation(ANIMATOR*, int frame);
 // Remove clamps on the animation
 void Unclamp_Animation(ANIMATOR*);
 
