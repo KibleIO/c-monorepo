@@ -4,38 +4,6 @@
 #include "stb_image.h"
 #include "BMP.h"
 
-void BakeBackground_BMP(BMP* bmp, int color) {
-	unsigned int pixel;
-	unsigned int result;
-
-	for (int y = 0; y < bmp->H; y++) {
-		for (int x = 0; x < bmp->W; x++) {
-			pixel = *(((int*)bmp->Data) + y * bmp->W + x);
-
-			unsigned int alpha = ((unsigned char*)&pixel)[3] + 1;
-			unsigned int inv_alpha = 256 - alpha;
-
-    		((unsigned char*)&result)[0] =
-				(unsigned char)((alpha *
-				((unsigned char*)&pixel)[0] + inv_alpha *
-				((unsigned char*)&color)[0]) >> 8);
-    		((unsigned char*)&result)[1] =
-				(unsigned char)((alpha *
-				((unsigned char*)&pixel)[1] + inv_alpha *
-				((unsigned char*)&color)[1]) >> 8);
-    		((unsigned char*)&result)[2] =
-				(unsigned char)((alpha *
-				((unsigned char*)&pixel)[2] + inv_alpha *
-				((unsigned char*)&color)[2]) >> 8);
-    		((unsigned char*)&result)[3] = 0xff;
-
-			((int*)bmp->Data)[y * bmp->W + x] = result;
-		}
-	}
-
-	bmp->Transparent = false;
-}
-
 void Initialize_BMP(BMP* bmp, string loc) {
 	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
 		log_err("bmp struct for " + loc + " not properly nullified");
@@ -107,7 +75,23 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 		return;
 	}
 
+	string resized_file = loc + "resized" + to_string(w) + "x" + to_string(h);
+
+	if (file_exists(resized_file)) {
+		log_dbg("found resized image, loading");
+		ifstream inp(resized_file, ios::in | ios::binary);
+		bmp->Data = new char[w * h * 4];
+		inp.read(bmp->Data, w * h * 4);
+		bmp->W = w;
+		bmp->H = h;
+		bmp->name = loc;
+		return;
+	} else {
+		log_dbg("resized image not found, resizing");
+	}
+
 	int x,y,n;
+
 	unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
 
 	bmp->W = x;
@@ -176,6 +160,9 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	}
 
 	bmp->Transparent = false;
+
+	ofstream out(resized_file, ios::out | ios::binary);
+	out.write(bmp->Data, w * h * 4);
 }
 
 void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {

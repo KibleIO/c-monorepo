@@ -9,6 +9,7 @@
 #include "avir.h"
 #include "../Graphics/Graphics.h"
 #include "../Utilities/LOGGING.h"
+#include "../Utilities/Utils.h"
 
 #define BMP_FALLBACK_C1 0xFF00FF
 #define BMP_FALLBACK_C2 0xCC00CC
@@ -63,7 +64,6 @@ struct BMP {
 	string name;
 };
 
-void BakeBackground_BMP(BMP* bmp, int color);
 void Initialize_BMP(BMP*, string);
 void Initialize_BMP(BMP*, string, int, int);
 void resizeBilinear(int*, int*, int, int, int, int);
