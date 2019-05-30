@@ -3,10 +3,13 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#include <string>
 #include "Networking.h"
 
 class Server {
 private:
+	string name;
+
 	ENCRYPTION_PROFILE* enc;
 	char*				enc_buf_auth;
 	char*				enc_buf_data;
@@ -33,8 +36,10 @@ private:
 public:
 	Server();
 	void Init();
+	void Set_Name(string _name);
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
 	void Set_Recv_Timeout(int seconds, int useconds = 0);
+	void Set_High_Priority();
 	bool Bind(int port);
 	bool ListenBound();
 	bool Listen(int);

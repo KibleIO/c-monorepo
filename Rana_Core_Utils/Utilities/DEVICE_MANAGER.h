@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <mutex>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -17,6 +18,7 @@
 #include "../GUI/MOUSE.h"
 #include "../Networking/Client.h"
 #include "../Networking/Server.h"
+#include "../Utilities/Stuff.h"
 #include "TIMER.h"
 #include "EVENT.h"
 
@@ -63,58 +65,45 @@ struct DEVICE_NODE {
 		KEYBOARD* keyboard;
 	} hw;
 };
-
 #endif
-// }}} Windows specific code {{{
 #ifdef _WIN64
 #endif
-// }}} OSX specific code {{{
-#ifdef __APPLE__
-#endif
-// }}}
 
 struct DEVICE_MANAGER {
-	// Linux specific code {{{
-	#ifdef __linux__
+	Client*       client;
+	Server*		  server;
+	EVENT* Event_Status;
+#ifdef __linux__
+	DIR* dp;
+	dirent* dirp;
+
 	volatile bool sending;
 
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
-	DEVICE_NODE** previous_dev;
-	volatile int  p_d_size;
+
+	static DEVICE_NODE** previous_dev;
+	static volatile int  p_d_size;
 
 	char path[PATH_MAX];
-	DIR *dp;
-	dirent *dirp;
 	int fd;
 	struct stat buffer;
 	unsigned int types[EV_MAX];
 	unsigned int events[(KEY_MAX - 1) / 32 + 1];
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
-	mutex client_mtx;
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
+#ifdef _WIN64
+	mutex* client_mtx;
+#endif
 
 	static Queue<KEYBOARD_EVENT_T*> Keyboard_Events;
 	static Queue<MOUSE_EVENT_T*> Mouse_Events;
 
-	Client*       client;
-	Server*		  server;
-
 	volatile bool receiving;
 
-	int 		  w, h; //these are only needed to initialize the mouse, sue me
-
-	EVENT* Event_Status;
+	int w, h; //these are only needed to initialize the mouse, sue me
 };
 
-void Initialize_Device_Manager(
+bool Initialize_Device_Manager(
 DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status = NULL);
 
 void Device_Server_Start(DEVICE_MANAGER* dev_finder);
@@ -127,6 +116,8 @@ void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
 
 // Linux specific code {{{
 #ifdef __linux__
+void Set_Mouse_Speed(double);
+
 void Device_Client_Start(DEVICE_MANAGER* dev_finder);
 
 void Device_Client_Stop(DEVICE_MANAGER* dev_finder);

@@ -37,24 +37,35 @@ void BakeBackground_BMP(BMP* bmp, int color) {
 }
 
 void Initialize_BMP(BMP* bmp, string loc) {
-	int x,y,n;
-  unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
-
-	// stbi_load returns null if it could not load the image at loc
-	if(data == nullptr) {
-		cout << "No image file exists at " << loc << endl;
+	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
+		log_err("bmp struct for " + loc + " not properly nullified");
 		return;
 	}
 
-	if (n != 4) {
+	int x,y,n;
+	unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
+
+	bmp->W = x;
+	bmp->H = y;
+	bmp->name = loc;
+
+	uint8_t valid_image = true;
+	if (!data) {
+		log_err("no image file exists at " + loc);
+		valid_image = false;
+	} else if (n != 4) {
 		log_err(string("File ") + loc + " is wrong format");
+		valid_image = false;
+	}
+
+	if (!valid_image) {
+		bmp->W = 32;
+		bmp->H = 32;
+		bmp->Data = NULL;
 		return;
 	}
 
 	log_dbg(loc + " " + to_string(x) + " " + to_string(y));
-
-	bmp->W = x;
-	bmp->H = y;
 
 	char* temp_Data = new char[bmp->W * bmp->H * 4];
 
@@ -91,24 +102,35 @@ void Initialize_BMP(BMP* bmp, string loc) {
 }
 
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
+	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
+		log_err("bmp struct not " + loc + " properly nullified");
+		return;
+	}
+
 	int x,y,n;
-  unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
-
-	// stbi_load returns null if it could not load the image at loc
-	if(data == nullptr) {
-		cout << "No image file exists at " << loc << endl;
-		return;
-	}
-
-	if (n != 4) {
-		log_err(string("File ") + loc + " is wrong format");
-		return;
-	}
-
-	log_dbg(loc + " " + to_string(x) + " " + to_string(y));
+	unsigned char *data = stbi_load(loc.c_str(), &x, &y, &n, 4);
 
 	bmp->W = x;
 	bmp->H = y;
+	bmp->name = loc;
+
+	uint8_t valid_image = true;
+	if (!data) {
+		log_err("no image file exists at " + loc);
+		valid_image = false;
+	} else if (n != 4) {
+		log_err(string("File ") + loc + " is wrong format");
+		valid_image = false;
+	}
+
+	if (!valid_image) {
+		bmp->W = w;
+		bmp->H = h;
+		bmp->Data = NULL;
+		return;
+	}
+	
+	log_dbg(loc + " " + to_string(x) + " " + to_string(y));
 
 	int* resized_buffer = new int[w * h];
 
@@ -200,6 +222,28 @@ void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
 }
 
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
+	// draw fallback texture if data is null
+	if (!bmp->Data) {
+		int32_t w = bmp->W;
+		int32_t h = bmp->H;
+		int32_t* g_buffer = (int*)g->Buffer;
+
+		Clip_GRAPHICS(g, X, Y, w, h);
+
+		for (int x = 0; x < w; x++) {
+    		for (int y = 0; y < h; y++) {
+				uint8_t x_patt = (x / 5) % 2 == 0;
+				uint8_t y_patt = (y / 5) % 2 == 0;
+				uint8_t color = x_patt ^ y_patt;
+				if (color) {
+					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C1;
+				} else {
+					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C2;
+				}
+    		}
+    	}
+		return;
+	}
 	if (bmp->Transparent) {
 		for (int x = 0; x < bmp->W; x++) {
     		for (int y = 0; y < bmp->H; y++) {
@@ -210,17 +254,7 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 		int temp_width = bmp->W;
 		int temp_height = bmp->H;
 
-		if (X >= g->Width_Clip + g->X_clip) return;
-		if (X < g->X_clip) { temp_width -= g->X_clip - X; X = g->X_clip; }
-		if (temp_width <= 0) return;
-
-		if (Y >= g->Height_Clip + g->Y_clip) return;
-		if (Y < g->Y_clip) { temp_height -= g->Y_clip - Y; Y = g->Y_clip; }
-		if (temp_height <= 0) return;
-
-		if (X + temp_width > g->Width_Clip + g->X_clip) { temp_width = (g->Width_Clip + g->X_clip) - X; }
-
-		if (Y + temp_height > g->Height_Clip + g->Y_clip) { temp_height = (g->Height_Clip + g->Y_clip) - Y; }
+		Clip_GRAPHICS(g, X, Y, temp_width, temp_height);
 
 		for (int y = 0; y < temp_height; y++) {
 			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + y * bmp->W + temp_width, (int*)g->Buffer + (Y + y) * g->Width_Clip + X);

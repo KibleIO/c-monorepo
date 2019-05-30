@@ -43,6 +43,7 @@ void SwapBuffers_GRAPHICS(GRAPHICS*, char* buff);
 void ClearScreen_GRAPHICS(GRAPHICS*, int color);
 
 void Set_Clip_GRAPHICS(GRAPHICS*, int x, int y, int width, int height);
+void Clip_GRAPHICS(GRAPHICS*, int&, int&, int&, int&);
 void ScanLine_GRAPHICS(GRAPHICS*, long x1, long y1, long x2, long y2);
 
 void DrawPoint_GRAPHICS(GRAPHICS*, int x, int y, int color);

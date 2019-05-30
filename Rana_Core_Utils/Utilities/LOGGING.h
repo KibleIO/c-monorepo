@@ -37,6 +37,8 @@
 
 #define log_tmp(_MSG_) Write_Message("DELETE:  ", _MSG_, __FILE__ , __LINE__, __func__)
 
+#define log_close      Write_Message("CLOSE:   ", "", __FILE__, __LINE__, __func__)
+
 #define LOG_DIR "./logs"
 
 #define MAX_LOGS 20

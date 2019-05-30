@@ -18,11 +18,16 @@ void Server::Init() {
 	lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	cSocket = -1;
 
-	int o_raddr = 1;
-	setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, &o_raddr, sizeof(o_raddr));
+	int o;
+	o = 1;
+	setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+
+	setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
+
+	setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
 
 	if (lSocket < 0) {
-		log_err("Server socked failed to open");
+		log_err(name + ": Server socked failed to open");
 	}
 	#endif
 	// }}} Windows specific code {{{
@@ -33,7 +38,7 @@ void Server::Init() {
 	WSADATA wsaData;
 	int ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (ret != 0) {
-		log_err("WSAStartup failed with error " + to_string(ret));
+		log_err(name + ": WSAStartup failed with error " + to_string(ret));
 	}
 	#endif
 	// }}} OSX specific code {{{
@@ -41,6 +46,11 @@ void Server::Init() {
 	//TODO apple code
 	#endif
 	// }}}
+	Set_Recv_Timeout(1);
+}
+
+void Server::Set_Name(string _name) {
+	name = _name;
 }
 
 void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
@@ -77,6 +87,14 @@ void Server::Set_Recv_Timeout(int seconds, int useconds) {
 	// }}}
 }
 
+void Server::Set_High_Priority() {
+	#ifdef __linux__
+	int32_t o;
+	o = 6;
+	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o, sizeof o);
+	#endif
+}
+
 bool Server::Bind(int port) {
 	// Linux specific code {{{
 	#ifdef __linux__
@@ -86,7 +104,7 @@ bool Server::Bind(int port) {
 	destination.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(lSocket, (sockaddr*)&destination, sizeof(destination)) < 0) {
-		log_err("Unable to bind socket on port: " + to_string(port));
+		log_err(name + ": Unable to bind socket on port: " + to_string(port));
 		return false;
 	}
 	#endif
@@ -102,7 +120,7 @@ bool Server::Bind(int port) {
 	int ret = getaddrinfo(
 	NULL, (PCSTR)to_string(port).c_str(), &hints, &result);
 	if (ret != 0) {
-		log_err("getaddrinfo failed with error " + to_string(ret));
+		log_err(name + ": getaddrinfo failed with error " + to_string(ret));
 		WSACleanup();
 		return false;
 	}
@@ -110,7 +128,7 @@ bool Server::Bind(int port) {
 	lSocket = socket(
 	result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (lSocket == INVALID_SOCKET) {
-		log_err("socket failed with error " + to_string(WSAGetLastError()));
+		log_err(name + ": socket failed with error " + to_string(WSAGetLastError()));
 		freeaddrinfo(result);
 		WSACleanup();
 		return false;
@@ -118,7 +136,7 @@ bool Server::Bind(int port) {
 
 	ret = ::bind(lSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (ret == SOCKET_ERROR) {
-		log_err("bind failed with error: " + to_string(WSAGetLastError()));
+		log_err(name + ": bind failed with error: " + to_string(WSAGetLastError()));
 		freeaddrinfo(result);
 		closesocket(lSocket);
 		WSACleanup();
@@ -167,7 +185,7 @@ bool Server::ListenBound() {
 	#ifdef _WIN64
 	int ret = listen(lSocket, SOMAXCONN);
 	if (ret == SOCKET_ERROR) {
-		log_err("listen failed with error " + to_string(WSAGetLastError()));
+		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
 		closesocket(lSocket);
 		WSACleanup();
 		return false;
@@ -175,7 +193,7 @@ bool Server::ListenBound() {
 
 	cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL);
 	if (cSocket == INVALID_SOCKET) {
-		log_err("accept failed with error " + to_string(WSAGetLastError()));
+		log_err(name + ": accept failed with error " + to_string(WSAGetLastError()));
 		closesocket(lSocket);
 		WSACleanup();
 		return false;
@@ -186,7 +204,7 @@ bool Server::ListenBound() {
 	int o_sndbuff = 0;
 	if (setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&o_sndbuff,
 	sizeof(o_sndbuff)) == SOCKET_ERROR) {
-		log_err("setsockopt failed with error " + to_string(WSAGetLastError()));
+		log_err(name + ": setsockopt failed with error " + to_string(WSAGetLastError()));
 		closesocket(cSocket);
 		WSACleanup();
 		return 1;
@@ -195,7 +213,7 @@ bool Server::ListenBound() {
 	DWORD o_nodelay = 1;
 	if (setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_nodelay,
 	sizeof(o_nodelay)) == SOCKET_ERROR) {
-		log_err("setsockopt failed with error " + to_string(WSAGetLastError()));
+		log_err(name + ": setsockopt failed with error " + to_string(WSAGetLastError()));
 		closesocket(cSocket);
 		WSACleanup();
 		return 1;
@@ -257,12 +275,12 @@ bool Server::Send(char *data, int size) {
 	if (enc) {
 		if (!Encrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)data, size, (uint8_t*)enc_buf_data)) {
-			log_err("unable to encrypt data");
+			log_err(name + ": unable to encrypt data");
 			return false;
 		}
 		if (!Generate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err("unable to generate auth code");
+			log_err(name + ": unable to generate auth code");
 			return false;
 		}
 		size += crypto_onetimeauth_BYTES;
@@ -308,7 +326,7 @@ bool Server::Receive(char *data, int size) {
 		// }}}
 
 		if (!recvd) {
-			log_err("unable to receive");
+			log_err(name + ": unable to receive");
 			return false;
 		}
 
@@ -316,13 +334,13 @@ bool Server::Receive(char *data, int size) {
 
 		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err("unable to authenticate data");
+			log_err(name + ": unable to authenticate data");
 			return false;
 		}
 
 		if (!Decrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
-			log_err("unable to decrypt data");
+			log_err(name + ": unable to decrypt data");
 			return false;
 		}
 	} else {
@@ -341,7 +359,7 @@ bool Server::Receive(char *data, int size) {
 		// }}}
 
 		if (!recvd) {
-			log_err("unable to receive");
+			log_err(name + ": unable to receive");
 			return false;
 		}
 	}

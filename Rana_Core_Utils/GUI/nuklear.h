@@ -1,3 +1,6 @@
+#include <iostream>
+#include <string>
+
 /*
 /// # Nuklear
 /// ![](https://cloud.githubusercontent.com/assets/8057201/11761525/ae06f0ca-a0c6-11e5-819d-5610b25f6ef4.gif)
@@ -506,6 +509,7 @@ enum nk_symbol_type {
     NK_SYMBOL_MINUS,
     NK_SYMBOL_MAX
 };
+
 /* =============================================================================
  *
  *                                  CONTEXT
@@ -5953,8 +5957,23 @@ NK_LIB void nk_property(struct nk_context *ctx, const char *name, struct nk_prop
 
 #endif
 
-
-
+// BenjiBoy926 - aka Codey Huntting's helpers
+NK_API int
+nk_dimension_valid(int d) {
+	return d >= 0 && d <= 2000;
+}
+NK_API int
+nk_rect_valid(struct nk_rect rect) {
+	return nk_dimension_valid(rect.x) &&
+	nk_dimension_valid(rect.y) &&
+	nk_dimension_valid(rect.w) &&
+	nk_dimension_valid(rect.h);
+}
+NK_API std::string
+nk_rect_str(struct nk_rect rect) {
+	return to_string(rect.x) + ", " + to_string(rect.y) + ", " +
+	to_string(rect.w) + ", " + to_string(rect.h);
+}
 
 
 /* ===============================================================
@@ -15733,6 +15752,7 @@ nk_panel_begin(struct nk_context *ctx, const char *title, enum nk_panel_type pan
         label.h = font->height + 2 * style->window.header.label_padding.y;
         label.w = t + 2 * style->window.header.spacing.x;
         label.w = NK_CLAMP(0, label.w, header.x + header.w - label.x);
+		// BAD: NK_TEXT_LEFT is always used but should be based on style->window.header.align
         nk_widget_text(out, label,(const char*)title, text_len, &text, NK_TEXT_LEFT, font);}
     }
 
@@ -25572,4 +25592,3 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 /// in libraries and brought me to create some of my own. Finally Apoorva Joshi
 /// for his single header file packer.
 */
-

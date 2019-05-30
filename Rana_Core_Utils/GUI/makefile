@@ -13,7 +13,7 @@ endif
 
 # File names
 EXEC = libgui.so
-SOURCES = $(wildcard *.cpp)
+SOURCES = $(wildcard *.cpp) $(wildcard */*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Main target

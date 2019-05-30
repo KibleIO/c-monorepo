@@ -12,23 +12,13 @@ POLYGON::POLYGON() {
 }
 
 POLYGON::~POLYGON() {
-	delete [] x_coords;
-	delete [] y_coords;
+	if (x_coords) {
+		delete [] x_coords;
+	}
+	if (y_coords) {
+		delete [] y_coords;
+	}
 }
-
-//void POLYGON::operator=(const POLYGON &other) {
-//	corners = other.corners;
-//	double *x_temp = new double[corners];
-//	double *y_temp = new double[corners];
-//	for (int i = corners - 1; i >= 0; i--) {
-//		x_temp[i] = other.x_coords[i];
-//		y_temp[i] = other.y_coords[i];
-//	}
-//	delete [] x_coords;
-//	delete [] y_coords;
-//	x_coords = x_temp;
-//	y_coords = y_temp;
-//}
 
 void POLYGON::addPoint(double x, double y) {
 	if (x_coords == NULL) {
@@ -55,8 +45,12 @@ void POLYGON::addPoint(double x, double y) {
 		x_temp[i] = x_coords[i];
 		y_temp[i] = y_coords[i];
 	}
-	delete [] x_coords;
-	delete [] y_coords;
+	if (x_coords) {
+		delete [] x_coords;
+	}
+	if (y_coords) {
+		delete [] y_coords;
+	}
 	x_coords = x_temp;
 	y_coords = y_temp;
 	x_coords[corners - 1] = x;
@@ -64,10 +58,18 @@ void POLYGON::addPoint(double x, double y) {
 }
 
 double POLYGON::GetX(int i) {
+	if (i < 0 || i >= corners) {
+		log_err("accessing out of bounds point " + to_string(i));
+		return 0;
+	}
 	return x_coords[i];
 }
 
 double POLYGON::GetY(int i) {
+	if (i < 0 || i >= corners) {
+		log_err("accessing out of bounds point " + to_string(i));
+		return 0;
+	}
 	return y_coords[i];
 }
 

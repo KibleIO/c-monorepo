@@ -96,9 +96,7 @@ void Delete_Keyboard(KEYBOARD* keyboard) {
 	log_dbg("deleting keyboard " + keyboard->path);
 	keyboard->Listening = false;
 	if (keyboard->Event_Listener) {
-		log_tmp("join");
 		keyboard->Event_Listener->join();
-		log_tmp("delete");
 		delete keyboard->Event_Listener;
 	}
 	close(keyboard->fd);
@@ -173,7 +171,7 @@ void Handle_Key(Display* dpy, KeySym key, int32_t value, bool shift = false) {
 }
 
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
-	Display* dpy = XOpenDisplay(string(string(":") + to_string(display_ID)).c_str());
+	Display* dpy = XOpenDisplay(":1");
 	if (!dpy) {
 		log_err("Could not open display :" + to_string(display_ID));
 		return;

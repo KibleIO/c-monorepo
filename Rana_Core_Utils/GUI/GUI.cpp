@@ -2,7 +2,11 @@
 
 #include "GUI.h"
 
-static float Font_Get_Text_Width(nk_handle handle, float height, const char* text, int length) {
+int GUI::Width = 0;
+int GUI::Height = 0;
+
+static float Font_Get_Text_Width(
+nk_handle handle, float height, const char* text, int length) {
 	(void)height;
 	BAKED_GLYPH* glyphs = (BAKED_GLYPH*)handle.ptr;
 	int _x = 0;
@@ -409,8 +413,8 @@ void Render_Nuklear_GUI(GUI* gui) {
 			case NK_COMMAND_CURVE:
 			case NK_COMMAND_RECT_MULTI_COLOR:
 			case NK_COMMAND_IMAGE: {
+				const struct nk_command_image* image = (const struct nk_command_image*)command;
 				if (!gui->BakedBmp) {
-					const struct nk_command_image* image = (const struct nk_command_image*)command;
 					Draw_BMP((BMP*)image->img.handle.ptr, gui->Graphics_Handle, image->x, image->y);
 				}
 				break;
@@ -473,4 +477,9 @@ void Set_GUI_Style_Default(GUI* gui) {
 	gui->NK_Context->style.edit.text_active = nk_rgb(0x25,0x25,0x25);
 	gui->NK_Context->style.edit.selected_normal = nk_rgb(0x25,0x25,0x25);
 	gui->NK_Context->style.edit.selected_text_normal = nk_rgb(0x25,0x25,0x25);
+}
+
+float Font_Text_Width(
+nk_handle handle, float height, const char* text, int length) {
+	return Font_Get_Text_Width(handle, height, text, length);
 }
