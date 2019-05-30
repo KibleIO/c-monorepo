@@ -13,6 +13,15 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{78f7ea17-1cad-4c0a-b16b-a769a032f84c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Layout">
+      <UniqueIdentifier>{dddc81aa-f9f7-4c2b-b8fb-6fbd83e476e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Style">
+      <UniqueIdentifier>{d971c4dc-de65-43b4-90ce-3f019ab39ddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Widgets">
+      <UniqueIdentifier>{8cec358a-5ed4-4a4e-8c73-07e12209691a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\Graphics.cpp">
@@ -73,6 +82,102 @@
       <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="Utilities\TIMER.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\BMP_Baker.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Layout\Layout_Engine.cpp">
+      <Filter>GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Layout\Layout_Utilities.cpp">
+      <Filter>GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Layout\nuklear_plus.cpp">
+      <Filter>GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Layout\Size_Transform.cpp">
+      <Filter>GUI\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Button_Images.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Button_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Combo_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Edit_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Scrollbar_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Slider_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Text_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Toggle_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Window_Header_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\Nk_Window_Style.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Style\palette.cpp">
+      <Filter>GUI\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Checkbox.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Combobox.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Image.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Image_Button.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Label.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Nav_Buttons.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Panel.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Slider.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Textbox.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Animator.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Button.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Button_Events.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Calendar.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\tm_ext.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\utilities.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Function_Pointers.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -159,6 +264,114 @@
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\TIMER.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Layout.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\BMP_Baker.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Layout\Layout_Engine.h">
+      <Filter>GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Layout\Layout_Utilities.h">
+      <Filter>GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Layout\nuklear_plus.h">
+      <Filter>GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Layout\Size_Transform.h">
+      <Filter>GUI\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Button_Images.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Button_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Combo_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Edit_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Scrollbar_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Slider_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Text_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Toggle_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Window_Header_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\Nk_Window_Style.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Style\palette.h">
+      <Filter>GUI\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Calendar.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Checkbox.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Combobox.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Image.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Image_Button.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Label.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Nav_Buttons.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Panel.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Slider.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Textbox.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Animator.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Button.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Button_Events.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\tm_ext.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\utilities.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\vararg_ext.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Function_Pointers.h">
       <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
