@@ -204,6 +204,11 @@ uint8_t total_buttons) {
 		Button_Style(normal, normal, dormant), total_buttons, false);
 }
 
+void Initialize_Button_Package_Push(
+BUTTON_PACKAGE* package, struct nk_style_button normal, uint8_t total_buttons) {
+	Initialize_Button_Package_Push(package, normal, normal, total_buttons);
+}
+
 void Initialize_Button_Package_Push(BUTTON_PACKAGE* package,
 BUTTON_STYLE* styles, uint8_t total_buttons) {
 	Initialize_Button_Package(package, BUTTON_PACKAGE_TYPE_PUSH,
