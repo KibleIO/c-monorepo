@@ -70,8 +70,7 @@ float margin_width, float container_width) {
 	// Current width of the text that the cursor is pointing to
 	float current_width;
 
-	while(
-	current_cursor != label && current_width < excess_width + margin_width) {
+	do {
 		current_width = Font_Text_Width(
 		ctx->style.font->userdata, height,
 		current_cursor, strlen(current_cursor));
@@ -81,7 +80,8 @@ float margin_width, float container_width) {
 		if(current_width < excess_width + margin_width) {
 			current_cursor--;
 		}
-	}
+	}while(
+	current_cursor != label && current_width < excess_width + margin_width);
 
 	return current_cursor;
 }

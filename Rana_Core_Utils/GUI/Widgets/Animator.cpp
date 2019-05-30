@@ -16,6 +16,13 @@ int x, int y, int w, int h) {
 	anim, baseName, fileType, w, h);
 }
 
+void Initialize_Animator(ANIMATOR* anim, GRAPHICS *graphicsHandle, bool looping,
+string baseName, string fileType, int totalFrames, struct nk_rect rect) {
+	Initialize_Animator(
+	anim, graphicsHandle, looping, baseName, fileType, totalFrames, rect.x,
+	rect.y, rect.w, rect.h);
+}
+
 // Initialize animator without resizing the images
 void Initialize_Animator(ANIMATOR* anim, GRAPHICS* graphicsHandle,
 bool looping, string baseName, string fileType, int totalFrames, int x, int y) {
@@ -25,6 +32,13 @@ bool looping, string baseName, string fileType, int totalFrames, int x, int y) {
 	// Spawn a thread to initialize the animator images
 	anim->initializerThread = new thread(
 	Initialize_Animator_Frames, anim, baseName, fileType);
+}
+
+void Initialize_Animator(ANIMATOR* anim, GRAPHICS *graphicsHandle, bool looping,
+string baseName, string fileType, int totalFrames, struct nk_vec2 size) {
+	Initialize_Animator(
+	anim, graphicsHandle, looping, baseName, fileType, totalFrames, size.x,
+	size.y);
 }
 
 // De-allocate memory for all pointers

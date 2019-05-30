@@ -1,8 +1,8 @@
 #ifndef ANIMATOR_H_
 #define ANIMATOR_H_
 
+#include "../GUI.h"
 #include "../BMP.h"
-#include "../../Graphics/Graphics.h"
 #include <thread>
 
 #define NO_FRAME_CLAMP -1
@@ -45,10 +45,20 @@ struct ANIMATOR {
 // /home/user/res/moon1.bmp, and the last should be at
 // /home/user/res/moon47.bmp. #baseName should be set to
 // "/home/user/res/moon" and #fileType should be set to ".bmp"
-void Initialize_Animator(ANIMATOR*, GRAPHICS*, bool looping, string baseName,
-  string fileType, int totalFrames, int x, int y, int w, int h);
-void Initialize_Animator(ANIMATOR*, GRAPHICS*, bool looping, string baseName,
-  string fileType, int totalFrames, int x, int y);
+void Initialize_Animator(
+ANIMATOR*, GRAPHICS*, bool looping, string baseName, string fileType,
+int totalFrames, int x, int y, int w, int h);
+void Initialize_Animator(
+ANIMATOR*, GRAPHICS*, bool looping, string baseName, string fileType,
+int totalFrames, struct nk_rect);
+
+void Initialize_Animator(
+ANIMATOR*, GRAPHICS*, bool looping, string baseName, string fileType,
+int totalFrames, int x, int y);
+void Initialize_Animator(
+ANIMATOR*, GRAPHICS*, bool looping, string baseName, string fileType,
+int totalFrames, struct nk_vec2);
+
 void Delete_Animator(ANIMATOR*);
 
 // Advance the animation by drawing the current image and advancing the current
