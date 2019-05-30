@@ -9,7 +9,6 @@ void set_local_start_time() {
 	// Linux specific code {{{
 	#ifdef __linux__
 	if (GOT_LOCAL_TIME) {
-		log_lock.unlock();
 		return;
 	}
 	GOT_LOCAL_TIME = true;
