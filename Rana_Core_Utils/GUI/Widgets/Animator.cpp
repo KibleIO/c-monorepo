@@ -115,14 +115,21 @@ void Reset_Animation(ANIMATOR* anim) {
 }
 
 // Clamp the animation so that it can only advance #numFrames further
-void Clamp_Animation(ANIMATOR* anim, int numFrames) {
-  if(anim->totalFrames > 0) {
-    anim->frameClamp = (anim->currentFrame + numFrames) % anim->totalFrames;
-  }
+bool Clamp_Animation_Forward(ANIMATOR* anim, int numFrames) {
+	return Clamp_Animation(anim, anim->currentFrame + numFrames);
+}
+bool Clamp_Animation(ANIMATOR* anim, int frame) {
+	if(frame >= 0 && frame < anim->totalFrames) {
+		anim->frameClamp = frame;
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 // Effectively unclamp animation by setting it to an invalid value
 void Unclamp_Animation(ANIMATOR* anim) {
-  anim->frameClamp = NO_FRAME_CLAMP;
+ 	anim->frameClamp = NO_FRAME_CLAMP;
 }
 
 /*

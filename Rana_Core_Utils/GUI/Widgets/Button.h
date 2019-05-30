@@ -111,19 +111,23 @@ struct BUTTON_PACKAGE {
 };
 
 // Initialize all buttons with the same style
-void Initialize_Button_Package(BUTTON_PACKAGE*, uint8_t type, BUTTON_STYLE,
-	uint8_t total_buttons, bool require_one_selected);
+void Initialize_Button_Package(
+BUTTON_PACKAGE*, uint8_t type, BUTTON_STYLE, uint8_t total_buttons,
+bool require_one_selected);
 // Initialize all buttons with possibly unique styles
-void Initialize_Button_Package(BUTTON_PACKAGE*, uint8_t type, BUTTON_STYLE*,
-	uint8_t total_buttons, bool require_one_selected);
+void Initialize_Button_Package(
+BUTTON_PACKAGE*, uint8_t type, BUTTON_STYLE*, uint8_t total_buttons,
+bool require_one_selected);
 
 // Initialize all buttons as push buttons with the same style
-void Initialize_Button_Package_Push(BUTTON_PACKAGE*,
-	struct nk_style_button normal, struct nk_style_button dormant,
-	uint8_t total_buttons);
+void Initialize_Button_Package_Push(
+BUTTON_PACKAGE*, struct nk_style_button normal, struct nk_style_button dormant,
+uint8_t total_buttons);
+void Initialize_Button_Package_Push(
+BUTTON_PACKAGE*, struct nk_style_button normal, uint8_t total_buttons);
 // Initialize push buttons with unique styles
-void Initialize_Button_Package_Push(BUTTON_PACKAGE*, BUTTON_STYLE*,
-	uint8_t total_buttons);
+void Initialize_Button_Package_Push(
+BUTTON_PACKAGE*, BUTTON_STYLE*, uint8_t total_buttons);
 
 // Intialize all buttons as toggle buttons selected one at a time
 // All have same style
