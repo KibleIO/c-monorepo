@@ -73,10 +73,15 @@ const char* label, bool interactable) {
 	// Setup button style
 	Setup_Button_Style(button, ctx, interactable);
 
+	// Get the label with a trailing ellipsis
+	char* true_label = Trailing_Label(
+	ctx, label, Button_Content_Rect(nk_widget_bounds(ctx), ctx->style.button));
+
 	// Render the button and grab the result
-	bool button_clicked = nk_button_label(
-	ctx, Trailing_Label(ctx, label,
-	Button_Content_Rect(nk_widget_bounds(ctx), ctx->style.button))) != 0;
+	bool button_clicked = nk_button_label(ctx, true_label) != 0;
+
+	// Delete the new label
+	delete [] true_label;
 
 	return Check_And_Run_Button_Clicked(button, button_clicked, interactable);
 }

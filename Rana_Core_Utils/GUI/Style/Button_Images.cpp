@@ -11,3 +11,9 @@ string active_dir, uint16_t width, uint16_t height) {
 	images->active.Transparent = true;
 	return images;
 }
+
+void Delete_Button_Images(BUTTON_IMAGES* images) {
+	Delete_BMP(&images->normal);
+	Delete_BMP(&images->hover);
+	Delete_BMP(&images->active);
+}
