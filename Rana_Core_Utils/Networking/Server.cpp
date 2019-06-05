@@ -18,13 +18,14 @@ void Server::Init() {
 	lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	cSocket = -1;
 
+	int rv;
 	int o;
 	o = 1;
-	setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
 
-	setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
-
-	setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
+	rv = setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_dbg("bad setsockopt: reuseaddr");
+	}
 
 	if (lSocket < 0) {
 		log_err(name + ": Server socked failed to open");
@@ -47,6 +48,42 @@ void Server::Init() {
 	#endif
 	// }}}
 	Set_Recv_Timeout(1);
+	high_priority = 4;
+}
+
+void Server::Set_Opts() {
+	int rv;
+	int o;
+	o = 1;
+	rv = setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: reuseaddr");
+	}
+
+	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: nodelay");
+	}
+
+	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: quickack");
+	}
+
+	rv = 
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,
+	sizeof timeout);
+	if (rv != 0) {
+		log_err("bad setsockopt: timeout");
+	}
+
+	rv = 
+	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&high_priority,
+	sizeof high_priority);
+	if (rv != 0) {
+		log_err("bad setsockopt: timeout");
+	}
+
 }
 
 void Server::Set_Name(string _name) {
@@ -67,10 +104,11 @@ void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 void Server::Set_Recv_Timeout(int seconds, int useconds) {
 	// Linux specific code {{{
 	#ifdef __linux__
-	struct timeval tv;
-	tv.tv_sec = seconds;
-	tv.tv_usec = useconds;
-	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	timeout.tv_sec = seconds;
+	timeout.tv_usec = useconds;
+	if (cSocket > 0) {
+		Set_Opts();
+	}
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
@@ -89,9 +127,10 @@ void Server::Set_Recv_Timeout(int seconds, int useconds) {
 
 void Server::Set_High_Priority() {
 	#ifdef __linux__
-	int32_t o;
-	o = 6;
-	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o, sizeof o);
+	high_priority = 6;
+	if (cSocket > 0) {
+		Set_Opts();
+	}
 	#endif
 }
 
@@ -189,6 +228,8 @@ bool Server::ListenBound() {
 	} else {
 		lconnected = true;
 	}
+
+	Set_Opts();
 
 	connect_timeo.join();
 
