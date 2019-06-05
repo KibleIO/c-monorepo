@@ -151,31 +151,48 @@ bool Server::Bind(int port) {
 	#endif
 	// }}}
 
-	log_dbg("bound on port " + to_string(port));
+	log_dbg(name + ": bound on port " + to_string(port));
 	c_port = port;
 
 	return true;
 }
 
 bool Server::ListenBound() {
-	log_dbg("listening on port " + to_string(c_port));
+	log_dbg(name + ": listening on port " + to_string(c_port));
 	// Linux specific code {{{
+	uint8_t lconnected = false;
+
 	#ifdef __linux__
+
 	if (listen(lSocket, 5) < 0) {
-		log_dbg("could not listen on socket");
+		log_dbg(name + ": could not listen on socket");
 		return false;
 	}
 
 	sockaddr_in cAddress;
 	socklen_t cSize = sizeof(cAddress);
-	cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize);
+
+	thread connect_timeo([&lconnected, this]() {
+		uint8_t counter = 50;
+		while (!lconnected && counter-- > 0) {
+			Sleep_Milli(100);
+		}
+		if (!lconnected) {
+			CloseConnection();
+		}
+	});
+
+	if ((cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize)) < 0) {
+		log_dbg(name + ": could not accept connection on socket");
+		connect_timeo.join();
+		return false;
+	} else {
+		lconnected = true;
+	}
+
+	connect_timeo.join();
 
 	close(lSocket);
-
-	if (cSocket < 0) {
-		log_dbg("could not accept connection on socket");
-		return false;
-	}
 
 	int o_sndbuf = 700000, o_nodelay = 1;
 	setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, &o_sndbuf, sizeof(o_sndbuf));
@@ -183,6 +200,7 @@ bool Server::ListenBound() {
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
+
 	int ret = listen(lSocket, SOMAXCONN);
 	if (ret == SOCKET_ERROR) {
 		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
@@ -191,13 +209,31 @@ bool Server::ListenBound() {
 		return false;
 	}
 
+	thread connect_timeo([&lconnected, this]() {
+		uint8_t counter = 50;
+		while (!lconnected && counter-- > 0) {
+			Sleep_Milli(100);
+		}
+		if (!lconnected) {
+			log_tmp("connection FALSE");
+			CloseConnection();
+		}
+		log_tmp("thread timeout over");
+	});
+
 	cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL);
-	if (cSocket == INVALID_SOCKET) {
+	if ((cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL)) ==
+	INVALID_SOCKET) {
 		log_err(name + ": accept failed with error " + to_string(WSAGetLastError()));
+		connect_timeo.join();
 		closesocket(lSocket);
 		WSACleanup();
 		return false;
+	} else {
+		lconnected = true;
 	}
+
+	connect_timeo.join();
 
 	closesocket(lSocket);
 
@@ -225,7 +261,7 @@ bool Server::ListenBound() {
 	#endif
 	// }}}
 
-	log_dbg("connection accepted on port " + to_string(c_port));
+	log_dbg(name + ": connection accepted on port " + to_string(c_port));
 	connected = true;
 
 	return true;
@@ -268,7 +304,7 @@ void Server::CloseConnection() {
 
 bool Server::Send(char *data, int size) {
 	if (!connected) {
-		log_dbg("server not connected, can't send");
+		log_dbg(name + ": server not connected, can't send");
 		return false;
 	}
 

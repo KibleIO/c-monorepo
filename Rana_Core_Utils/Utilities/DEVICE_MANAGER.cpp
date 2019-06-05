@@ -209,7 +209,7 @@ void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server) {
 void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client) {
 	dev_man->client = client;
 	if (dev_man->client) {
-		dev_man->client->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
+		//dev_man->client->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
 		dev_man->client->Set_High_Priority();
 	}
 }
