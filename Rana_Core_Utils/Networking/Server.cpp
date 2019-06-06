@@ -28,11 +28,12 @@ void Server::Init() {
 #endif
 #ifdef _WIN64
 	WSADATA wsaData;
+	int ret;
 
 	lSocket = INVALID_SOCKET;
 	cSocket = INVALID_SOCKET;
 
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
 		log_err(name + ": WSAStartup failed with error " + to_string(ret));
 	}
 #endif

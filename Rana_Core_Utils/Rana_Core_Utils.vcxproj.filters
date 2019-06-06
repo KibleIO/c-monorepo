@@ -96,9 +96,6 @@
     <ClCompile Include="GUI\Layout\nuklear_plus.cpp">
       <Filter>GUI\Layout</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\Layout\Size_Transform.cpp">
-      <Filter>GUI\Layout</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Style\Button_Images.cpp">
       <Filter>GUI\Style</Filter>
     </ClCompile>
@@ -179,6 +176,12 @@
     </ClCompile>
     <ClCompile Include="Utilities\Function_Pointers.cpp">
       <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Button_Package.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\Render_Utilities.cpp">
+      <Filter>GUI\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -287,9 +290,6 @@
     <ClInclude Include="GUI\Layout\nuklear_plus.h">
       <Filter>GUI\Layout</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Layout\Size_Transform.h">
-      <Filter>GUI\Layout</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Style\Button_Images.h">
       <Filter>GUI\Style</Filter>
     </ClInclude>
@@ -373,6 +373,12 @@
     </ClInclude>
     <ClInclude Include="Utilities\Function_Pointers.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Button_Package.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Render_Utilities.h">
+      <Filter>GUI\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
