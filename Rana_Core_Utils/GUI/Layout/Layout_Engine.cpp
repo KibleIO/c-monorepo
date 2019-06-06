@@ -18,19 +18,11 @@ LAYOUT_SIZE Layout_Size(float breadth) {
 	return size;
 }
 
-LAYOUT_SIZE Evenly_Spaced_Internal_Item(uint8_t n, float r, bool side_buffers) {
+LAYOUT_SIZE Evenly_Spaced_Item(uint8_t n, float r, bool side_buffers) {
 	// Assign the number of buffers to n + 1 or n - 1
 	uint8_t buffers = side_buffers ? n + 1 : n - 1;
 	float d = (buffers * r) + n;
 	return Layout_Size(r / d, 1.0 / d);
-}
-
-LAYOUT_SIZE Evenly_Spaced_External_Item(uint8_t n, float r, bool side_buffers) {
-	LAYOUT_SIZE size = Evenly_Spaced_Internal_Item(n, r, side_buffers);
-	if(!side_buffers) {
-		size.buffer = 0.0;
-	}
-	return size;
 }
 
 void Scale_Layout_Size(LAYOUT_SIZE* size, float scalar) {
@@ -75,27 +67,24 @@ LAYOUT_SIZE row_size, LAYOUT_SIZE column_size) {
 LAYOUT_BUFFER_FLAGS Layout_Row_Evenly_Spaced_Items(
 struct nk_context* ctx, LAYOUT_TYPE type, LAYOUT_SIZE row_size, uint8_t items,
 float r, bool side_buffers) {
-	LAYOUT_SIZE internal_items =
-	Evenly_Spaced_Internal_Item(items, r, side_buffers);
-	LAYOUT_SIZE external_items =
-	Evenly_Spaced_External_Item(items, r, side_buffers);
+	LAYOUT_SIZE sizes =
+	Evenly_Spaced_Item(items, r, side_buffers);
 
 	// If layout is static, scale up the layouts sizes
 	// by the usable panel width
 	if(type == LAYOUT_TYPE_STATIC) {
 		int current_width = Current_Usable_Panel_Width(ctx);
-		Scale_Layout_Size(&internal_items, current_width);
-		Scale_Layout_Size(&external_items, current_width);
+		Scale_Layout_Size(&sizes, current_width);
 	}
 
 	LAYOUT_SIZE column_size_array[NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS];
 	for (
 	uint8_t i = 0; i < items && i < NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS; i++) {
-		if (i == 0 || i == items - 1) {
-			column_size_array[i] = external_items;
+		if (i == 0) {
+			column_size_array[i] = Layout_Size(0, sizes.breadth);
 		}
 		else {
-			column_size_array[i] = internal_items;
+			column_size_array[i] = sizes;
 		}
 	}
 

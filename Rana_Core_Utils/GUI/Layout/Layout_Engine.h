@@ -39,12 +39,7 @@ LAYOUT_SIZE Layout_Size(float breadth);
 // Note that the resulting values in the layout size are RATIOS, so you have
 // to call "Layout_Row_xxx" with type = LAYOUT_TYPE_MIXED or
 // type = LAYOUT_TYPE_DYNAMIC for it to layout properly
-LAYOUT_SIZE Evenly_Spaced_Internal_Item(
-uint8_t num_items, float buffer_to_breadth_ratio, bool side_buffers);
-
-// Same as "Evenly_Spaced_Internal_Item", except that, if there are no
-// side buffers, this layout size buffer value is 0
-LAYOUT_SIZE Evenly_Spaced_External_Item(
+LAYOUT_SIZE Evenly_Spaced_Item(
 uint8_t num_items, float buffer_to_breadth_ratio, bool side_buffers);
 
 // Scale each item in the layout size by the given scalar

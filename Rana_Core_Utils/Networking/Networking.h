@@ -14,6 +14,8 @@
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 // }}} Windows specific includes {{{
 #ifdef _WIN64

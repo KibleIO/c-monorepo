@@ -11,7 +11,6 @@ struct BUTTON_IMAGES {
 
 BUTTON_IMAGES* Button_Images(string normal_dir, string hover_dir,
 	string active_dir, uint16_t width, uint16_t height);
-BUTTON_IMAGES Left_Arrow_Button(uint16_t width, uint16_t height);
-BUTTON_IMAGES Right_Arrow_Button(uint16_t width, uint16_t height);
+void Delete_Button_Images(BUTTON_IMAGES*);
 
 #endif // BUTTON_IMAGES_H_

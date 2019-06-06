@@ -33,6 +33,12 @@ void Initialize_Ghost_Text(GHOST_TEXT* text, const char* buffer) {
 	text->active = false;
 }
 
+void Delete_Ghost_Text(GHOST_TEXT* text) {
+	if (text->buffer != NULL) {
+		delete [] text->buffer;
+	}
+}
+
 /*
 TEXTBOX
 */
@@ -192,8 +198,15 @@ bool interactable) {
 		Input_Valid(textbox);
 }
 
+bool Render_Textbox_With_Buffer(
+TEXTBOX* textbox, struct nk_context* ctx, bool concealed, bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Textbox(textbox, ctx, concealed, interactable);
+}
+
 void Delete_Textbox(TEXTBOX* textbox) {
 	delete [] textbox->inputBuffer;
+	Delete_Ghost_Text(&textbox->ghostText);
 	Delete_Multicast_Function_Pointer(&textbox->inputCommittedEvent);
 }
 

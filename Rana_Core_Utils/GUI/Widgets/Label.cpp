@@ -51,7 +51,6 @@ struct nk_context* ctx, const char* original_label, struct nk_rect rect) {
 
 float Ellipsis_Width(struct nk_context* ctx, float height) {
 	return Font_Text_Width(ctx->style.font->userdata, height, "...", 3);
-	//return 0;
 }
 
 char* Label_Margin_Cursor(
@@ -68,9 +67,12 @@ float margin_width, float container_width) {
 	strlen(label)) - container_width;
 
 	// Current width of the text that the cursor is pointing to
-	float current_width;
+	float current_width = Font_Text_Width(
+	ctx->style.font->userdata, height,
+	current_cursor, strlen(current_cursor));
 
-	do {
+	while (
+	current_cursor != label && current_width < excess_width + margin_width) {
 		current_width = Font_Text_Width(
 		ctx->style.font->userdata, height,
 		current_cursor, strlen(current_cursor));
@@ -80,8 +82,7 @@ float margin_width, float container_width) {
 		if(current_width < excess_width + margin_width) {
 			current_cursor--;
 		}
-	}while(
-	current_cursor != label && current_width < excess_width + margin_width);
+	}
 
 	return current_cursor;
 }

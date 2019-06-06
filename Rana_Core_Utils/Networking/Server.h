@@ -1,10 +1,10 @@
-//PLATFORMS: Linux, Windows, OSX (TODO)
-
 #ifndef SERVER_H_
 #define SERVER_H_
 
 #include <string>
+#include <thread>
 #include "Networking.h"
+#include "../Utilities/TIMER.h"
 
 class Server {
 private:
@@ -17,21 +17,17 @@ private:
 	bool				connected;
 	int					c_port;
 
-	// Linux specific members {{{
-	#ifdef __linux__
+#ifdef __linux__
+	timeval o_to;
+	int32_t o_pr;	
 	int lSocket;
 	int cSocket;
-	#endif
-	// }}} Windows specific members {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
+	DWORD o_to;
 	SOCKET lSocket;
 	SOCKET cSocket;
-	#endif
-	// }}} OSX specific members {{{
-	#ifdef __APPLE__
-	//TODO apple sockets
-	#endif
-	// }}}
+#endif
 
 public:
 	Server();
@@ -40,6 +36,7 @@ public:
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
 	void Set_Recv_Timeout(int seconds, int useconds = 0);
 	void Set_High_Priority();
+	void Set_Opts();
 	bool Bind(int port);
 	bool ListenBound();
 	bool Listen(int);
