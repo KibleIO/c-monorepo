@@ -126,16 +126,73 @@ bool Client::OpenConnection(int port, string ip) {
 		return false;
 	}
 	success:
-	bool ret =
-	connect(cSocket, (sockaddr*)&destination, sizeof(destination)) == 0;
 
+
+	long arg;
+	timeval tv;
+	fd_set myset;
+	socklen_t lon_cancer;
+	int valopt;
+
+	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+	arg |= O_NONBLOCK;
+	if (fcntl(cSocket, F_SETFL, arg) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+
+
+	int32_t res =
+	connect(cSocket, (sockaddr*)&destination, sizeof(destination));
+
+	if (res < 0) {
+		if (errno == EINPROGRESS) {
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+			FD_ZERO(&myset);
+			FD_SET(cSocket, &myset);
+			if (select(cSocket + 1, NULL, &myset, NULL, &tv) > 0) {
+				lon_cancer = sizeof(int);
+				getsockopt(cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt), (unsigned int*)&lon_cancer);
+				if (valopt) {
+					log_err(
+					name + ": Error in connection() " + ip + ":" +
+					to_string(port));
+					return false;
+				}
+			} else {
+				log_err(
+				name + ": Timeout or Error select() " + ip + ":" +
+				to_string(port));
+				return false;
+			}
+		} else {
+			log_err(
+			name + ": Error connecting " + ip + ":" + to_string(port));
+			return false;
+		}
+ 	}
+
+	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+	arg &= (~O_NONBLOCK);
+	if (fcntl(cSocket, F_SETFL, arg) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+	
 	int o_rcvbuf = 700000;
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o_rcvbuf, sizeof(o_rcvbuf));
 
-	if (!ret) {
-		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
-		return false;
-	}
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
