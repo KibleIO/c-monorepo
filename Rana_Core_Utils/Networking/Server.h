@@ -4,7 +4,9 @@
 #define SERVER_H_
 
 #include <string>
+#include <thread>
 #include "Networking.h"
+#include "../Utilities/TIMER.h"
 
 class Server {
 private:
@@ -16,6 +18,9 @@ private:
 
 	bool				connected;
 	int					c_port;
+
+	timeval timeout;
+	int32_t high_priority;
 
 	// Linux specific members {{{
 	#ifdef __linux__
@@ -40,6 +45,7 @@ public:
 	void Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc);
 	void Set_Recv_Timeout(int seconds, int useconds = 0);
 	void Set_High_Priority();
+	void Set_Opts();
 	bool Bind(int port);
 	bool ListenBound();
 	bool Listen(int);

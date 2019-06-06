@@ -18,13 +18,14 @@ void Server::Init() {
 	lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	cSocket = -1;
 
+	int rv;
 	int o;
 	o = 1;
-	setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
 
-	setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
-
-	setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
+	rv = setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_dbg("bad setsockopt: reuseaddr");
+	}
 
 	if (lSocket < 0) {
 		log_err(name + ": Server socked failed to open");
@@ -47,6 +48,42 @@ void Server::Init() {
 	#endif
 	// }}}
 	Set_Recv_Timeout(1);
+	high_priority = 4;
+}
+
+void Server::Set_Opts() {
+	int rv;
+	int o;
+	o = 1;
+	rv = setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: reuseaddr");
+	}
+
+	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: nodelay");
+	}
+
+	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
+	if (rv != 0) {
+		log_err("bad setsockopt: quickack");
+	}
+
+	rv = 
+	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,
+	sizeof timeout);
+	if (rv != 0) {
+		log_err("bad setsockopt: timeout");
+	}
+
+	rv = 
+	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&high_priority,
+	sizeof high_priority);
+	if (rv != 0) {
+		log_err("bad setsockopt: timeout");
+	}
+
 }
 
 void Server::Set_Name(string _name) {
@@ -67,10 +104,11 @@ void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 void Server::Set_Recv_Timeout(int seconds, int useconds) {
 	// Linux specific code {{{
 	#ifdef __linux__
-	struct timeval tv;
-	tv.tv_sec = seconds;
-	tv.tv_usec = useconds;
-	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+	timeout.tv_sec = seconds;
+	timeout.tv_usec = useconds;
+	if (cSocket > 0) {
+		Set_Opts();
+	}
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
@@ -89,9 +127,10 @@ void Server::Set_Recv_Timeout(int seconds, int useconds) {
 
 void Server::Set_High_Priority() {
 	#ifdef __linux__
-	int32_t o;
-	o = 6;
-	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o, sizeof o);
+	high_priority = 6;
+	if (cSocket > 0) {
+		Set_Opts();
+	}
 	#endif
 }
 
@@ -151,31 +190,50 @@ bool Server::Bind(int port) {
 	#endif
 	// }}}
 
-	log_dbg("bound on port " + to_string(port));
+	log_dbg(name + ": bound on port " + to_string(port));
 	c_port = port;
 
 	return true;
 }
 
 bool Server::ListenBound() {
-	log_dbg("listening on port " + to_string(c_port));
+	log_dbg(name + ": listening on port " + to_string(c_port));
 	// Linux specific code {{{
+	uint8_t lconnected = false;
+
 	#ifdef __linux__
+
 	if (listen(lSocket, 5) < 0) {
-		log_dbg("could not listen on socket");
+		log_dbg(name + ": could not listen on socket");
 		return false;
 	}
 
 	sockaddr_in cAddress;
 	socklen_t cSize = sizeof(cAddress);
-	cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize);
+
+	thread connect_timeo([&lconnected, this]() {
+		uint8_t counter = 50;
+		while (!lconnected && counter-- > 0) {
+			Sleep_Milli(100);
+		}
+		if (!lconnected) {
+			CloseConnection();
+		}
+	});
+
+	if ((cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize)) < 0) {
+		log_dbg(name + ": could not accept connection on socket");
+		connect_timeo.join();
+		return false;
+	} else {
+		lconnected = true;
+	}
+
+	Set_Opts();
+
+	connect_timeo.join();
 
 	close(lSocket);
-
-	if (cSocket < 0) {
-		log_dbg("could not accept connection on socket");
-		return false;
-	}
 
 	int o_sndbuf = 700000, o_nodelay = 1;
 	setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, &o_sndbuf, sizeof(o_sndbuf));
@@ -183,6 +241,7 @@ bool Server::ListenBound() {
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64
+
 	int ret = listen(lSocket, SOMAXCONN);
 	if (ret == SOCKET_ERROR) {
 		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
@@ -191,13 +250,31 @@ bool Server::ListenBound() {
 		return false;
 	}
 
+	thread connect_timeo([&lconnected, this]() {
+		uint8_t counter = 50;
+		while (!lconnected && counter-- > 0) {
+			Sleep_Milli(100);
+		}
+		if (!lconnected) {
+			log_tmp("connection FALSE");
+			CloseConnection();
+		}
+		log_tmp("thread timeout over");
+	});
+
 	cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL);
-	if (cSocket == INVALID_SOCKET) {
+	if ((cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL)) ==
+	INVALID_SOCKET) {
 		log_err(name + ": accept failed with error " + to_string(WSAGetLastError()));
+		connect_timeo.join();
 		closesocket(lSocket);
 		WSACleanup();
 		return false;
+	} else {
+		lconnected = true;
 	}
+
+	connect_timeo.join();
 
 	closesocket(lSocket);
 
@@ -225,7 +302,7 @@ bool Server::ListenBound() {
 	#endif
 	// }}}
 
-	log_dbg("connection accepted on port " + to_string(c_port));
+	log_dbg(name + ": connection accepted on port " + to_string(c_port));
 	connected = true;
 
 	return true;
@@ -268,7 +345,7 @@ void Server::CloseConnection() {
 
 bool Server::Send(char *data, int size) {
 	if (!connected) {
-		log_dbg("server not connected, can't send");
+		log_dbg(name + ": server not connected, can't send");
 		return false;
 	}
 
