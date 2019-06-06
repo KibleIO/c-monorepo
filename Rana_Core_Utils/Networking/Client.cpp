@@ -66,10 +66,17 @@ void Client::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 void Client::Set_Recv_Timeout(int seconds, int useconds) {
 	// Linux specific code {{{
 	#ifdef __linux__
+	uint8_t rv;
 	struct timeval tv;
 	tv.tv_sec = seconds;
 	tv.tv_usec = useconds;
+	rv = 
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+
+	if (rv != 0) {
+		log_err("bad setsockopt");
+	}
+
 	#endif
 	// }}} Windows specific code {{{
 	#ifdef _WIN64

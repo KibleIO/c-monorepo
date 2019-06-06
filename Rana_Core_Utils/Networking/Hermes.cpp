@@ -174,7 +174,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	hs->connected = true;
 	hs->server = new Server();
 	hs->server->Set_Name("hermes server");
-	//hs->server->Set_Recv_Timeout(10);
+	hs->server->Set_Recv_Timeout(10);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
