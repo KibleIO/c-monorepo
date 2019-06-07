@@ -1,5 +1,3 @@
-//PLATFORMS: Linux, Windows, OSX (TODO)
-
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
@@ -22,19 +20,14 @@ private:
 
 	bool				connected;
 
-	// Linux specific members {{{
-	#ifdef __linux__
+	timeval timeout;
+
+#ifdef __linux__
 	int cSocket;
-	#endif
-	// }}} Windows specific members {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
 	SOCKET cSocket;
-	#endif
-	// }}} OSX specific members {{{
-	#ifdef __APPLE__
-	//TODO apple sockets
-	#endif
-	// }}}
+#endif
 
 public:
 	Client();

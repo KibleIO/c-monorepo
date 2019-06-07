@@ -2,7 +2,7 @@
 #define IMAGE_H_
 
 #include "../GUI.h"
-#include "Utilities/Stuff.h"
+#include "../../Utilities/Stuff.h"
 #include "../Layout/Layout_Engine.h"
 #include "../Style.h"
 

@@ -23,8 +23,8 @@ bool Render_Nav_Button_Label(NAV_BUTTON* button, struct nk_context* ctx,
 const char* title, bool interactable) {
 	// Render the base button data
 	bool button_clicked = Render_Button_Label(
-		&button->data, ctx, title, interactable
-	);
+	&button->data, ctx, title, interactable);
+	
 	// Invoke this nav button's event
 	if(button_clicked) {
 		Invoke_All_Function_Pointers(&button->navButtonClickedEvent, button);

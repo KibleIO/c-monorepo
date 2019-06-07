@@ -1,5 +1,3 @@
-//PLATFORMS: Linux, Windows, OSX (TODO)
-
 #include "Server.h"
 
 Server::Server() {
@@ -11,78 +9,87 @@ Server::Server() {
 }
 
 void Server::Init() {
-	connected = false;
+#ifdef __linux__
+	int o = 1;
 
-	// Linux specific code {{{
-	#ifdef __linux__
 	lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	cSocket = -1;
 
-	int rv;
-	int o;
-	o = 1;
-
-	rv = setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
-	if (rv != 0) {
+	if (setsockopt(
+	lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o) != 0) {
 		log_dbg("bad setsockopt: reuseaddr");
 	}
 
 	if (lSocket < 0) {
 		log_err(name + ": Server socked failed to open");
 	}
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
+
+	o_pr = 4;
+#endif
+#ifdef _WIN64
+	WSADATA wsaData;
+	int ret;
+
 	lSocket = INVALID_SOCKET;
 	cSocket = INVALID_SOCKET;
 
-	WSADATA wsaData;
-	int ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (ret != 0) {
+	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
 		log_err(name + ": WSAStartup failed with error " + to_string(ret));
 	}
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
+
+	connected = false;
 	Set_Recv_Timeout(1);
-	high_priority = 4;
 }
 
 void Server::Set_Opts() {
-	int rv;
-	int o;
-	o = 1;
-	rv = setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o);
-	if (rv != 0) {
+	// Fixed options
+#ifdef __linux__
+	int o_ra = 1;
+	int o_nd = 1;
+	int o_sb = 700000;
+	int o_qa = 1;
+#endif
+#ifdef _WIN64
+	bool o_ra = true;
+	bool o_nd = true;
+	DWORD o_sb = 700000;
+#endif
+
+	if (setsockopt(
+	cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_ra, sizeof o_ra) != 0) {
 		log_err("bad setsockopt: reuseaddr");
 	}
 
-	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&o, sizeof o);
-	if (rv != 0) {
+	if (setsockopt(
+	cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_nd, sizeof o_nd) != 0) {
 		log_err("bad setsockopt: nodelay");
 	}
 
-	rv = setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (char*)&o, sizeof o);
-	if (rv != 0) {
+	if (setsockopt(
+	cSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&o_sb, sizeof o_sb) != 0) {
+		log_err("bad setsockopt: sndbuf");
+	}
+
+#ifdef __linux__
+	if (setsockopt(
+	cSocket, IPPROTO_TCP, TCP_QUICKACK, (const char*)&o_qa, sizeof o_qa) != 0) {
 		log_err("bad setsockopt: quickack");
 	}
+#endif
 
-	rv = 
-	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout,
-	sizeof timeout);
-	if (rv != 0) {
+	// User set options
+	if (setsockopt(
+	cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&o_to, sizeof o_to) != 0) {
 		log_err("bad setsockopt: timeout");
 	}
 
-	rv = 
-	setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&high_priority,
-	sizeof high_priority);
-	if (rv != 0) {
-		log_err("bad setsockopt: timeout");
+#ifdef __linux__
+	if (setsockopt(
+	cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o_pr, sizeof o_pr) != 0) {
+		log_err("bad setsockopt: priority");
 	}
+#endif
 
 }
 
@@ -102,41 +109,32 @@ void Server::Set_Encryption_Profile(ENCRYPTION_PROFILE* _enc) {
 }
 
 void Server::Set_Recv_Timeout(int seconds, int useconds) {
-	// Linux specific code {{{
-	#ifdef __linux__
-	timeout.tv_sec = seconds;
-	timeout.tv_usec = useconds;
+#ifdef __linux__
+	o_to.tv_sec = seconds;
+	o_to.tv_usec = useconds;
 	if (cSocket > 0) {
 		Set_Opts();
 	}
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
-	DWORD tv = seconds * 1000 + useconds / 1000;
-	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	struct timeval tv;
-	tv.tv_sec = seconds;
-	tv.tv_usec = useconds;
-	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-	#endif
-	// }}}
+#endif
+#ifdef _WIN64
+	o_to = seconds * 1000 + useconds / 1000;
+	if (cSocket != INVALID_SOCKET) {
+		Set_Opts();
+	}
+#endif
 }
 
 void Server::Set_High_Priority() {
-	#ifdef __linux__
-	high_priority = 6;
+#ifdef __linux__
+	o_pr = 6;
 	if (cSocket > 0) {
 		Set_Opts();
 	}
-	#endif
+#endif
 }
 
 bool Server::Bind(int port) {
-	// Linux specific code {{{
-	#ifdef __linux__
+#ifdef __linux__
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
 	destination.sin_port = htons(port);
@@ -146,9 +144,8 @@ bool Server::Bind(int port) {
 		log_err(name + ": Unable to bind socket on port: " + to_string(port));
 		return false;
 	}
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
 	struct addrinfo *result = NULL, hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -167,7 +164,8 @@ bool Server::Bind(int port) {
 	lSocket = socket(
 	result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (lSocket == INVALID_SOCKET) {
-		log_err(name + ": socket failed with error " + to_string(WSAGetLastError()));
+		log_err(
+		name + ": socket failed with error " + to_string(WSAGetLastError()));
 		freeaddrinfo(result);
 		WSACleanup();
 		return false;
@@ -175,7 +173,8 @@ bool Server::Bind(int port) {
 
 	ret = ::bind(lSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (ret == SOCKET_ERROR) {
-		log_err(name + ": bind failed with error: " + to_string(WSAGetLastError()));
+		log_err(
+		name + ": bind failed with error: " + to_string(WSAGetLastError()));
 		freeaddrinfo(result);
 		closesocket(lSocket);
 		WSACleanup();
@@ -183,12 +182,7 @@ bool Server::Bind(int port) {
 	}
 
 	freeaddrinfo(result);
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
 
 	log_dbg(name + ": bound on port " + to_string(port));
 	c_port = port;
@@ -198,11 +192,9 @@ bool Server::Bind(int port) {
 
 bool Server::ListenBound() {
 	log_dbg(name + ": listening on port " + to_string(c_port));
-	// Linux specific code {{{
 	uint8_t lconnected = false;
 
-	#ifdef __linux__
-
+#ifdef __linux__
 	if (listen(lSocket, 5) < 0) {
 		log_dbg(name + ": could not listen on socket");
 		return false;
@@ -211,6 +203,7 @@ bool Server::ListenBound() {
 	sockaddr_in cAddress;
 	socklen_t cSize = sizeof(cAddress);
 
+	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
 		uint8_t counter = 50;
 		while (!lconnected && counter-- > 0) {
@@ -229,37 +222,27 @@ bool Server::ListenBound() {
 		lconnected = true;
 	}
 
-	Set_Opts();
-
 	connect_timeo.join();
 
 	close(lSocket);
-
-	int o_sndbuf = 700000, o_nodelay = 1;
-	setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, &o_sndbuf, sizeof(o_sndbuf));
-	setsockopt(cSocket, SOL_TCP, TCP_NODELAY, &o_nodelay, sizeof(o_nodelay));
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
-
-	int ret = listen(lSocket, SOMAXCONN);
-	if (ret == SOCKET_ERROR) {
+#endif
+#ifdef _WIN64
+	if (listen(lSocket, SOMAXCONN) == SOCKET_ERROR) {
 		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
 		closesocket(lSocket);
 		WSACleanup();
 		return false;
 	}
 
+	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
 		uint8_t counter = 50;
 		while (!lconnected && counter-- > 0) {
 			Sleep_Milli(100);
 		}
 		if (!lconnected) {
-			log_tmp("connection FALSE");
 			CloseConnection();
 		}
-		log_tmp("thread timeout over");
 	});
 
 	cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL);
@@ -277,33 +260,11 @@ bool Server::ListenBound() {
 	connect_timeo.join();
 
 	closesocket(lSocket);
-
-	int o_sndbuff = 0;
-	if (setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&o_sndbuff,
-	sizeof(o_sndbuff)) == SOCKET_ERROR) {
-		log_err(name + ": setsockopt failed with error " + to_string(WSAGetLastError()));
-		closesocket(cSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	DWORD o_nodelay = 1;
-	if (setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_nodelay,
-	sizeof(o_nodelay)) == SOCKET_ERROR) {
-		log_err(name + ": setsockopt failed with error " + to_string(WSAGetLastError()));
-		closesocket(cSocket);
-		WSACleanup();
-		return 1;
-	}
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
 
 	log_dbg(name + ": connection accepted on port " + to_string(c_port));
 	connected = true;
+	Set_Opts();
 
 	return true;
 }
@@ -321,24 +282,17 @@ bool Server::Listen(int port) {
 }
 
 void Server::CloseConnection() {
-	// Linux specific code {{{
-	#ifdef __linux__
+#ifdef __linux__
 	shutdown(lSocket, 2);
 	close(lSocket);
 	shutdown(cSocket, 2);
 	close(cSocket);
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
 	closesocket(lSocket);
 	closesocket(cSocket);
 	WSACleanup();
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
 
 	connected = false;
 }
@@ -364,19 +318,12 @@ bool Server::Send(char *data, int size) {
 		data = enc_buf_auth;
 	} 
 
-	// Linux specific code {{{
-	#ifdef __linux__
+#ifdef __linux__
 	return send(cSocket, data, size, MSG_WAITALL) == size;
-	#endif
-	// }}} Windows specific code {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
 	return send(cSocket, data, size, 0) == size;
-	#endif
-	// }}} OSX specific code {{{
-	#ifdef __APPLE__
-	//TODO apple code
-	#endif
-	// }}}
+#endif
 }
 
 bool Server::Receive(char *data, int size) {
@@ -388,19 +335,12 @@ bool Server::Receive(char *data, int size) {
 	if (enc) {
 		size += crypto_onetimeauth_BYTES;
 
-		// Linux specific code {{{
-		#ifdef __linux__
+#ifdef __linux__
 		bool recvd = recv(cSocket, enc_buf_auth, size, MSG_WAITALL) == size;
-		#endif
-		// }}} Windows specific code {{{
-		#ifdef _WIN64
+#endif
+#ifdef _WIN64
 		bool recvd = recv(cSocket, enc_buf_auth, size, 0) == size;
-		#endif
-		// }}} OSX specific code {{{
-		#ifdef __APPLE__
-		//TODO apple code
-		#endif
-		// }}}
+#endif
 
 		if (!recvd) {
 			log_err(name + ": unable to receive");
@@ -421,19 +361,12 @@ bool Server::Receive(char *data, int size) {
 			return false;
 		}
 	} else {
-		// Linux specific code {{{
-		#ifdef __linux__
+#ifdef __linux__
 		bool recvd = recv(cSocket, data, size, MSG_WAITALL) == size;
-		#endif
-		// }}} Windows specific code {{{
-		#ifdef _WIN64
+#endif
+#ifdef _WIN64
 		bool recvd = recv(cSocket, data, size, 0) == size;
-		#endif
-		// }}} OSX specific code {{{
-		#ifdef __APPLE__
-		//TODO apple code
-		#endif
-		// }}}
+#endif
 
 		if (!recvd) {
 			log_err(name + ": unable to receive");

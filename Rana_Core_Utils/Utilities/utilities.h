@@ -1,7 +1,9 @@
 #ifndef UTILITIES_H_
 #define UTILITIES_H_
 
-#include <GUI/GUI.h>
+#include "../GUI/GUI.h"
+#include "Utils.h"
+
 #include <stdint.h>
 #include <cstdlib>
 #include <numeric>
@@ -9,7 +11,6 @@
 #include <vector>
 #include <sstream>
 
-#include <Utilities/Utils.h>
 
 string* Parse_Punctuated_List(const string, int& size, const char punctuation = ',');
 string* Parse_Punctuated_List(const string, const char punctuation = ',');

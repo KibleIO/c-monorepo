@@ -19,8 +19,9 @@ struct TEXTBOX_STYLE {
 	struct nk_style_edit inactive;
 };
 
-TEXTBOX_STYLE Textbox_Style(struct nk_style_edit active,
-	struct nk_style_edit ghosting, struct nk_style_edit inactive);
+TEXTBOX_STYLE Textbox_Style(
+struct nk_style_edit active, struct nk_style_edit ghosting,
+struct nk_style_edit inactive);
 TEXTBOX_STYLE Textbox_Style(struct nk_style_edit all);
 
 /*
@@ -34,6 +35,7 @@ struct GHOST_TEXT {
 };
 
 void Initialize_Ghost_Text(GHOST_TEXT*, const char*);
+void Delete_Ghost_Text(GHOST_TEXT*);
 
 /*
 TEXTBOX
@@ -134,8 +136,10 @@ void Initialize_Textbox(TEXTBOX*, struct nk_color active_background_color,
 
 // Render the textbox. Returns true if the input is valid, the enter button is
 // pressed, and the textbox is interactable
-bool Render_Textbox(TEXTBOX*, struct nk_context*, bool concealed = false,
-	bool interactable = true);
+bool Render_Textbox(
+TEXTBOX*, struct nk_context*, bool concealed = false, bool interactable = true);
+bool Render_Textbox_With_Buffer(
+TEXTBOX*, struct nk_context*, bool concealed = false, bool interactable = true);
 void Delete_Textbox(TEXTBOX*);
 
 // RENDER HELPERS

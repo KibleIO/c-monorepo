@@ -1,5 +1,3 @@
-//PLATFORMS: Linux, Windows, OSX (TODO)
-
 #ifndef SERVER_H_
 #define SERVER_H_
 
@@ -19,24 +17,17 @@ private:
 	bool				connected;
 	int					c_port;
 
-	timeval timeout;
-	int32_t high_priority;
-
-	// Linux specific members {{{
-	#ifdef __linux__
+#ifdef __linux__
+	timeval o_to;
+	int32_t o_pr;	
 	int lSocket;
 	int cSocket;
-	#endif
-	// }}} Windows specific members {{{
-	#ifdef _WIN64
+#endif
+#ifdef _WIN64
+	DWORD o_to;
 	SOCKET lSocket;
 	SOCKET cSocket;
-	#endif
-	// }}} OSX specific members {{{
-	#ifdef __APPLE__
-	//TODO apple sockets
-	#endif
-	// }}}
+#endif
 
 public:
 	Server();
