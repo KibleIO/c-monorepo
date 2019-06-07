@@ -10,6 +10,7 @@
 #include <string>
 #include <string.h>
 #include "Networking.h"
+#include "../Utilities/TIMER.h"
 
 class Client {
 private:

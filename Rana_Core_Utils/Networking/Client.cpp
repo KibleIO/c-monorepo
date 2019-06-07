@@ -70,7 +70,7 @@ void Client::Set_Recv_Timeout(int seconds, int useconds) {
 	struct timeval tv;
 	tv.tv_sec = seconds;
 	tv.tv_usec = useconds;
-	rv = 
+	rv =
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
 	if (rv != 0) {
@@ -109,36 +109,45 @@ bool Client::OpenConnection(int port, string ip) {
 	destination.sin_port = htons(port);
 
 	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
-		struct addrinfo hints, *res;
+		int ret;
+		int reps = 5;
+		gaicb* reqs;
 
-		memset (&hints, 0, sizeof (hints));
-		  hints.ai_family = PF_UNSPEC;
-		  hints.ai_socktype = SOCK_STREAM;
-		  hints.ai_flags |= AI_CANONNAME;
+		reqs = new gaicb;
 
-		if (getaddrinfo (ip.c_str(), NULL, &hints, &res) != 0) {
+		memset(reqs, 0, sizeof (gaicb));
+		reqs->ar_name = ip.c_str();
+
+		ret = getaddrinfo_a(GAI_NOWAIT, &reqs, 1, NULL);
+	    if (ret != 0) {
 			log_err(
-			name + ": Could not connect to " + ip + ":" + to_string(port));
-		  return false;
+			name + ": getaddrinfo_a() failed " + ip + ":" + to_string(port));
+			return false;
+	    }
+
+		while (reps-- > 0 && gai_error(reqs) != 0) {
+			Sleep_Milli(100);
 		}
 
-		while (res) {
-			if (res->ai_family == AF_INET) {
-				destination.sin_addr.s_addr = ((struct sockaddr_in *) res->ai_addr)->sin_addr.s_addr;
-				goto success;
-			}
-			res = res->ai_next;
-	    }
-		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
-		return false;
-	}
-	success:
+		if (reps >= 0) {
+			destination.sin_addr.s_addr = (
+			(struct sockaddr_in *) reqs->ar_result->ai_addr)->sin_addr.s_addr;
+		} else {
+			log_err(
+			name + ": gai_error() failed " + ip + ":" + to_string(port));
+			return false;
+		}
 
+		gai_cancel(reqs);
+		freeaddrinfo(reqs->ar_result);
+
+		delete reqs;
+	}
 
 	long arg;
 	timeval tv;
 	fd_set myset;
-	socklen_t lon_cancer;
+	socklen_t lon;
 	int valopt;
 
 	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
@@ -153,7 +162,6 @@ bool Client::OpenConnection(int port, string ip) {
 		return false;
 	}
 
-
 	int32_t res =
 	connect(cSocket, (sockaddr*)&destination, sizeof(destination));
 
@@ -164,8 +172,10 @@ bool Client::OpenConnection(int port, string ip) {
 			FD_ZERO(&myset);
 			FD_SET(cSocket, &myset);
 			if (select(cSocket + 1, NULL, &myset, NULL, &tv) > 0) {
-				lon_cancer = sizeof(int);
-				getsockopt(cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt), (unsigned int*)&lon_cancer);
+				lon = sizeof(int);
+				getsockopt(
+				cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt),
+				(unsigned int*)&lon);
 				if (valopt) {
 					log_err(
 					name + ": Error in connection() " + ip + ":" +
@@ -196,7 +206,7 @@ bool Client::OpenConnection(int port, string ip) {
 		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
 		return false;
 	}
-	
+
 	int o_rcvbuf = 700000;
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o_rcvbuf, sizeof(o_rcvbuf));
 
