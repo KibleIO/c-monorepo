@@ -52,7 +52,7 @@ void Client::Init() {
 #endif
 
 	connected = false;
-	Set_Recv_Timeout(1);
+	Set_Recv_Timeout(20);
 }
 
 void Client::Set_Name(string _name) {

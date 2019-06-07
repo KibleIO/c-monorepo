@@ -183,7 +183,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 			return;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hs->enc_eng->profiles_available[hs->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -247,7 +247,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 			uint16_t port = HERMES_PORT_MIN;
 
 			Server* server = new Server();
-			
+
 			while (port <= HERMES_PORT_MAX) {
 				if (server->Bind(port)) {
 					break;
@@ -291,7 +291,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 					break;
 				}
 
-				ENCRYPTION_PROFILE* enc_prof = 
+				ENCRYPTION_PROFILE* enc_prof =
 				hs->enc_eng->profiles_available[
 				hs->enc_eng->number_of_profiles - 1];
 
@@ -301,7 +301,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 					break;
 				}
 
-				hs->connections[index].server->Set_Encryption_Profile(enc_prof); 
+				hs->connections[index].server->Set_Encryption_Profile(enc_prof);
 			}
 			hs->connections[index].active = true;
 			hs->connections[index].type = flag;
@@ -374,7 +374,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 			return false;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hc->enc_eng->profiles_available[hc->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -383,7 +383,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 			return false;
 		}
 
-		hc->connections[index].client->Set_Encryption_Profile(enc_prof); 
+		hc->connections[index].client->Set_Encryption_Profile(enc_prof);
 	}
 	hc->connections[index].type = type;
 	hc->connections[index].active = true;
@@ -391,7 +391,10 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 	log_dbg("connecting " + to_string(port));
 	int attempts = HERMES_TIMEOUT_TRIES;
 	while (!hc->connections[index].client->OpenConnection(port, hc->ip) &&
-	attempts-- > 0);
+	attempts-- > 0) {
+		hc->connections[index].client->CloseConnection();
+		hc->connections[index].client->Init();
+	}
 	log_dbg("connected " + to_string(port));
 
 	hc->cmutx->unlock();
@@ -406,7 +409,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	}
 
 	hc->client = new Client();
-	//hc->client->Set_Recv_Timeout(10);
+	hc->client->Set_Recv_Timeout(20);
 	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;
@@ -418,7 +421,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 			return false;
 		}
 
-		ENCRYPTION_PROFILE* enc_prof = 
+		ENCRYPTION_PROFILE* enc_prof =
 		hc->enc_eng->profiles_available[hc->enc_eng->number_of_profiles - 1];
 
 		if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
@@ -426,12 +429,16 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 			return false;
 		}
 
-		hc->client->Set_Encryption_Profile(enc_prof); 
+		hc->client->Set_Encryption_Profile(enc_prof);
 	}
 
 	log_dbg("connecting to " + hc->ip + ":" + to_string(hc->baseport));
 	int attempts = HERMES_TIMEOUT_TRIES;
-	while (!hc->client->OpenConnection(hc->baseport, hc->ip) && attempts-- > 0);
+	while (
+	!hc->client->OpenConnection(hc->baseport, hc->ip) && attempts-- > 0) {
+		hc->client->CloseConnection();
+		hc->client->Init();
+	}
 	if (attempts < 0) {
 		log_err("failed to connect to " + hc->ip + ":" +
 		to_string(hc->baseport));
