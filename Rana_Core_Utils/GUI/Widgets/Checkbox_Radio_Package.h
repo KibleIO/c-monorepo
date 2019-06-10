@@ -26,6 +26,8 @@ CHECKBOX_RADIO_PACKAGE*, struct nk_context*, const char*, uint8_t index);
 
 void Delete_Checkbox_Radio_Package(CHECKBOX_RADIO_PACKAGE*);
 
+void Select_Checkbox(CHECKBOX_RADIO_PACKAGE*, uint8_t index);
+
 // ACCESSORS
 bool Checkbox_State(const CHECKBOX_RADIO_PACKAGE*, uint8_t index);
 int8_t Toggled_Checkbox_Index(const CHECKBOX_RADIO_PACKAGE*);

@@ -19,6 +19,12 @@ uint8_t totalCheckboxes, bool require_one_selected) {
 
 	package->totalCheckboxes = totalCheckboxes;
 	package->requireOneSelected = require_one_selected;
+
+	// If the package always needs one selected,
+	// select the first box immediately
+	if (require_one_selected) {
+		Select_Checkbox(package, 0);
+	}
 }
 
 bool Render_Checkbox(
@@ -43,6 +49,14 @@ uint8_t index) {
 
 void Delete_Checkbox_Radio_Package(CHECKBOX_RADIO_PACKAGE* package) {
 	delete [] package->checkboxes;
+}
+
+void Select_Checkbox(CHECKBOX_RADIO_PACKAGE* package, uint8_t index) {
+	if (index < package->totalCheckboxes) {
+		Set_Checkbox_State(&package->checkboxes[index], true);
+		Update_Checkbox_States(package, index);
+		Enforce_At_Least_One_Selected(package, index);
+	}
 }
 
 bool Checkbox_State(const CHECKBOX_RADIO_PACKAGE* package, uint8_t index) {
