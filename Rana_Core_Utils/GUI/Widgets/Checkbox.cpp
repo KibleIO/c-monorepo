@@ -37,3 +37,7 @@ void Delete_Checkbox(CHECKBOX* checkbox) {
 bool Checkbox_State(const CHECKBOX* checkbox) {
 	return checkbox->value != 0;
 }
+
+void Set_Checkbox_State(CHECKBOX* checkbox, bool state) {
+	checkbox->value = state;
+}
