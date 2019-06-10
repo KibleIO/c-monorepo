@@ -52,7 +52,7 @@ void Client::Init() {
 #endif
 
 	connected = false;
-	Set_Recv_Timeout(1);
+	Set_Recv_Timeout(20);
 }
 
 void Client::Set_Name(string _name) {
@@ -108,42 +108,108 @@ bool Client::OpenConnection(int port, string ip) {
 	destination.sin_port = htons(port);
 
 	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
-		struct addrinfo hints, *res;
+		int ret;
+		int reps = 5;
+		gaicb* reqs;
 
-		memset (&hints, 0, sizeof (hints));
-		hints.ai_family = PF_UNSPEC;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_flags |= AI_CANONNAME;
+		reqs = new gaicb;
 
-		if (getaddrinfo (ip.c_str(), NULL, &hints, &res) != 0) {
+		memset(reqs, 0, sizeof (gaicb));
+		reqs->ar_name = ip.c_str();
+
+		ret = getaddrinfo_a(GAI_NOWAIT, &reqs, 1, NULL);
+	    if (ret != 0) {
 			log_err(
-			name + ": Could not connect to " + ip + ":" + to_string(port));
+			name + ": getaddrinfo_a() failed " + ip + ":" + to_string(port));
+			return false;
+	    }
+
+		while (reps-- > 0 && gai_error(reqs) != 0) {
+			Sleep_Milli(100);
+		}
+
+		if (reps >= 0) {
+			destination.sin_addr.s_addr = (
+			(struct sockaddr_in *) reqs->ar_result->ai_addr)->sin_addr.s_addr;
+		} else {
+			log_err(
+			name + ": gai_error() failed " + ip + ":" + to_string(port));
 			return false;
 		}
 
-		while (res) {
-			if (res->ai_family == AF_INET) {
-				destination.sin_addr.s_addr =
-				((struct sockaddr_in *) res->ai_addr)->sin_addr.s_addr;
-				goto success;
+		gai_cancel(reqs);
+		freeaddrinfo(reqs->ar_result);
+
+		delete reqs;
+	}
+
+	long arg;
+	timeval tv;
+	fd_set myset;
+	socklen_t lon;
+	int valopt;
+
+	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+	arg |= O_NONBLOCK;
+	if (fcntl(cSocket, F_SETFL, arg) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+
+	int32_t res =
+	connect(cSocket, (sockaddr*)&destination, sizeof(destination));
+
+	if (res < 0) {
+		if (errno == EINPROGRESS) {
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+			FD_ZERO(&myset);
+			FD_SET(cSocket, &myset);
+			if (select(cSocket + 1, NULL, &myset, NULL, &tv) > 0) {
+				lon = sizeof(int);
+				getsockopt(
+				cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt),
+				(unsigned int*)&lon);
+				if (valopt) {
+					log_err(
+					name + ": Error in connection() " + ip + ":" +
+					to_string(port));
+					return false;
+				}
+			} else {
+				log_err(
+				name + ": Timeout or Error select() " + ip + ":" +
+				to_string(port));
+				return false;
 			}
-			res = res->ai_next;
-	    }
-		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
+		} else {
+			log_err(
+			name + ": Error connecting " + ip + ":" + to_string(port));
+			return false;
+		}
+ 	}
+
+	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		return false;
+	}
+	arg &= (~O_NONBLOCK);
+	if (fcntl(cSocket, F_SETFL, arg) < 0) {
+		log_err(
+		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
 		return false;
 	}
 
-	success:
 
-	// Connect to server
-	if (connect(cSocket, (sockaddr*)&destination, sizeof(destination)) != 0) {
-		log_err(name + ": Could not connect to " + ip + ":" + to_string(port));
-		return false;
-	}
-
-#endif
-#ifdef _WIN64
-	// Set up server destination
+	#endif
+	// }}} Windows specific code {{{
+	#ifdef _WIN64
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -181,7 +247,7 @@ bool Client::OpenConnection(int port, string ip) {
 	cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_b, sizeof o_b) != 0 ) {
 		log_err("bad setsockopt: reuseaddr");
 	}
-	
+
 	if (setsockopt(
 	cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_b, sizeof o_b) != 0) {
 		log_err("bad setsockopt: nodelay");

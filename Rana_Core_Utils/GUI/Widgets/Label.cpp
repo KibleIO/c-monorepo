@@ -13,6 +13,14 @@ const char* text, nk_flags flags) {
 	nk_label(ctx, "", flags);
 	Render_Label(label, ctx, text, flags);
 }
+void Render_Label_Buffered(
+LABEL* label, struct nk_context* ctx, const char* text, nk_flags flags,
+bool buffered) {
+	if (buffered) {
+		nk_label(ctx, "", 0);
+	}
+	Render_Label(label, ctx, text, flags);
+}
 void Delete_Label(LABEL* label) {
 	(void)label;	// Bypass compiler warning
 }

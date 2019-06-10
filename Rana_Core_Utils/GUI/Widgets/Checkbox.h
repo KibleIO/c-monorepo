@@ -10,7 +10,7 @@ struct CHECKBOX {
 };
 
 void Initialize_Checkbox(CHECKBOX*, struct nk_color background_color,
-	struct nk_color check_color, struct nk_color text_color);
+struct nk_color check_color, struct nk_color text_color);
 void Initialize_Checkbox(CHECKBOX*, struct nk_style_toggle);
 // Render the checkbox. Return true in the frame that it is clicked
 bool Render_Checkbox(CHECKBOX*, struct nk_context*, const char*);
@@ -19,5 +19,8 @@ void Delete_Checkbox(CHECKBOX*);
 
 // ACCESSORS
 bool Checkbox_State(const CHECKBOX*);
+
+// MUTATORS
+void Set_Checkbox_State(CHECKBOX*, bool state);
 
 #endif
