@@ -150,6 +150,11 @@ void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	*hs = NULLIFY;
 }
 
+void Epipe_HERMES_SERVER(HERMES_SERVER* hs) {
+	hs->err = EPIPE;
+	hs->connected = false;
+}
+
 void Delete_CLIENT_CONNECTION(CLIENT_CONNECTION &cc) {
 	delete cc.client;
 	cc = NULLIFY;
@@ -162,6 +167,11 @@ void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	}
 	delete hc->cmutx;
 	*hc = NULLIFY;
+}
+
+void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
+	hc->err = EPIPE;
+	hc->connected = false;
 }
 
 void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {

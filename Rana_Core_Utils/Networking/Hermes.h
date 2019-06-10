@@ -68,6 +68,8 @@ Server* Get_Blocking_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type);
 void Close_Connections_HERMES_SERVER(HERMES_SERVER* hs);
 //Deletes all heap resources
 void Delete_HERMES_SERVER(HERMES_SERVER* hs);
+//Shuts down hermes and sets err to EPIPE
+void Epipe_HERMES_SERVER(HERMES_SERVER* hs);
 
 //
 //  Client
@@ -108,6 +110,8 @@ bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
 void Close_Connections_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Deletes all heap resources
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc);
+//Shuts down hermes and sets err to EPIPE
+void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc);
 
 string Hermes_Error_Str(int n);
 
