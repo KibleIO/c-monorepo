@@ -27,7 +27,7 @@ void Bake_BMP(BAKED_SCREEN* screen, string dir, int x, int y, int w, int h) {
 
 // Draw the BMP onto the char buffer of the baked screen
 void Bake_BMP(BAKED_SCREEN* screen, BMP* image, int x, int y) {
-  Draw_BMP(image, screen->screenBuff, screen->width, x, y);
+  Draw_BMP(image, screen->screenBuff, screen->width, screen->height, x, y);
 }
 
 void Bake_BMP(BAKED_SCREEN* screen, const BMP_SOCKET* socket) {

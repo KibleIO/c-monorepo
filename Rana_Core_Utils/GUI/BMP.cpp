@@ -113,7 +113,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 		bmp->Data = NULL;
 		return;
 	}
-	
+
 	log_dbg(loc + " " + to_string(x) + " " + to_string(y));
 
 	int* resized_buffer = new int[w * h];
@@ -244,18 +244,35 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 		Clip_GRAPHICS(g, X, Y, temp_width, temp_height);
 
 		for (int y = 0; y < temp_height; y++) {
-			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + y * bmp->W + temp_width, (int*)g->Buffer + (Y + y) * g->Width_Clip + X);
+			copy(
+			(int*)bmp->Data + y * bmp->W,
+			(int*)bmp->Data + y * bmp->W + temp_width,
+			(int*)g->Buffer + (Y + y) * g->Width_Clip + X);
 		}
 	}
 }
 
-void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int X, int Y) {
+void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int fbp_h, int X, int Y) {
 	if (bmp->Transparent) {
+		int w = bmp->W;
+		int h = bmp->H;
+		int x = X;
+		int y = Y;
+
+		if (x > fbp_w) return;
+		if (y > fbp_h) return;
+		if (x < 0) { w += x; x = 0; }
+		if (y < 0) { h += y; y = 0; }
+		if (w <= 0) return;
+		if (h <= 0) return;
+		if (x + w > fbp_w) w = fbp_w - x;
+		if (y + h > fbp_h) h = fbp_h - y;
+
 		unsigned int fg, bg, alpha, inv_alpha, result;
-		for (int y = 0; y < bmp->H; y++) {
-			for (int x = 0; x < bmp->W; x++) {
-				fg = *((int*)bmp->Data + y * bmp->W + x);
-				bg = *((int*)fbp + (y + Y) * fbp_w + x + X);
+		for (int _y = 0; _y < h; _y++) {
+			for (int _x = 0; _x < w; _x++) {
+				fg = *((int*)bmp->Data + _y * bmp->W + _x);
+				bg = *((int*)fbp + (_y + y) * fbp_w + _x + x);
 
 				alpha = ((unsigned char*)&fg)[3] + 1;
 				inv_alpha = 256 - alpha;
@@ -274,12 +291,31 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int X, int Y) {
 					((unsigned char*)&bg)[2]) >> 8);
     			((unsigned char*)&result)[3] = 0xff;
 
-				((int*)fbp)[(y + Y) * fbp_w + x + X] = result;
+				((int*)fbp)[(_y + y) * fbp_w + _x + x] = result;
 			}
 		}
 	} else {
-		for (int y = 0; y < bmp->H; y++) {
-			copy((int*)bmp->Data + y * bmp->W, (int*)bmp->Data + (y + 1) * bmp->W, (int*)fbp + (Y + y) * fbp_w + X);
+		int w = bmp->W;
+		int h = bmp->H;
+		int x = X;
+		int y = Y;
+
+		if (x > fbp_w) return;
+		if (y > fbp_h) return;
+		if (x < 0) { w += x; x = 0; }
+		if (y < 0) { h += y; y = 0; }
+		if (w <= 0) return;
+		if (h <= 0) return;
+		if (x + w > fbp_w) w = fbp_w - x;
+		if (y + h > fbp_h) h = fbp_h - y;
+
+		cout << w << " " << h << endl;
+
+		for (int _y = 0; _y < h; _y++) {
+			copy(
+			(int*)bmp->Data + _y * w,
+			(int*)bmp->Data + (_y + 1) * w,
+			(int*)fbp + (y + _y) * fbp_w + x);
 		}
 	}
 }
