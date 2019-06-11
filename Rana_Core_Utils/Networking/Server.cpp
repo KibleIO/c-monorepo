@@ -205,7 +205,7 @@ bool Server::ListenBound() {
 
 	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
-		uint8_t counter = 50;
+		uint8_t counter = 100;
 		while (!lconnected && counter-- > 0) {
 			Sleep_Milli(100);
 		}
@@ -236,7 +236,7 @@ bool Server::ListenBound() {
 
 	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
-		uint8_t counter = 50;
+		uint8_t counter = 100;
 		while (!lconnected && counter-- > 0) {
 			Sleep_Milli(100);
 		}

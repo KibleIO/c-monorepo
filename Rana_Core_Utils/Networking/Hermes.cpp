@@ -208,6 +208,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	if (!hs->server->Listen(hs->baseport)) {
 		log_err("could not listen on port " + to_string(hs->baseport));
 		delete hs->server;
+		hs->server_init_failed = true;
 		hs->connected = false;
 		return;
 	}
