@@ -121,6 +121,16 @@ bool Client::OpenConnection(int port, string ip) {
 	    if (ret != 0) {
 			log_err(
 			name + ": getaddrinfo_a() failed " + ip + ":" + to_string(port));
+			while (1) {
+				ret = gai_cancel(reqs);
+				if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
+					break;
+				}
+				log_err(
+				name + ": gai_cancel() failed " + ip + ":" + to_string(port));
+				Sleep_Milli(100);
+			}
+			delete reqs;
 			return false;
 	    }
 
@@ -134,10 +144,28 @@ bool Client::OpenConnection(int port, string ip) {
 		} else {
 			log_err(
 			name + ": gai_error() failed " + ip + ":" + to_string(port));
+			while (1) {
+				ret = gai_cancel(reqs);
+				if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
+					break;
+				}
+				log_err(
+				name + ": gai_cancel() failed " + ip + ":" + to_string(port));
+				Sleep_Milli(100);
+			}
+			delete reqs;
 			return false;
 		}
 
-		gai_cancel(reqs);
+		while (1) {
+			ret = gai_cancel(reqs);
+			if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
+				break;
+			}
+			log_err(
+			name + ": gai_cancel() failed " + ip + ":" + to_string(port));
+			Sleep_Milli(100);
+		}
 		freeaddrinfo(reqs->ar_result);
 
 		delete reqs;
@@ -369,5 +397,6 @@ Client::~Client() {
 	CloseConnection();
 	if (enc_buf_auth) {
 		delete [] enc_buf_auth;
+		enc_buf_auth = NULL;
 	}
 }
