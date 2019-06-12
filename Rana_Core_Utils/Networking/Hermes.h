@@ -59,7 +59,7 @@ struct HERMES_SERVER {
 bool Initialize_HERMES_SERVER(
 HERMES_SERVER* hs, ENCRYPTION_ENGINE* _enc_eng = NULL);
 //Then this in a thread
-void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port);
+void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport);
 //Then this to get servers
 Server* Get_HERMES_SERVER(HERMES_SERVER* hs, uint8_t type);
 //Or this for blocking behavior
