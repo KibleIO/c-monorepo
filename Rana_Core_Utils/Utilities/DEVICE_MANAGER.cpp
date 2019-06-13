@@ -330,7 +330,7 @@ void Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
 			continue;
 		}
 		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-		dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
+		!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
 			log_err("failed to send mouse event");
 		}
 		delete m_event;
