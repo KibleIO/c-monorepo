@@ -110,6 +110,8 @@ struct DEVICE_MANAGER {
 	int w, h; //these are only needed to initialize the mouse, sue me
 };
 
+void Reset_Mouse_Clicks();
+
 bool Initialize_DEVICE_MANAGER(
 DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status = NULL);
 

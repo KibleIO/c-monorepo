@@ -174,7 +174,7 @@ void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	hc->connected = false;
 }
 
-void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
+void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	if (hs->connected) {
 		log_err("hermes server already connected");
 		return;
@@ -255,18 +255,19 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 				break;
 			}
 
-			uint16_t port = HERMES_PORT_MIN;
+			uint16_t port = baseport;
+			uint16_t max_port = baseport + 1000;
 
 			Server* server = new Server();
 
-			while (port <= HERMES_PORT_MAX) {
+			while (port <= max_port) {
 				if (server->Bind(port)) {
 					break;
 				}
 				port++;
 			}
 
-			if (port > HERMES_PORT_MAX) {
+			if (port > max_port) {
 				log_err("out of ports");
 				delete server;
 				hs->err = EPIPE;

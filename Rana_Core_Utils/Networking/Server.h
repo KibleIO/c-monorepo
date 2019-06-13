@@ -3,6 +3,7 @@
 
 #include <string>
 #include <thread>
+#include <string.h>
 #include "Networking.h"
 #include "../Utilities/TIMER.h"
 

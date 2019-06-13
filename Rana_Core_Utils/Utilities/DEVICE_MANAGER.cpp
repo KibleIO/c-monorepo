@@ -4,6 +4,16 @@
 
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
+
+void Reset_Mouse_Clicks() {
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,1,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,1,0});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,2,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,2,0});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,3,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,3,0});
+}
+
 #ifdef __linux__
 DEVICE_NODE** DEVICE_MANAGER::previous_dev;
 volatile int  DEVICE_MANAGER::p_d_size;

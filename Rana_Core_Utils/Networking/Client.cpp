@@ -137,6 +137,10 @@ bool Client::OpenConnection(int port, string ip) {
 	connect(cSocket, (sockaddr*)&destination, sizeof(destination));
 
 	if (res < 0) {
+		log_err("could not connect");
+	}
+
+	if (res < 0) {
 		if (errno == EINPROGRESS) {
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
