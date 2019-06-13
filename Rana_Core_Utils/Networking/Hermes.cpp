@@ -420,7 +420,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	}
 
 	hc->client = new Client();
-	hc->client->Set_Recv_Timeout(20);
+	hc->client->Set_Recv_Timeout(2);
 	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;

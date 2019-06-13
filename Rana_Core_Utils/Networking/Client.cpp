@@ -52,7 +52,7 @@ void Client::Init() {
 #endif
 
 	connected = false;
-	Set_Recv_Timeout(20);
+	Set_Recv_Timeout(2);
 }
 
 void Client::Set_Name(string _name) {
@@ -108,67 +108,11 @@ bool Client::OpenConnection(int port, string ip) {
 	destination.sin_port = htons(port);
 
 	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
-		int ret;
-		int reps = 5;
-		gaicb* reqs;
-
-		reqs = new gaicb;
-
-		memset(reqs, 0, sizeof (gaicb));
-		reqs->ar_name = ip.c_str();
-
-		ret = getaddrinfo_a(GAI_NOWAIT, &reqs, 1, NULL);
-	    if (ret != 0) {
+		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip.c_str(), 2)) {
 			log_err(
-			name + ": getaddrinfo_a() failed " + ip + ":" + to_string(port));
-			while (1) {
-				ret = gai_cancel(reqs);
-				if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
-					break;
-				}
-				log_err(
-				name + ": gai_cancel() failed " + ip + ":" + to_string(port));
-				Sleep_Milli(100);
-			}
-			delete reqs;
-			return false;
-	    }
-
-		while (reps-- > 0 && gai_error(reqs) != 0) {
-			Sleep_Milli(100);
-		}
-
-		if (reps >= 0) {
-			destination.sin_addr.s_addr = (
-			(struct sockaddr_in *) reqs->ar_result->ai_addr)->sin_addr.s_addr;
-		} else {
-			log_err(
-			name + ": gai_error() failed " + ip + ":" + to_string(port));
-			while (1) {
-				ret = gai_cancel(reqs);
-				if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
-					break;
-				}
-				log_err(
-				name + ": gai_cancel() failed " + ip + ":" + to_string(port));
-				Sleep_Milli(100);
-			}
-			delete reqs;
+			name + ": getaddrinfo_k() failed " + ip + ":" + to_string(port));
 			return false;
 		}
-
-		while (1) {
-			ret = gai_cancel(reqs);
-			if (ret == EAI_CANCELED || ret == EAI_ALLDONE) {
-				break;
-			}
-			log_err(
-			name + ": gai_cancel() failed " + ip + ":" + to_string(port));
-			Sleep_Milli(100);
-		}
-		freeaddrinfo(reqs->ar_result);
-
-		delete reqs;
 	}
 
 	long arg;

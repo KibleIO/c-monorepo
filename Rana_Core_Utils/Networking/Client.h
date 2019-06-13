@@ -10,6 +10,10 @@
 #include "Networking.h"
 #include "../Utilities/TIMER.h"
 
+extern "C" {
+	#include "DNS_WRAPPER.h"
+}
+
 class Client {
 private:
 	string name;
