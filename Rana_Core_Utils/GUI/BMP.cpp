@@ -309,8 +309,6 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int fbp_h, int X, int Y) {
 		if (x + w > fbp_w) w = fbp_w - x;
 		if (y + h > fbp_h) h = fbp_h - y;
 
-		cout << w << " " << h << endl;
-
 		for (int _y = 0; _y < h; _y++) {
 			copy(
 			(int*)bmp->Data + _y * w,
