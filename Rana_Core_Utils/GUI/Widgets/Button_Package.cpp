@@ -158,6 +158,13 @@ bool interactable) {
 	return Render_Button_Label(package, ctx, label, button_index, interactable);
 }
 
+bool Render_Button_Image_With_Buffer(
+BUTTON_PACKAGE* package, struct nk_context* ctx, struct nk_image image,
+uint8_t button_index, bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Button_Image(package, ctx, image, button_index, interactable);
+}
+
 bool Render_Button_Label_Buffered(
 BUTTON_PACKAGE* package, struct nk_context* ctx, const char* label,
 uint8_t button_index, bool buffered, bool interactable) {

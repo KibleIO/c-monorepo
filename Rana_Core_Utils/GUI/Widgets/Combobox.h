@@ -52,6 +52,9 @@ struct nk_style_button, uint8_t total_items, const char* items[]);
 bool Render_COMBOBOX(
 COMBOBOX*, struct nk_context*, COMBOBOX_ITEM item_height,
 COMBOBOX_ITEM dropdown_width, COMBOBOX_ITEM dropdown_height);
+bool Render_COMBOBOX_With_Buffer(
+COMBOBOX*, struct nk_context*, COMBOBOX_ITEM item_height,
+COMBOBOX_ITEM dropdown_width, COMBOBOX_ITEM dropdown_height);
 
 void Delete_COMBOBOX(COMBOBOX*);
 

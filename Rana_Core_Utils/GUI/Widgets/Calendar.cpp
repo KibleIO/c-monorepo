@@ -39,22 +39,24 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 		// Layout the header where current month is displayed and adjusted
 		Layout_Row_Symmetric_Odd_Pairs(
-		gui->NK_Context, LAYOUT_TYPE_DYNAMIC, Layout_Size(0.25), 2,
-		Layout_Size(0.2), Layout_Size(0.6));
+		gui->NK_Context, Breadth(Ratio_Of_Total(0.25)), 2,
+		Breadth(Ratio_Of_Total(0.2)), Breadth(Ratio_Of_Total(0.6)));
 
 		// If back button is pressed, move current month back once
 		if (
-		Render_Button_Label(&ui->monthSelectButtons, gui->NK_Context, "<")) {
+		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
+		gui->NK_Context, "<")) {
 			ui->currentMonth = (ui->currentMonth - 1) % TOTAL_MONTHS;
 		}
 
-		Render_Button_Label(
+		Render_Button_Label_With_Buffer(
 		&ui->monthLabel, gui->NK_Context,
 		tm_string("%B", &ui->calendar).c_str(), NK_TEXT_CENTERED);
 
 		// If forward button is pressed, more current month forward once
 		if (
-		Render_Button_Label(&ui->monthSelectButtons, gui->NK_Context, ">")) {
+		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
+		gui->NK_Context, ">")) {
 			ui->currentMonth = (ui->currentMonth + 1) % TOTAL_MONTHS;
 		}
 
@@ -62,11 +64,11 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 		for(uint8_t row = 0; row < CALENDAR_TOTAL_ROWS; row++) {
 
 			// Layout a row with seven equally sized columns
-			LAYOUT_BUFFER_FLAGS flags = Layout_Row_Homogenous(
-			gui->NK_Context, LAYOUT_TYPE_MIXED,
-			Layout_Size(0.01, 0.15), DAYS_IN_WEEK,
-			Layout_Size(CALENDAR_BUFFER_WIDTH_RATIO,
-			CALENDAR_BUTTON_WIDTH_RATIO));
+			Layout_Row_Homogenous(
+			gui->NK_Context, Buffer_And_Breadth(Ratio_Of_Total(0.01),
+			Ratio_Of_Total(0.15)), DAYS_IN_WEEK, Buffer_And_Breadth(
+			Ratio_Of_Total(CALENDAR_BUFFER_WIDTH_RATIO),
+			Ratio_Of_Total(CALENDAR_BUTTON_WIDTH_RATIO)));
 
 			// Render each day in this week
 			for(
@@ -77,10 +79,10 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 				if (
 				row != 0 || column >= weekday_of_first_day) {
 					if (
-					Render_Button_Label_Buffered(
+					Render_Button_Label_With_Buffer(
 					&ui->dayOfMonthButtons[ui->currentMonth],
 					gui->NK_Context, to_string(current_button + 1).c_str(),
-					current_button, flags.bufferFlag[column])) {
+					current_button)) {
 						Resolve_Date_Selection(
 						ui, current_button, ui->currentMonth);
 					}
@@ -88,9 +90,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 				}
 				// If we aren't rendering the button, render empty widgets
 				else {
-					if(flags.bufferFlag[column]) {
-						nk_label(gui->NK_Context, "", 0);
-					}
+					nk_label(gui->NK_Context, "", 0);
 					nk_label(gui->NK_Context, "", 0);
 				}
 			} // END foreach column

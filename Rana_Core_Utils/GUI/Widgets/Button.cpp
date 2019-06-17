@@ -104,6 +104,13 @@ const char* label, bool interactable) {
 	return Render_Button_Label(button, ctx, label, interactable);
 }
 
+bool Render_Button_Image_With_Buffer(
+BUTTON* button, struct nk_context* ctx, struct nk_image image,
+bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Button_Image(button, ctx, image, interactable);
+}
+
 bool Render_Button_Label_Buffered(
 BUTTON* button, struct nk_context* ctx, const char* label, bool buffered,
 bool interactable) {
