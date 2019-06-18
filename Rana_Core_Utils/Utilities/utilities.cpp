@@ -136,6 +136,12 @@ string Rect_Str(struct nk_rect rect) {
 	to_string(rect.w) + ", " + to_string(rect.h);
 }
 
+string Vec2_Str(struct nk_vec2 vec) {
+	ostringstream sout;
+	sout << '(' << vec.x << ", " << vec.y << ')';
+	return sout.str();
+}
+
 string Color_Str(struct nk_color color) {
 	ostringstream sout;
 	sout << hex;

@@ -1,25 +1,25 @@
 #ifndef BREADTH_BUFFER_PAIR_H_
 #define BREADTH_BUFFER_PAIR_H_
 
-#include "Layout_Ratio.h"
+#include "Layout_Size.h"
 
 struct BREADTH_BUFFER_PAIR {
-	LAYOUT_RATIO buffer;
-	LAYOUT_RATIO breadth;
+	LAYOUT_SIZE buffer;
+	LAYOUT_SIZE breadth;
 };
 
 BREADTH_BUFFER_PAIR Buffer_And_Breadth(
-LAYOUT_RATIO buffer, LAYOUT_RATIO breadth);
-BREADTH_BUFFER_PAIR Breadth(LAYOUT_RATIO breadth);
+LAYOUT_SIZE buffer, LAYOUT_SIZE breadth);
+BREADTH_BUFFER_PAIR Breadth(LAYOUT_SIZE breadth);
 
 BREADTH_BUFFER_PAIR Evenly_Spaced_Item(
 uint8_t num_items, float buffer_to_breadth_ratio, bool side_buffers);
 BREADTH_BUFFER_PAIR Evenly_Spaced_Item(
-LAYOUT_RATIO breadth, const struct nk_context*, uint8_t num_items,
+LAYOUT_SIZE breadth, const struct nk_context*, uint8_t num_items,
 bool side_buffers);
 
 void Evenly_Spaced_Items(
-BREADTH_BUFFER_PAIR* pairs, LAYOUT_RATIO breadth,
+BREADTH_BUFFER_PAIR* pairs, LAYOUT_SIZE breadth,
 const struct nk_context*, uint8_t num_items, bool side_buffers);
 
 
