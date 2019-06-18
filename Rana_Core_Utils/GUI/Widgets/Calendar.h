@@ -16,6 +16,11 @@
 #define CALENDAR_BUTTON_WIDTH_RATIO ((1 - \
 ((DAYS_IN_WEEK + 1) * CALENDAR_BUFFER_WIDTH_RATIO)) / (float)DAYS_IN_WEEK)
 
+const string MONTH_NAMES[TOTAL_MONTHS] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "June",
+		"July", "Aug", "Sept", "Oct", "Nov", "Dec"
+};
+
 struct CALENDAR_UI {
 	tm calendar;	// Underlying data of the calendar ui
 	uint8_t currentMonth;	// Current month being displayed by the calendar

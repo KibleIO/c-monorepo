@@ -23,7 +23,6 @@ const int DAYS_IN_MONTH[TOTAL_MONTHS] = {
 // If NULL is passed, a new tm is constructed and returned
 // The new tm has tm_sec, tm_min, tm_hour, and tm_dst set to 0
 // If any of the arguments given are invalid, the given structure is unmodified
-// and the function returns NULL
 void tmset(tm*, int day, int month, int year);
 void tmset(tm*, int day, int month);
 

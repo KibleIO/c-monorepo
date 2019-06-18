@@ -43,13 +43,17 @@ void Delete_Image(IMAGE* image) {
 }
 
 void Load_Image(IMAGE* image, struct nk_rect parent) {
-	image->width = parent.w * image->widthRatio;
-	image->height = parent.h * image->heightRatio;
+	if (
+	parent.w > 0 && parent.w <= GUI::Width &&
+	parent.h > 0 && parent.h && GUI::Height) {
+		image->width = parent.w * image->widthRatio;
+		image->height = parent.h * image->heightRatio;
 
-	Initialize_BMP(
-	&image->image, image->imageDirectory, image->width, image->height);
-	image->imageInitialized = true;
-	image->image.Transparent = true;
+		Initialize_BMP(
+		&image->image, image->imageDirectory, image->width, image->height);
+		image->imageInitialized = true;
+		image->image.Transparent = true;
+	}
 }
 
 void Check_And_Load_Image(IMAGE* image, struct nk_rect parent) {
@@ -57,9 +61,6 @@ void Check_And_Load_Image(IMAGE* image, struct nk_rect parent) {
 		Load_Image(image, parent);
 	}
 }
-
-// TEMP
-#include "../../Utilities/utilities.h"
 
 void Load_Image_In_Current_Rect(IMAGE* image, struct nk_context* ctx) {
 	Load_Image(image, nk_widget_bounds(ctx));

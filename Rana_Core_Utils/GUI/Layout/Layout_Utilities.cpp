@@ -54,6 +54,8 @@ float Current_Usable_Panel_Height(const struct nk_context* ctx) {
 	return Usable_Panel_Height(&ctx->style, panel->type, panel->bounds.h);
 }
 
+#include "../../Utilities/utilities.h"
+
 float Current_Usable_Panel_Width(const struct nk_context* ctx) {
 	const struct nk_panel* panel = ctx->current->layout;
 

@@ -51,7 +51,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 		Render_Button_Label_With_Buffer(
 		&ui->monthLabel, gui->NK_Context,
-		tm_string("%B", &ui->calendar).c_str(), NK_TEXT_CENTERED);
+		MONTH_NAMES[ui->currentMonth].c_str(), NK_TEXT_CENTERED);
 
 		// If forward button is pressed, more current month forward once
 		if (

@@ -1,13 +1,13 @@
 #include "Breadth_Buffer_Pair.h"
 
 BREADTH_BUFFER_PAIR Buffer_And_Breadth(
-LAYOUT_RATIO buffer, LAYOUT_RATIO breadth) {
+LAYOUT_SIZE buffer, LAYOUT_SIZE breadth) {
 	BREADTH_BUFFER_PAIR pair;
 	pair.buffer = buffer;
 	pair.breadth = breadth;
 	return pair;
 }
-BREADTH_BUFFER_PAIR Breadth(LAYOUT_RATIO breadth) {
+BREADTH_BUFFER_PAIR Breadth(LAYOUT_SIZE breadth) {
 	return Buffer_And_Breadth(Ratio_Of_Total(0), breadth);
 }
 
@@ -18,7 +18,7 @@ uint8_t n, float r, bool side_buffers) {
 	return Buffer_And_Breadth(Ratio_Of_Total(r / d), Ratio_Of_Total(1.0 / d));
 }
 BREADTH_BUFFER_PAIR Evenly_Spaced_Item(
-LAYOUT_RATIO breadth, const struct nk_context* ctx, uint8_t items,
+LAYOUT_SIZE breadth, const struct nk_context* ctx, uint8_t items,
 bool side_buffers) {
 	uint32_t current_width = Current_Usable_Panel_Width(ctx);
 	uint8_t total_buffers = side_buffers ? items + 1 : items - 1;
@@ -32,7 +32,7 @@ bool side_buffers) {
 }
 
 void Evenly_Spaced_Items(
-BREADTH_BUFFER_PAIR* pairs, LAYOUT_RATIO breadth,
+BREADTH_BUFFER_PAIR* pairs, LAYOUT_SIZE breadth,
 const struct nk_context* ctx, uint8_t num_items, bool side_buffers) {
 	BREADTH_BUFFER_PAIR item = Evenly_Spaced_Item(
 	breadth, ctx, num_items, side_buffers);
