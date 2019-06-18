@@ -247,7 +247,7 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 			copy(
 			(int*)bmp->Data + y * bmp->W,
 			(int*)bmp->Data + y * bmp->W + temp_width,
-			(int*)g->Buffer + (Y + y) * g->Width_Clip + X);
+			(int*)g->Buffer + (Y + y) * g->Width + X);
 		}
 	}
 }
