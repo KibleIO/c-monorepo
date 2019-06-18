@@ -63,6 +63,16 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	Set_GUI_Style_Default(gui);
 }
 
+#ifdef GRAPHICS_USING_HARDWARE
+void Start_Picture_GUI(GUI* gui) {
+	Start_Picture_GRAPHICS(gui->Graphics_Handle);
+}
+
+void End_Picture_GUI() {
+	End_Picture_GRAPHICS();
+}
+#endif
+
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
 	Initialize_Font(userFont, font_path, height);
 	nkFont->userdata.ptr = userFont->Baked_glyphs;

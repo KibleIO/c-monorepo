@@ -12,6 +12,13 @@
 #include "Polygon.h"
 #include "../Utilities/LOGGING.h"
 
+#define GRAPHICS_USING_HARDWARE
+
+#ifdef GRAPHICS_USING_HARDWARE
+#include <shapes.h>
+#include <fontinfo.h>
+#endif
+
 #define ABS(x) ((x >= 0) ? x : -x)
 
 #define FIRST_QUADRANT 1
@@ -36,6 +43,11 @@ struct GRAPHICS {
 };
 
 void Initialize_GRAPHICS(GRAPHICS*, char*, int, int);
+
+void Start_Picture_GRAPHICS(GRAPHICS* graphics, int width = 0, int height = 0);
+
+void End_Picture_GRAPHICS();
+
 void Delete_GRAPHICS(GRAPHICS*);
 
 void SwapBuffers_GRAPHICS(GRAPHICS*, char* buff);

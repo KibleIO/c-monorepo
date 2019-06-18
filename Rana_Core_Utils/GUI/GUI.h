@@ -61,6 +61,11 @@ struct GUI {
 //static float Font_Get_Text_Width(nk_handle, float, const char*, int);
 void Initialize_GUI_Themis(GUI* gui, int display_id);
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
+
+void Start_Picture_GUI(GUI* gui);
+
+void End_Picture_GUI();
+
 void Pair_Fonts(nk_user_font*, FONT*, float height, const char* font_path);
 void Set_Font(GUI*, int fontFlag);
 void Delete_GUI(GUI*);

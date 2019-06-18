@@ -3,6 +3,12 @@
 #include "Graphics.h"
 
 void Initialize_GRAPHICS(GRAPHICS* graphics, char* buffer, int width, int height) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)buffer;
+	(void)width;
+	(void)height;
+	init(&graphics->Width, &graphics->Height);
+#else
 	graphics->Buffer      = buffer;
 	graphics->Width       = width;
 	graphics->Height      = height;
@@ -12,26 +18,67 @@ void Initialize_GRAPHICS(GRAPHICS* graphics, char* buffer, int width, int height
 	graphics->Y_clip      = 0;
 	graphics->ContourX    = new long[graphics->Height * 2];
 	graphics->Transparent = false;
+#endif
 }
 
+#ifdef GRAPHICS_USING_HARDWARE
+void Start_Picture_GRAPHICS(GRAPHICS* graphics, int width, int height) {
+	if (width == 0) {
+		width = graphics->Width;
+	}
+	if (height == 0) {
+		height = graphics->Height;
+	}
+	Start(width, height);
+}
+
+void End_Picture_GRAPHICS() {
+	End();
+}
+#endif
+
 void Delete_GRAPHICS(GRAPHICS* graphics) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	finish();
+#else
 	delete [] graphics->ContourX;
+#endif
 }
 
 void SwapBuffers_GRAPHICS(GRAPHICS* graphics, char* buff) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	(void)buff;
+#else
 	graphics->Buffer = buff;
+#endif
 }
 
 void ClearScreen_GRAPHICS(GRAPHICS* graphics, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	
+	Background(color_bytes[2], color_bytes[1], color_bytes[0]);
+#else
 	int *buff = (int*)graphics->Buffer;
 	for (int y = graphics->Height - 1; y >= 0; y--) {
 		for (int x = graphics->Width - 1; x >= 0; x--) {
 			buff[y * graphics->Width + x] = color;
 		}
 	}
+#endif
 }
 
 void Set_Clip_GRAPHICS(GRAPHICS* graphics, int x, int y, int width, int height) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	(void)x;
+	(void)y;
+	(void)width;
+	(void)height;
+#else
 	if (x < 0 || x >= graphics->Width || y < 0 || y >= graphics->Height) {
 		graphics->X_clip      = 0;
 		graphics->Y_clip      = 0;
@@ -49,9 +96,17 @@ void Set_Clip_GRAPHICS(GRAPHICS* graphics, int x, int y, int width, int height) 
 	  graphics->Width_Clip  = width;
 	  graphics->Height_Clip = height;
 	}
+#endif
 }
 
 void Clip_GRAPHICS(GRAPHICS* graphics, int &x, int &y, int &w, int &h) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	(void)x;
+	(void)y;
+	(void)w;
+	(void)h;
+#else
 	uint8_t invalid = false;
 	if (x < 0 || y < 0) {
 		log_err("negative coordinates not implemented");
@@ -97,8 +152,10 @@ void Clip_GRAPHICS(GRAPHICS* graphics, int &x, int &y, int &w, int &h) {
 	if (y + h > graphics->Height_Clip + graphics->X_clip) {
 		h = graphics->Height_Clip + graphics->Y_clip - y;
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void DrawPoint_GRAPHICS(GRAPHICS* graphics, int x, int y, int color) {
 	if (graphics->Transparent) {
 		DrawPoint_Transparent_GRAPHICS(graphics, x, y, color);
@@ -158,15 +215,28 @@ void DrawPoint_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int color) {
 void DrawPoint_Opaque_GRAPHICS_UNSAFE(GRAPHICS* graphics, int x, int y, int color) {
 	((int*)graphics->Buffer)[x + (y * graphics->Width)]= color;
 }
+#endif
 
 void DrawLine_GRAPHICS(GRAPHICS* graphics, int x1, int y1, int x2, int y2, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	//TODO guessing that line is a stroke, maybe wrong
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+
+	StrokeWidth(1);
+	Stroke(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Line(x1, y1, x2, y2);
+#else
 	if (graphics->Transparent) {
 		DrawLine_Transparent_GRAPHICS(graphics, x1, y1, x2, y2, color);
 	} else {
 		DrawLine_Opaque_GRAPHICS(graphics, x1, y1, x2, y2, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void DrawLine_Transparent_GRAPHICS(GRAPHICS* graphics, int x1, int y1, int x2, int y2, int color) {
 	int dx, dy, inx, iny, e;
 
@@ -303,15 +373,37 @@ void ScanLine_GRAPHICS(GRAPHICS* graphics, long x1, long y1, long x2, long y2) {
     }
   }
 }
+#endif
 
 void FillTriangle_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	VGfloat* x = new VGfloat[3];
+	VGfloat* y = new VGfloat[3];
+
+	x[0] = x0;
+	x[1] = x1;
+	x[2] = x2;
+	y[0] = y0;
+	y[1] = y1;
+	y[2] = y2;
+
+	StrokeWidth(0);
+	Fill(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Polygon(x, y, 3);
+#else
 	if (graphics->Transparent) {
 		FillTriangle_Transparent_GRAPHICS(graphics, x0, y0, x1, y1, x2, y2, color);
 	} else {
 		FillTriangle_Opaque_GRAPHICS(graphics, x0, y0, x1, y1, x2, y2, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void FillTriangle_Transparent_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
 	long y;
 
@@ -455,15 +547,28 @@ void DrawLine_Width_Opaque_GRAPHICS_UNSAFE(GRAPHICS* graphics, int x, int y, int
 		DrawPoint_Opaque_GRAPHICS_UNSAFE(graphics, x + i, y, color);
 	}
 }
+#endif
 
 void DrawSquare_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	StrokeWidth(1);
+	Stroke(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Fill(0, 0, 0, 0);
+	RectOutline(x, y, w, h);
+#else
 	if (graphics->Transparent) {
 		DrawSquare_Transparent_GRAPHICS(graphics, x, y, w, h, color);
 	} else {
 		DrawSquare_Opaque_GRAPHICS(graphics, x, y, w, h, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void DrawSquare_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int color) {
 	if (x > graphics->Width_Clip + graphics->X_clip) return;
 	if (y > graphics->Height_Clip + graphics->Y_clip) return;
@@ -495,15 +600,27 @@ void DrawSquare_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, 
 	DrawLine_Width_Opaque_GRAPHICS_UNSAFE(graphics, x, y + h, w, color);
 	DrawLine_Height_Opaque_GRAPHICS_UNSAFE(graphics, x + w, y, h, color);
 }
+#endif
 
 void FillSquare_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	StrokeWidth(0);
+	Fill(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Rect(x, y, w, h);
+#else
 	if (graphics->Transparent) {
 		FillSquare_Transparent_GRAPHICS(graphics, x, y, w, h, color);
 	} else {
 		FillSquare_Opaque_GRAPHICS(graphics, x, y, w, h, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void FillSquare_Transparent_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int color) {
 	if (x > graphics->Width_Clip + graphics->X_clip) {
 		return;
@@ -551,15 +668,28 @@ void FillSquare_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, 
 		DrawLine_Width_Opaque_GRAPHICS_UNSAFE(graphics, x, y + i, w, color);
 	}
 }
+#endif
 
 void DrawCircle_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	StrokeWidth(1);
+	Stroke(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Fill(0, 0, 0, 0);
+	CircleOutline(x0, y0, radius);
+#else
 	if (graphics->Transparent) {
 		DrawCircle_Transparent_GRAPHICS(graphics, x0, y0, radius, color);
 	} else {
 		DrawCircle_Opaque_GRAPHICS(graphics, x0, y0, radius, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void DrawCircle_Transparent_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, int c) {
 	int x = radius, y = 0;
 	int radiusError = 1 - x;
@@ -613,15 +743,27 @@ void DrawCircle_Opaque_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, 
 		}
 	}
 }
+#endif
 
 void FillCircle_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, int color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	StrokeWidth(0);
+	Fill(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Circle(x0, y0, radius);
+#else
 	if (graphics->Transparent) {
 		FillCircle_Transparent_GRAPHICS(graphics, x0, y0, radius, color);
 	} else {
 		FillCircle_Opaque_GRAPHICS(graphics, x0, y0, radius, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void FillCircle_Transparent_GRAPHICS(GRAPHICS* graphics, int x0, int y0, int radius, int c) {
 	int x = radius, y = 0;
 	int radiusError = 1 - x;
@@ -739,8 +881,20 @@ void FillPolygon_Opaque_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 		}
 	}
 }
+#endif
 
 void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int r, Color color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+
+	int r_offset = r * 4.0 / 3 + 0.5;
+	
+	StrokeWidth(0);
+	Fill(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Roundrect(x, y, w, h, w - r_offset, h - r_offset);
+#else
 	// Check to see that the rect trying to be drawn is valid
 	if (x > graphics->Width_Clip + graphics->X_clip) {
 		return;
@@ -794,8 +948,10 @@ void FillRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, in
 		FillQuarterArc_GRAPHICS(graphics, x, y + innerHeight + r, r, r, THIRD_QUADRANT, color);
 		FillQuarterArc_GRAPHICS(graphics, x + innerWidth + r, y + innerHeight + r, r, r, FOURTH_QUADRANT, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void FillQuarterArc_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 	// Prevent function from continuing if dimensions are invalid
 	if(x < 0 || y < 0 || w < 2 || h < 2) {
@@ -915,16 +1071,40 @@ void DrawThickHorizontalLine_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, i
 void DrawThickVerticalLine_GRAPHICS(GRAPHICS* graphics, int x, int y, int h, int thickness, Color color) {
   FillSquare_GRAPHICS(graphics, x, y, thickness, h, color);
 }
+#endif
 
 // Draw a rect with the desired thickness by drawing four lines
 void DrawThickRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int thickness, Color color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+	
+	StrokeWidth(thickness);
+	Stroke(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Fill(0, 0, 0, 0);
+	RectOutline(x, y, w, h);
+#else
 	DrawThickHorizontalLine_GRAPHICS(graphics, x, y, w, thickness, color);
 	DrawThickHorizontalLine_GRAPHICS(graphics, x, y + h - thickness, w, thickness, color);
 	DrawThickVerticalLine_GRAPHICS(graphics, x, y, h, thickness, color);
 	DrawThickVerticalLine_GRAPHICS(graphics, x + w - thickness, y, h, thickness, color);
+#endif
 }
 
 void DrawThickRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int thickness, int r, Color color) {
+#ifdef GRAPHICS_USING_HARDWARE
+	(void)graphics;
+	uint8_t* color_bytes = (uint8_t*)&color;
+	float alpha = color_bytes[3] / 255.0;
+
+	int r_offset = r * 4.0 / 3 + 0.5;
+	
+	StrokeWidth(thickness);
+	Stroke(color_bytes[2], color_bytes[1], color_bytes[0], alpha);
+	Fill(0, 0, 0, 0);
+	RoundrectOutline(x, y, w, h, w - r_offset, h - r_offset);
+#else
 	// Check to see that the rect trying to be drawn is valid
 	if(x < 0 || y < 0 || w < 0 || h < 0) {
 		cout << "ERROR: The rect is invalid and cannot be drawn\n";
@@ -961,8 +1141,10 @@ void DrawThickRoundedRect_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int 
     DrawThickQuarterArc_GRAPHICS(graphics, x, y + innerHeight + r, r, r, thickness, THIRD_QUADRANT, color);
     DrawThickQuarterArc_GRAPHICS(graphics, x + innerWidth + r, y + innerHeight + r, r, r, thickness, FOURTH_QUADRANT, color);
 	}
+#endif
 }
 
+#ifndef GRAPHICS_USING_HARDWARE
 void DrawQuarterArc_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
   // Prevent function from continuing if dimensions are invalid
   if(x < 0 || y < 0 || w < 0 || h < 0) {
@@ -1047,3 +1229,4 @@ void DrawThickQuarterArc_GRAPHICS(GRAPHICS* graphics, int x, int y, int w, int h
     DrawQuarterArc_GRAPHICS(graphics, x, y, w - arc, h - arc, quadrant, color);
   }
 }
+#endif

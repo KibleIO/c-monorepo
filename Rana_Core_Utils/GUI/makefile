@@ -8,7 +8,9 @@ CC_BUILD_FLAGS =-fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 \
 
 UNAME_M = $(shell uname -m)
 ifeq ($(UNAME_M),armv7l)
-	CC_BUILD_FLAGS += -D_FILE_OFFSET_BITS=64
+	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
+	-I/opt/vc/include/interface/vmcs_host/linux\
+	-I/opt/vc/include/interface/vcos/pthreads
 endif
 
 # File names
