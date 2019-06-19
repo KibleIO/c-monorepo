@@ -28,9 +28,9 @@ void Render_Image(IMAGE* image, struct nk_context* ctx) {
 
 		nk_label(ctx, "", 0);
 		nk_image(ctx, nk_image_ptr(&image->image));
-	}
 
-	nk_group_end(ctx);
+		nk_group_end(ctx);
+	}
 }
 
 void Render_Image_With_Buffer(IMAGE* image, struct nk_context* ctx) {
