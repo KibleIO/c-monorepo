@@ -30,3 +30,7 @@ SIMPLE_ELLIPSIS_ANIMATION* anim, struct nk_context* ctx) {
 	nk_label(ctx, "", 0);
 	Render_SIMPLE_ELLIPSIS_ANIMATION(anim, ctx);
 }
+
+void Delete_SIMPLE_ELLIPSIS_ANIMATION(SIMPLE_ELLIPSIS_ANIMATION* anim) {
+	Delete_Button(&anim->button);
+}

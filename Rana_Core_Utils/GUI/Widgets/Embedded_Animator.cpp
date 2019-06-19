@@ -46,6 +46,13 @@ EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
 	Render_EMBEDDED_ANIMATOR(anim, ctx);
 }
 
+void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
+	for (uint8_t i = 0; i < anim->totalFrames; i++) {
+		Delete_Image(&anim->frames[i]);
+	}
+	Delete_SIMPLE_ELLIPSIS_ANIMATION(&anim->tempAnim);
+}
+
 void Initialize_Images_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR* anim, struct nk_rect r) {
 	anim->initializing = true;
