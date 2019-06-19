@@ -78,7 +78,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	string resized_file = loc + "resized" + to_string(w) + "x" + to_string(h);
 
 	if (file_exists(resized_file)) {
-		log_dbg("found resized image, loading");
+		log_dbg("loading resized version of image " + loc);
 		ifstream inp(resized_file, ios::in | ios::binary);
 		bmp->Data = new char[w * h * 4];
 		inp.read(bmp->Data, w * h * 4);
