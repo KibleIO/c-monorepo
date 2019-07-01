@@ -78,7 +78,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	string resized_file = loc + "resized" + to_string(w) + "x" + to_string(h);
 
 	if (file_exists(resized_file)) {
-		log_dbg("found resized image, loading");
+		log_dbg("loading resized version of image " + loc);
 		ifstream inp(resized_file, ios::in | ios::binary);
 		bmp->Data = new char[w * h * 4];
 		inp.read(bmp->Data, w * h * 4);
@@ -247,7 +247,7 @@ void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
 			copy(
 			(int*)bmp->Data + y * bmp->W,
 			(int*)bmp->Data + y * bmp->W + temp_width,
-			(int*)g->Buffer + (Y + y) * g->Width_Clip + X);
+			(int*)g->Buffer + (Y + y) * g->Width + X);
 		}
 	}
 }
@@ -308,8 +308,6 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int fbp_h, int X, int Y) {
 		if (h <= 0) return;
 		if (x + w > fbp_w) w = fbp_w - x;
 		if (y + h > fbp_h) h = fbp_h - y;
-
-		cout << w << " " << h << endl;
 
 		for (int _y = 0; _y < h; _y++) {
 			copy(

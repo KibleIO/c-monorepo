@@ -4,6 +4,16 @@
 
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
+
+void Reset_Mouse_Clicks() {
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,1,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,1,0});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,2,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,2,0});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,3,1});
+	DEVICE_MANAGER::Mouse_Events.push(new MOUSE_EVENT_T{0,0,1,3,0});
+}
+
 #ifdef __linux__
 DEVICE_NODE** DEVICE_MANAGER::previous_dev;
 volatile int  DEVICE_MANAGER::p_d_size;
@@ -19,7 +29,7 @@ void Set_Mouse_Speed(double speed) {
 }
 #endif
 
-bool Initialize_Device_Manager(
+bool Initialize_DEVICE_MANAGER(
 DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
 	if (dev_man->client || dev_man->server || dev_man->Event_Status) {
 		log_err("device manager struct not properly nullified");
@@ -78,16 +88,11 @@ DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
 	return false;
 }
 
-void Device_Server_Start(DEVICE_MANAGER* dev_man) {
+void Receive_Thread(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype;
 
-	dev_man->receiving = true;
+	log_dbg("receive thread started");
 	while (dev_man->receiving) {
-		if (!dev_man->server) {
-			Sleep_Milli(16);
-			continue;
-		}
-
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
 			log_err("could not receive input packet");
 			dev_man->receiving = false;
@@ -103,45 +108,19 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 				dev_man->receiving = false;
 				continue;
 			}
-
-			if (dev_man->client) {
-				if (
-				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
-					log_err("could not forward mouse event");
-					dev_man->client = NULL;
-					// Linux specific code {{{
-					#ifdef __linux__
-					DEVICE_MANAGER::Mouse_Events.push(m_event);
-					#endif
-					// }}} Windows specific code {{{
-					#ifdef _WIN64
-					Handle_Mouse_WINAPI(m_event);
-					#endif
-					// }}} OSX specific code {{{
-					#ifdef __APPLE__
-					//TODO apple code
-					#endif
-					// }}}
-					MOUSE::Clicked = false;
-				} else {
-					delete m_event;
-				}
-			} else {
-				// Linux specific code {{{
-				#ifdef __linux__
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
-				#endif
-				// }}} Windows specific code {{{
-				#ifdef _WIN64
-				Handle_Mouse_WINAPI(m_event);
-				#endif
-				// }}} OSX specific code {{{
-				#ifdef __APPLE__
-				//TODO apple code
-				#endif
-				// }}}
-			}
+			// Linux specific code {{{
+			#ifdef __linux__
+			DEVICE_MANAGER::Mouse_Events.push(m_event);
+			#endif
+			// }}} Windows specific code {{{
+			#ifdef _WIN64
+			Handle_Mouse_WINAPI(m_event);
+			#endif
+			// }}} OSX specific code {{{
+			#ifdef __APPLE__
+			//TODO apple code
+			#endif
+			// }}}
 		} else if (ptype == KEY_PACKET) {
 			KEYBOARD_EVENT_T* k_event = new KEYBOARD_EVENT_T;
 			if (
@@ -150,74 +129,51 @@ void Device_Server_Start(DEVICE_MANAGER* dev_man) {
 				dev_man->receiving = false;
 				continue;
 			}
-			if (dev_man->client) {
-				if (
-				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!dev_man->client->Send((char*)k_event,
-				sizeof(KEYBOARD_EVENT_T))) {
-					log_err("could not forward keyboard event");
-					dev_man->client = NULL;
-					// Linux specific code {{{
-					#ifdef __linux__
-					DEVICE_MANAGER::Keyboard_Events.push(k_event);
-					#endif
-					// }}} Windows specific code {{{
-					#ifdef _WIN64
-					Handle_Keyboard_WINAPI(k_event);
-					#endif
-					// }}} OSX specific code {{{
-					#ifdef __APPLE__
-					//TODO apple code
-					#endif
-					// }}}
-				} else {
-					delete k_event;
-				}
-			} else {
-				// Linux specific code {{{
-				#ifdef __linux__
-				DEVICE_MANAGER::Keyboard_Events.push(k_event);
-				#endif
-				// }}} Windows specific code {{{
-				#ifdef _WIN64
-				Handle_Keyboard_WINAPI(k_event);
-				#endif
-				// }}} OSX specific code {{{
-				#ifdef __APPLE__
-				//TODO apple code
-				#endif
-				// }}}
-			}
+			// Linux specific code {{{
+			#ifdef __linux__
+			DEVICE_MANAGER::Keyboard_Events.push(k_event);
+			#endif
+			// }}} Windows specific code {{{
+			#ifdef _WIN64
+			Handle_Keyboard_WINAPI(k_event);
+			#endif
+			// }}} OSX specific code {{{
+			#ifdef __APPLE__
+			//TODO apple code
+			#endif
+			// }}}
 		} else {
 			log_err("unknown packet type");
 		}
 	}
+	log_dbg("receive thread going down");
 }
 
-void Device_Server_Stop(DEVICE_MANAGER* dev_man) {
-	dev_man->receiving = false;
-}
-
-void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server) {
+void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server) {
+	Disconnect_Server_DEVICE_MANAGER(dev_man);
 	dev_man->server = server;
-	if (dev_man->server) {
-		dev_man->server->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
-		dev_man->server->Set_High_Priority();
-	}
+	dev_man->server->Set_Recv_Timeout(TIMEOUT);
+	dev_man->server->Set_High_Priority();
+	dev_man->receiving = true;
+	dev_man->recv_thr = new thread(Receive_Thread, dev_man);
 }
 
-void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client) {
-	dev_man->client = client;
-	if (dev_man->client) {
-		//dev_man->client->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
-		dev_man->client->Set_High_Priority();
+void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	if (dev_man->server) {
+		dev_man->server->CloseConnection();
 	}
+	dev_man->receiving = false;
+	if (dev_man->recv_thr) {
+		dev_man->recv_thr->join();
+		delete dev_man->recv_thr;
+		dev_man->recv_thr = NULL;
+	}
+	dev_man->server = NULL;
 }
 
 // Linux specific code {{{
 #ifdef __linux__
-void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
-	uint8_t ptype;
+void Read_Keyboard_Data(DEVICE_NODE* dev) {
 	KEYBOARD* keyboard = dev->hw.keyboard;
 	if (!keyboard) {
 		log_err("keyboard is null");
@@ -226,28 +182,32 @@ void Send_Keyboard_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	for (int i = keyboard->Events.size(); i > 0; i--) {
 		KEYBOARD_EVENT_T* k_event = NULL;
 		keyboard->Events.pop(k_event);
-		ptype = KEY_PACKET;
-		if (dev_man->client) {
-			if (
-			!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-			!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
-				log_err("could not send keyboard event");
-				dev_man->client = NULL;
-				DEVICE_MANAGER::Keyboard_Events.push(k_event);
-			} else {
-				delete k_event;
-			}
-		} else {
-			DEVICE_MANAGER::Keyboard_Events.push(k_event);
-		}
+		DEVICE_MANAGER::Keyboard_Events.push(k_event);
 	}
 }
 
-void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
+void Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
+	uint8_t ptype = KEY_PACKET;
+	int len = DEVICE_MANAGER::Keyboard_Events.size();
+	for (int i = 0; i < len; i++) {
+		KEYBOARD_EVENT_T* k_event = NULL;
+		DEVICE_MANAGER::Keyboard_Events.pop(k_event);
+		if (!k_event) {
+			log_err("expected keyboard event, found null");
+			continue;
+		}
+		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+		!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
+			log_err("could not send keyboard event");
+		}
+		delete k_event;
+	}
+}
+
+void Read_Mouse_Data(DEVICE_NODE* dev) {
 	MOUSE_EVENT_T* m_event;
 	double vert;
 	int rel_x, rel_y;
-	uint8_t ptype;
 
 	MOUSE* mouse = dev->hw.mouse;
 	if (!mouse) {
@@ -287,21 +247,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 			m_event->y = mouse->Current_Y;
 			m_event->state = MOUSE_ABS_COORD;
 			m_event->clicked = false;
-			if (dev_man->client) {
-				ptype = MOUSE_PACKET;
-				if (
-				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!dev_man->client->Send((char*)m_event,
-				sizeof(MOUSE_EVENT_T))) {
-					log_err("could not sent mouse movement");
-					dev_man->client = NULL;
-					DEVICE_MANAGER::Mouse_Events.push(m_event);
-				} else {
-					delete m_event;
-				}
-			} else {
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
-			}
+			DEVICE_MANAGER::Mouse_Events.push(m_event);
 			break;
 
 		case LIBINPUT_EVENT_POINTER_BUTTON:
@@ -329,21 +275,7 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 			m_event->y = mouse->Current_Y;
 			m_event->clicked = true;
 			m_event->state = libinput_event_pointer_get_button_state(lep);
-			if (dev_man->client) {
-				ptype = MOUSE_PACKET;
-				if (
-				!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-				!dev_man->client->Send((char*)m_event,
-				sizeof(MOUSE_EVENT_T))) {
-					log_err("could not send mouse click");
-					dev_man->client = NULL;
-					DEVICE_MANAGER::Mouse_Events.push(m_event);
-				} else {
-					delete m_event;
-				}
-			} else {
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
-			}
+			DEVICE_MANAGER::Mouse_Events.push(m_event);
 			break;
 
 		case LIBINPUT_EVENT_POINTER_AXIS:
@@ -366,39 +298,19 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 
 			m_event->clicked = true;
 			m_event->state = true;
-			if (dev_man->client) {
-				ptype = MOUSE_PACKET;
-				if (
-					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)m_event,
-						sizeof(MOUSE_EVENT_T))) {
-					log_err("could not send mouse click");
-					dev_man->client = NULL;
-				} else {
-					delete m_event;
-				}
-				m_event = new MOUSE_EVENT_T;
-				m_event->x = mouse->Current_X;
-				m_event->y = mouse->Current_Y;
-				m_event->button = (
-				vert > 0) ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
 
-				m_event->clicked = true;
-				m_event->state = false;
-				ptype = MOUSE_PACKET;
-				if (
-					!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-					!dev_man->client->Send((char*)m_event,
-						sizeof(MOUSE_EVENT_T))) {
-					log_err("could not send mouse click");
-					dev_man->client = NULL;
-					DEVICE_MANAGER::Mouse_Events.push(m_event);
-				} else {
-					delete m_event;
-				}
-			} else {
-				DEVICE_MANAGER::Mouse_Events.push(m_event);
-			}
+			DEVICE_MANAGER::Mouse_Events.push(m_event);
+
+			m_event = new MOUSE_EVENT_T;
+			m_event->x = mouse->Current_X;
+			m_event->y = mouse->Current_Y;
+			m_event->button = (
+			vert > 0) ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
+
+			m_event->clicked = true;
+			m_event->state = false;
+
+			DEVICE_MANAGER::Mouse_Events.push(m_event);
 			break;
 		default:
 			log_err("unknown mouse event type");
@@ -407,46 +319,83 @@ void Send_Mouse_Data(DEVICE_NODE* dev, DEVICE_MANAGER* dev_man) {
 	}
 }
 
+void Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
+	uint8_t ptype = MOUSE_PACKET;
+	int len = DEVICE_MANAGER::Mouse_Events.size();
+	for (int i = 0; i < len; i++) {
+		MOUSE_EVENT_T* m_event = NULL;
+		DEVICE_MANAGER::Mouse_Events.pop(m_event);
+		if (!m_event) {
+			log_err("expected mouse event, found null");
+			continue;
+		}
+		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
+		!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
+			log_err("failed to send mouse event");
+		}
+		delete m_event;
+	}
+}
+
 bool Check_Device_Node(DEVICE_NODE* init) {
 	return init->okay;
 }
 
-void Device_Client_Start(DEVICE_MANAGER* dev_man) {
-	dev_man->sending = true;
-
-	while (dev_man->sending) {
+void Read_Thread(DEVICE_MANAGER* dev_man) {
+	while (dev_man->reading) {
 		for (int i = 0; i < dev_man->p_d_size; i++) {
 			DEVICE_NODE* dev = dev_man->previous_dev[i];
 			if (Check_Device_Node(dev)) {
 				if (dev->type == _MOUSE) {
-					Send_Mouse_Data(dev, dev_man);
-				}
-				else if (dev->type == _KEYBOARD) {
-					Send_Keyboard_Data(dev, dev_man);
+					Read_Mouse_Data(dev);
+				} else if (dev->type == _KEYBOARD) {
+					Read_Keyboard_Data(dev);
 				}
 			}
 		}
 	}
 }
 
-void Device_Client_Stop(DEVICE_MANAGER* dev_man) {
-	dev_man->sending = false;
+void Send_Thread(DEVICE_MANAGER* dev_man) {
+	while (dev_man->sending) {
+		Send_Keyboard_Data(dev_man);
+		Send_Mouse_Data(dev_man);
+	}
 }
 
-void Device_Client_Close_Connection(DEVICE_MANAGER* dev_man) {
+void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	Stop_Reading_Devices_DEVICE_MANAGER(dev_man);
+	dev_man->reading = true;
+	dev_man->read_thr = new thread(Read_Thread, dev_man);
+}
+
+void Stop_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	dev_man->reading = false;
+	if (dev_man->read_thr) {
+		dev_man->read_thr->join();
+		delete dev_man->read_thr;
+		dev_man->read_thr = NULL;
+	}
+}
+
+void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client) {
+	Disconnect_Client_DEVICE_MANAGER(dev_man);
+	dev_man->client = client;
+	dev_man->sending = true;
+	dev_man->send_thr = new thread(Send_Thread, dev_man);
+}
+
+void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 	if (dev_man->client) {
 		dev_man->client->CloseConnection();
-		delete dev_man->client;
-		dev_man->client = NULL;
 	}
-}
-
-void Device_Server_Close_Connection(DEVICE_MANAGER* dev_man) {
-	if (dev_man->server) {
-		dev_man->server->CloseConnection();
-		delete dev_man->server;
-		dev_man->server = NULL;
+	dev_man->sending = false;
+	if (dev_man->send_thr) {
+		dev_man->send_thr->join();
+		delete dev_man->send_thr;
+		dev_man->send_thr = NULL;
 	}
+	dev_man->client = NULL;
 }
 
 void Initialize_Device_Node(DEVICE_NODE* init, string ss, int t) {
@@ -546,7 +495,7 @@ DEVICE_NODE* Exists_Device_Node(DEVICE_MANAGER* dev_man, string ptr) {
 	return NULL;
 }
 
-void Refresh_Devices(DEVICE_MANAGER* dev_man) {
+void Refresh_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 	bool found;
 
 	if ((dev_man->dp = opendir(INPUT_PATH)) == NULL) {
@@ -632,10 +581,11 @@ void Refresh_Devices(DEVICE_MANAGER* dev_man) {
 	dev_man->c_d_size = 0;
 }
 
-void Delete_Device_Manager(DEVICE_MANAGER* dev_man) {
+void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 	log_dbg("deleting device manager");
-	Device_Server_Stop(dev_man);
-	Device_Client_Stop(dev_man);
+	Stop_Reading_Devices_DEVICE_MANAGER(dev_man);
+	Disconnect_Server_DEVICE_MANAGER(dev_man);
+	Disconnect_Client_DEVICE_MANAGER(dev_man);
 
 	if (dev_man->current_dev && dev_man->previous_dev) {
 		for (int i = 0; i < MAX_DEV; i++) {

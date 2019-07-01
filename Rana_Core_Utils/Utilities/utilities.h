@@ -25,6 +25,7 @@ void Scale(float* ar, uint32_t arlen, float target);
 struct nk_vec2 Center(struct nk_rect parent, struct nk_vec2 child_dimensions);
 
 string Rect_Str(struct nk_rect);
+string Vec2_Str(struct nk_vec2);
 string Color_Str(struct nk_color);
 
 bool Valid_IP(string ip);

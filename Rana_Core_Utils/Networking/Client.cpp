@@ -52,7 +52,7 @@ void Client::Init() {
 #endif
 
 	connected = false;
-	Set_Recv_Timeout(20);
+	Set_Recv_Timeout(30);
 }
 
 void Client::Set_Name(string _name) {
@@ -108,39 +108,11 @@ bool Client::OpenConnection(int port, string ip) {
 	destination.sin_port = htons(port);
 
 	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
-		int ret;
-		int reps = 5;
-		gaicb* reqs;
-
-		reqs = new gaicb;
-
-		memset(reqs, 0, sizeof (gaicb));
-		reqs->ar_name = ip.c_str();
-
-		ret = getaddrinfo_a(GAI_NOWAIT, &reqs, 1, NULL);
-	    if (ret != 0) {
+		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip.c_str(), 2)) {
 			log_err(
-			name + ": getaddrinfo_a() failed " + ip + ":" + to_string(port));
-			return false;
-	    }
-
-		while (reps-- > 0 && gai_error(reqs) != 0) {
-			Sleep_Milli(100);
-		}
-
-		if (reps >= 0) {
-			destination.sin_addr.s_addr = (
-			(struct sockaddr_in *) reqs->ar_result->ai_addr)->sin_addr.s_addr;
-		} else {
-			log_err(
-			name + ": gai_error() failed " + ip + ":" + to_string(port));
+			name + ": getaddrinfo_k() failed " + ip + ":" + to_string(port));
 			return false;
 		}
-
-		gai_cancel(reqs);
-		freeaddrinfo(reqs->ar_result);
-
-		delete reqs;
 	}
 
 	long arg;
@@ -163,9 +135,10 @@ bool Client::OpenConnection(int port, string ip) {
 
 	int32_t res =
 	connect(cSocket, (sockaddr*)&destination, sizeof(destination));
+	int err = errno;
 
 	if (res < 0) {
-		if (errno == EINPROGRESS) {
+		if (err == EINPROGRESS) {
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
 			FD_ZERO(&myset);
@@ -369,5 +342,6 @@ Client::~Client() {
 	CloseConnection();
 	if (enc_buf_auth) {
 		delete [] enc_buf_auth;
+		enc_buf_auth = NULL;
 	}
 }

@@ -9,12 +9,23 @@
 #include "../../Utilities/tm_ext.h"
 
 #define CALENDAR_TOTAL_ROWS 5
+#define CALENDAR_ROW_VERTICAL_BUFFER (Ratio_Of_Total(0.01))
+#define CALENDAR_MONTH_SELECT_HEIGHT (Ratio_Of_Total(0.25))
+#define CALENDAR_ROW_HEIGHT (Ratio_Of_Total(\
+	(1.0 - (CALENDAR_MONTH_SELECT_HEIGHT.size +\
+	CALENDAR_ROW_VERTICAL_BUFFER.size * (CALENDAR_TOTAL_ROWS + 1))) /\
+	CALENDAR_TOTAL_ROWS))
 
 #define CALENDAR_BUFFER_TO_BUTTON_RATIO 0.1
 #define CALENDAR_BUFFER_WIDTH_RATIO (1.0 / ((DAYS_IN_WEEK + 1) + \
 ((float)DAYS_IN_WEEK / CALENDAR_BUFFER_TO_BUTTON_RATIO)))
 #define CALENDAR_BUTTON_WIDTH_RATIO ((1 - \
 ((DAYS_IN_WEEK + 1) * CALENDAR_BUFFER_WIDTH_RATIO)) / (float)DAYS_IN_WEEK)
+
+const string MONTH_NAMES[TOTAL_MONTHS] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "June",
+		"July", "Aug", "Sept", "Oct", "Nov", "Dec"
+};
 
 struct CALENDAR_UI {
 	tm calendar;	// Underlying data of the calendar ui

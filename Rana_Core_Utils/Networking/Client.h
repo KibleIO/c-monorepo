@@ -9,6 +9,7 @@
 #include <string.h>
 #include "Networking.h"
 #include "../Utilities/TIMER.h"
+#include "DNS_WRAPPER.h"
 
 class Client {
 private:

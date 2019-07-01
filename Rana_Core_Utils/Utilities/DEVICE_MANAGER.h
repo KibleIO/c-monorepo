@@ -73,11 +73,17 @@ struct DEVICE_MANAGER {
 	Client*       client;
 	Server*		  server;
 	EVENT* Event_Status;
+
+
 #ifdef __linux__
 	DIR* dp;
 	dirent* dirp;
 
-	volatile bool sending;
+	volatile uint8_t reading;
+	thread* read_thr;
+
+	volatile uint8_t sending;
+	thread* send_thr;
 
 	DEVICE_NODE** current_dev;
 	int           c_d_size;
@@ -99,36 +105,35 @@ struct DEVICE_MANAGER {
 	static Queue<MOUSE_EVENT_T*> Mouse_Events;
 
 	volatile bool receiving;
+	thread* recv_thr;
 
 	int w, h; //these are only needed to initialize the mouse, sue me
 };
 
-bool Initialize_Device_Manager(
+void Reset_Mouse_Clicks();
+
+bool Initialize_DEVICE_MANAGER(
 DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status = NULL);
 
-void Device_Server_Start(DEVICE_MANAGER* dev_finder);
+void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server);
 
-void Device_Server_Listen(DEVICE_MANAGER* dev_man, Server* server);
-
-void Device_Server_Stop(DEVICE_MANAGER* dev_finder);
-
-void Device_Client_Connect(DEVICE_MANAGER* dev_man, Client* client);
+void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
 // Linux specific code {{{
 #ifdef __linux__
 void Set_Mouse_Speed(double);
 
-void Device_Client_Start(DEVICE_MANAGER* dev_finder);
+void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man); 
 
-void Device_Client_Stop(DEVICE_MANAGER* dev_finder);
+void Stop_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
-void Device_Client_Close_Connection(DEVICE_MANAGER* dev_finder);
+void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
 
-void Device_Server_Close_Connection(DEVICE_MANAGER* dev_finder);
+void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
-void Refresh_Devices(DEVICE_MANAGER* dev_finder);
+void Refresh_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_finder);
 
-void Delete_Device_Manager(DEVICE_MANAGER* dev_man);
+void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64

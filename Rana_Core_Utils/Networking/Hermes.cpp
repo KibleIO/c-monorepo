@@ -150,6 +150,11 @@ void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	*hs = NULLIFY;
 }
 
+void Epipe_HERMES_SERVER(HERMES_SERVER* hs) {
+	hs->err = EPIPE;
+	hs->connected = false;
+}
+
 void Delete_CLIENT_CONNECTION(CLIENT_CONNECTION &cc) {
 	delete cc.client;
 	cc = NULLIFY;
@@ -164,7 +169,12 @@ void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	*hc = NULLIFY;
 }
 
-void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
+void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
+	hc->err = EPIPE;
+	hc->connected = false;
+}
+
+void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	if (hs->connected) {
 		log_err("hermes server already connected");
 		return;
@@ -174,7 +184,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	hs->connected = true;
 	hs->server = new Server();
 	hs->server->Set_Name("hermes server");
-	hs->server->Set_Recv_Timeout(10);
+	hs->server->Set_Recv_Timeout(30);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
@@ -198,6 +208,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 	if (!hs->server->Listen(hs->baseport)) {
 		log_err("could not listen on port " + to_string(hs->baseport));
 		delete hs->server;
+		hs->server_init_failed = true;
 		hs->connected = false;
 		return;
 	}
@@ -244,18 +255,19 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port) {
 				break;
 			}
 
-			uint16_t port = HERMES_PORT_MIN;
+			uint16_t port = baseport;
+			uint16_t max_port = baseport + 1000;
 
 			Server* server = new Server();
 
-			while (port <= HERMES_PORT_MAX) {
+			while (port <= max_port) {
 				if (server->Bind(port)) {
 					break;
 				}
 				port++;
 			}
 
-			if (port > HERMES_PORT_MAX) {
+			if (port > max_port) {
 				log_err("out of ports");
 				delete server;
 				hs->err = EPIPE;
@@ -409,7 +421,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	}
 
 	hc->client = new Client();
-	hc->client->Set_Recv_Timeout(20);
+	hc->client->Set_Recv_Timeout(30);
 	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;

@@ -65,8 +65,11 @@ bool Render_Button_Label(
 BUTTON*, struct nk_context*, const char*, bool interactable = true);
 bool Render_Button_Image(
 BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
+
 bool Render_Button_Label_With_Buffer(
 BUTTON*, struct nk_context*, const char*, bool interactable = true);
+bool Render_Button_Image_With_Buffer(
+BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
 bool Render_Button_Label_Buffered(
 BUTTON*, struct nk_context*, const char*, bool buffered,
 bool interactable = true);

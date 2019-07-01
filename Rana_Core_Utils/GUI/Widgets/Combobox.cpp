@@ -83,6 +83,14 @@ COMBOBOX_ITEM dropdown_width, COMBOBOX_ITEM dropdown_height) {
 	return prev_selected != combobox->selectedItem;
 }
 
+bool Render_COMBOBOX_With_Buffer(
+COMBOBOX* combobox, struct nk_context* ctx, COMBOBOX_ITEM item_height,
+COMBOBOX_ITEM dropdown_width, COMBOBOX_ITEM dropdown_height) {
+	nk_label(ctx, "", 0);
+	return Render_COMBOBOX(
+	combobox, ctx, item_height, dropdown_width, dropdown_height);
+}
+
 void Delete_COMBOBOX(COMBOBOX* combobox) {
 	for (uint8_t i = 0; i < combobox->totalItems; i++) {
 		delete [] combobox->items[i];

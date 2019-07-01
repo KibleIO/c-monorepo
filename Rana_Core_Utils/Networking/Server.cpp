@@ -39,7 +39,7 @@ void Server::Init() {
 #endif
 
 	connected = false;
-	Set_Recv_Timeout(1);
+	Set_Recv_Timeout(30);
 }
 
 void Server::Set_Opts() {
@@ -205,7 +205,7 @@ bool Server::ListenBound() {
 
 	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
-		uint8_t counter = 50;
+		uint8_t counter = 100;
 		while (!lconnected && counter-- > 0) {
 			Sleep_Milli(100);
 		}
@@ -254,7 +254,7 @@ bool Server::ListenBound() {
 
 	// connection timeout
 	thread connect_timeo([&lconnected, this]() {
-		uint8_t counter = 50;
+		uint8_t counter = 100;
 		while (!lconnected && counter-- > 0) {
 			Sleep_Milli(100);
 		}
@@ -335,7 +335,7 @@ bool Server::Send(char *data, int size) {
 		}
 		size += crypto_onetimeauth_BYTES;
 		data = enc_buf_auth;
-	} 
+	}
 
 #ifdef __linux__
 	return send(cSocket, data, size, MSG_WAITALL) == size;
