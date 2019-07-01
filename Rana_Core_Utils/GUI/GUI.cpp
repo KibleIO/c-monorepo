@@ -41,37 +41,34 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	};
 
 	gui->BakedBmp = false;
-
 	if (frame_buffer) {
-		gui->Graphics_Handle_Buffer		  	= NULL;
+		gui->Graphics_Handle_Buffer		  = NULL;
 		gui->Graphics_Handle              = new GRAPHICS;
+		log_tmp("initializing graphics");
 		Initialize_GRAPHICS(gui->Graphics_Handle, frame_buffer, gui->Width, gui->Height);
+		log_tmp("done initializing graphics");
 	} else {
 		gui->Graphics_Handle_Buffer       = new char[(gui->Frame_Resolution + 2) * 4];
 		gui->Graphics_Handle              = new GRAPHICS;
+		log_tmp("initializing graphics");
 		Initialize_GRAPHICS(gui->Graphics_Handle, gui->Graphics_Handle_Buffer, gui->Width, gui->Height);
+		log_tmp("done initializing graphics");
 	}
+
 	gui->Graphics_Handle->Transparent = true;
 
 	// Initialize each of the gui fonts
 	for(int i = 0; i < GUI_TOTAL_FONTS; i++) {
 		Initialize_GUI_Font(&gui->fonts[i], gui->fontHeights[i], font_path.c_str());
 	}
+
 	// Initialize the nk context with the default font size
 	nk_init_default(gui->NK_Context, &gui->fonts[GUI_FONT_DEFAULT_SIZE].nkFont);
+
 	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
 	Set_GUI_Style_Default(gui);
+	log_tmp("done setting up gui");
 }
-
-#ifdef GRAPHICS_USING_HARDWARE
-void Start_Picture_GUI(GUI* gui) {
-	Start_Picture_GRAPHICS(gui->Graphics_Handle);
-}
-
-void End_Picture_GUI() {
-	End_Picture_GRAPHICS();
-}
-#endif
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
 	Initialize_Font(userFont, font_path, height);
@@ -129,6 +126,7 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* comma
 	string str = string(t->string);
 	int _x = t->x;
 	int _y = t->y + gui->fonts[gui->currentFont].userFont.Baseline;
+
 
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
 	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
@@ -414,10 +412,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_TEXT: {
 				const struct nk_command_text* t = (const struct nk_command_text*)command;
-
-				Draw_Text(
-				gui, gui->Graphics_Handle, t);
-
+				Draw_Text(gui, gui->Graphics_Handle, t);
 				break;
 			}
 			case NK_COMMAND_CURVE:
@@ -440,6 +435,126 @@ void Render_Nuklear_GUI(GUI* gui) {
 	nk_clear(gui->NK_Context);
 	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
 }
+
+#ifdef VGSUPPORTED
+void Render_VG_Nuklear_GUI(GUI* gui) {
+	const struct nk_command* command;
+
+	nk_foreach(command, gui->NK_Context) {
+		switch (command->type) {
+			case NK_COMMAND_NOP: break;
+			case NK_COMMAND_SCISSOR: break;
+			case NK_COMMAND_LINE: {
+				const struct nk_command_line* l =
+				(const struct nk_command_line*)command;
+				uint8_t color[4] =
+				{l->color.r, l->color.g, l->color.b, l->color.a};
+				Line_VGGRAPHICS(
+				l->begin.x, l->begin.y, l->end.x, l->end.y, l->line_thickness,
+				color);
+				break;
+			}
+			case NK_COMMAND_RECT: {
+				const struct nk_command_rect* r = 
+				(const struct nk_command_rect*)command;
+				uint8_t color[4] =
+				{r->color.r, r->color.g, r->color.b, r->color.a};
+				Rect_VGGRAPHICS(
+				r->x, r->y, r->w, r->h, r->rounding, r->line_thickness, color);
+				break;
+			}
+			case NK_COMMAND_RECT_FILLED: {
+				const struct nk_command_rect_filled* r =
+				(const struct nk_command_rect_filled*)command;
+				uint8_t color[4] =
+				{r->color.r, r->color.g, r->color.b, r->color.a};
+				Rect_Filled_VGGRAPHICS(r->x, r->y, r->w, r->h, r->rounding,
+				color);
+				break;
+			}
+			case NK_COMMAND_CIRCLE: {
+				const struct nk_command_circle* c =
+				(const struct nk_command_circle*)command;
+				uint8_t color[4] =
+				{c->color.r, c->color.g, c->color.b, c->color.a};
+				Ellipse_VGGRAPHICS(c->x, c->y, c->w, c->h, c->line_thickness,
+				color);
+				break;
+			}
+			case NK_COMMAND_CIRCLE_FILLED: {
+				const struct nk_command_circle_filled* c =
+				(const struct nk_command_circle_filled*)command;
+				uint8_t color[4] =
+				{c->color.r, c->color.g, c->color.b, c->color.a};
+				Ellipse_Filled_VGGRAPHICS(c->x, c->y, c->w, c->h, color);
+				break;
+			}
+			case NK_COMMAND_TRIANGLE: {
+				const struct nk_command_triangle* t = 
+				(const struct nk_command_triangle*)command;
+				uint8_t color[4] =
+				{t->color.r, t->color.g, t->color.b, t->color.a};
+				VGfloat xp[3];
+				VGfloat yp[3];
+				xp[0] = t->a.x;
+				xp[0] = t->b.x;
+				xp[0] = t->c.x;
+				yp[0] = t->a.y;
+				yp[0] = t->b.y;
+				yp[0] = t->c.y;
+				Polygon_VGGRAPHICS(xp, yp, 3, t->line_thickness, color);
+				break;
+			}
+			case NK_COMMAND_TRIANGLE_FILLED: {
+				const struct nk_command_triangle_filled* t = 
+				(const struct nk_command_triangle_filled*)command;
+				uint8_t color[4] =
+				{t->color.r, t->color.g, t->color.b, t->color.a};
+				VGfloat xp[3];
+				VGfloat yp[3];
+				xp[0] = t->a.x;
+				xp[0] = t->b.x;
+				xp[0] = t->c.x;
+				yp[0] = t->a.y;
+				yp[0] = t->b.y;
+				yp[0] = t->c.y;
+				Polygon_Filled_VGGRAPHICS(xp, yp, 3, color);
+				break;
+			}
+			case NK_COMMAND_POLYGON: break;
+			case NK_COMMAND_POLYGON_FILLED: break;
+			case NK_COMMAND_POLYLINE: break;
+			case NK_COMMAND_TEXT: {
+				const struct nk_command_text* t = 
+				(const struct nk_command_text*)command;
+				uint8_t color[4] =
+				{t->foreground.r, t->foreground.g, 
+				t->foreground.b, t->foreground.a};
+				Text_VGGRAPHICS(t->x, t->y, t->string,
+				gui->fontHeights[gui->currentFont] / 2, color);
+				break;
+			}
+			case NK_COMMAND_CURVE:
+			case NK_COMMAND_RECT_MULTI_COLOR:
+			case NK_COMMAND_IMAGE: {
+				const struct nk_command_image* i = 
+				(const struct nk_command_image*)command;
+				BMP* bmp = (BMP*)i->img.handle.ptr;
+				Image_VGGRAPHICS(i->x, i->y, bmp->W, bmp->H,
+				(uint8_t*)bmp->Data);
+				break;
+			}
+			case NK_COMMAND_ARC:
+			case NK_COMMAND_ARC_FILLED:
+			case NK_COMMAND_CUSTOM:
+			default:
+				break;
+		}
+	}
+
+	nk_clear(gui->NK_Context);
+}
+#endif
 
 void Render_GUI(GUI* gui, char* output_buffer) {
 	//char* swapper;

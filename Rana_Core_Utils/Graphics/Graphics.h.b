@@ -12,6 +12,13 @@
 #include "Polygon.h"
 #include "../Utilities/LOGGING.h"
 
+#define GRAPHICS_USING_HARDWARE
+
+#ifdef GRAPHICS_USING_HARDWARE
+#include <shapes.h>
+#include <fontinfo.h>
+#endif
+
 #define ABS(x) ((x >= 0) ? x : -x)
 
 #define FIRST_QUADRANT 1
@@ -24,18 +31,27 @@ using namespace std;
 typedef int Color;
 
 struct GRAPHICS {
-  int   Width;
-  int   Height;
-  int   Width_Clip;
-  int   Height_Clip;
-  int   X_clip;
-  int   Y_clip;
-  char* Buffer;
-  long* ContourX;
-  bool  Transparent;
+	int   Width;
+	int   Height;
+	int   Width_Clip;
+	int   Height_Clip;
+	int   X_clip;
+	int   Y_clip;
+	char* Buffer;
+	long* ContourX;
+	bool  Transparent;
 };
 
 void Initialize_GRAPHICS(GRAPHICS*, char*, int, int);
+
+#ifdef GRAPHICS_USING_HARDWARE
+void Start_Picture_GRAPHICS(GRAPHICS* graphics, int width = 0, int height = 0);
+
+void End_Picture_GRAPHICS();
+
+void fasterimage(VGfloat x, VGfloat y, int w, int h, VGubyte* data);
+#endif
+
 void Delete_GRAPHICS(GRAPHICS*);
 
 void SwapBuffers_GRAPHICS(GRAPHICS*, char* buff);

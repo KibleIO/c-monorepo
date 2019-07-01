@@ -1,4 +1,7 @@
 # Declaration of variables
+
+VG =-DVGSUPPORTED
+
 CC =	g++ -O3 -Wall -Wextra -Wpedantic -Werror -Wno-unused-function \
 		-Wno-implicit-fallthrough -Wno-switch-unreachable
 
@@ -24,7 +27,7 @@ $(EXEC): $(OBJECTS)
 
 # To obtain object files
 %.o: %.cpp
-	$(CC) -c $(CC_BUILD_FLAGS) $< -o $@
+	$(CC) -c $(VG) $(CC_BUILD_FLAGS) $< -o $@
 
 # To remove generated files
 clean:

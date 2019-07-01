@@ -10,7 +10,9 @@ CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -lUtil \
 C_BUILD_FLAGS =	-fPIC -Wl,--as-needed
 
 ifeq ($(UNAME_M),armv7l)
-	CC_BUILD_FLAGS += -D_FILE_OFFSET_BITS=64
+	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
+	-I/opt/vc/include/interface/vmcs_host/linux\
+	-I/opt/vc/include/interface/vcos/pthreads
 endif
 
 # File names

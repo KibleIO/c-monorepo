@@ -4,21 +4,21 @@
 #include "stb_image.h"
 #include "BMP.h"
 
-//void make_img(BMP* bmp) {
-//	char* resized_buffer = new char[bmp->W * bmp->H * 4];
-//	for (int y = 0; y < bmp->H; y++) {
-//		memcpy(resized_buffer + (bmp->H - y - 1) * bmp->W * 4,
-//		bmp->Data + y * bmp->W * 4, bmp->W * 4);
-//	}
-//
-//	delete [] bmp->Data;
-//	bmp->Data = resized_buffer;
-//
-//	//unsigned int dstride = bmp->W * 4;
-//	//VGImageFormat rgbaFormat = VG_sARGB_8888;
-//	//bmp->img = vgCreateImage(rgbaFormat, bmp->H, bmp->W, VG_IMAGE_QUALITY_NONANTIALIASED);
-//	//vgImageSubData(bmp->img, (void*)bmp->Data, dstride, rgbaFormat, 0, 0, bmp->W, bmp->H);
-//}
+void make_img(BMP* bmp) {
+	char* resized_buffer = new char[bmp->W * bmp->H * 4];
+	for (int y = 0; y < bmp->H; y++) {
+		memcpy(resized_buffer + (bmp->H - y - 1) * bmp->W * 4,
+		bmp->Data + y * bmp->W * 4, bmp->W * 4);
+	}
+
+	delete [] bmp->Data;
+	bmp->Data = resized_buffer;
+
+	//unsigned int dstride = bmp->W * 4;
+	//VGImageFormat rgbaFormat = VG_sARGB_8888;
+	//bmp->img = vgCreateImage(rgbaFormat, bmp->H, bmp->W, VG_IMAGE_QUALITY_NONANTIALIASED);
+	//vgImageSubData(bmp->img, (void*)bmp->Data, dstride, rgbaFormat, 0, 0, bmp->W, bmp->H);
+}
 
 void Initialize_BMP(BMP* bmp, string loc) {
 	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
@@ -83,9 +83,9 @@ void Initialize_BMP(BMP* bmp, string loc) {
 	}
 
 	bmp->Transparent = false;
-//#ifdef GRAPHICS_USING_HARDWARE
-//	make_img(bmp);
-//#endif
+#ifdef GRAPHICS_USING_HARDWARE
+	make_img(bmp);
+#endif
 }
 
 
@@ -105,9 +105,9 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 		bmp->W = w;
 		bmp->H = h;
 		bmp->name = loc;
-//#ifdef GRAPHICS_USING_HARDWARE
-//		make_img(bmp);
-//#endif
+#ifdef GRAPHICS_USING_HARDWARE
+		make_img(bmp);
+#endif
 		return;
 	} else {
 		log_dbg("resized image not found, resizing");
@@ -187,12 +187,22 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	ofstream out(resized_file, ios::out | ios::binary);
 	out.write(bmp->Data, w * h * 4);
 
-//#ifdef GRAPHICS_USING_HARDWARE
-//	make_img(bmp);
-//#endif
+#ifdef GRAPHICS_USING_HARDWARE
+	make_img(bmp);
+#endif
 }
 
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
+#ifdef GRAPHICS_USING_HARDWARE
+	//vgWritePixels(bmp->Data, bmp->W, VG_sARGB_8888, X, g->Height - bmp->H - Y, bmp->W, bmp->H);
+	//vgImageSubData(bmp->img, (void*)bmp->Data, bmp->W * 4, VG_sARGB_8888, X, g->Height - bmp->H - Y, bmp->W, bmp->H);
+	//vgSeti(VG_IMAGE_MODE, VG_DRAW_IMAGE_NORMAL);
+	//vgDrawImage(bmp->img);
+	//vgSetPixels(X, g->Height - bmp->H - Y, bmp->img, 0, 0, bmp->W, bmp->H);
+	fasterimage(X, g->Height - bmp->H - Y, bmp->W, bmp->H, (VGubyte*)bmp->Data);
+
+	return;
+#endif
 	// draw fallback texture if data is null
 	if (!bmp->Data) {
 		int32_t w = bmp->W;

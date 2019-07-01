@@ -10,6 +10,11 @@
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Graphics/Graphics.h"
 
+#ifdef VGSUPPORTED
+#include "../Graphics/VGGraphics.h"
+#endif
+
+
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -60,6 +65,7 @@ struct GUI {
 
 //static float Font_Get_Text_Width(nk_handle, float, const char*, int);
 void Initialize_GUI_Themis(GUI* gui, int display_id);
+
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
 
 void Start_Picture_GUI(GUI* gui);
@@ -72,6 +78,9 @@ void Delete_GUI(GUI*);
 void Draw_Text(GUI*, GRAPHICS*, const struct nk_command_text*);
 void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
+#ifdef VGSUPPORTED
+void Render_VG_Nuklear_GUI(GUI*);
+#endif
 void Render_GUI(GUI* gui, char* output_buffer);
 
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
@@ -81,6 +90,7 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 Initialize helpers
 */
 void Initialize_GUI_Font(GUI_FONT*, int height, const char* font_file_name);
+
 void Set_GUI_Style_Default(GUI*);
 
 /*

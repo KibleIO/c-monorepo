@@ -61,8 +61,14 @@ void Advance_Animation(ANIMATOR* anim) {
 	// and that the frames have finished initializing
 	if(anim->totalFrames > 0 && !anim->initializerThreadRunning) {
 		// Draw the current frame
+		#ifdef VGSUPPORTED
+		BMP* bmp = anim->frames[anim->currentFrame];
+		Image_VGGRAPHICS(anim->x, anim->y, bmp->W, bmp->H, (uint8_t*)bmp->Data);
+		#else
 		Draw_BMP(anim->frames[anim->currentFrame], anim->graphicsHandle,
 			anim->x, anim->y);
+		#endif
+
 		// Advance to the next frame if we are not at the last frame
 		// and we are not clamped
 		if(!Animation_Clamped(anim)) {
