@@ -227,6 +227,24 @@ bool Server::ListenBound() {
 	close(lSocket);
 #endif
 #ifdef _WIN64
+	int ret = listen(lSocket, SOMAXCONN);
+	if (ret == SOCKET_ERROR) {
+		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
+		closesocket(lSocket);
+		WSACleanup();
+		return false;
+	}
+
+	cSocket = accept(lSocket, (sockaddr*)NULL, (int*)NULL);
+	if (cSocket == INVALID_SOCKET) {
+		log_err(name + ": accept failed with error " + to_string(WSAGetLastError()));
+		closesocket(lSocket);
+		WSACleanup();
+		return false;
+	}
+
+	closesocket(lSocket);
+	/*
 	if (listen(lSocket, SOMAXCONN) == SOCKET_ERROR) {
 		log_err(name + ": listen failed with error " + to_string(WSAGetLastError()));
 		closesocket(lSocket);
@@ -260,6 +278,7 @@ bool Server::ListenBound() {
 	connect_timeo.join();
 
 	closesocket(lSocket);
+	*/
 #endif
 
 	log_dbg(name + ": connection accepted on port " + to_string(c_port));
