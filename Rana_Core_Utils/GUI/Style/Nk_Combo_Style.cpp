@@ -35,7 +35,8 @@ struct nk_color foreground, struct nk_vec2 padding) {
 	style->symbol_hover = foreground;
 	style->symbol_active = foreground;
 
-	style->button = Nk_Button_Style(background, foreground, padding);
+	style->button = Nk_Button_Style_Padded(
+	background, foreground, padding, nk_vec2(0, 0), nk_vec2(0, 0));
 }
 
 void Set_Nk_Combo_Style_Defaults(struct nk_style_combo* style) {

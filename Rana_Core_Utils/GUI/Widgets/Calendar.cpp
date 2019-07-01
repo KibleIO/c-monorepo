@@ -39,14 +39,19 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 		// Layout the header where current month is displayed and adjusted
 		Layout_Row_Symmetric_Odd_Pairs(
-		gui->NK_Context, Breadth(Ratio_Of_Total(0.25)), 2,
+		gui->NK_Context, Breadth(CALENDAR_MONTH_SELECT_HEIGHT), 2,
 		Breadth(Ratio_Of_Total(0.2)), Breadth(Ratio_Of_Total(0.6)));
 
 		// If back button is pressed, move current month back once
 		if (
 		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
 		gui->NK_Context, "<")) {
-			ui->currentMonth = (ui->currentMonth - 1) % TOTAL_MONTHS;
+			ui->currentMonth--;
+
+			// If decrement caused overflow, set current month to last month
+			if (ui->currentMonth >= TOTAL_MONTHS) {
+				ui->currentMonth = TOTAL_MONTHS - 1;
+			}
 		}
 
 		Render_Button_Label_With_Buffer(
@@ -65,8 +70,8 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 			// Layout a row with seven equally sized columns
 			Layout_Row_Homogenous(
-			gui->NK_Context, Buffer_And_Breadth(Ratio_Of_Total(0.01),
-			Ratio_Of_Total(0.15)), DAYS_IN_WEEK, Buffer_And_Breadth(
+			gui->NK_Context, Buffer_And_Breadth(CALENDAR_ROW_VERTICAL_BUFFER,
+			CALENDAR_ROW_HEIGHT), DAYS_IN_WEEK, Buffer_And_Breadth(
 			Ratio_Of_Total(CALENDAR_BUFFER_WIDTH_RATIO),
 			Ratio_Of_Total(CALENDAR_BUTTON_WIDTH_RATIO)));
 
