@@ -44,15 +44,11 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  = NULL;
 		gui->Graphics_Handle              = new GRAPHICS;
-		log_tmp("initializing graphics");
 		Initialize_GRAPHICS(gui->Graphics_Handle, frame_buffer, gui->Width, gui->Height);
-		log_tmp("done initializing graphics");
 	} else {
 		gui->Graphics_Handle_Buffer       = new char[(gui->Frame_Resolution + 2) * 4];
 		gui->Graphics_Handle              = new GRAPHICS;
-		log_tmp("initializing graphics");
 		Initialize_GRAPHICS(gui->Graphics_Handle, gui->Graphics_Handle_Buffer, gui->Width, gui->Height);
-		log_tmp("done initializing graphics");
 	}
 
 	gui->Graphics_Handle->Transparent = true;
@@ -67,7 +63,6 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
 	Set_GUI_Style_Default(gui);
-	log_tmp("done setting up gui");
 }
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
@@ -442,8 +437,10 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 
 	nk_foreach(command, gui->NK_Context) {
 		switch (command->type) {
-			case NK_COMMAND_NOP: break;
-			case NK_COMMAND_SCISSOR: break;
+			case NK_COMMAND_NOP: 
+				break;
+			case NK_COMMAND_SCISSOR: 
+				break;
 			case NK_COMMAND_LINE: {
 				const struct nk_command_line* l =
 				(const struct nk_command_line*)command;
@@ -521,9 +518,12 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				Polygon_Filled_VGGRAPHICS(xp, yp, 3, color);
 				break;
 			}
-			case NK_COMMAND_POLYGON: break;
-			case NK_COMMAND_POLYGON_FILLED: break;
-			case NK_COMMAND_POLYLINE: break;
+			case NK_COMMAND_POLYGON:
+				break;
+			case NK_COMMAND_POLYGON_FILLED: 
+				break;
+			case NK_COMMAND_POLYLINE: 
+				break;
 			case NK_COMMAND_TEXT: {
 				const struct nk_command_text* t = 
 				(const struct nk_command_text*)command;
@@ -534,8 +534,10 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				gui->fontHeights[gui->currentFont] / 2, color);
 				break;
 			}
-			case NK_COMMAND_CURVE:
+			case NK_COMMAND_CURVE: 
+				break;
 			case NK_COMMAND_RECT_MULTI_COLOR:
+				break;
 			case NK_COMMAND_IMAGE: {
 				const struct nk_command_image* i = 
 				(const struct nk_command_image*)command;
@@ -545,8 +547,11 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				break;
 			}
 			case NK_COMMAND_ARC:
+				break;
 			case NK_COMMAND_ARC_FILLED:
+				break;
 			case NK_COMMAND_CUSTOM:
+				break;
 			default:
 				break;
 		}
