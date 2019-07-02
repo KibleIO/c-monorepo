@@ -452,12 +452,12 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				break;
 			}
 			case NK_COMMAND_RECT: {
-				const struct nk_command_rect* r = 
-				(const struct nk_command_rect*)command;
-				uint8_t color[4] =
-				{r->color.r, r->color.g, r->color.b, r->color.a};
-				Rect_VGGRAPHICS(
-				r->x, r->y, r->w, r->h, r->rounding, r->line_thickness, color);
+				//const struct nk_command_rect* r = 
+				//(const struct nk_command_rect*)command;
+				//uint8_t color[4] =
+				//{r->color.r, r->color.g, r->color.b, r->color.a};
+				//Rect_VGGRAPHICS(
+				//r->x, r->y, r->w, r->h, r->rounding, r->line_thickness, color);
 				break;
 			}
 			case NK_COMMAND_RECT_FILLED: {

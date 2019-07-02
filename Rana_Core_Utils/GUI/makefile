@@ -1,6 +1,6 @@
 # Declaration of variables
 
-VG =-DVGSUPPORTED
+#VG =-DVGSUPPORTED
 
 CC =	g++ -O3 -Wall -Wextra -Wpedantic -Werror -Wno-unused-function \
 		-Wno-implicit-fallthrough -Wno-switch-unreachable

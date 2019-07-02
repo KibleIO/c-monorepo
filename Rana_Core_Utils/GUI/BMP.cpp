@@ -29,7 +29,8 @@ void Initialize_BMP(BMP* bmp, string loc) {
 	if (!valid_image) {
 		bmp->W = 32;
 		bmp->H = 32;
-		bmp->Data = NULL;
+		uint32_t* missing_buffer = new uint32_t[bmp->W * bmp->H]{0xffff00ff};
+		bmp->Data = (char*)missing_buffer;
 		return;
 	}
 
@@ -111,7 +112,8 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	if (!valid_image) {
 		bmp->W = w;
 		bmp->H = h;
-		bmp->Data = NULL;
+		uint32_t* missing_buffer = new uint32_t[w * h]{0xffff00ff};
+		bmp->Data = (char*)missing_buffer;
 		return;
 	}
 
@@ -167,28 +169,6 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 }
 
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
-	// draw fallback texture if data is null
-	if (!bmp->Data) {
-		int32_t w = bmp->W;
-		int32_t h = bmp->H;
-		int32_t* g_buffer = (int*)g->Buffer;
-
-		Clip_GRAPHICS(g, X, Y, w, h);
-
-		for (int x = 0; x < w; x++) {
-    		for (int y = 0; y < h; y++) {
-				uint8_t x_patt = (x / 5) % 2 == 0;
-				uint8_t y_patt = (y / 5) % 2 == 0;
-				uint8_t color = x_patt ^ y_patt;
-				if (color) {
-					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C1;
-				} else {
-					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C2;
-				}
-    		}
-    	}
-		return;
-	}
 	if (bmp->Transparent) {
 		for (int x = 0; x < bmp->W; x++) {
     		for (int y = 0; y < bmp->H; y++) {
