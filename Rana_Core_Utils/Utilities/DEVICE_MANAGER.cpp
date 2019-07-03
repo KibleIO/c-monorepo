@@ -152,7 +152,7 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server) {
 	Disconnect_Server_DEVICE_MANAGER(dev_man);
 	dev_man->server = server;
-	dev_man->server->Set_Recv_Timeout(TIMEOUT);
+	dev_man->server->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
 	dev_man->server->Set_High_Priority();
 	dev_man->receiving = true;
 	dev_man->recv_thr = new thread(Receive_Thread, dev_man);
