@@ -29,7 +29,8 @@ void Initialize_BMP(BMP* bmp, string loc) {
 	if (!valid_image) {
 		bmp->W = 32;
 		bmp->H = 32;
-		bmp->Data = NULL;
+		uint32_t* missing_buffer = new uint32_t[bmp->W * bmp->H]{0xffff00ff};
+		bmp->Data = (char*)missing_buffer;
 		return;
 	}
 
@@ -60,14 +61,15 @@ void Initialize_BMP(BMP* bmp, string loc) {
 
 			((int*)bmp->Data)[y * bmp->W + x] = work;
 
-			if (loc.find(".bmp") != string::npos) {
-				((int*)bmp->Data)[y * bmp->W + x] |= 0xff000000;
-			}
+			//if (loc.find(".bmp") != string::npos) {
+			//	((int*)bmp->Data)[y * bmp->W + x] |= 0xff000000;
+			//}
 		}
 	}
 
 	bmp->Transparent = false;
 }
+
 
 void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	if (bmp->Data || bmp->W || bmp->H || bmp->Transparent) {
@@ -110,7 +112,8 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	if (!valid_image) {
 		bmp->W = w;
 		bmp->H = h;
-		bmp->Data = NULL;
+		uint32_t* missing_buffer = new uint32_t[w * h]{0xffff00ff};
+		bmp->Data = (char*)missing_buffer;
 		return;
 	}
 
@@ -153,9 +156,9 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 
 			((int*)bmp->Data)[y * bmp->W + x] = work;
 
-			if (loc.find(".bmp") != string::npos) {
-				((int*)bmp->Data)[y * bmp->W + x] |= 0xff000000;
-			}
+			//if (loc.find(".bmp") != string::npos) {
+			//	((int*)bmp->Data)[y * bmp->W + x] |= 0xff000000;
+			//}
 		}
 	}
 
@@ -165,72 +168,7 @@ void Initialize_BMP(BMP* bmp, string loc, int w, int h) {
 	out.write(bmp->Data, w * h * 4);
 }
 
-void resizeBilinear(int* pixels, int* output, int w, int h, int w2, int h2) {
-	int a, b, c, d, x, y, index;
-	float x_ratio = ((float)(w-1))/w2 ;
-	float y_ratio = ((float)(h-1))/h2 ;
-	float x_diff, y_diff, blue, red, green, alpha;
-	int offset = 0 ;
-	for (int i=0;i<h2;i++) {
-		for (int j=0;j<w2;j++) {
-			x = (int)(x_ratio * j) ;
-			y = (int)(y_ratio * i) ;
-			x_diff = (x_ratio * j) - x ;
-			y_diff = (y_ratio * i) - y ;
-			index = y*w+x ;
-			a = pixels[index] ;
-			b = pixels[index+1] ;
-			c = pixels[index+w] ;
-			d = pixels[index+w+1] ;
-
-			// blue element
-			// Yb = Ab(1-w)(1-h) + Bb(w)(1-h) + Cb(h)(1-w) + Db(wh)
-			blue = (a&0xff)*(1-x_diff)*(1-y_diff) + (b&0xff)*(x_diff)*(1-y_diff) +
-			(c&0xff)*(y_diff)*(1-x_diff)   + (d&0xff)*(x_diff*y_diff);
-
-			// green element
-			// Yg = Ag(1-w)(1-h) + Bg(w)(1-h) + Cg(h)(1-w) + Dg(wh)
-			green = ((a>>8)&0xff)*(1-x_diff)*(1-y_diff) + ((b>>8)&0xff)*(x_diff)*(1-y_diff) +
-			((c>>8)&0xff)*(y_diff)*(1-x_diff)   + ((d>>8)&0xff)*(x_diff*y_diff);
-
-			// red element
-			// Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
-			red = ((a>>16)&0xff)*(1-x_diff)*(1-y_diff) + ((b>>16)&0xff)*(x_diff)*(1-y_diff) +
-			((c>>16)&0xff)*(y_diff)*(1-x_diff)   + ((d>>16)&0xff)*(x_diff*y_diff);
-
-			// red element
-			// Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
-			alpha = ((a>>24)&0xff)*(1-x_diff)*(1-y_diff) + ((b>>24)&0xff)*(x_diff)*(1-y_diff) +
-			((c>>24)&0xff)*(y_diff)*(1-x_diff)   + ((d>>24)&0xff)*(x_diff*y_diff);
-
-			output[offset++] = ((int)blue) | (((int)green) << 8) | (((int)red) << 16) | (((int)alpha) << 24);
-		}
-	}
-}
-
 void Draw_BMP(BMP* bmp, GRAPHICS* g, int X, int Y) {
-	// draw fallback texture if data is null
-	if (!bmp->Data) {
-		int32_t w = bmp->W;
-		int32_t h = bmp->H;
-		int32_t* g_buffer = (int*)g->Buffer;
-
-		Clip_GRAPHICS(g, X, Y, w, h);
-
-		for (int x = 0; x < w; x++) {
-    		for (int y = 0; y < h; y++) {
-				uint8_t x_patt = (x / 5) % 2 == 0;
-				uint8_t y_patt = (y / 5) % 2 == 0;
-				uint8_t color = x_patt ^ y_patt;
-				if (color) {
-					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C1;
-				} else {
-					g_buffer[X + x + g->Width * (Y + y)] = BMP_FALLBACK_C2;
-				}
-    		}
-    	}
-		return;
-	}
 	if (bmp->Transparent) {
 		for (int x = 0; x < bmp->W; x++) {
     		for (int y = 0; y < bmp->H; y++) {
@@ -318,6 +256,32 @@ void Draw_BMP(BMP* bmp, char* fbp, int fbp_w, int fbp_h, int X, int Y) {
 	}
 }
 
+void Draw_Inverted_Mouse_BMP(BMP* bmp, char* fbp, int fbp_w, int fbp_h, int X, int Y) {
+	int w = bmp->W;
+	int h = bmp->H;
+	int x = X;
+	int y = Y;
+
+	if (x > fbp_w) return;
+	if (y > fbp_h) return;
+	if (x < 0) { w += x; x = 0; }
+	if (y < 0) { h += y; y = 0; }
+	if (w <= 0) return;
+	if (h <= 0) return;
+	if (x + w > fbp_w) w = fbp_w - x;
+	if (y + h > fbp_h) h = fbp_h - y;
+
+	for (int _y = 0; _y < h; _y++) {
+		for (int _x = 0; _x < w; _x++) {
+			((int*)fbp)[(h - 1 - _y + y) * fbp_w + _x + x] = 
+			*((int*)bmp->Data + _y * bmp->W + _x);
+		}
+	}
+}
+
 void Delete_BMP(BMP* bmp) {
 	delete [] bmp->Data;
+#ifdef GRAPHICS_USING_HARDWARE	
+	vgDestroyImage(bmp->img);
+#endif
 }

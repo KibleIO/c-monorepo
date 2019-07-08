@@ -21,6 +21,10 @@ struct BMP {
 	int W, H;
 	bool Transparent;
 	string name;
+
+#ifdef GRAPHICS_USING_HARDWARE
+	VGImage img;
+#endif
 };
 
 void Initialize_BMP(BMP*, string);
@@ -28,6 +32,7 @@ void Initialize_BMP(BMP*, string, int, int);
 void resizeBilinear(int*, int*, int, int, int, int);
 void Draw_BMP(BMP*, GRAPHICS*, int, int);
 void Draw_BMP(BMP*, char*, int, int, int, int);
+void Draw_Inverted_Mouse_BMP(BMP*, char*, int, int, int, int);
 void Delete_BMP(BMP*);
 
 #endif

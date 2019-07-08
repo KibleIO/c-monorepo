@@ -10,10 +10,9 @@
 using namespace std;
 
 class POLYGON {
-	private:
+	public:
 		double* x_coords;
 		double* y_coords;
-	public:
 		int corners;
 		double top, bottom; //minY, maxY
 		double left, right; //minX, maxX
