@@ -57,6 +57,7 @@
     <ClCompile Include="GUI\Widgets\Slider.cpp" />
     <ClCompile Include="GUI\Widgets\Textbox.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
+    <ClCompile Include="Networking\DNS_WRAPPER.cpp" />
     <ClCompile Include="Networking\ENCRYPTION_ENGINE.cpp" />
     <ClCompile Include="Networking\ENCRYPTION_PROFILE.cpp" />
     <ClCompile Include="Networking\Hermes.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="GUI\Widgets\Textbox.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\direntwin.h" />
+    <ClInclude Include="Networking\DNS_WRAPPER.h" />
     <ClInclude Include="Networking\ENCRYPTION_ENGINE.h" />
     <ClInclude Include="Networking\ENCRYPTION_PROFILE.h" />
     <ClInclude Include="Networking\Hermes.h" />

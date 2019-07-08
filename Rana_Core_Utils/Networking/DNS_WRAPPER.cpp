@@ -1,3 +1,5 @@
+#ifndef _WIN64
+
 #include "DNS_WRAPPER.h"
 
 uint32_t ip_ret_DNS_WRAPPER;
@@ -88,3 +90,5 @@ uint32_t* ip_addr, const char* dns_address, uint32_t timeout_val) {
 
 	return true;
 }
+
+#endif

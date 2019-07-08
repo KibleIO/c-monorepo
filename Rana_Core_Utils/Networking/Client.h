@@ -3,13 +3,13 @@
 
 #ifdef __linux__
 #include <netdb.h>
+#include "DNS_WRAPPER.h"
 #endif
 
 #include <string>
 #include <string.h>
 #include "Networking.h"
 #include "../Utilities/TIMER.h"
-#include "DNS_WRAPPER.h"
 
 class Client {
 private:

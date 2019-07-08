@@ -183,6 +183,9 @@
     <ClCompile Include="GUI\Widgets\Render_Utilities.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="Networking\DNS_WRAPPER.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Graphics.h">
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="GUI\Widgets\Render_Utilities.h">
       <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking\DNS_WRAPPER.h">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
