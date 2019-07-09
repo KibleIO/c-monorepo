@@ -77,9 +77,10 @@ uint8_t total_buttons, /* const char* */...) {
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, modal, message->panel, message->defaultButtonStyle,
-	message->miscButtonStyle, text, message->textStyle, (const char*)NULL, {},
-	MESSAGE_BOX_NO_DEFAULT_BUTTON, button_labels, total_buttons);
+	ctx, title, bounds, flags, modal, message->panel,
+	message->defaultButtonStyle, message->miscButtonStyle, text,
+	message->textStyle, (const char*)NULL, {}, MESSAGE_BOX_NO_DEFAULT_BUTTON,
+	button_labels, total_buttons);
 }
 
 int8_t Render_Message_With_Default_And_Info(
@@ -180,7 +181,7 @@ const char* button_labels[], uint8_t total_buttons) {
 		// Layout all buttons evenly spaced
 		Layout_Row_Evenly_Spaced_Items(
 		ctx, Buffer_And_Breadth(Ratio_Of_Total(0.1), Ratio_Of_Total(0.15)),
-		Ratio_Of_Total(0.2), total_buttons, true);
+		Ratio_Of_Total(0.3), total_buttons, true);
 
 		// Render each button
 		for (uint8_t i = 0; i < total_buttons; i++) {
