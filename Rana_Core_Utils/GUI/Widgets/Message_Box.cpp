@@ -31,120 +31,121 @@ struct nk_style_button button) {
 
 int8_t Render_MESSAGE_BOX_With_Default_And_Info(
 MESSAGE_BOX* message, struct nk_context* ctx, const char* title,
-struct nk_rect bounds, nk_flags flags, const char* text,
+struct nk_rect bounds, nk_flags flags, bool modal, const char* text,
 const char* informative_text, int8_t default_button, uint8_t total_buttons,
 /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, message->panel, message->defaultButtonStyle,
-	message->miscButtonStyle, text, message->textStyle, informative_text,
-	message->informativeTextStyle, default_button, button_labels,
-	total_buttons);
+	ctx, title, bounds, flags, modal, message->panel,
+	message->defaultButtonStyle, message->miscButtonStyle, text,
+	message->textStyle, informative_text, message->informativeTextStyle,
+	default_button, button_labels, total_buttons);
 }
 int8_t Render_MESSAGE_BOX_With_Default(
 MESSAGE_BOX* message, struct nk_context* ctx, const char* title,
-struct nk_rect bounds, nk_flags flags, const char* text, int8_t default_button,
-uint8_t total_buttons, /* const char* */...) {
+struct nk_rect bounds, nk_flags flags, bool modal, const char* text,
+int8_t default_button, uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, message->panel, message->defaultButtonStyle,
-	message->miscButtonStyle, text, message->textStyle, (const char*)NULL, {},
-	default_button, button_labels, total_buttons);
+	ctx, title, bounds, flags, modal, message->panel,
+	message->defaultButtonStyle, message->miscButtonStyle, text,
+	message->textStyle, (const char*)NULL, {}, default_button, button_labels,
+	total_buttons);
 }
 int8_t Render_MESSAGE_BOX_With_Info(
 MESSAGE_BOX* message, struct nk_context* ctx, const char* title,
-struct nk_rect bounds, nk_flags flags, const char* text,
+struct nk_rect bounds, nk_flags flags, bool modal, const char* text,
 const char* informative_text, uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, message->panel, message->defaultButtonStyle,
-	message->miscButtonStyle, text, message->textStyle, informative_text,
-	message->informativeTextStyle, MESSAGE_BOX_NO_DEFAULT_BUTTON, button_labels,
-	total_buttons);
+	ctx, title, bounds, flags, modal, message->panel,
+	message->defaultButtonStyle, message->miscButtonStyle, text,
+	message->textStyle, informative_text, message->informativeTextStyle,
+	MESSAGE_BOX_NO_DEFAULT_BUTTON, button_labels, total_buttons);
 }
 int8_t Render_MESSAGE_BOX(
 MESSAGE_BOX* message, struct nk_context* ctx, const char* title,
-struct nk_rect bounds, nk_flags flags, const char* text, uint8_t total_buttons,
-/* const char* */...) {
+struct nk_rect bounds, nk_flags flags, bool modal, const char* text,
+uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, message->panel, message->defaultButtonStyle,
+	ctx, title, bounds, flags, modal, message->panel, message->defaultButtonStyle,
 	message->miscButtonStyle, text, message->textStyle, (const char*)NULL, {},
 	MESSAGE_BOX_NO_DEFAULT_BUTTON, button_labels, total_buttons);
 }
 
 int8_t Render_Message_With_Default_And_Info(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
-nk_flags flags, PANEL panel, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
-struct nk_style_text text_style, const char* informative_text,
+nk_flags flags, bool modal, PANEL panel,
+struct nk_style_button default_button_style, struct nk_style_button misc_button,
+const char* text, struct nk_style_text text_style, const char* informative_text,
 struct nk_style_text informative_text_style, int8_t default_button,
 uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, panel, default_button_style, misc_button, text,
-	text_style, informative_text, informative_text_style, default_button,
+	ctx, title, bounds, flags, modal, panel, default_button_style, misc_button,
+	text, text_style, informative_text, informative_text_style, default_button,
 	button_labels, total_buttons);
 }
 
 int8_t Render_Message_With_Info(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
-nk_flags flags, PANEL panel, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
-struct nk_style_text text_style, const char* informative_text,
-struct nk_style_text informative_text_style, uint8_t total_buttons,
-/* const char* */...) {
+nk_flags flags, bool modal, PANEL panel, struct nk_style_button button_style,
+const char* text, struct nk_style_text text_style,
+const char* informative_text, struct nk_style_text informative_text_style,
+uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, panel, default_button_style, misc_button, text,
+	ctx, title, bounds, flags, modal, panel, button_style, button_style, text,
 	text_style, informative_text, informative_text_style,
 	MESSAGE_BOX_NO_DEFAULT_BUTTON, button_labels, total_buttons);
 }
 
 int8_t Render_Message_With_Default(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
-nk_flags flags, PANEL panel, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
-struct nk_style_text text_style, int8_t default_button, uint8_t total_buttons,
-/* const char* */...) {
+nk_flags flags, bool modal, PANEL panel,
+struct nk_style_button default_button_style, struct nk_style_button misc_button,
+const char* text, struct nk_style_text text_style, int8_t default_button,
+uint8_t total_buttons, /* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, panel, default_button_style, misc_button, text,
-	text_style, (const char*)NULL, {}, default_button, button_labels,
+	ctx, title, bounds, flags, modal, panel, default_button_style, misc_button,
+	text, text_style, (const char*)NULL, {}, default_button, button_labels,
 	total_buttons);
 }
 
 int8_t Render_Message(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
-nk_flags flags, PANEL panel, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
-struct nk_style_text text_style, uint8_t total_buttons, /* const char* */...) {
+nk_flags flags, bool modal, PANEL panel, struct nk_style_button button_style,
+const char* text, struct nk_style_text text_style, uint8_t total_buttons,
+/* const char* */...) {
 	const char* button_labels[MAX_MESSAGE_BOX_BUTTONS];
 	va_array(button_labels, total_buttons, const char*);
 
 	return Render_Message(
-	ctx, title, bounds, flags, panel, default_button_style, misc_button, text,
+	ctx, title, bounds, flags, modal, panel, button_style, button_style, text,
 	text_style, (const char*)NULL, {}, MESSAGE_BOX_NO_DEFAULT_BUTTON,
 	button_labels, total_buttons);
 }
 
 int8_t Render_Message(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
-nk_flags flags, PANEL panel, struct nk_style_button default_button_style,
+nk_flags flags, bool modal, PANEL panel,
+struct nk_style_button default_button_style,
 struct nk_style_button misc_button_style, const char* text,
 struct nk_style_text text_style, const char* informative_text,
 struct nk_style_text informative_text_style, int8_t default_button,
@@ -200,6 +201,11 @@ const char* button_labels[], uint8_t total_buttons) {
 		}
 	}
 	nk_end(ctx);
+
+	// If this is a modal window, set its focus
+	if (modal) {
+		nk_window_set_focus(ctx, title);
+	}
 
 	return ret;
 }

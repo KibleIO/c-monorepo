@@ -35,19 +35,20 @@ struct nk_style_button button);
 
 int8_t Render_MESSAGE_BOX_With_Default_And_Info(
 MESSAGE_BOX*, struct nk_context*, const char* title, struct nk_rect bounds,
-nk_flags, const char* text, const char* informative_text,
+nk_flags, bool modal, const char* text, const char* informative_text,
 int8_t default_button, uint8_t total_buttons, /* const char* */...);
 int8_t Render_MESSAGE_BOX_With_Default(
 MESSAGE_BOX*, struct nk_context*, const char* title, struct nk_rect bounds,
-nk_flags, const char* text, int8_t default_button, uint8_t total_buttons,
-/* const char* */...);
+nk_flags, bool modal, const char* text, int8_t default_button,
+uint8_t total_buttons, /* const char* */...);
 int8_t Render_MESSAGE_BOX_With_Info(
 MESSAGE_BOX*, struct nk_context*, const char* title, struct nk_rect bounds,
-nk_flags, const char* text, const char* informative_text, uint8_t total_buttons,
-/* const char* */...);
+nk_flags, bool modal, const char* text, const char* informative_text,
+uint8_t total_buttons, /* const char* */...);
 int8_t Render_MESSAGE_BOX(
 MESSAGE_BOX*, struct nk_context*, const char* title, struct nk_rect bounds,
-nk_flags, const char* text, uint8_t total_buttons, /* const char* */...);
+nk_flags, bool modal, const char* text, uint8_t total_buttons,
+/* const char* */...);
 
 void Delete_MESSAGE_BOX(MESSAGE_BOX*);
 
@@ -55,33 +56,31 @@ void Delete_MESSAGE_BOX(MESSAGE_BOX*);
 
 int8_t Render_Message_With_Default_And_Info(
 struct nk_context*, const char* title, struct nk_rect bounds, nk_flags,
-PANEL, struct nk_style_button default_button_style,
+bool modal, PANEL, struct nk_style_button default_button_style,
 struct nk_style_button misc_button_style, const char* text,
 struct nk_style_text text_style, const char* informative_text,
 struct nk_style_text informative_text_style, int8_t default_button,
 uint8_t total_buttons, /* const char* */...);
 int8_t Render_Message_With_Info(
 struct nk_context*, const char* title, struct nk_rect bounds, nk_flags,
-PANEL, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
+bool modal, PANEL, struct nk_style_button button_style, const char* text,
 struct nk_style_text text_style, const char* informative_text,
 struct nk_style_text informative_text_style, uint8_t total_buttons,
 /* const char* */...);
 int8_t Render_Message_With_Default(
 struct nk_context*, const char* title, struct nk_rect bounds, nk_flags,
-PANEL, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
+bool modal, PANEL, struct nk_style_button default_button_style,
+struct nk_style_button button_style, const char* text,
 struct nk_style_text text_style, int8_t default_button, uint8_t total_buttons,
 /* const char* */...);
 int8_t Render_Message(
 struct nk_context*, const char* title, struct nk_rect bounds, nk_flags,
-PANEL, struct nk_style_button default_button_style,
-struct nk_style_button misc_button, const char* text,
+bool modal, PANEL, struct nk_style_button misc_button, const char* text,
 struct nk_style_text text_style, uint8_t total_buttons, /* const char* */...);
 
 int8_t Render_Message(
-struct nk_context*, const char* title, struct nk_rect bounds, nk_flags, PANEL,
-struct nk_style_button default_button_style,
+struct nk_context*, const char* title, struct nk_rect bounds, nk_flags,
+bool modal, PANEL, struct nk_style_button default_button_style,
 struct nk_style_button misc_button_style, const char* text,
 struct nk_style_text text_style, const char* informative_text,
 struct nk_style_text informative_text_style, int8_t default_button,
