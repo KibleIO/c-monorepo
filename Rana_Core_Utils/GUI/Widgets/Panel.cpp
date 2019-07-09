@@ -1,5 +1,28 @@
 #include "Panel.h"
 
+PANEL Panel(
+struct nk_style_window style, struct nk_style_scrollbar hbar,
+struct nk_style_scrollbar vbar) {
+	PANEL panel;
+	Initialize_Panel(&panel, style, hbar, vbar);
+	return panel;
+}
+PANEL Panel_HBar(struct nk_style_window style, struct nk_style_scrollbar hbar) {
+	PANEL panel;
+	Initialize_Panel_HBar(&panel, style, hbar);
+	return panel;
+}
+PANEL Panel_VBar(struct nk_style_window style, struct nk_style_scrollbar vbar) {
+	PANEL panel;
+	Initialize_Panel_VBar(&panel, style, vbar);
+	return panel;
+}
+PANEL Panel(struct nk_style_window style) {
+	PANEL panel;
+	Initialize_Panel(&panel, style);
+	return panel;
+}
+
 void Initialize_Panel(PANEL* panel, struct nk_style_window style,
 struct nk_style_scrollbar hbar, struct nk_style_scrollbar vbar) {
 	panel->style = style;

@@ -10,13 +10,20 @@ struct PANEL {
 	struct nk_style_scrollbar verticalScrollbar;
 };
 
-void Initialize_Panel(PANEL*, struct nk_style_window,
-	struct nk_style_scrollbar hbar,
-	struct nk_style_scrollbar vbar);
-void Initialize_Panel_HBar(PANEL*, struct nk_style_window,
-	struct nk_style_scrollbar hbar);
-void Initialize_Panel_VBar(PANEL*, struct nk_style_window,
-	struct nk_style_scrollbar vbar);
+PANEL Panel(
+struct nk_style_window, struct nk_style_scrollbar hbar,
+struct nk_style_scrollbar vbar);
+PANEL Panel_HBar(struct nk_style_window, struct nk_style_scrollbar hbar);
+PANEL Panel_VBar(struct nk_style_window, struct nk_style_scrollbar vbar);
+PANEL Panel(struct nk_style_window);
+
+void Initialize_Panel(
+PANEL*, struct nk_style_window, struct nk_style_scrollbar hbar,
+struct nk_style_scrollbar vbar);
+void Initialize_Panel_HBar(
+PANEL*, struct nk_style_window, struct nk_style_scrollbar hbar);
+void Initialize_Panel_VBar(
+PANEL*, struct nk_style_window, struct nk_style_scrollbar vbar);
 void Initialize_Panel(PANEL*, struct nk_style_window);
 
 int Start_Window(
