@@ -3,15 +3,24 @@
 void Initialize_Label(LABEL* label, struct nk_style_text style) {
 	label->style = style;
 }
-void Render_Label(LABEL* label, struct nk_context* ctx, const char* text,
-nk_flags flags) {
+void Render_Label(
+LABEL* label, struct nk_context* ctx, const char* text, nk_flags flags) {
 	ctx->style.text = label->style;
 	nk_label(ctx, text, flags);
+}
+void Render_Label_Wrap(LABEL* label, struct nk_context* ctx, const char* text) {
+	ctx->style.text = label->style;
+	nk_label_wrap(ctx, text);
 }
 void Render_Label_With_Buffer(LABEL* label, struct nk_context* ctx,
 const char* text, nk_flags flags) {
 	nk_label(ctx, "", flags);
 	Render_Label(label, ctx, text, flags);
+}
+void Render_Label_Wrap_With_Buffer(
+LABEL* label, struct nk_context* ctx, const char* text) {
+	nk_label(ctx, "", 0);
+	Render_Label_Wrap(label, ctx, text);
 }
 void Render_Label_Buffered(
 LABEL* label, struct nk_context* ctx, const char* text, nk_flags flags,

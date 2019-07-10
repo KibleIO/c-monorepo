@@ -49,6 +49,8 @@ PROGRESS_TRACKER*, uint32_t* progress_increments, uint32_t total_updates);
 // Increment current progress by the current incremental step, and go
 // to the next step
 void Update_Progress_Tracker(PROGRESS_TRACKER*);
+// Cause progress to immediately finish
+void Finish_Progress_Tracker(PROGRESS_TRACKER*);
 // Necessary?
 void Reset_Progress_Tracker(PROGRESS_TRACKER*);
 

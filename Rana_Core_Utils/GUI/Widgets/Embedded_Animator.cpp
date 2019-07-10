@@ -101,6 +101,19 @@ EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
 	}
 }
 
+void Clamp_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim, uint8_t clamp) {
+	if (clamp < anim->totalFrames) {
+		anim->frameClamp = clamp;
+	}
+}
+void Unclamp_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
+	anim->frameClamp = -1;
+}
+
+void Restart_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
+	anim->currentFrame = 0;
+}
+
 bool EMBEDDED_ANIMATOR_Clamped(const EMBEDDED_ANIMATOR* anim) {
 	return anim->currentFrame == anim->frameClamp;
 }

@@ -165,22 +165,22 @@ const char* button_labels[], uint8_t total_buttons) {
 
 	if (Start_Window(&panel, ctx, title, bounds, flags)) {
 		// Layout main text
-		Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(0.5)));
+		Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(0.4)));
 		Render_Label_With_Buffer(&text_widget, ctx, text, NK_TEXT_CENTERED);
 
 		// Layout informative text
 		Layout_Row_Single(
-		ctx, Breadth(Ratio_Of_Total(0.2)),
-		Buffer_And_Breadth(Ratio_Of_Total(0.2), Ratio_Of_Total(0.6)));
+		ctx, Breadth(Ratio_Of_Total(0.3)),
+		Buffer_And_Breadth(Ratio_Of_Total(0.15), Ratio_Of_Total(0.7)));
 
 		if (informative_text != NULL) {
-			Render_Label_With_Buffer(
-			&informative_text_widget, ctx, informative_text, NK_TEXT_CENTERED);
+			Render_Label_Wrap_With_Buffer(
+			&informative_text_widget, ctx, informative_text);
 		}
 
 		// Layout all buttons evenly spaced
 		Layout_Row_Evenly_Spaced_Items(
-		ctx, Buffer_And_Breadth(Ratio_Of_Total(0.1), Ratio_Of_Total(0.15)),
+		ctx, Buffer_And_Breadth(Ratio_Of_Total(0.05), Ratio_Of_Total(0.15)),
 		Ratio_Of_Total(0.3), total_buttons, true);
 
 		// Render each button

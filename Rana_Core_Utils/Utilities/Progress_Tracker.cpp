@@ -74,6 +74,7 @@ PROGRESS_TRACKER* progress, uint32_t total_updates, /* float */ ...) {
 	float* increment_ratios = new float[total_updates];
 	va_array(increment_ratios, total_updates, double);
 	Start_Progress_Tracker(progress, increment_ratios, total_updates);
+	delete [] increment_ratios;
 }
 
 // NOTE: function MOVES ownership of "progress_increments" to the tracker
@@ -94,6 +95,10 @@ void Update_Progress_Tracker(PROGRESS_TRACKER* progress) {
 		progress->currentProgress +=
 			progress->progressIncrements[progress->currentIncrement++];
 	}
+}
+
+void Finish_Progress_Tracker(PROGRESS_TRACKER* progress) {
+	progress->currentProgress = progress->max;
 }
 
 void Reset_Progress_Tracker(PROGRESS_TRACKER* progress) {

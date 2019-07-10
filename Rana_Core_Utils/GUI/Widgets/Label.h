@@ -11,8 +11,10 @@ struct LABEL {
 
 void Initialize_Label(LABEL*, struct nk_style_text);
 void Render_Label(LABEL*, struct nk_context*, const char*, nk_flags);
+void Render_Label_Wrap(LABEL*, struct nk_context*, const char*);
 void Render_Label_With_Buffer(
 LABEL*, struct nk_context*, const char*, nk_flags);
+void Render_Label_Wrap_With_Buffer(LABEL*, struct nk_context*, const char*);
 void Render_Label_Buffered(
 LABEL*, struct nk_context*, const char*, nk_flags, bool buffered);
 void Delete_Label(LABEL*);
