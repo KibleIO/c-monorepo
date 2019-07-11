@@ -118,5 +118,6 @@ bool EMBEDDED_ANIMATOR_Clamped(const EMBEDDED_ANIMATOR* anim) {
 	return anim->currentFrame == anim->frameClamp;
 }
 bool EMBEDDED_ANIMATOR_Finished(const EMBEDDED_ANIMATOR* anim) {
-	return anim->currentFrame == (anim->totalFrames - 1);
+	return !anim->finishedInitializing ||
+	anim->currentFrame == (anim->totalFrames - 1);
 }
