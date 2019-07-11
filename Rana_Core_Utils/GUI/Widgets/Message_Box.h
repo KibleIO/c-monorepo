@@ -33,6 +33,9 @@ void Initialize_MESSAGE_BOX(
 MESSAGE_BOX*, PANEL, struct nk_style_text text_style,
 struct nk_style_button button);
 
+// WARNING: do NOT render a message box between 'nk_begin' and 'nk_end'
+// The message box starts its own window, so it cannot be rendered in a window
+
 int8_t Render_MESSAGE_BOX_With_Default_And_Info(
 MESSAGE_BOX*, struct nk_context*, const char* title, struct nk_rect bounds,
 nk_flags, bool modal, const char* text, const char* informative_text,

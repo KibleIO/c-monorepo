@@ -32,6 +32,10 @@ void sighandler(int signal, siginfo_t* siginfo, void* userdata) {
 	(void)userdata;
 }
 
+void Delete_Mouse_Event_Element(MOUSE_EVENT_ELEMENT* mouse_event) {
+	libinput_event_destroy(mouse_event->Event);
+}
+
 void Initialize_Mouse(
 MOUSE* mouse, int minimum_x, int maximum_x, int minimum_y, int maximum_y,
 float sensitivity, string path, EVENT* event_status) {
@@ -158,15 +162,14 @@ void Delete_Mouse(MOUSE* mouse) {
 		mouse->Event_Listener->join();
 		delete mouse->Event_Listener;
 	}
-	if (mouse->device) {
-		libinput_device_unref(mouse->device);
-	}
 	if (mouse->li) {
 		libinput_unref(mouse->li);
 	}
 	while (mouse->Events.size() > 0) {
 		MOUSE_EVENT_ELEMENT* event = NULL;
 		mouse->Events.pop(event);
+
+		Delete_Mouse_Event_Element(event);
 		delete event;
 	}
 	delete mouse;
@@ -178,8 +181,11 @@ void Listen_Mouse_Once(MOUSE* mouse) {
 		libinput_event* Event;
 	    libinput_dispatch(mouse->li);
 	    while ((Event = libinput_get_event(mouse->li))) {
+
+			// ALLOCATION LEAKED
 	    	MOUSE_EVENT_ELEMENT* event_element = new MOUSE_EVENT_ELEMENT();
-	    	event_element->Event = Event;
+
+			event_element->Event = Event;
 	        mouse->Events.push(event_element);
 			Set_Event(mouse->Event_Status);
 

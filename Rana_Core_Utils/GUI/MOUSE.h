@@ -51,6 +51,8 @@ struct MOUSE_EVENT_ELEMENT {
 	libinput_event* Event;
 };
 
+void Delete_Mouse_Event_Element(MOUSE_EVENT_ELEMENT*);
+
 struct Mouse_Info {
 	int vendor;
 	int product;

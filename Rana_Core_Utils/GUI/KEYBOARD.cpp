@@ -87,6 +87,8 @@ void Initialize_Keyboard(KEYBOARD* keyboard, string path, EVENT* event_status) {
 
 KEYBOARD* Construct_Keyboard(string path, EVENT* event_status) {
 	log_dbg("Keyboard " + path + " created");
+
+	// ALLOCATION LEAKED
 	KEYBOARD* keyboard = new KEYBOARD();
 	Initialize_Keyboard(keyboard, path, event_status);
 	return keyboard;
@@ -135,7 +137,7 @@ void Listen_Keyboard(KEYBOARD* keyboard) {
 			k_event->value = 			event.value;
 			keyboard->Events.push(k_event);
 			Set_Event(keyboard->Event_Status);
-		} 
+		}
 	}
 	log_dbg("done listening to device " + keyboard->path);
 }

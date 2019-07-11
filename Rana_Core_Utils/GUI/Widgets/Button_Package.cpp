@@ -8,6 +8,7 @@ BUTTON_STYLE style, uint8_t total_buttons, bool require_one_selected) {
 	}
 	Initialize_Button_Package(
 	package, type, styles, total_buttons, require_one_selected);
+	delete [] styles;
 }
 
 void Initialize_Button_Package(BUTTON_PACKAGE* package, uint8_t type,

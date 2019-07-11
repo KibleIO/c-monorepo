@@ -48,6 +48,9 @@ uint8_t index) {
 }
 
 void Delete_Checkbox_Radio_Package(CHECKBOX_RADIO_PACKAGE* package) {
+	for (uint8_t i = 0; i < package->totalCheckboxes; i++) {
+		Delete_Checkbox(&package->checkboxes[i]);
+	}
 	delete [] package->checkboxes;
 }
 

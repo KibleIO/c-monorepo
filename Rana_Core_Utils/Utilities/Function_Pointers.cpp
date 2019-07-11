@@ -5,15 +5,19 @@ FUNCTION_POINTER
 ----------------
 */
 
-void Invoke_Function_Pointer(FUNCTION_POINTER* function, void* caller_data) {
-	function->ptr(function->subscriberData, caller_data);
-}
-FUNCTION_POINTER* Function_Pointer(void(*function_ptr)(void*, void*),
-void* subscriber_data) {
+FUNCTION_POINTER* Function_Pointer(
+void(*function_ptr)(void*, void*), void* subscriber_data) {
 	FUNCTION_POINTER* functor = new FUNCTION_POINTER;
 	functor->ptr = function_ptr;
 	functor->subscriberData = subscriber_data;
 	return functor;
+}
+void Delete_Function_Pointer(FUNCTION_POINTER* function) {
+	(void)function;	// Bypass complier warnings
+}
+
+void Invoke_Function_Pointer(FUNCTION_POINTER* function, void* caller_data) {
+	function->ptr(function->subscriberData, caller_data);
 }
 
 /*
@@ -26,12 +30,13 @@ MULTICAST_FUNCTION_POINTER* multi_ptr, int init_capacity) {
 	multi_ptr->functions = new FUNCTION_POINTER[init_capacity];
 	multi_ptr->totalFunctions = 0;
 	multi_ptr->functionCapacity = init_capacity;
+	log_dbg("Initialized multicast function pointer");
 }
 
 void Add_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr,
 void(*new_function)(void*, void*), void* subscriber_data) {
-	Add_Function_Pointer(multi_ptr,
-		Function_Pointer(new_function, subscriber_data));
+	Add_Function_Pointer(
+	multi_ptr, Function_Pointer(new_function, subscriber_data));
 }
 
 void Add_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr,
@@ -68,5 +73,9 @@ MULTICAST_FUNCTION_POINTER* multi_ptr, int new_cap) {
 }
 
 void Delete_Multicast_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr) {
+	for (uint8_t i = 0; i < multi_ptr->totalFunctions; i++) {
+		Delete_Function_Pointer(&multi_ptr->functions[i]);
+	}
 	delete [] multi_ptr->functions;
+	log_dbg("Deleted multicast function pointer");
 }

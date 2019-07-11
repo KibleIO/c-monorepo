@@ -83,6 +83,10 @@ uint8_t total_buttons, /* const char* */...) {
 	button_labels, total_buttons);
 }
 
+void Delete_MESSAGE_BOX(MESSAGE_BOX* message) {
+	Delete_Panel(&message->panel);
+}
+
 int8_t Render_Message_With_Default_And_Info(
 struct nk_context* ctx, const char* title, struct nk_rect bounds,
 nk_flags flags, bool modal, PANEL panel,
