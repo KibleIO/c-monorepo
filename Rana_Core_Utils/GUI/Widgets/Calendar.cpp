@@ -111,9 +111,12 @@ void Render_CALENDAR_UI_With_Buffer(CALENDAR_UI* ui, GUI* gui) {
 }
 
 void Delete_CALENDAR_UI(CALENDAR_UI* ui) {
+	Delete_Panel(&ui->dateSelectionGroup);
 	for(uint8_t i = 0; i < TOTAL_MONTHS; i++) {
 		Delete_Button_Package(&ui->dayOfMonthButtons[i]);
 	}
+	Delete_Button(&ui->monthSelectButtons);
+	Delete_Button(&ui->monthLabel);
 }
 
 void Resolve_Date_Selection(CALENDAR_UI* ui, uint8_t day, uint8_t month) {

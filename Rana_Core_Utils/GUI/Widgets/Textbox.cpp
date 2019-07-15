@@ -281,8 +281,8 @@ string Input_String(const TEXTBOX* textbox) {
 }
 
 void Reset_Input_Buffer(TEXTBOX* textbox) {
-	fill(textbox->inputBuffer,
-		textbox->inputBuffer + textbox->maxValidInput, '0');
+	fill(
+	textbox->inputBuffer, textbox->inputBuffer + textbox->maxValidInput, '0');
 	textbox->currentInputLength = 0;
 }
 

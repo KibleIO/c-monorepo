@@ -5,15 +5,15 @@ FUNCTION_POINTER
 ----------------
 */
 
-FUNCTION_POINTER* Function_Pointer(
+FUNCTION_POINTER Function_Pointer(
 void(*function_ptr)(void*, void*), void* subscriber_data) {
-	FUNCTION_POINTER* functor = new FUNCTION_POINTER;
-	functor->ptr = function_ptr;
-	functor->subscriberData = subscriber_data;
+	FUNCTION_POINTER functor;
+	functor.ptr = function_ptr;
+	functor.subscriberData = subscriber_data;
 	return functor;
 }
 void Delete_Function_Pointer(FUNCTION_POINTER* function) {
-	(void)function;	// Bypass complier warnings
+	free(function->subscriberData);
 }
 
 void Invoke_Function_Pointer(FUNCTION_POINTER* function, void* caller_data) {
@@ -30,7 +30,6 @@ MULTICAST_FUNCTION_POINTER* multi_ptr, int init_capacity) {
 	multi_ptr->functions = new FUNCTION_POINTER[init_capacity];
 	multi_ptr->totalFunctions = 0;
 	multi_ptr->functionCapacity = init_capacity;
-	log_dbg("Initialized multicast function pointer");
 }
 
 void Add_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr,
@@ -40,13 +39,13 @@ void(*new_function)(void*, void*), void* subscriber_data) {
 }
 
 void Add_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr,
-FUNCTION_POINTER* functor) {
+FUNCTION_POINTER functor) {
 	// Check and reserve more space for more functions
 	if(multi_ptr->totalFunctions >= multi_ptr->functionCapacity) {
 		Reserve_Function_Pointers(multi_ptr, multi_ptr->functionCapacity * 2);
 	}
 	// Add the new function at the end and increment total functions
-	multi_ptr->functions[multi_ptr->totalFunctions++] = *functor;
+	multi_ptr->functions[multi_ptr->totalFunctions++] = functor;
 }
 
 void Invoke_All_Function_Pointers(

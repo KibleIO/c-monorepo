@@ -143,8 +143,8 @@ TEXTBOX*, struct nk_context*, bool concealed = false, bool interactable = true);
 void Delete_Textbox(TEXTBOX*);
 
 // RENDER HELPERS
-void Render_Textbox_Interactive_Setup(TEXTBOX*, struct nk_context*,
-	bool interactable);
+void Render_Textbox_Interactive_Setup(
+TEXTBOX*, struct nk_context*, bool interactable);
 nk_flags Render_Textbox_Main_Setup(
 TEXTBOX*, struct nk_context*, bool concealed);
 
