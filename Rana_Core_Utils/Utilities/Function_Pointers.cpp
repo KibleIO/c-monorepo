@@ -76,5 +76,4 @@ void Delete_Multicast_Function_Pointer(MULTICAST_FUNCTION_POINTER* multi_ptr) {
 		Delete_Function_Pointer(&multi_ptr->functions[i]);
 	}
 	delete [] multi_ptr->functions;
-	log_dbg("Deleted multicast function pointer");
 }

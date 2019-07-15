@@ -43,21 +43,24 @@ void Delete_Image(IMAGE* image) {
 }
 
 void Load_Image(IMAGE* image, struct nk_rect parent) {
-	if (
-	parent.w > 0 && parent.w <= GUI::Width &&
-	parent.h > 0 && parent.h && GUI::Height) {
-		image->width = parent.w * image->widthRatio;
-		image->height = parent.h * image->heightRatio;
-
-		Initialize_BMP(
-		&image->image, image->imageDirectory, image->width, image->height);
-		image->imageInitialized = true;
-		image->image.Transparent = true;
+	if (image->imageInitialized) {
+		Delete_BMP(&image->image);
 	}
+
+	image->width = parent.w * image->widthRatio;
+	image->height = parent.h * image->heightRatio;
+
+	Initialize_BMP(
+	&image->image, image->imageDirectory, image->width, image->height);
+	image->image.Transparent = true;
+
+	image->imageInitialized = true;
 }
 
+// Load the image only if the rect is a reasonable size
+// and is a different size from the current image
 void Check_And_Load_Image(IMAGE* image, struct nk_rect parent) {
-	if (!image->imageInitialized) {
+	if (Rect_Is_Reasonable(parent) && Rect_Is_New_Size(image, parent)) {
 		Load_Image(image, parent);
 	}
 }
@@ -69,4 +72,13 @@ void Load_Image_In_Current_Rect(IMAGE* image, struct nk_context* ctx) {
 void Check_And_Load_Image_In_Current_Rect(
 IMAGE* image, struct nk_context* ctx) {
 	Check_And_Load_Image(image, nk_widget_bounds(ctx));
+}
+
+bool Rect_Is_Reasonable(struct nk_rect r) {
+	return r.w > 0 && r.w <= GUI::Width && r.h > 0 && r.h <= GUI::Height;
+}
+bool Rect_Is_New_Size(const IMAGE* image, struct nk_rect r) {
+	return
+	abs(r.w * image->widthRatio - image->width) > SIGNIFICANT_DIFFERENCE &&
+	abs(r.h * image->heightRatio - image->height) > SIGNIFICANT_DIFFERENCE;
 }

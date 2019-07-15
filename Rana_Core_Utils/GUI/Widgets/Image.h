@@ -6,9 +6,11 @@
 #include "../Layout/Layout_Engine.h"
 #include "../Style.h"
 
+#define SIGNIFICANT_DIFFERENCE 5//pixels
+
 struct IMAGE {
 	BMP image;
-	bool imageInitialized;	// True if the image has been initialized
+	bool imageInitialized;
 
 	string imageDirectory;
 	float widthRatio;	// Ratio of the layout width that the image fills up
@@ -36,5 +38,12 @@ void Check_And_Load_Image(IMAGE*, struct nk_rect);
 // Load the image in the current widget rect
 void Load_Image_In_Current_Rect(IMAGE*, struct nk_context*);
 void Check_And_Load_Image_In_Current_Rect(IMAGE*, struct nk_context*);
+
+// Check to see if the rect we want to load the image in
+// is not too small or too large
+bool Rect_Is_Reasonable(struct nk_rect);
+// Check if the rect we want to load the image in
+// is different from the size of the image as it has already been loaded
+bool Rect_Is_New_Size(const IMAGE*, struct nk_rect);
 
 #endif

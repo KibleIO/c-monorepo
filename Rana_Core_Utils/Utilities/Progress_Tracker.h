@@ -13,8 +13,10 @@ using namespace std;
 struct PROGRESS_TRACKER {
 	uint32_t min;
 	uint32_t max;
+
 	// Current progress of the method
 	uint32_t currentProgress;
+	
 	// Progress increases by each element in this array
 	uint32_t* progressIncrements;
 	uint32_t currentIncrement;
