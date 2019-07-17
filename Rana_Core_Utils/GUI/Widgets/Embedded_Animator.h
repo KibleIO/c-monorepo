@@ -33,9 +33,17 @@ EMBEDDED_ANIMATOR*, string baseName, string fileExtension, float widthRatio,
 float heightRatio, uint8_t totalFrames, bool looping,
 struct nk_color buttonColor, struct nk_color textColor,
 uint8_t framesPerString);
+
+// Render the EMBEDDED_ANIMATOR in the current layout space
 void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, struct nk_context*);
 void Render_EMBEDDED_ANIMATOR_With_Buffer(
 EMBEDDED_ANIMATOR*, struct nk_context*);
+
+// Render the embedded animator in a standalone window
+// WARNING: do NOT call between nk_begin_xxx and nk_end
+void Render_EMBEDDED_ANIMATOR_Standalone(
+EMBEDDED_ANIMATOR*, struct nk_context*, struct nk_rect);
+
 void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
 /*
@@ -48,14 +56,12 @@ void Update_Initializer_Status_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR*, struct nk_context*);
 void Update_Current_Frame_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
-
 /*
 MUTATORS
 */
 
 void Clamp_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, uint8_t clamp);
 void Unclamp_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
-
 void Restart_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
 /*
