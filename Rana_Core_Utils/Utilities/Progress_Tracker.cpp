@@ -1,5 +1,11 @@
 #include "Progress_Tracker.h"
 
+PROGRESS_TRACKER Progress_Tracker(uint32_t min, uint32_t max) {
+	PROGRESS_TRACKER progress;
+	Initialize_Progress_Tracker(&progress, min, max);
+	return progress;
+}
+
 void Initialize_Progress_Tracker(PROGRESS_TRACKER* progress, uint32_t min,
 uint32_t max) {
 	// If min is actually bigger, swap min and max
@@ -24,7 +30,7 @@ void Delete_Progress_Tracker(PROGRESS_TRACKER* progress) {
 	}
 }
 
-void Start_Progress_Tracker(
+void Start_Progress_Tracker_Uniform(
 PROGRESS_TRACKER* progress, uint32_t total_updates) {
 	if(total_updates != 0) {
 		uint32_t diff = progress->max - progress->min;
@@ -114,7 +120,7 @@ void Reset_Progress_Tracker(PROGRESS_TRACKER* progress) {
 	progress->currentProgress = progress->min;
 	progress->currentIncrement = 0;
 	progress->totalIncrements = 0;
-	
+
 	if(progress->progressIncrements != NULL) {
 		delete [] progress->progressIncrements;
 		progress->progressIncrements = NULL;
@@ -128,11 +134,18 @@ ACCESSORS
 uint32_t Current_Progress(const PROGRESS_TRACKER* progress) {
 	return progress->currentProgress;
 }
-
 uint32_t Current_Increment(const PROGRESS_TRACKER* progress) {
 	return progress->currentIncrement;
 }
-
+uint32_t Total_Increments(const PROGRESS_TRACKER* progress) {
+	return progress->totalIncrements;
+}
+uint32_t Progress_Magnitude(const PROGRESS_TRACKER* progress) {
+	return progress->max - progress->min;
+}
+float Progress_Ratio_Completed(const PROGRESS_TRACKER* progress) {
+	return Current_Progress(progress) / (float)Progress_Magnitude(progress);
+}
 bool Progress_Finished(const PROGRESS_TRACKER* progress) {
 	return progress->currentProgress >= progress->max;
 }

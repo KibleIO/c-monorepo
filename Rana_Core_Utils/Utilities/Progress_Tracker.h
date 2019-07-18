@@ -6,6 +6,7 @@
 #include <cmath>
 #include "utilities.h"
 #include "vararg_ext.h"
+#include "Function_Pointers.h"
 using namespace std;
 
 // Encapsulates the information a method needs to keep track of and update
@@ -16,7 +17,7 @@ struct PROGRESS_TRACKER {
 
 	// Current progress of the method
 	uint32_t currentProgress;
-	
+
 	// Progress increases by each element in this array
 	uint32_t* progressIncrements;
 	uint32_t currentIncrement;
@@ -24,6 +25,7 @@ struct PROGRESS_TRACKER {
 };
 
 // INITIALIZATION/DELETION
+PROGRESS_TRACKER Progress_Tracker(uint32_t min, uint32_t max);
 void Initialize_Progress_Tracker(PROGRESS_TRACKER*, uint32_t min, uint32_t max);
 void Delete_Progress_Tracker(PROGRESS_TRACKER*);
 
@@ -34,7 +36,7 @@ Each assumes that min-max has already been set
 ---------
 */
 // Make each progress increment uniform based on the min/max difference
-void Start_Progress_Tracker(PROGRESS_TRACKER*, uint32_t total_updates);
+void Start_Progress_Tracker_Uniform(PROGRESS_TRACKER*, uint32_t total_updates);
 // Calculate each progress increment based on an array of ratios
 // The function calculates the exact value that the progress increments need
 // to be based on the ratios and the min/max difference
@@ -48,6 +50,7 @@ PROGRESS_TRACKER*, uint32_t total_updates, /* float */ ...);
 // If you want custom progress increments, give ratios in the function above
 void Start_Progress_Tracker(
 PROGRESS_TRACKER*, uint32_t* progress_increments, uint32_t total_updates);
+
 // Increment current progress by the current incremental step, and go
 // to the next step
 void Update_Progress_Tracker(PROGRESS_TRACKER*);
@@ -63,6 +66,9 @@ ACCESSORS
 uint32_t Current_Progress(const PROGRESS_TRACKER*);
 // Current increment on the progress tracker
 uint32_t Current_Increment(const PROGRESS_TRACKER*);
+uint32_t Total_Increments(const PROGRESS_TRACKER*);
+uint32_t Progress_Magnitude(const PROGRESS_TRACKER*);
+float Progress_Ratio_Completed(const PROGRESS_TRACKER*);
 // True if progress is finished on the tracker
 bool Progress_Finished(const PROGRESS_TRACKER*);
 

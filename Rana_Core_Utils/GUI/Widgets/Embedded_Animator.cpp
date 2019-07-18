@@ -1,10 +1,29 @@
 #include "Embedded_Animator.h"
 
+EMBEDDED_ANIMATOR Embedded_Animator(
+string baseName, string fileExtension, float widthRatio, float heightRatio,
+uint8_t totalFrames, bool looping, SIMPLE_ELLIPSIS_ANIMATION tempAnim) {
+	EMBEDDED_ANIMATOR anim;
+	Initialize_EMBEDDED_ANIMATOR(
+	&anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
+	looping, tempAnim);
+	return anim;
+}
+
+EMBEDDED_ANIMATOR Embedded_Animator(
+string baseName, string fileExtension, float widthRatio, float heightRatio,
+uint8_t totalFrames, bool looping) {
+	EMBEDDED_ANIMATOR anim;
+	Initialize_EMBEDDED_ANIMATOR(
+	&anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
+	looping);
+	return anim;
+}
+
 void Initialize_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR* anim, string baseName, string fileExtension, float widthRatio,
 float heightRatio, uint8_t totalFrames, bool looping,
-struct nk_color buttonColor, struct nk_color textColor,
-uint8_t framesPerString) {
+SIMPLE_ELLIPSIS_ANIMATION simpleAnim) {
 	anim->totalFrames = totalFrames < MAX_ANIM_FRAMES ?
 	totalFrames : MAX_ANIM_FRAMES;
 
@@ -24,8 +43,15 @@ uint8_t framesPerString) {
 	anim->finishedInitializing = false;
 	anim->initializerThreadJoined = false;
 
-	Initialize_SIMPLE_ELLIPSIS_ANIMATION(
-	&anim->tempAnim, buttonColor, textColor, framesPerString);
+	anim->tempAnim = simpleAnim;
+}
+
+void Initialize_EMBEDDED_ANIMATOR(
+EMBEDDED_ANIMATOR* anim, string baseName, string fileExtension,
+float widthRatio, float heightRatio, uint8_t totalFrames, bool looping) {
+	Initialize_EMBEDDED_ANIMATOR(
+	anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
+	looping, Simple_Ellipsis_Animation(MED_BLUE, LIGHT_BLUE, 10));
 }
 
 void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
@@ -46,10 +72,23 @@ EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
 	Render_EMBEDDED_ANIMATOR(anim, ctx);
 }
 
+void Render_EMBEDDED_ANIMATOR_Standalone(
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, struct nk_rect r) {
+	PANEL panel = Panel(Nk_Window_Style());
+
+	if (Start_Window(&panel, ctx, "animation", r, NK_WINDOW_NO_SCROLLBAR)) {
+		Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(1)));
+		Render_EMBEDDED_ANIMATOR_With_Buffer(anim, ctx);
+	}
+
+	nk_end(ctx);
+}
+
 void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
 	for (uint8_t i = 0; i < anim->totalFrames; i++) {
 		Delete_Image(&anim->frames[i]);
 	}
+	delete anim->initializerThread;
 	Delete_SIMPLE_ELLIPSIS_ANIMATION(&anim->tempAnim);
 }
 
@@ -90,13 +129,13 @@ EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
 	// If animator is not initialized and hasn't started initializing,
 	// start the initializer thread
 	if (!anim->finishedInitializing && !anim->initializing) {
-		anim->initializerThread = thread(
+		anim->initializerThread = new thread(
 		Initialize_Images_EMBEDDED_ANIMATOR, anim, nk_widget_bounds(ctx));
 	}
 
 	// If animator finished initializing but hasn't been joined, join it
 	if (anim->finishedInitializing && !anim->initializerThreadJoined) {
-		anim->initializerThread.join();
+		anim->initializerThread->join();
 		anim->initializerThreadJoined = true;
 	}
 }
@@ -120,4 +159,7 @@ bool EMBEDDED_ANIMATOR_Clamped(const EMBEDDED_ANIMATOR* anim) {
 bool EMBEDDED_ANIMATOR_Finished(const EMBEDDED_ANIMATOR* anim) {
 	return !anim->finishedInitializing ||
 	anim->currentFrame == (anim->totalFrames - 1);
+}
+uint8_t Total_Frames_EMBEDDED_ANIMATOR(const EMBEDDED_ANIMATOR* anim) {
+	return anim->totalFrames;
 }

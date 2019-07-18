@@ -15,6 +15,7 @@
 #include "Widgets/Message_Box.h"
 #include "Widgets/Nav_Buttons.h"
 #include "Widgets/Panel.h"
+#include "Widgets/Progress_UI.h"
 #include "Widgets/Render_Utilities.h"
 #include "Widgets/Simple_Ellipsis_Animation.h"
 #include "Widgets/Slider.h"
