@@ -86,4 +86,7 @@ void Set_Process_Status_PROGRESS_UI(PROGRESS_UI*, int8_t);
 void Set_Process_In_Progress_PROGRESS_UI(PROGRESS_UI*);
 void Set_Process_Not_Running_PROGRESS_UI(PROGRESS_UI*);
 
+// ACCESSORS
+bool Animation_Finished_PROGRESS_UI(const PROGRESS_UI*);
+
 #endif

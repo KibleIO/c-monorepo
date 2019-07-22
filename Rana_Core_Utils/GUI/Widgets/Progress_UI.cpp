@@ -50,8 +50,6 @@ struct nk_rect animation_rect, uint8_t total_message_boxes,
 
 	// If the process is in progress, render the animation
 	if (ui->processStatus == PROCESS_IN_PROGRESS) {
-		ui->messageBoxInputReceived = false;
-		Setup_Animation_Clamp_PROGRESS_UI(ui);
 		return Render_Animation_PROGRESS_UI(ui, ctx, animation_rect);
 	}
 	// If the status is something other than "in progress" and "not running",
@@ -85,10 +83,12 @@ PROGRESS_UI* ui, uint32_t total_updates, /* float */...) {
 
 void Update_PROGRESS_UI(PROGRESS_UI* ui) {
 	Update_Progress_Tracker(&ui->progress);
+	Setup_Animation_Clamp_PROGRESS_UI(ui);
 }
 
 void Finish_PROGRESS_UI(PROGRESS_UI* ui, int8_t finish_status) {
 	Finish_Progress_Tracker(&ui->progress);
+	Unclamp_EMBEDDED_ANIMATOR(&ui->anim);
 	ui->processStatus = finish_status;
 }
 
@@ -154,6 +154,7 @@ PROGRESS_UI* ui, PROGRESS_MESSAGE_BOX_ARGS args) {
 		// If input received, set the bool
 		if (result >= 0) {
 			ui->messageBoxInputReceived = true;
+			ui->processStatus = PROCESS_NOT_RUNNING;
 		}
 
 		return result;
@@ -166,6 +167,7 @@ PROGRESS_UI* ui, PROGRESS_MESSAGE_BOX_ARGS args) {
 void Start_Params_PROGRESS_UI(PROGRESS_UI* ui) {
 	ui->processStatus = PROCESS_IN_PROGRESS;
 	ui->messageBoxInputReceived = false;
+	Restart_EMBEDDED_ANIMATOR(&ui->anim);
 }
 
 void Set_Process_Status_PROGRESS_UI(
@@ -185,4 +187,8 @@ void Set_Process_In_Progress_PROGRESS_UI(PROGRESS_UI* ui) {
 
 void Set_Process_Not_Running_PROGRESS_UI(PROGRESS_UI* ui) {
 	Set_Process_Status_PROGRESS_UI(ui, PROCESS_NOT_RUNNING);
+}
+
+bool Animation_Finished_PROGRESS_UI(const PROGRESS_UI* ui) {
+	return EMBEDDED_ANIMATOR_Finished(ui->anim);
 }
