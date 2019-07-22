@@ -190,5 +190,5 @@ void Set_Process_Not_Running_PROGRESS_UI(PROGRESS_UI* ui) {
 }
 
 bool Animation_Finished_PROGRESS_UI(const PROGRESS_UI* ui) {
-	return EMBEDDED_ANIMATOR_Finished(ui->anim);
+	return EMBEDDED_ANIMATOR_Finished(&ui->anim);
 }
