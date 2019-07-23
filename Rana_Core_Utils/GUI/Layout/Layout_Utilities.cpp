@@ -16,6 +16,17 @@ alignment horizontal_align, alignment vertical_align) {
 	child_size.y, horizontal_align, vertical_align);
 }
 
+struct nk_rect Compressed_Rect(
+struct nk_rect parent_rect, float child_compression, alignment horizontal_align,
+alignment vertical_align) {
+	struct nk_vec2 child_size = nk_vec2(
+	parent_rect.w * child_compression, parent_rect.h * child_compression);
+	
+	return nk_recta(
+	Align_2D(parent_rect, child_size, horizontal_align, vertical_align),
+	child_size);
+}
+
 int Align_1D_C(
 int parent_start, int parent_end, int child_magnitude, alignment align) {
 	return Align_1D_P(
@@ -113,4 +124,11 @@ float Get_Panel_Border(const struct nk_style* style, enum nk_panel_type type) {
 		case NK_PANEL_MENU: 		return style->window.menu_border;
 		case NK_PANEL_TOOLTIP: 		return style->window.menu_border;
 	}
+}
+
+// MISC
+struct nk_rect Compressed_Rect(struct nk_rect r, float compression) {
+	float width = r.w * compression;
+	float height = r.h * compression;
+	return nk_rect(r.x + (width / 2.0), r.y + (height / 2.0), width, height);
 }

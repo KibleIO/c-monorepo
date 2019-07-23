@@ -28,6 +28,11 @@ struct nk_vec2 Align_2D(
 struct nk_rect parent_rect, struct nk_vec2 child_size,
 alignment horizontal_align, alignment vertical_align);
 
+// Expands/compresses the parent rect, then aligns the result inside the parent
+struct nk_rect Compressed_Rect(
+struct nk_rect parent, float child_compression, alignment horizontal_align,
+alignment vertical_align);
+
 // Get the starting point of a line aligned within a parent line
 // _C = "C"oordinates of the parent line are given
 // _R = start and magnitude of the parent line are given
