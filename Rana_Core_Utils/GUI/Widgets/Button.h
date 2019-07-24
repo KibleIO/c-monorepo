@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "../GUI.h"
 #include "Label.h"
+#include "Image.h"
 #include "../Style.h"
 #include "../../Utilities/Function_Pointers.h"
 
@@ -64,12 +65,12 @@ void Initialize_Push_Button(BUTTON*, struct nk_style_button normal);
 bool Render_Button_Label(
 BUTTON*, struct nk_context*, const char*, bool interactable = true);
 bool Render_Button_Image(
-BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
+BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
 BUTTON*, struct nk_context*, const char*, bool interactable = true);
 bool Render_Button_Image_With_Buffer(
-BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
+BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
 bool Render_Button_Label_Buffered(
 BUTTON*, struct nk_context*, const char*, bool buffered,
 bool interactable = true);

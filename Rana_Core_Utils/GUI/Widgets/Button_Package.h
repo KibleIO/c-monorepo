@@ -80,14 +80,14 @@ bool Render_Button_Label(
 BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
 bool interactable = true);
 bool Render_Button_Image(
-BUTTON_PACKAGE*, struct nk_context*, struct nk_image, uint8_t button_index,
+BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
 bool interactable = true);
 bool Render_Button_Image_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, struct nk_image, uint8_t button_index,
+BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
 bool Render_Button_Label_Buffered(
 BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
@@ -97,7 +97,7 @@ bool buffered, bool interactable = true);
 bool Render_Next_Button_Label(
 BUTTON_PACKAGE*, struct nk_context*, const char*, bool interactable = true);
 bool Render_Next_Button_Image(
-BUTTON_PACKAGE*, struct nk_context*, struct nk_image, bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, IMAGE*, bool interactable = true);
 bool Render_Next_Button_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, const char*, bool interactable = true);
 
