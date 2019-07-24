@@ -26,10 +26,10 @@ struct nk_style_slider* style, struct nk_color bar_color,
 struct nk_color bar_filled_color, struct nk_color cursor) {
 	Set_Nk_Slider_Style_Defaults(style);
 
-	style->bar_normal = rb_flip(bar_color);
-	style->bar_hover = rb_flip(lighter(bar_color));
-	style->bar_active = rb_flip(darker(bar_color));
-	style->bar_filled = rb_flip(bar_filled_color);
+	style->bar_normal = (bar_color);
+	style->bar_hover = (lighter(bar_color));
+	style->bar_active = (darker(bar_color));
+	style->bar_filled = (bar_filled_color);
 
 	style->cursor_normal = nk_style_item_color(cursor);
 	style->cursor_hover = nk_style_item_color(lighter(cursor));

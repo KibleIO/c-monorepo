@@ -10,6 +10,7 @@ colors to stay consistent across similarly themed screens
 #define PALETTE_H_
 
 #include "../GUI.h"
+#include "Palette_Color.h"
 
 #define TRANSPARENT nk_rgba(0x00, 0x00, 0x00, 0x00)
 // GRAYS
@@ -46,12 +47,22 @@ colors to stay consistent across similarly themed screens
 nk_color lighter(nk_color original);
 nk_color darker(nk_color original);
 
-// Color converter algorithms convert nk colors to colors directly usable by the Graphics class in the backend
-Color rgba (char, char, char, char);
-Color fromNkColor(const struct nk_color&);
 bool bright(const struct nk_color&);
 
 // Return a color with the r-b colors flipped
 struct nk_color rb_flip(const struct nk_color&);
+
+/*
+EXPERIMENTAL
+*/
+
+#define MAX_COLORS 16
+
+struct PALETTE {
+	static PALETTE_COLOR colors[MAX_COLORS];
+};
+
+void Set_Color(struct nk_color, uint8_t index);
+struct nk_color Get_Color(uint8_t index);
 
 #endif /*PALLETE_H_*/

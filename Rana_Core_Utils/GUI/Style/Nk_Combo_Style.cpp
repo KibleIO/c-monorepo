@@ -24,18 +24,18 @@ struct nk_style_combo* style, struct nk_color background,
 struct nk_color foreground, struct nk_vec2 padding) {
 	Set_Nk_Combo_Style_Defaults(style);
 
-	style->normal = nk_style_item_color(rb_flip(background));
-	style->hover = nk_style_item_color(lighter(rb_flip(background)));
-	style->active = nk_style_item_color(darker(rb_flip(background)));
+	style->normal = nk_style_item_color((background));
+	style->hover = nk_style_item_color(lighter((background)));
+	style->active = nk_style_item_color(darker((background)));
 	style->border_color = foreground;
 
 	style->label_normal = foreground;
 	style->label_hover = foreground;
 	style->label_active = foreground;
 
-	style->symbol_normal = foreground;
-	style->symbol_hover = foreground;
-	style->symbol_active = foreground;
+	style->symbol_normal = (foreground);
+	style->symbol_hover = (foreground);
+	style->symbol_active = (foreground);
 
 	style->button = Nk_Button_Style_Padded(
 	background, foreground, padding, nk_vec2(0, 0), nk_vec2(0, 0));

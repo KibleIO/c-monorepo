@@ -14,7 +14,6 @@
 #include "../Graphics/VGGraphics.h"
 #endif
 
-
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -90,7 +89,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 Initialize helpers
 */
 void Initialize_GUI_Font(GUI_FONT*, int height, const char* font_file_name);
-
 void Set_GUI_Style_Default(GUI*);
 
 /*
@@ -98,5 +96,10 @@ Runtime helpers
 */
 float Font_Text_Width(
 nk_handle handle, float height, const char* text, int length);
+
+// Color converter algorithms convert nk colors
+// to colors directly usable by the Graphics class in the backend
+Color rgba (char, char, char, char);
+Color fromNkColor(const struct nk_color&);
 
 #endif

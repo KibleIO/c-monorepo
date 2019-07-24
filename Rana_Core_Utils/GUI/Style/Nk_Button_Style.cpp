@@ -75,9 +75,9 @@ void Set_Nk_Button_Style(struct nk_style_button* style, struct nk_color btn_norm
 struct nk_color btn_hover, struct nk_color btn_active, struct nk_color txt_color,
 float rounding, nk_flags align) {
     Set_Nk_Button_Style_Defaults(style);
-    style->normal = nk_style_item_color(rb_flip(btn_normal));
-    style->hover = nk_style_item_color(rb_flip(btn_hover));
-    style->active = nk_style_item_color(rb_flip(btn_active));
+    style->normal = nk_style_item_color((btn_normal));
+    style->hover = nk_style_item_color((btn_hover));
+    style->active = nk_style_item_color((btn_active));
     style->text_normal = txt_color;
     style->text_hover = txt_color;
     style->text_active = txt_color;
@@ -150,9 +150,9 @@ struct nk_color txt_color, nk_flags align) {
 }
 
 void Set_Nk_Button_Style_Defaults(struct nk_style_button* style) {
-	style->normal = nk_style_item_color(rb_flip(MED_BLUE));
-	style->hover = nk_style_item_color(lighter(rb_flip(MED_BLUE)));
-	style->active = nk_style_item_color(darker(rb_flip(MED_BLUE)));
+	style->normal = nk_style_item_color((MED_BLUE));
+	style->hover = nk_style_item_color(lighter((MED_BLUE)));
+	style->active = nk_style_item_color(darker((MED_BLUE)));
 	style->border_color = TRANSPARENT;
 
 	style->text_background = TRANSPARENT;

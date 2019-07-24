@@ -140,6 +140,7 @@ PROGRESS_MESSAGE_BOX_ARGS message_box_data[], uint8_t total_message_boxes) {
 int8_t Render_Animation_PROGRESS_UI(
 PROGRESS_UI* ui, struct nk_context* ctx, struct nk_rect animation_rect) {
 	Render_EMBEDDED_ANIMATOR_Standalone(&ui->anim, ctx, animation_rect);
+	log_dbg("Rendered progress ui frame number: " + to_string(ui->anim.totalFrames));
 	return PROGRESS_UI_NO_MESSAGE_DISPLAYED;
 }
 
