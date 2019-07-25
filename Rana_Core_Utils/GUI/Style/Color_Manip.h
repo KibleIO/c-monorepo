@@ -28,8 +28,12 @@ void Set_COLOR_AUTODIFF(COLOR_DIFF, uint8_t);
 
 struct nk_color Color_Autodiff(struct nk_color, COLOR_TYPE);
 struct nk_color Color_Diff(
+struct nk_color, COLOR_DIFF, int16_t diff, COLOR_TYPE);
+struct nk_color Color_Diff(
 struct nk_color, int16_t increment, int16_t applications, bool includeAlpha);
 struct nk_color Color_Diff(struct nk_color, int16_t diff, bool includeAlpha);
+
 int16_t Color_Autodiff_Applications(COLOR_TYPE);
+int16_t Color_Diff_Applications(COLOR_DIFF, COLOR_TYPE);
 
 #endif

@@ -19,9 +19,13 @@ int16_t normal, int16_t hover, int16_t active, bool includeAlpha) {
 }
 
 struct nk_color Color_Autodiff(struct nk_color c, COLOR_TYPE type) {
+	return Color_Diff(c, COLOR_AUTODIFF::rule, COLOR_AUTODIFF::diff, type);
+}
+
+struct nk_color Color_Diff(
+struct nk_color c, COLOR_DIFF rule, int16_t diff, COLOR_TYPE type) {
 	return Color_Diff(
-	c, COLOR_AUTODIFF::diff, Color_Autodiff_Applications(type),
-	COLOR_AUTODIFF::rule.includeAlpha);
+	c, Color_Diff_Applications(rule, type), diff, rule.includeAlpha);
 }
 
 struct nk_color Color_Diff(
@@ -39,10 +43,13 @@ struct nk_color Color_Diff(struct nk_color c, int16_t diff, bool includeAlpha) {
 }
 
 int16_t Color_Autodiff_Applications(COLOR_TYPE type) {
+	return Color_Diff_Applications(COLOR_AUTODIFF::rule, type);
+}
+int16_t Color_Diff_Applications(COLOR_DIFF rule, COLOR_TYPE type) {
 	switch (type) {
-		case COLOR_NORMAL:	return COLOR_AUTODIFF::rule.normalApplications;
-		case COLOR_HOVER:	return COLOR_AUTODIFF::rule.hoverApplications;
-		case COLOR_ACTIVE:	return COLOR_AUTODIFF::rule.activeApplications;
+		case COLOR_NORMAL:	return rule.normalApplications;
+		case COLOR_HOVER:	return rule.hoverApplications;
+		case COLOR_ACTIVE:	return rule.activeApplications;
 		default:			return 0;
 	}
 }
