@@ -35,6 +35,13 @@ struct nk_rect, nk_flags);
 int Start_Group(PANEL*, struct nk_context*, const char*, nk_flags);
 int Start_Group_With_Buffer(PANEL*, struct nk_context*, const char*, nk_flags);
 
+int Start_Popup(
+PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
+nk_flags flags, struct nk_rect rect);
+int Start_Popup_With_Buffer(
+PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
+nk_flags flags, struct nk_rect rect);
+
 void Delete_Panel(PANEL*);
 
 // Setup style on the context using the panel's style

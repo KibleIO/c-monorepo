@@ -16790,6 +16790,7 @@ nk_popup_begin(struct nk_context *ctx, enum nk_popup_type type,
     nk_push_scissor(&popup->buffer, nk_null_rect);
 
     if (nk_panel_begin(ctx, title, NK_PANEL_POPUP)) {
+		cout << "Popup panel open" << endl;
         /* popup is running therefore invalidate parent panels */
         struct nk_panel *root;
         root = win->layout;
@@ -16804,6 +16805,7 @@ nk_popup_begin(struct nk_context *ctx, enum nk_popup_type type,
         popup->layout->parent = win->layout;
         return 1;
     } else {
+		cout << "Popup panel closed" << endl;
         /* popup was closed/is invalid so cleanup */
         struct nk_panel *root;
         root = win->layout;
@@ -16993,6 +16995,7 @@ nk_contextual_begin(struct nk_context *ctx, nk_flags flags, struct nk_vec2 size,
     if (is_clicked) {
         body.x = ctx->input.mouse.pos.x;
         body.y = ctx->input.mouse.pos.y;
+		cout << "Clicked the contextual" << endl;
     } else {
         body.x = popup->bounds.x;
         body.y = popup->bounds.y;

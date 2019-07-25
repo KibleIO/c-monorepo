@@ -72,6 +72,20 @@ const char* title, nk_flags flags) {
 	return Start_Group(panel, ctx, title, flags);
 }
 
+int Start_Popup(
+PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
+const char *title, nk_flags flags, struct nk_rect rect) {
+	Setup_Style(panel, ctx);
+	return nk_popup_begin(ctx, type, title, flags, rect);
+}
+
+int Start_Popup_With_Buffer(
+PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
+const char *title, nk_flags flags, struct nk_rect rect) {
+	nk_label(ctx, "", 0);
+	return Start_Popup(panel, ctx, type, title, flags, rect);
+}
+
 void Delete_Panel(PANEL* panel) {
 	(void)panel; // Void cast to bypass warning
 }
