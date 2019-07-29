@@ -12,6 +12,8 @@ void Server::Init() {
 #ifdef __linux__
 	int o = 1;
 
+	signal(SIGPIPE, SIG_IGN);
+
 	lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	cSocket = -1;
 

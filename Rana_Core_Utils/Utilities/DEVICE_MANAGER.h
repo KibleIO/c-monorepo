@@ -29,6 +29,12 @@
 #include <linux/uinput.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/inotify.h>
+
+#define MAX_EVENTS	1024
+#define LEN_NAME	16
+#define EVENT_SIZE	sizeof(inotify_event)
+#define BUF_LEN		MAX_EVENTS * ( EVENT_SIZE + LEN_NAME )
 #define INPUT_PATH "/dev/input"
 #endif
 // }}} Windows specific includes {{{
@@ -91,7 +97,10 @@ struct DEVICE_MANAGER {
 	static DEVICE_NODE** previous_dev;
 	static volatile int  p_d_size;
 
-	char path[PATH_MAX];
+	volatile bool refresh_thread_running;
+	thread* refresh_thread;
+
+	string path;
 	int fd;
 	struct stat buffer;
 	unsigned int types[EV_MAX];
@@ -123,7 +132,7 @@ void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 #ifdef __linux__
 void Set_Mouse_Speed(double);
 
-void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man); 
+void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
 void Stop_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
@@ -131,7 +140,11 @@ void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
 
 void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
-void Refresh_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_finder);
+void Start_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
+
+void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
+
+void Stop_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
 
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 #endif
