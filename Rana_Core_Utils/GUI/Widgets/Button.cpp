@@ -87,13 +87,14 @@ const char* label, bool interactable) {
 }
 
 bool Render_Button_Image(
-BUTTON* button, struct nk_context* ctx, struct nk_image img,
-bool interactable) {
+BUTTON* button, struct nk_context* ctx, IMAGE* image, bool interactable) {
 	// Setup button style
 	Setup_Button_Style(button, ctx, interactable);
 
-	// Render the button and grab the result
-	bool button_clicked = nk_button_image(ctx, img) != 0;
+	// Check to load the image, then render the button with it
+	Check_And_Load_Image_In_Current_Rect(image, ctx);
+	bool button_clicked = nk_button_image(
+	ctx, nk_image_ptr(&image->image)) != 0;
 
 	return Check_And_Run_Button_Clicked(button, button_clicked, interactable);
 }
@@ -105,8 +106,7 @@ const char* label, bool interactable) {
 }
 
 bool Render_Button_Image_With_Buffer(
-BUTTON* button, struct nk_context* ctx, struct nk_image image,
-bool interactable) {
+BUTTON* button, struct nk_context* ctx, IMAGE* image, bool interactable) {
 	nk_label(ctx, "", 0);
 	return Render_Button_Image(button, ctx, image, interactable);
 }

@@ -19,6 +19,20 @@ struct MESSAGE_BOX {
 	struct nk_style_button miscButtonStyle;
 };
 
+MESSAGE_BOX Message_Box(
+PANEL, struct nk_style_text text_style,
+struct nk_style_text informative_text_style,
+struct nk_style_button default_button, struct nk_style_button misc_button);
+MESSAGE_BOX Message_Box(
+PANEL, struct nk_style_text text_style,
+struct nk_style_button default_button, struct nk_style_button misc_button);
+MESSAGE_BOX Message_Box(
+PANEL, struct nk_style_text text_style,
+struct nk_style_text informative_text_style, struct nk_style_button button);
+MESSAGE_BOX Message_Box(
+PANEL, struct nk_style_text text_style,
+struct nk_style_button button);
+
 void Initialize_MESSAGE_BOX(
 MESSAGE_BOX*, PANEL, struct nk_style_text text_style,
 struct nk_style_text informative_text_style,

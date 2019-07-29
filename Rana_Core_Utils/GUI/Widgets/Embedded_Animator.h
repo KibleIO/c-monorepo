@@ -2,11 +2,12 @@
 #define EMBEDDED_ANIMATOR_H_
 
 #include "../GUI.h"
+#include "Panel.h"
 #include "Image.h"
 #include "Simple_Ellipsis_Animation.h"
 #include "../Style.h"
 
-#define MAX_ANIM_FRAMES 100
+#define MAX_ANIM_FRAMES 128
 
 struct EMBEDDED_ANIMATOR {
 	IMAGE frames[MAX_ANIM_FRAMES];	// Images in the animation
@@ -17,7 +18,7 @@ struct EMBEDDED_ANIMATOR {
 	int16_t frameClamp;	// Animation cannot advance past this frame
 
 	// Thread used to initialize the animator frames
-	thread initializerThread;
+	thread* initializerThread;
 	// True while the animator is initializing its frames
 	bool initializing;
 	// True if the animator has finished initializing
@@ -28,11 +29,19 @@ struct EMBEDDED_ANIMATOR {
 	SIMPLE_ELLIPSIS_ANIMATION tempAnim;
 };
 
+EMBEDDED_ANIMATOR Embedded_Animator(
+string baseName, string fileExtension, float widthRatio, float heightRatio,
+uint8_t totalFrames, bool looping, SIMPLE_ELLIPSIS_ANIMATION);
+EMBEDDED_ANIMATOR Embedded_Animator(
+string baseName, string fileExtension, float widthRatio, float heightRatio,
+uint8_t totalFrames, bool looping);
 void Initialize_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR*, string baseName, string fileExtension, float widthRatio,
 float heightRatio, uint8_t totalFrames, bool looping,
-struct nk_color buttonColor, struct nk_color textColor,
-uint8_t framesPerString);
+SIMPLE_ELLIPSIS_ANIMATION);
+void Initialize_EMBEDDED_ANIMATOR(
+EMBEDDED_ANIMATOR*, string baseName, string fileExtension, float widthRatio,
+float heightRatio, uint8_t totalFrames, bool looping);
 
 // Render the EMBEDDED_ANIMATOR in the current layout space
 void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, struct nk_context*);
@@ -70,5 +79,6 @@ ACCESSORS
 
 bool EMBEDDED_ANIMATOR_Clamped(const EMBEDDED_ANIMATOR*);
 bool EMBEDDED_ANIMATOR_Finished(const EMBEDDED_ANIMATOR*);
+uint8_t Total_Frames_EMBEDDED_ANIMATOR(const EMBEDDED_ANIMATOR*);
 
 #endif

@@ -50,13 +50,13 @@ struct nk_color text_color, struct nk_color text_color_selected) {
 	Set_Nk_Edit_Style_Defaults(style);
 
 	// Background color
-	style->normal = nk_style_item_color(rb_flip(background_color));
-	style->hover = nk_style_item_color(rb_flip(background_color));
-	style->active = nk_style_item_color(rb_flip(background_color));
+	style->normal = nk_style_item_color((background_color));
+	style->hover = nk_style_item_color((background_color));
+	style->active = nk_style_item_color((background_color));
 
 	// Cursor color
-	style->cursor_normal = rb_flip(cursor_color);
-	style->cursor_hover = rb_flip(cursor_color);
+	style->cursor_normal = (cursor_color);
+	style->cursor_hover = (cursor_color);
 	// Text color while under the cursor - same as when selected
 	style->cursor_text_normal = text_color_selected;
 	style->cursor_text_hover = text_color_selected;
@@ -67,8 +67,8 @@ struct nk_color text_color, struct nk_color text_color_selected) {
 	style->text_active = text_color;
 
 	// Rect color while selecting - same as cursor color
-	style->selected_normal = rb_flip(cursor_color);
-	style->selected_hover = rb_flip(cursor_color);
+	style->selected_normal = (cursor_color);
+	style->selected_hover = (cursor_color);
 	// Text color while selected
 	style->selected_text_normal = text_color_selected;
 	style->selected_text_hover = text_color_selected;
@@ -79,13 +79,13 @@ struct nk_color text_color, struct nk_color text_color_selected) {
 	Set_Nk_Edit_Style_Defaults(style);
 
 	// Background color
-	style->normal = nk_style_item_color(rb_flip(background_color));
-	style->hover = nk_style_item_color(lighter(rb_flip(background_color)));
-	style->active = nk_style_item_color(darker(rb_flip(background_color)));
+	style->normal = nk_style_item_color((background_color));
+	style->hover = nk_style_item_color(lighter((background_color)));
+	style->active = nk_style_item_color(darker((background_color)));
 
 	// Cursor color
-	style->cursor_normal = rb_flip(cursor_color);
-	style->cursor_hover = lighter(rb_flip(cursor_color));
+	style->cursor_normal = (cursor_color);
+	style->cursor_hover = lighter((cursor_color));
 	// Text color while under the cursor - same as when selected
 	style->cursor_text_normal = text_color_selected;
 	style->cursor_text_hover = lighter(text_color_selected);
@@ -96,8 +96,8 @@ struct nk_color text_color, struct nk_color text_color_selected) {
 	style->text_active = darker(text_color);
 
 	// Rect color while selecting - same as cursor color
-	style->selected_normal = rb_flip(cursor_color);
-	style->selected_hover = rb_flip(cursor_color);
+	style->selected_normal = (cursor_color);
+	style->selected_hover = (cursor_color);
 	// Text color while selected
 	style->selected_text_normal = text_color_selected;
 	style->selected_text_hover = text_color_selected;

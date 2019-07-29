@@ -122,9 +122,8 @@ void Draw_Text(GUI* gui, GRAPHICS* graphics, const struct nk_command_text* comma
 	int _x = t->x;
 	int _y = t->y + gui->fonts[gui->currentFont].userFont.Baseline;
 
-
 	unsigned char fg[] = {t->foreground.b,t->foreground.g,t->foreground.r,t->foreground.a};
-	unsigned char bg[] = {t->background.r,t->background.g,t->background.b,t->background.a};
+	unsigned char bg[] = {t->background.b,t->background.g,t->background.r,t->background.a};
 	int* ifg = (int*)fg;
 	int* ibg = (int*)bg;
 	if (ifg[0] == ibg[0]) {
@@ -329,8 +328,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 				DrawLine_GRAPHICS(
 				gui->Graphics_Handle, l->begin.x, l->begin.y, l->end.x,
-				l->end.y, l->color.a << 24 | l->color.r << 16 | l->color.g << 8 |
-				l->color.b);
+				l->end.y, fromNkColor(l->color));
 
 				break;
 			}
@@ -339,8 +337,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 				DrawThickRect_GRAPHICS(
 				gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->line_thickness,
-				r->color.a << 24 | r->color.r << 16 | r->color.g << 8 |
-				r->color.b);
+				fromNkColor(r->color));
 
 				break;
 			}
@@ -349,8 +346,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 				FillRoundedRect_GRAPHICS(
 				gui->Graphics_Handle, r->x, r->y, r->w, r->h, r->rounding,
-				r->color.a << 24 | r->color.b << 16 | r->color.g << 8 |
-				r->color.r);
+				fromNkColor(r->color));
 
 				break;
 			}
@@ -359,8 +355,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 				DrawCircle_GRAPHICS(
 				gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2),
-				c->w / 2, c->color.a << 24 | c->color.r << 16 | c->color.g << 8 |
-				c->color.b);
+				c->w / 2, fromNkColor(c->color));
 
 				break;
 			}
@@ -369,8 +364,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 				FillCircle_GRAPHICS(
 				gui->Graphics_Handle, c->x + (c->w / 2), c->y + (c->w / 2),
-				c->w / 2, c->color.a << 24 | c->color.r << 16 | c->color.g << 8 |
-				c->color.b);
+				c->w / 2, fromNkColor(c->color));
 
 				break;
 			}
@@ -387,8 +381,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 				tri.addPoint(t->c.x, t->c.y);
 
 				FillPolygon_GRAPHICS(
-				gui->Graphics_Handle, tri, t->color.a << 24 | t->color.r << 16 | t->color.g << 8 |
-				t->color.b);
+				gui->Graphics_Handle, tri, fromNkColor(t->color));
 
 				break;
 			}
@@ -437,9 +430,9 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 
 	nk_foreach(command, gui->NK_Context) {
 		switch (command->type) {
-			case NK_COMMAND_NOP: 
+			case NK_COMMAND_NOP:
 				break;
-			case NK_COMMAND_SCISSOR: 
+			case NK_COMMAND_SCISSOR:
 				break;
 			case NK_COMMAND_LINE: {
 				const struct nk_command_line* l =
@@ -452,7 +445,7 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				break;
 			}
 			case NK_COMMAND_RECT: {
-				//const struct nk_command_rect* r = 
+				//const struct nk_command_rect* r =
 				//(const struct nk_command_rect*)command;
 				//uint8_t color[4] =
 				//{r->color.r, r->color.g, r->color.b, r->color.a};
@@ -487,7 +480,7 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				break;
 			}
 			case NK_COMMAND_TRIANGLE: {
-				const struct nk_command_triangle* t = 
+				const struct nk_command_triangle* t =
 				(const struct nk_command_triangle*)command;
 				uint8_t color[4] =
 				{t->color.r, t->color.g, t->color.b, t->color.a};
@@ -503,7 +496,7 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 				break;
 			}
 			case NK_COMMAND_TRIANGLE_FILLED: {
-				const struct nk_command_triangle_filled* t = 
+				const struct nk_command_triangle_filled* t =
 				(const struct nk_command_triangle_filled*)command;
 				uint8_t color[4] =
 				{t->color.r, t->color.g, t->color.b, t->color.a};
@@ -520,26 +513,26 @@ void Render_VG_Nuklear_GUI(GUI* gui) {
 			}
 			case NK_COMMAND_POLYGON:
 				break;
-			case NK_COMMAND_POLYGON_FILLED: 
+			case NK_COMMAND_POLYGON_FILLED:
 				break;
-			case NK_COMMAND_POLYLINE: 
+			case NK_COMMAND_POLYLINE:
 				break;
 			case NK_COMMAND_TEXT: {
-				const struct nk_command_text* t = 
+				const struct nk_command_text* t =
 				(const struct nk_command_text*)command;
 				uint8_t color[4] =
-				{t->foreground.r, t->foreground.g, 
+				{t->foreground.r, t->foreground.g,
 				t->foreground.b, t->foreground.a};
 				Text_VGGRAPHICS(t->x, t->y, t->string,
 				gui->fontHeights[gui->currentFont] / 2, color);
 				break;
 			}
-			case NK_COMMAND_CURVE: 
+			case NK_COMMAND_CURVE:
 				break;
 			case NK_COMMAND_RECT_MULTI_COLOR:
 				break;
 			case NK_COMMAND_IMAGE: {
-				const struct nk_command_image* i = 
+				const struct nk_command_image* i =
 				(const struct nk_command_image*)command;
 				BMP* bmp = (BMP*)i->img.handle.ptr;
 				Image_VGGRAPHICS(i->x, i->y, bmp->W, bmp->H,
@@ -612,4 +605,20 @@ void Set_GUI_Style_Default(GUI* gui) {
 float Font_Text_Width(
 nk_handle handle, float height, const char* text, int length) {
 	return Font_Get_Text_Width(handle, height, text, length);
+}
+
+// Given rgba components, gives a color digestible by the Graphics class
+Color rgba(char r, char g, char b, char a) {
+	Color returnme;
+
+	((char*)&returnme)[0] = b;
+	((char*)&returnme)[1] = g;
+	((char*)&returnme)[2] = r;
+	((char*)&returnme)[3] = a;
+
+	return returnme;
+}
+
+Color fromNkColor(const struct nk_color& color) {
+	return rgba(color.r, color.g, color.b, color.a);
 }

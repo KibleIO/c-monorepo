@@ -1,5 +1,37 @@
 #include "Message_Box.h"
 
+MESSAGE_BOX Message_Box(
+PANEL panel, struct nk_style_text text,
+struct nk_style_text informative_text, struct nk_style_button default_button,
+struct nk_style_button misc_button) {
+	MESSAGE_BOX message;
+	Initialize_MESSAGE_BOX(
+	&message, panel, text, informative_text, default_button, misc_button);
+	return message;
+}
+MESSAGE_BOX Message_Box(
+PANEL panel, struct nk_style_text text, struct nk_style_button default_button,
+struct nk_style_button misc_button) {
+	MESSAGE_BOX message;
+	Initialize_MESSAGE_BOX(&message, panel, text, default_button, misc_button);
+	return message;
+}
+MESSAGE_BOX Message_Box(
+PANEL panel, struct nk_style_text text,
+struct nk_style_text informative_text, struct nk_style_button misc_button) {
+	MESSAGE_BOX message;
+	Initialize_MESSAGE_BOX(
+	&message, panel, text, informative_text, misc_button);
+	return message;
+}
+MESSAGE_BOX Message_Box(
+PANEL panel, struct nk_style_text text,
+struct nk_style_button misc_button) {
+	MESSAGE_BOX message;
+	Initialize_MESSAGE_BOX(&message, panel, text, misc_button);
+	return message;
+}
+
 void Initialize_MESSAGE_BOX(
 MESSAGE_BOX* message, PANEL panel, struct nk_style_text text,
 struct nk_style_text informative_text, struct nk_style_button default_button,

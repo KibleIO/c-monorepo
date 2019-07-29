@@ -108,8 +108,9 @@ bool require_one_selected) {
 		require_one_selected);
 }
 
-bool Render_Button_Label(BUTTON_PACKAGE* package, struct nk_context* ctx,
-const char* label, uint8_t button_index, bool interactable) {
+bool Render_Button_Label(
+BUTTON_PACKAGE* package, struct nk_context* ctx, const char* label,
+uint8_t button_index, bool interactable) {
 	if(button_index < package->totalButtons) {
 		// Store the button previously selected
 		uint8_t prev_selected = Toggled_Button_Index(package);
@@ -131,7 +132,7 @@ const char* label, uint8_t button_index, bool interactable) {
 }
 
 bool Render_Button_Image(BUTTON_PACKAGE* package, struct nk_context* ctx,
-struct nk_image img, uint8_t button_index, bool interactable) {
+IMAGE* img, uint8_t button_index, bool interactable) {
 	if(button_index < package->totalButtons) {
 		// Store the button previously selected
 		uint8_t prev_selected = Toggled_Button_Index(package);
@@ -160,7 +161,7 @@ bool interactable) {
 }
 
 bool Render_Button_Image_With_Buffer(
-BUTTON_PACKAGE* package, struct nk_context* ctx, struct nk_image image,
+BUTTON_PACKAGE* package, struct nk_context* ctx, IMAGE* image,
 uint8_t button_index, bool interactable) {
 	nk_label(ctx, "", 0);
 	return Render_Button_Image(package, ctx, image, button_index, interactable);
@@ -189,7 +190,7 @@ const char* label, bool interactable) {
 }
 
 bool Render_Next_Button_Image(BUTTON_PACKAGE* package, struct nk_context* ctx,
-struct nk_image img, bool interactable) {
+IMAGE* img, bool interactable) {
 	Next_Button(package);
 	return Render_Button_Image(package, ctx, img, interactable);
 }
