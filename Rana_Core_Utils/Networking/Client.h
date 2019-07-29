@@ -3,6 +3,7 @@
 
 #ifdef __linux__
 #include <netdb.h>
+#include <signal.h>
 #endif
 
 #include <string>

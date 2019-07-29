@@ -1,6 +1,10 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#ifdef __linux__
+#include <signal.h>
+#endif
+
 #include <string>
 #include <thread>
 #include <string.h>
@@ -20,7 +24,7 @@ private:
 
 #ifdef __linux__
 	timeval o_to;
-	int32_t o_pr;	
+	int32_t o_pr;
 	int lSocket;
 	int cSocket;
 #endif
