@@ -8,7 +8,6 @@
 #include "Style/Nk_Scrollbar_Style.h"
 #include "Style/Nk_Slider_Style.h"
 #include "Style/Nk_Text_Style.h"
-#include "Style/Nk_Text_Style.h"
 #include "Style/Nk_Toggle_Style.h"
 #include "Style/Nk_Window_Header_Style.h"
 #include "Style/Nk_Window_Style.h"

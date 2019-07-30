@@ -6,6 +6,7 @@
 #include "Label.h"
 #include "Image.h"
 #include "../Style.h"
+#include "../Layout/Rect_Transform.h"
 #include "../../Utilities/Function_Pointers.h"
 
 /*

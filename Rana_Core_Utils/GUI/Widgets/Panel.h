@@ -3,6 +3,8 @@
 
 #include "../GUI.h"
 #include "../Style.h"
+#include "../Layout/Rect_Transform.h"
+#include "../Layout/Layout_Engine.h"
 
 struct PANEL {
 	struct nk_style_window style;
@@ -34,6 +36,11 @@ struct nk_rect, nk_flags);
 
 int Start_Group(PANEL*, struct nk_context*, const char*, nk_flags);
 int Start_Group_With_Buffer(PANEL*, struct nk_context*, const char*, nk_flags);
+
+int Start_Transformed_Group(
+PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
+int Start_Transformed_Group_With_Buffer(
+PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
 
 int Start_Popup(
 PANEL*, struct nk_context *, enum nk_popup_type, const char *title,

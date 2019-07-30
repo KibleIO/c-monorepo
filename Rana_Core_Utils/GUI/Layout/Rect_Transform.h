@@ -3,35 +3,32 @@
 
 #include "../GUI.h"
 #include "Alignment.h"
+#include "Size_Transform.h"
 
 struct RECT_TRANSFORM {
-	float widthCompression;
-	float heightCompression;
-	alignment horizontalAlignment;
-	alignment verticalAlignment;
+	SIZE_TRANSFORM sizeTransform;
+	ALIGNMENT_2D alignment;
 };
 
 // Functions
 RECT_TRANSFORM Rect_Transform(
-float width_compression, float height_compression, alignment horizontal_align,
-alignment vertical_align);
-RECT_TRANSFORM Rect_Transform(
-float compression, alignment horizontal_align, alignment vertical_align);
+SIZE_TRANSFORM size_transform, ALIGNMENT_2D align);
+RECT_TRANSFORM Rect_Transform(RESIZE_RATIO resize, ALIGNMENT_2D align);
 
 RECT_TRANSFORM Horizontal_Transform(
-float width_compression, alignment horizontal_align);
+RESIZE_RATIO width_resize, ALIGNMENT_1D horizontal_align);
 RECT_TRANSFORM Vertical_Transform(
-float height_compression, alignment vertical_align);
+RESIZE_RATIO height_resize, ALIGNMENT_1D vertical_align);
 
 RECT_TRANSFORM Center_Transform(
-float width_compression, float height_compression);
-RECT_TRANSFORM Center_Transform(float compression);
+SIZE_TRANSFORM sizeTransform);
+RECT_TRANSFORM Center_Transform(RESIZE_RATIO compression);
 
-// Expands/compresses the parent rect, then aligns the result inside the parent
+// Resizes the parent rect, then aligns the result inside the parent
 struct nk_rect Transform_Rect(struct nk_rect parent, RECT_TRANSFORM trans);
 
 // Constants
 static const RECT_TRANSFORM NO_CHANGE_RECT_TRANSFORM = Rect_Transform(
-1, ALIGN_CENTER, ALIGN_CENTER);
+Size_Transform(Ratio_Of_Parent(1), Ratio_Of_Parent(1)), ALIGNMENT_CENTER);
 
 #endif

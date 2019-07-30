@@ -23,35 +23,34 @@ struct EMBEDDED_ANIMATOR {
 	bool initializing;
 	// True if the animator has finished initializing
 	bool finishedInitializing;
-	bool initializerThreadJoined;
 
 	// Animation that plays while the images are loading up
 	SIMPLE_ELLIPSIS_ANIMATION tempAnim;
 };
 
 EMBEDDED_ANIMATOR Embedded_Animator(
-string baseName, string fileExtension, float widthRatio, float heightRatio,
-uint8_t totalFrames, bool looping, SIMPLE_ELLIPSIS_ANIMATION);
-EMBEDDED_ANIMATOR Embedded_Animator(
-string baseName, string fileExtension, float widthRatio, float heightRatio,
-uint8_t totalFrames, bool looping);
-void Initialize_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, string baseName, string fileExtension, float widthRatio,
-float heightRatio, uint8_t totalFrames, bool looping,
+string baseName, string fileExtension, uint8_t totalFrames, bool looping,
 SIMPLE_ELLIPSIS_ANIMATION);
+EMBEDDED_ANIMATOR Embedded_Animator(
+string baseName, string fileExtension, uint8_t totalFrames, bool looping);
+
 void Initialize_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, string baseName, string fileExtension, float widthRatio,
-float heightRatio, uint8_t totalFrames, bool looping);
+EMBEDDED_ANIMATOR*, string baseName, string fileExtension, uint8_t totalFrames,
+bool looping, SIMPLE_ELLIPSIS_ANIMATION);
+void Initialize_EMBEDDED_ANIMATOR(
+EMBEDDED_ANIMATOR*, string baseName, string fileExtension, uint8_t totalFrames,
+bool looping);
 
 // Render the EMBEDDED_ANIMATOR in the current layout space
-void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, struct nk_context*);
+void Render_EMBEDDED_ANIMATOR(
+EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM);
 void Render_EMBEDDED_ANIMATOR_With_Buffer(
-EMBEDDED_ANIMATOR*, struct nk_context*);
+EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM);
 
 // Render the embedded animator in a standalone window
 // WARNING: do NOT call between nk_begin_xxx and nk_end
 void Render_EMBEDDED_ANIMATOR_Standalone(
-EMBEDDED_ANIMATOR*, struct nk_context*, struct nk_rect);
+EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM, struct nk_rect);
 
 void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
@@ -59,10 +58,9 @@ void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 HELPERS
 */
 
-void Initialize_Images_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, struct nk_rect);
+void Initialize_Images_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, struct nk_vec2);
 void Update_Initializer_Status_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, struct nk_context*);
+EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM);
 void Update_Current_Frame_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
 /*

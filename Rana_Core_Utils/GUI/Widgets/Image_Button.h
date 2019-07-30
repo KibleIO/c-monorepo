@@ -28,22 +28,20 @@ struct IMAGE_BUTTON {
 void Initialize_Image_Toggle_Button(
 IMAGE_BUTTON*, string normalDir, string hoverDir, string activeDir,
 string toggledNormalDir, string toggledHoverDir, string toggledActiveDir,
-string dormantDir, float width = 1.0, float height = 1.0);
+string dormantDir);
 
 // Initialize the image button as a push button
 void Initialize_Image_Push_Button(
 IMAGE_BUTTON*, string normalDir, string hoverDir, string activeDir,
-string dormantDir, float width = 1.0, float height = 1.0);
+string dormantDir);
 void Initialize_Image_Push_Button(
-IMAGE_BUTTON*, string normalDir, string hoverDir, string activeDir,
-float width = 1.0, float height = 1.0);
+IMAGE_BUTTON*, string normalDir, string hoverDir, string activeDir);
 
 // Initialize the image button
 void Initialize_Image_Button(
 IMAGE_BUTTON*, uint8_t type, string normalDir, string hoverDir,
 string activeDir, string toggledNormalDir, string toggledHoverDir,
-string toggledActiveDir, string dormantDir, float width = 1.0,
-float height = 1.0);
+string toggledActiveDir, string dormantDir);
 
 // Render the image button
 bool Render_Image_Button_Label(

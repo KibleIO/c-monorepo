@@ -2,6 +2,7 @@
 #define WIDGETS_H_
 
 #include "Widgets/Animator.h"
+#include "Widgets/Button_Package.h"
 #include "Widgets/Button.h"
 #include "Widgets/Calendar.h"
 #include "Widgets/Checkbox_Radio_Package.h"

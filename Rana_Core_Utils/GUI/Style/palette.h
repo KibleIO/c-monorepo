@@ -21,7 +21,7 @@ colors to stay consistent across similarly themed screens
 #define DARK_BLUE nk_rgba(0x33, 0x42, 0x59, 0xff)
 #define MED_BLUE nk_rgba(0x63, 0x88, 0xad, 0xff)
 #define MED_BLUE_2 nk_rgba(0x82, 0xa4, 0xc5, 0xff)
-#define LIGHT_BLUE nk_rgba(0xbd, 0xd1, 0xdb, 0xff)
+//#define LIGHT_BLUE nk_rgba(0xbd, 0xd1, 0xdb, 0xff)
 // MISC
 #define GRAY_BLUE nk_rgba(0x66, 0x7a, 0x99, 0xff)
 #define LIGHT_GRAY_BLUE nk_rgba(0xb4, 0xc4, 0xd0, 0xff)
@@ -40,6 +40,18 @@ colors to stay consistent across similarly themed screens
 #define TRANSPARENT_LIGHT_BLUE nk_rgba(LIGHT_BLUE.r, LIGHT_BLUE.g, LIGHT_BLUE.b, NEAR_TRANSPARENT)
 // MISC
 #define TRANSPARENT_BLACK nk_rgba(BLACK.r, BLACK.g, BLACK.b, NEAR_TRANSPARENT)
+
+// NEW COLORS
+#define NEAR_WHITE 			nk_rgb(0xe5, 0xe5, 0xe5)
+#define YELLOW  			nk_rgb(0xfe, 0xea, 0x2e)
+#define LIGHT_YELLOW    	nk_rgb(0xfd, 0xf9, 0xce)
+#define LIGHT_BLUE  		nk_rgb(0xbd, 0xd1, 0xdb)
+#define LESS_LIGHT_BLUE 	nk_rgb(0x98, 0xb8, 0xcc)
+#define BARELY_LIGHT_BLUE   nk_rgb(0x82, 0xa4, 0xc5)
+#define DESAT_BLUE  		nk_rgb(0x63, 0x88, 0xac)
+#define BLUE    			nk_rgb(0x5c, 0x88, 0xb7)
+#define DARKEST_BLUE    	nk_rgb(0x33, 0x42, 0x59)
+#define SAND    			nk_rgb(0xc8, 0xc4, 0xb3)
 
 #define DIFF nk_rgb(0x0f, 0x0f, 0x0f)
 // Gives a color slightly lighter/darker than the color passed in

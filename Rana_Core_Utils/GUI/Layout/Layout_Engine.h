@@ -5,14 +5,19 @@
 #include <cmath>
 #include <cassert>
 #include "Layout_Utilities.h"
+#include "Rect_Transform.h"
 #include "Breadth_Buffer_Pair.h"
 #include "../GUI.h"
 #include "../../Utilities/vararg_ext.h"
 #include "../../Utilities/utilities.h"
+#include "../Widgets/Panel.h"
 
 // Move the window layout down towards the bottom so that the next
 // row laid out can be the user-defined footer
 void Prepare_Footer_Layout(struct nk_context*, LAYOUT_SIZE footer_height);
+
+// Layout the rect that results from transforming the current widget area
+int Layout_Transformed_Area(struct nk_context*, RECT_TRANSFORM);
 
 // Layout a row with a single column with no buffer
 // and that fills up all horizontal space

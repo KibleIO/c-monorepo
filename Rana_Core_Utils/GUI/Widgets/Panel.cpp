@@ -72,6 +72,43 @@ const char* title, nk_flags flags) {
 	return Start_Group(panel, ctx, title, flags);
 }
 
+int Start_Transformed_Group(
+PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
+RECT_TRANSFORM transform) {
+	struct nk_rect widget_bounds = nk_widget_bounds(ctx);
+	struct nk_rect group_rect = Transform_Rect(widget_bounds, transform);
+	float upper_buffer_height = abs(widget_bounds.y - group_rect.y);
+
+	cout << "Group widget bounds:   " << Rect_Str(widget_bounds) << endl;
+	cout << "Group rect calculated: " << Rect_Str(group_rect) << endl;
+
+	if (upper_buffer_height > 0.0) {
+		Layout_Row_Single(
+		ctx, Buffer_And_Breadth(Exact_Size(upper_buffer_height), Exact_Size(
+		group_rect.h)), Buffer_And_Breadth(Exact_Size(
+		abs(widget_bounds.x - group_rect.x)), Exact_Size(group_rect.w)));
+	}
+	else {
+		Layout_Row_Single(
+		ctx, Breadth(Exact_Size(group_rect.h)), Buffer_And_Breadth(
+		Exact_Size(abs(widget_bounds.x - group_rect.x)), Exact_Size(
+		group_rect.w)));
+	}
+
+
+	nk_label(ctx, "", 0);
+	cout << "Group area laid out:  " << Rect_Str(nk_widget_bounds(ctx)) << endl;
+
+	return Start_Group(panel, ctx, title, flags);
+}
+
+int Start_Transformed_Group_With_Buffer(
+PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
+RECT_TRANSFORM transform) {
+	nk_label(ctx, "", 0);
+	return Start_Transformed_Group(panel, ctx, title, flags, transform);
+}
+
 int Start_Popup(
 PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
 const char *title, nk_flags flags, struct nk_rect rect) {

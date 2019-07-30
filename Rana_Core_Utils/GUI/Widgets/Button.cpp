@@ -92,7 +92,7 @@ BUTTON* button, struct nk_context* ctx, IMAGE* image, bool interactable) {
 	Setup_Button_Style(button, ctx, interactable);
 
 	// Check to load the image, then render the button with it
-	Check_And_Load_Image_In_Current_Rect(image, ctx);
+	Check_And_Load_Image_In_Current_Rect(image, ctx, NO_CHANGE_RECT_TRANSFORM);
 	bool button_clicked = nk_button_image(
 	ctx, nk_image_ptr(&image->image)) != 0;
 

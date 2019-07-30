@@ -12,7 +12,7 @@
 
 static const struct nk_rect NULL_RECT = {-8192.0f, -8192.0f, 16384, 16384};
 static const RECT_TRANSFORM WIDGET_HOVER_EXPANSION = Rect_Transform(
-1.3, 1.3, ALIGN_CENTER, ALIGN_CENTER);
+Size_Transform(Ratio_Of_Parent(1.3), Ratio_Of_Parent(1.3)), ALIGNMENT_CENTER);
 
 // PULLOUT has two parts:
 //	1) Widget: render a group embedded inside of a window. When hovered,

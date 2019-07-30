@@ -1,29 +1,25 @@
 #include "Embedded_Animator.h"
 
 EMBEDDED_ANIMATOR Embedded_Animator(
-string baseName, string fileExtension, float widthRatio, float heightRatio,
-uint8_t totalFrames, bool looping, SIMPLE_ELLIPSIS_ANIMATION tempAnim) {
+string baseName, string fileExtension, uint8_t totalFrames, bool looping,
+SIMPLE_ELLIPSIS_ANIMATION tempAnim) {
 	EMBEDDED_ANIMATOR anim;
 	Initialize_EMBEDDED_ANIMATOR(
-	&anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
-	looping, tempAnim);
+	&anim, baseName, fileExtension, totalFrames, looping, tempAnim);
 	return anim;
 }
 
 EMBEDDED_ANIMATOR Embedded_Animator(
-string baseName, string fileExtension, float widthRatio, float heightRatio,
-uint8_t totalFrames, bool looping) {
+string baseName, string fileExtension, uint8_t totalFrames, bool looping) {
 	EMBEDDED_ANIMATOR anim;
 	Initialize_EMBEDDED_ANIMATOR(
-	&anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
-	looping);
+	&anim, baseName, fileExtension, totalFrames, looping);
 	return anim;
 }
 
 void Initialize_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR* anim, string baseName, string fileExtension, float widthRatio,
-float heightRatio, uint8_t totalFrames, bool looping,
-SIMPLE_ELLIPSIS_ANIMATION simpleAnim) {
+EMBEDDED_ANIMATOR* anim, string baseName, string fileExtension,
+uint8_t totalFrames, bool looping, SIMPLE_ELLIPSIS_ANIMATION simpleAnim) {
 	anim->totalFrames = totalFrames < MAX_ANIM_FRAMES ?
 	totalFrames : MAX_ANIM_FRAMES;
 
@@ -31,8 +27,7 @@ SIMPLE_ELLIPSIS_ANIMATION simpleAnim) {
 	// animator standard naming convention
 	for (uint8_t i = 0; i < anim->totalFrames; i++) {
 		Initialize_Image(
-		&anim->frames[i], baseName + to_string(i + 1) + fileExtension,
-		widthRatio, heightRatio);
+		&anim->frames[i], baseName + to_string(i + 1) + fileExtension);
 	}
 
 	anim->looping = looping;
@@ -41,24 +36,24 @@ SIMPLE_ELLIPSIS_ANIMATION simpleAnim) {
 
 	anim->initializing = false;
 	anim->finishedInitializing = false;
-	anim->initializerThreadJoined = false;
 
 	anim->tempAnim = simpleAnim;
 }
 
 void Initialize_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR* anim, string baseName, string fileExtension,
-float widthRatio, float heightRatio, uint8_t totalFrames, bool looping) {
+uint8_t totalFrames, bool looping) {
 	Initialize_EMBEDDED_ANIMATOR(
-	anim, baseName, fileExtension, widthRatio, heightRatio, totalFrames,
-	looping, Simple_Ellipsis_Animation(MED_BLUE, LIGHT_BLUE, 10));
+	anim, baseName, fileExtension, totalFrames, looping,
+	Simple_Ellipsis_Animation(MED_BLUE, LIGHT_BLUE, 10));
 }
 
-void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
-	Update_Initializer_Status_EMBEDDED_ANIMATOR(anim, ctx);
+void Render_EMBEDDED_ANIMATOR(
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform) {
+	Update_Initializer_Status_EMBEDDED_ANIMATOR(anim, ctx, transform);
 
 	if (anim->finishedInitializing) {
-		Render_Image(&anim->frames[anim->currentFrame], ctx);
+		Render_Image(&anim->frames[anim->currentFrame], ctx, transform);
 		Update_Current_Frame_EMBEDDED_ANIMATOR(anim);
 	}
 	else {
@@ -67,38 +62,39 @@ void Render_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
 }
 
 void Render_EMBEDDED_ANIMATOR_With_Buffer(
-EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform) {
 	nk_label(ctx, "", 0);
-	Render_EMBEDDED_ANIMATOR(anim, ctx);
+	Render_EMBEDDED_ANIMATOR(anim, ctx, transform);
 }
 
 void Render_EMBEDDED_ANIMATOR_Standalone(
-EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, struct nk_rect r) {
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform,
+struct nk_rect r) {
 	PANEL panel = Panel(Nk_Window_Style());
 
 	if (Start_Window(&panel, ctx, "animation", r, NK_WINDOW_NO_SCROLLBAR)) {
 		Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(1)));
-		Render_EMBEDDED_ANIMATOR_With_Buffer(anim, ctx);
+		Render_EMBEDDED_ANIMATOR_With_Buffer(anim, ctx, transform);
 	}
 
 	nk_end(ctx);
+	Delete_Panel(&panel);
 }
 
 void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
 	for (uint8_t i = 0; i < anim->totalFrames; i++) {
 		Delete_Image(&anim->frames[i]);
 	}
-	delete anim->initializerThread;
 	Delete_SIMPLE_ELLIPSIS_ANIMATION(&anim->tempAnim);
 }
 
 void Initialize_Images_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR* anim, struct nk_rect r) {
+EMBEDDED_ANIMATOR* anim, struct nk_vec2 size) {
 	anim->initializing = true;
 	anim->finishedInitializing = false;
 
 	for (uint8_t i = 0; i < anim->totalFrames; i++) {
-		Check_And_Load_Image(&anim->frames[i], r);
+		Check_And_Load_Image(&anim->frames[i], size);
 	}
 
 	anim->initializing = false;
@@ -125,18 +121,18 @@ void Update_Current_Frame_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR* anim) {
 }
 
 void Update_Initializer_Status_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR* anim, struct nk_context* ctx) {
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform) {
 	// If animator is not initialized and hasn't started initializing,
 	// start the initializer thread
 	if (!anim->finishedInitializing && !anim->initializing) {
 		anim->initializerThread = new thread(
-		Initialize_Images_EMBEDDED_ANIMATOR, anim, nk_widget_bounds(ctx));
+		Initialize_Images_EMBEDDED_ANIMATOR, anim, nk_rect_size(Transform_Rect(
+		nk_widget_bounds(ctx), transform)));
 	}
 
 	// If animator finished initializing but hasn't been joined, join it
-	if (anim->finishedInitializing && !anim->initializerThreadJoined) {
+	if (anim->finishedInitializing && anim->initializerThread->joinable()) {
 		anim->initializerThread->join();
-		anim->initializerThreadJoined = true;
 	}
 }
 

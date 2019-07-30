@@ -1,46 +1,41 @@
 #include "Rect_Transform.h"
 
 RECT_TRANSFORM Rect_Transform(
-float width_compression, float height_compression, alignment horizontal_align,
-alignment vertical_align) {
+SIZE_TRANSFORM size_transform, ALIGNMENT_2D alignment) {
 	RECT_TRANSFORM rect_trans;
-	rect_trans.widthCompression = width_compression;
-	rect_trans.heightCompression = height_compression;
-	rect_trans.horizontalAlignment = horizontal_align;
-	rect_trans.verticalAlignment = vertical_align;
+	rect_trans.sizeTransform = size_transform;
+	rect_trans.alignment = alignment;
 	return rect_trans;
 }
 RECT_TRANSFORM Rect_Transform(
-float compression, alignment horizontal_align, alignment vertical_align) {
-	return Rect_Transform(
-	compression, compression, horizontal_align, vertical_align);
+RESIZE_RATIO resize, ALIGNMENT_2D alignment) {
+	return Rect_Transform(Size_Transform(resize, resize), alignment);
 }
 
 RECT_TRANSFORM Horizontal_Transform(
-float width_compression, alignment horizontal_align) {
+RESIZE_RATIO width_resize, ALIGNMENT_1D horizontal_align) {
 	return Rect_Transform(
-	width_compression, 1.0, horizontal_align, ALIGN_CENTER);
+	Size_Transform(width_resize, Ratio_Of_Parent(1)), Alignment_2D(
+	horizontal_align, ALIGNMENT_MIDDLE));
 }
 RECT_TRANSFORM Vertical_Transform(
-float height_compression, alignment vertical_align) {
+RESIZE_RATIO height_resize, ALIGNMENT_1D vertical_align) {
 	return Rect_Transform(
-	1.0, height_compression, ALIGN_CENTER, vertical_align);
+	Size_Transform(Ratio_Of_Parent(1), height_resize), Alignment_2D(
+	ALIGNMENT_MIDDLE, vertical_align));
 }
 
-RECT_TRANSFORM Center_Transform(
-float width_compression, float height_compression) {
-	return Rect_Transform(
-	width_compression, height_compression, ALIGN_CENTER, ALIGN_CENTER);
+RECT_TRANSFORM Center_Transform(SIZE_TRANSFORM transform) {
+	return Rect_Transform(transform, ALIGNMENT_CENTER);
 }
-RECT_TRANSFORM Center_Transform(float compression) {
-	return Center_Transform(compression, compression);
+RECT_TRANSFORM Center_Transform(RESIZE_RATIO resize) {
+	return Center_Transform(Size_Transform(resize, resize));
 }
 
 struct nk_rect Transform_Rect(struct nk_rect parent, RECT_TRANSFORM trans) {
-	struct nk_vec2 child_size = nk_vec2(
-	parent.w * trans.widthCompression, parent.h * trans.heightCompression);
+	struct nk_vec2 child_size = Transform_Size(
+	nk_rect_size(parent), trans.sizeTransform);
 
 	return nk_recta(
-	Align_2D(parent, child_size, trans.horizontalAlignment,
-	trans.verticalAlignment), child_size);
+	Align_2D(parent, child_size, trans.alignment), child_size);
 }

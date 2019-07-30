@@ -3,6 +3,7 @@
 
 #include "Embedded_Animator.h"
 #include "Message_Box.h"
+#include "../Layout/Rect_Transform.h"
 #include "../../Utilities/Progress_Tracker.h"
 #include "../../Utilities/LOGGING.h"
 

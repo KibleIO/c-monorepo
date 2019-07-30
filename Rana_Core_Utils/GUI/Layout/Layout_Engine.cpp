@@ -10,6 +10,35 @@ void Prepare_Footer_Layout(struct nk_context* ctx, LAYOUT_SIZE footer_height) {
 	}
 }
 
+int Layout_Transformed_Area(struct nk_context* ctx, RECT_TRANSFORM transform) {
+ 	PANEL group = Panel(Nk_Window_Style());
+	struct nk_rect widget_bounds = nk_widget_bounds(ctx);
+	struct nk_rect group_rect = Transform_Rect(widget_bounds, transform);
+	float upper_buffer_height = abs(widget_bounds.y - group_rect.y);
+
+	if (Start_Group(&group, ctx, "transformed area", NK_WINDOW_NO_SCROLLBAR)) {
+
+		if (upper_buffer_height > 0.0) {
+			Layout_Row_Single(
+			ctx, Buffer_And_Breadth(Exact_Size(upper_buffer_height), Exact_Size(
+			group_rect.h)), Buffer_And_Breadth(Exact_Size(
+			abs(widget_bounds.x - group_rect.x)), Exact_Size(group_rect.w)));
+		}
+		else {
+			Layout_Row_Single(
+			ctx, Breadth(Exact_Size(group_rect.h)), Buffer_And_Breadth(
+			Exact_Size(abs(widget_bounds.x - group_rect.x)), Exact_Size(
+			group_rect.w)));
+		}
+
+		nk_label(ctx, "", 0);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void Layout_Row_Single_Full(
 struct nk_context* ctx, BREADTH_BUFFER_PAIR row_size) {
 	Layout_Row_Single(ctx, row_size, Breadth(Ratio_Of_Total(1)));
