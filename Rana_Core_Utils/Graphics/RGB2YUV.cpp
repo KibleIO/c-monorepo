@@ -82,3 +82,102 @@ void rgb_to_y420p(uint8_t* destination, uint8_t* rgb, size_t width, size_t heigh
 		} 
 	}
 }
+
+void rgb_to_y420p_c(
+uint8_t* destination, uint8_t* rgb, size_t width, size_t height,
+size_t screen_width) {
+	size_t image_size = width * height;
+	size_t upos = image_size;
+	size_t vpos = upos + upos / 4;
+	size_t i = 0;
+
+	for (size_t line = 0; line < height; line++) {
+		if (!(line & 1)) {
+			for (size_t x = 0; x < screen_width; x += 2) {
+				uint8_t* ru = rgb + (4 * ((line * screen_width) + x)) + 0;
+				uint8_t* rg = rgb + (4 * ((line * screen_width) + x)) + 1;
+				uint8_t* rb = rgb + (4 * ((line * screen_width) + x)) + 2;
+				uint8_t ur = 0;
+				uint8_t ug = 0;
+				uint8_t ub = 0;
+
+				destination[(line * width) + x] = (
+				(66 * (*ru) + 129 * (*rg) + 25 * (*rb)) >> 8) + 16;
+
+				if (x == screen_width - 1) {
+					if (line == height - 1) {
+						// Right Bottom, no averaging
+						destination[vpos + (
+						(line / 2) * (width / 2)) + (x / 2)] = (
+						(-38 * (*ru) + -74 * (*rg) + 112 * (*rb)) >> 8) + 128;
+
+						destination[upos + (
+						(line / 2) * (width / 2)) + (x / 2)] = (
+						(112 * (*ru) + -94 * (*rg) + -18 * (*rb)) >> 8) + 128;
+					} else {
+						// Right edge of screen, only average below
+						ur = (*ru / 2 + *(ru + screen_width * 4) / 2);
+						ug = (*rg / 2 + *(rg + screen_width * 4) / 2);
+						ub = (*rb / 2 + *(rb + screen_width * 4) / 2);
+
+						destination[vpos + (
+						(line / 2) * (width / 2)) + (x / 2)] = (
+						(-38 * ur + -74 * ug + 112 * ub) >> 8) + 128;
+
+						destination[upos + (
+						(line / 2) * (width / 2)) + (x / 2)] = (
+						(112 * ur + -94 * ug + -18 * ub) >> 8) + 128;
+					}
+				} else if (line == height - 1) {
+					// Bottom line, only average right
+					ur = (*ru / 2 + *(ru + 4) / 2);
+					ug = (*rg / 2 + *(rg + 4) / 2);
+					ub = (*rb / 2 + *(rb + 4) / 2);
+
+					destination[vpos + (
+					(line / 2) * (width / 2)) + (x / 2)] = (
+					(-38 * ur + -74 * ug + 112 * ub) >> 8) + 128;
+
+					destination[upos + (
+					(line / 2) * (width / 2)) + (x / 2)] = (
+					(112 * ur + -94 * ug + -18 * ub) >> 8) + 128;
+				} else {
+					// Anywhere else, average below and right
+					ur = (
+					*ru / 4 + *(ru + 4) / 4 + *(ru + screen_width * 4) / 4 +
+					*(ru + screen_width * 4 + 4) / 4);
+
+					ug = (
+					*rg / 4 + *(rg + 4) / 4 + *(rg + screen_width * 4) / 4 +
+					*(rg + screen_width * 4 + 4) / 4);
+
+					ub = (
+					*rb / 4 + *(rb + 4) / 4 + *(rb + screen_width * 4) / 4 +
+					*(rb + screen_width * 4 + 4) / 4);
+
+					destination[vpos + ((line / 2) * (width / 2)) + (x / 2)] = (
+					(-38 * ur + -74 * ug + 112 * ub) >> 8) + 128;
+
+					destination[upos + ((line / 2) * (width / 2)) + (x / 2)] = (
+					(112 * ur + -94 * ug + -18 * ub) >> 8) + 128;
+				}
+
+				ru = rgb + (4 * ((line * screen_width) + x + 1)) + 0;
+				rg = rgb + (4 * ((line * screen_width) + x + 1)) + 1;
+				rb = rgb + (4 * ((line * screen_width) + x + 1)) + 2;
+
+				destination[(line * width) + x + 1] = (
+				(66 * (*ru) + 129 * (*rg) + 25 * (*rb)) >> 8) + 16;
+			}
+		} else if (line != 0 && line != height - 1) {
+			for (size_t x = 0; x < screen_width; x++) {
+				uint8_t* ru = rgb + (4 * ((line * screen_width) + x)) + 0;
+				uint8_t* rg = rgb + (4 * ((line * screen_width) + x)) + 1;
+				uint8_t* rb = rgb + (4 * ((line * screen_width) + x)) + 2;
+
+				destination[(line * width) + x] = (
+					(66 * (*ru) + 129 * (*rg) + 25 * (*rb)) >> 8) + 16;
+			}
+		}
+	}
+}
