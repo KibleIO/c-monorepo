@@ -110,7 +110,7 @@ bool require_one_selected) {
 
 bool Render_Button_Label(
 BUTTON_PACKAGE* package, struct nk_context* ctx, const char* label,
-uint8_t button_index, bool interactable) {
+bool trailing, uint8_t button_index, bool interactable) {
 	if(button_index < package->totalButtons) {
 		// Store the button previously selected
 		uint8_t prev_selected = Toggled_Button_Index(package);
@@ -118,7 +118,8 @@ uint8_t button_index, bool interactable) {
 		// Set the current button to the index given
 		package->currentButton = button_index;
 		bool button_clicked = Render_Button_Label(
-		&package->buttons[package->currentButton], ctx, label, interactable);
+		&package->buttons[package->currentButton], ctx, label, trailing,
+		interactable);
 
 		// If the package always has one selected,
 		// make sure this frame did not cause it to deselect
@@ -153,11 +154,37 @@ IMAGE* img, uint8_t button_index, bool interactable) {
 	}
 }
 
+bool Render_Button_Symbol_Label(
+BUTTON_PACKAGE* package, struct nk_context* ctx, enum nk_symbol_type symbol,
+const char* label, bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable) {
+	if(button_index < package->totalButtons) {
+		// Store the button previously selected
+		uint8_t prev_selected = Toggled_Button_Index(package);
+
+		// Set the current button to the index given
+		package->currentButton = button_index;
+		bool button_clicked = Render_Button_Symbol_Label(
+		&package->buttons[package->currentButton], ctx, symbol, label, trailing,
+		alignment, interactable);
+
+		// If the package always has one selected,
+		// make sure this frame did not cause it to deselect
+		Enforce_At_Least_One_Selected(package, prev_selected);
+
+		// If this button is clicked, invoke the event
+		return Check_And_Run_Button_Clicked(package, button_clicked);
+	} else {
+		return false;
+	}
+}
+
 bool Render_Button_Label_With_Buffer(BUTTON_PACKAGE* package,
-struct nk_context* ctx, const char* label, uint8_t button_index,
+struct nk_context* ctx, const char* label, bool trailing, uint8_t button_index,
 bool interactable) {
 	nk_label(ctx, "", 0);
-	return Render_Button_Label(package, ctx, label, button_index, interactable);
+	return Render_Button_Label(
+	package, ctx, label, trailing, button_index, interactable);
 }
 
 bool Render_Button_Image_With_Buffer(
@@ -167,26 +194,36 @@ uint8_t button_index, bool interactable) {
 	return Render_Button_Image(package, ctx, image, button_index, interactable);
 }
 
+bool Render_Button_Symbol_Label_With_Buffer(
+BUTTON_PACKAGE* package, struct nk_context* ctx, enum nk_symbol_type symbol,
+const char* label, bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Button_Symbol_Label(
+	package, ctx, symbol, label, trailing, alignment, button_index,
+	interactable);
+}
+
 bool Render_Button_Label_Buffered(
 BUTTON_PACKAGE* package, struct nk_context* ctx, const char* label,
-uint8_t button_index, bool buffered, bool interactable) {
+bool trailing, uint8_t button_index, bool buffered, bool interactable) {
 	if(buffered) {
 		return Render_Button_Label_With_Buffer(
-		package, ctx, label, button_index, interactable);
+		package, ctx, label, trailing, button_index, interactable);
 	}
 	else {
 		return Render_Button_Label(
-		package, ctx, label, button_index, interactable);
+		package, ctx, label, trailing, button_index, interactable);
 	}
 }
 
 bool Render_Next_Button_Label(BUTTON_PACKAGE* package, struct nk_context* ctx,
-const char* label, bool interactable) {
+const char* label, bool trailing, bool interactable) {
 	// Update current button
 	Next_Button(package);
 	// Render the current button
 	return Render_Button_Label(
-	package, ctx, label, package->currentButton, interactable);
+	package, ctx, label, trailing, package->currentButton, interactable);
 }
 
 bool Render_Next_Button_Image(BUTTON_PACKAGE* package, struct nk_context* ctx,
@@ -196,9 +233,10 @@ IMAGE* img, bool interactable) {
 }
 
 bool Render_Next_Button_Label_With_Buffer(BUTTON_PACKAGE* package,
-struct nk_context* ctx, const char* label, bool interactable) {
+struct nk_context* ctx, const char* label, bool trailing, bool interactable) {
 	nk_label(ctx, "", 0);
-	return Render_Next_Button_Label(package, ctx, label, interactable);
+	return Render_Next_Button_Label(
+	package, ctx, label, trailing, interactable);
 }
 
 void Delete_Button_Package(BUTTON_PACKAGE* package) {

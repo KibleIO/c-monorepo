@@ -69,19 +69,26 @@ void Initialize_Push_Button(BUTTON* button, struct nk_style_button normal) {
 }
 
 bool Render_Button_Label(BUTTON* button, struct nk_context* ctx,
-const char* label, bool interactable) {
+const char* label, bool trailing, bool interactable) {
+	char* true_label = (char*)label;
+
 	// Setup button style
 	Setup_Button_Style(button, ctx, interactable);
 
 	// Get the label with a trailing ellipsis
-	char* true_label = Trailing_Label(
-	ctx, label, Button_Content_Rect(nk_widget_bounds(ctx), ctx->style.button));
+	if (trailing) {
+		true_label = Trailing_Label(
+		ctx, label, Button_Content_Rect(nk_widget_bounds(ctx),
+		ctx->style.button));
+	}
 
 	// Render the button and grab the result
 	bool button_clicked = nk_button_label(ctx, true_label) != 0;
 
 	// Delete the new label
-	delete [] true_label;
+	if (trailing) {
+		delete [] true_label;
+	}
 
 	return Check_And_Run_Button_Clicked(button, button_clicked, interactable);
 }
@@ -99,16 +106,50 @@ BUTTON* button, struct nk_context* ctx, IMAGE* image, bool interactable) {
 	return Check_And_Run_Button_Clicked(button, button_clicked, interactable);
 }
 
+bool Render_Button_Symbol_Label(
+BUTTON* button, struct nk_context* ctx, enum nk_symbol_type symbol,
+const char* label, bool trailing, nk_flags align, bool interactable) {
+	char* true_label = (char*)label;
+
+	// Setup button style
+	Setup_Button_Style(button, ctx, interactable);
+
+	// Get the label with a trailing ellipsis
+	if (trailing) {
+		true_label = Trailing_Label(
+		ctx, label, Button_Content_Rect(nk_widget_bounds(ctx),
+		ctx->style.button));
+	}
+
+	// Render the button and grab the result
+	bool button_clicked = nk_button_symbol_label(
+	ctx, symbol, true_label, align) != 0;
+
+	// Delete the new label
+	delete [] true_label;
+
+	return Check_And_Run_Button_Clicked(button, button_clicked, interactable);
+}
+
+
 bool Render_Button_Label_With_Buffer(BUTTON* button, struct nk_context* ctx,
-const char* label, bool interactable) {
+const char* label, bool trailing, bool interactable) {
 	nk_label(ctx, "", 0);
-	return Render_Button_Label(button, ctx, label, interactable);
+	return Render_Button_Label(button, ctx, label, trailing, interactable);
 }
 
 bool Render_Button_Image_With_Buffer(
 BUTTON* button, struct nk_context* ctx, IMAGE* image, bool interactable) {
 	nk_label(ctx, "", 0);
 	return Render_Button_Image(button, ctx, image, interactable);
+}
+
+bool Render_Button_Symbol_Label_With_Buffer(
+BUTTON* button, struct nk_context* ctx, enum nk_symbol_type symbol,
+const char* label, bool trailing, nk_flags align, bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Button_Symbol_Label_With_Buffer(
+	button, ctx, symbol, label, trailing, align, interactable);
 }
 
 bool Render_Button_Label_Buffered(

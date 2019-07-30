@@ -45,7 +45,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 		// If back button is pressed, move current month back once
 		if (
 		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
-		gui->NK_Context, "<")) {
+		gui->NK_Context, "<", false)) {
 			ui->currentMonth--;
 
 			// If decrement caused overflow, set current month to last month
@@ -56,12 +56,12 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 		Render_Button_Label_With_Buffer(
 		&ui->monthLabel, gui->NK_Context,
-		MONTH_NAMES[ui->currentMonth].c_str(), NK_TEXT_CENTERED);
+		MONTH_NAMES[ui->currentMonth].c_str(), false);
 
 		// If forward button is pressed, more current month forward once
 		if (
 		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
-		gui->NK_Context, ">")) {
+		gui->NK_Context, ">", false)) {
 			ui->currentMonth = (ui->currentMonth + 1) % TOTAL_MONTHS;
 		}
 
@@ -87,7 +87,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 					Render_Button_Label_With_Buffer(
 					&ui->dayOfMonthButtons[ui->currentMonth],
 					gui->NK_Context, to_string(current_button + 1).c_str(),
-					current_button)) {
+					false, current_button)) {
 						Resolve_Date_Selection(
 						ui, current_button, ui->currentMonth);
 					}

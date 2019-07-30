@@ -121,7 +121,7 @@ struct nk_style_text informative_text_style, MESSAGE_BOX_ARGS args) {
 			// Render the current button
 			if (
 			Render_Button_Label_With_Buffer(&using_button, args.ctx,
-			args.buttonLabels[i])) {
+			args.buttonLabels[i], false)) {
 				ret = i;
 			}
 		}

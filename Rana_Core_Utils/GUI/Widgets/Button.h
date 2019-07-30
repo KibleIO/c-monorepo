@@ -64,16 +64,25 @@ void Initialize_Push_Button(BUTTON*, struct nk_style_button normal);
 // Render the button with a label
 // Return true if the button was clicked and is interactable
 bool Render_Button_Label(
-BUTTON*, struct nk_context*, const char*, bool interactable = true);
+BUTTON*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
 bool Render_Button_Image(
 BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
+bool Render_Button_Symbol_Label(
+BUTTON*, struct nk_context*, enum nk_symbol_type, const char*, bool trailing,
+nk_flags alignment, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
-BUTTON*, struct nk_context*, const char*, bool interactable = true);
+BUTTON*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
 bool Render_Button_Image_With_Buffer(
 BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
+bool Render_Button_Symbol_Label_With_Buffer(
+BUTTON*, struct nk_context*, enum nk_symbol_type, const char*,
+nk_flags alignment, bool interactable = true);
+
 bool Render_Button_Label_Buffered(
-BUTTON*, struct nk_context*, const char*, bool buffered,
+BUTTON*, struct nk_context*, const char*, bool trailing, bool buffered,
 bool interactable = true);
 
 void Delete_Button(BUTTON*);
