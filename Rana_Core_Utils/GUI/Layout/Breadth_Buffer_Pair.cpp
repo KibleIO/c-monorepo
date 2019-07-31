@@ -22,13 +22,19 @@ LAYOUT_SIZE breadth, const struct nk_context* ctx, uint8_t items,
 bool side_buffers) {
 	uint32_t current_width = Current_Usable_Panel_Width(ctx);
 	uint8_t total_buffers = side_buffers ? items + 1 : items - 1;
-	uint32_t breadth_size = Exact_Size_Horizontal(
-	&breadth, ctx, current_width);
-	uint32_t buffer_size =
-	(current_width - items * breadth_size) / total_buffers;
 
-	return Evenly_Spaced_Item(
-	items, (float)buffer_size / breadth_size, side_buffers);
+	if (total_buffers > 0) {
+		uint32_t breadth_size = Exact_Size_Horizontal(
+		&breadth, ctx, current_width);
+		uint32_t buffer_size =
+		(current_width - items * breadth_size) / total_buffers;
+
+		return Evenly_Spaced_Item(
+		items, (float)buffer_size / breadth_size, side_buffers);
+	}
+	else {
+		return Breadth(breadth);
+	}
 }
 
 void Evenly_Spaced_Items(
