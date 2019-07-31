@@ -39,6 +39,7 @@ void Set_Nk_Window_Style(struct nk_style_window* style) {
 void Set_Nk_Window_Style(struct nk_style_window* style, struct nk_color color) {
 	Set_Nk_Window_Style_Defaults(style);
 	style->fixed_background = nk_style_item_color((color));
+	style->background = color;
 }
 void Set_Nk_Window_Style(struct nk_style_window* style, struct nk_color color,
 float rounding) {
