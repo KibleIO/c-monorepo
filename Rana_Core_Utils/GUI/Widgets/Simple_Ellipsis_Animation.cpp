@@ -31,7 +31,7 @@ SIMPLE_ELLIPSIS_ANIMATION* anim, struct nk_context* ctx) {
 
 	// Render the button with the current string
 	Render_Button_Label(
-	&anim->button, ctx, anim->loadingStrings[anim->currentString]);
+	&anim->button, ctx, anim->loadingStrings[anim->currentString], false);
 }
 
 void Render_SIMPLE_ELLIPSIS_ANIMATION_With_Buffer(

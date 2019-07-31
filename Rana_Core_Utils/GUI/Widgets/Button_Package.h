@@ -77,29 +77,40 @@ BUTTON_PACKAGE*, bool require_one_selected = false);
 
 // Render the button specified by index in the package
 bool Render_Button_Label(
-BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
-bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
+uint8_t button_index, bool interactable = true);
 bool Render_Button_Image(
 BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
+bool Render_Button_Symbol_Label(
+BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
+bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
-bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
+uint8_t button_index, bool interactable = true);
 bool Render_Button_Image_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
+bool Render_Button_Symbol_Label_With_Buffer(
+BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
+bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable = true);
+
 bool Render_Button_Label_Buffered(
-BUTTON_PACKAGE*, struct nk_context*, const char*, uint8_t button_index,
-bool buffered, bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
+uint8_t button_index, bool buffered, bool interactable = true);
 
 // Render the next button with label
 bool Render_Next_Button_Label(
-BUTTON_PACKAGE*, struct nk_context*, const char*, bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
 bool Render_Next_Button_Image(
 BUTTON_PACKAGE*, struct nk_context*, IMAGE*, bool interactable = true);
 bool Render_Next_Button_Label_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, const char*, bool interactable = true);
+BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
 
 void Delete_Button_Package(BUTTON_PACKAGE*);
 
