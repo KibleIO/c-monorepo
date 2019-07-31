@@ -38,7 +38,6 @@ BUTTON_STYLE* styles, uint8_t total_buttons, bool require_one_selected) {
 	package->totalButtons = total_buttons;
 	package->requireOneSelected = require_one_selected;
 	Initialize_Multicast_Function_Pointer(&package->buttonClickedEvent);
-	package->currentButton = -1;
 
 	// If a button must stay selected, select one immediately
 	if(require_one_selected) {
@@ -116,17 +115,39 @@ bool trailing, uint8_t button_index, bool interactable) {
 		uint8_t prev_selected = Toggled_Button_Index(package);
 
 		// Set the current button to the index given
-		package->currentButton = button_index;
 		bool button_clicked = Render_Button_Label(
-		&package->buttons[package->currentButton], ctx, label, trailing,
-		interactable);
+		&package->buttons[button_index], ctx, label, trailing, interactable);
 
 		// If the package always has one selected,
 		// make sure this frame did not cause it to deselect
 		Enforce_At_Least_One_Selected(package, prev_selected);
 
 		// If this button is clicked, invoke the event
-		return Check_And_Run_Button_Clicked(package, button_clicked);
+		return Check_And_Run_Button_Clicked(
+		package, button_index, button_clicked);
+	} else {
+		return false;
+	}
+}
+
+bool Render_Button_Symbol(
+BUTTON_PACKAGE* package, struct nk_context* ctx, enum nk_symbol_type symbol,
+uint8_t button_index, bool interactable) {
+	if(button_index < package->totalButtons) {
+		// Store the button previously selected
+		uint8_t prev_selected = Toggled_Button_Index(package);
+
+		// Set the current button to the index given
+		bool button_clicked = Render_Button_Symbol(
+		&package->buttons[button_index], ctx, symbol, interactable);
+
+		// If the package always has one selected,
+		// make sure this frame did not cause it to deselect
+		Enforce_At_Least_One_Selected(package, prev_selected);
+
+		// If this button is clicked, invoke the event
+		return Check_And_Run_Button_Clicked(
+		package, button_index, button_clicked);
 	} else {
 		return false;
 	}
@@ -139,16 +160,17 @@ IMAGE* img, uint8_t button_index, bool interactable) {
 		uint8_t prev_selected = Toggled_Button_Index(package);
 
 		// Set the current button to the index given
-		package->currentButton = button_index;
+		button_index = button_index;
 		bool button_clicked = Render_Button_Image(
-		&package->buttons[package->currentButton], ctx, img, interactable);
+		&package->buttons[button_index], ctx, img, interactable);
 
 		// If the package always has one selected,
 		// make sure this frame did not cause it to deselect
 		Enforce_At_Least_One_Selected(package, prev_selected);
 
 		// If this button is clicked, invoke the event
-		return Check_And_Run_Button_Clicked(package, button_clicked);
+		return Check_And_Run_Button_Clicked(
+		package, button_index, button_clicked);
 	} else {
 		return false;
 	}
@@ -163,9 +185,8 @@ bool interactable) {
 		uint8_t prev_selected = Toggled_Button_Index(package);
 
 		// Set the current button to the index given
-		package->currentButton = button_index;
 		bool button_clicked = Render_Button_Symbol_Label(
-		&package->buttons[package->currentButton], ctx, symbol, label, trailing,
+		&package->buttons[button_index], ctx, symbol, label, trailing,
 		alignment, interactable);
 
 		// If the package always has one selected,
@@ -173,7 +194,33 @@ bool interactable) {
 		Enforce_At_Least_One_Selected(package, prev_selected);
 
 		// If this button is clicked, invoke the event
-		return Check_And_Run_Button_Clicked(package, button_clicked);
+		return Check_And_Run_Button_Clicked(
+		package, button_index, button_clicked);
+	} else {
+		return false;
+	}
+}
+
+bool Render_Button_Image_Label(
+BUTTON_PACKAGE* package, struct nk_context* ctx, IMAGE* image,
+const char* label, bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable) {
+	if(button_index < package->totalButtons) {
+		// Store the button previously selected
+		uint8_t prev_selected = Toggled_Button_Index(package);
+
+		// Set the current button to the index given
+		bool button_clicked = Render_Button_Image_Label(
+		&package->buttons[button_index], ctx, image, label, trailing,
+		alignment, interactable);
+
+		// If the package always has one selected,
+		// make sure this frame did not cause it to deselect
+		Enforce_At_Least_One_Selected(package, prev_selected);
+
+		// If this button is clicked, invoke the event
+		return Check_And_Run_Button_Clicked(
+		package, button_index, button_clicked);
 	} else {
 		return false;
 	}
@@ -185,6 +232,14 @@ bool interactable) {
 	nk_label(ctx, "", 0);
 	return Render_Button_Label(
 	package, ctx, label, trailing, button_index, interactable);
+}
+
+bool Render_Button_Symbol_With_Buffer(
+BUTTON_PACKAGE* package, struct nk_context* ctx, enum nk_symbol_type symbol,
+uint8_t button_index, bool interactable) {
+	nk_label(ctx, "", 0);
+	return Render_Button_Symbol(
+	package, ctx, symbol, button_index, interactable);
 }
 
 bool Render_Button_Image_With_Buffer(
@@ -204,40 +259,16 @@ bool interactable) {
 	interactable);
 }
 
-bool Render_Button_Label_Buffered(
-BUTTON_PACKAGE* package, struct nk_context* ctx, const char* label,
-bool trailing, uint8_t button_index, bool buffered, bool interactable) {
-	if(buffered) {
-		return Render_Button_Label_With_Buffer(
-		package, ctx, label, trailing, button_index, interactable);
-	}
-	else {
-		return Render_Button_Label(
-		package, ctx, label, trailing, button_index, interactable);
-	}
-}
-
-bool Render_Next_Button_Label(BUTTON_PACKAGE* package, struct nk_context* ctx,
-const char* label, bool trailing, bool interactable) {
-	// Update current button
-	Next_Button(package);
-	// Render the current button
-	return Render_Button_Label(
-	package, ctx, label, trailing, package->currentButton, interactable);
-}
-
-bool Render_Next_Button_Image(BUTTON_PACKAGE* package, struct nk_context* ctx,
-IMAGE* img, bool interactable) {
-	Next_Button(package);
-	return Render_Button_Image(package, ctx, img, interactable);
-}
-
-bool Render_Next_Button_Label_With_Buffer(BUTTON_PACKAGE* package,
-struct nk_context* ctx, const char* label, bool trailing, bool interactable) {
+bool Render_Button_Image_Label_With_Buffer(
+BUTTON_PACKAGE* package, struct nk_context* ctx, IMAGE* image,
+const char* label, bool trailing, nk_flags alignment, uint8_t button_index,
+bool interactable) {
 	nk_label(ctx, "", 0);
-	return Render_Next_Button_Label(
-	package, ctx, label, trailing, interactable);
+	return Render_Button_Image_Label(
+	package, ctx, image, label, trailing, alignment, button_index,
+	interactable);
 }
+
 
 void Delete_Button_Package(BUTTON_PACKAGE* package) {
 	for(uint8_t i = 0; i < package->totalButtons; i++) {
@@ -374,10 +405,6 @@ void Resize_Button_Package(BUTTON_PACKAGE* package, uint8_t new_cap) {
 }
 
 // BUTTON PACKAGE HELPERS
-void Next_Button(BUTTON_PACKAGE* package) {
-	package->currentButton = (package->currentButton + 1) %
-		package->totalButtons;
-}
 
 void Update_Button_Toggle_States(
 BUTTON_PACKAGE* package, uint8_t button_selected) {
@@ -400,10 +427,11 @@ BUTTON_PACKAGE* package, uint8_t prev_selected) {
 	}
 }
 
-bool Check_And_Run_Button_Clicked(BUTTON_PACKAGE* package, bool clicked) {
+bool Check_And_Run_Button_Clicked(
+BUTTON_PACKAGE* package, uint8_t button_index, bool clicked) {
 	// If this button is clicked, invoke the event
 	if(clicked) {
-		Update_Button_Toggle_States(package, package->currentButton);
+		Update_Button_Toggle_States(package, button_index);
 		Invoke_All_Function_Pointers(&package->buttonClickedEvent, package);
 	}
 	return clicked;

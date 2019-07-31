@@ -26,8 +26,6 @@ struct BUTTON_PACKAGE {
 	// Event invoked when one button within the package is clicked
 	// PASS: BUTTON_PACKAGE*
 	MULTICAST_FUNCTION_POINTER buttonClickedEvent;
-	// Index of the current button being rendered
-	int8_t currentButton;
 };
 
 // Initialize all buttons with the same style
@@ -79,6 +77,9 @@ BUTTON_PACKAGE*, bool require_one_selected = false);
 bool Render_Button_Label(
 BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
 uint8_t button_index, bool interactable = true);
+bool Render_Button_Symbol(
+BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, uint8_t button_index,
+bool interactable = true);
 bool Render_Button_Image(
 BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
@@ -86,10 +87,16 @@ bool Render_Button_Symbol_Label(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
 bool trailing, nk_flags alignment, uint8_t button_index,
 bool interactable = true);
+bool Render_Button_Image_Label(
+BUTTON_PACKAGE*, struct nk_context*, IMAGE*, const char*, bool trailing,
+nk_flags alignment, uint8_t button_index, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
 uint8_t button_index, bool interactable = true);
+bool Render_Button_Symbol_With_Buffer(
+BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, uint8_t button_index,
+bool interactable = true);
 bool Render_Button_Image_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
 bool interactable = true);
@@ -97,20 +104,9 @@ bool Render_Button_Symbol_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
 bool trailing, nk_flags alignment, uint8_t button_index,
 bool interactable = true);
-
-bool Render_Button_Label_Buffered(
-BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
-uint8_t button_index, bool buffered, bool interactable = true);
-
-// Render the next button with label
-bool Render_Next_Button_Label(
-BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
-bool interactable = true);
-bool Render_Next_Button_Image(
-BUTTON_PACKAGE*, struct nk_context*, IMAGE*, bool interactable = true);
-bool Render_Next_Button_Label_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
-bool interactable = true);
+bool Render_Button_Image_Label_With_Buffer(
+BUTTON_PACKAGE*, struct nk_context*, IMAGE*, const char*, bool trailing,
+nk_flags alignment, uint8_t button_index, bool interactable = true);
 
 void Delete_Button_Package(BUTTON_PACKAGE*);
 
@@ -147,10 +143,9 @@ void Resize_Button_Package(BUTTON_PACKAGE*, uint8_t new_cap);
 
 // BUTTON PACKAGE HELPERS
 
-void Next_Button(BUTTON_PACKAGE*);
 void Update_Button_Toggle_States(BUTTON_PACKAGE*, uint8_t button_selected);
-
 void Enforce_At_Least_One_Selected(BUTTON_PACKAGE*, uint8_t prev_selected);
-bool Check_And_Run_Button_Clicked(BUTTON_PACKAGE*, bool clicked);
+bool Check_And_Run_Button_Clicked(
+BUTTON_PACKAGE*, uint8_t button_index, bool clicked);
 
 #endif
