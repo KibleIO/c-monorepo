@@ -19,6 +19,10 @@ void Render_Label_Buffered(
 LABEL*, struct nk_context*, const char*, nk_flags, bool buffered);
 void Delete_Label(LABEL*);
 
+// HELPERS
+
+void Setup_Label_Style(const LABEL*, struct nk_context*);
+
 // Get label with trailing ellipsis, using current rect as the rect
 char* Trailing_Label_In_Current_Rect(
 struct nk_context*, const char* original_label);

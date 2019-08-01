@@ -5,11 +5,11 @@ void Initialize_Label(LABEL* label, struct nk_style_text style) {
 }
 void Render_Label(
 LABEL* label, struct nk_context* ctx, const char* text, nk_flags flags) {
-	ctx->style.text = label->style;
+	Setup_Label_Style(label, ctx);
 	nk_label(ctx, text, flags);
 }
 void Render_Label_Wrap(LABEL* label, struct nk_context* ctx, const char* text) {
-	ctx->style.text = label->style;
+	Setup_Label_Style(label, ctx);
 	nk_label_wrap(ctx, text);
 }
 void Render_Label_With_Buffer(LABEL* label, struct nk_context* ctx,
@@ -32,6 +32,13 @@ bool buffered) {
 }
 void Delete_Label(LABEL* label) {
 	(void)label;	// Bypass compiler warning
+}
+
+// HELPERS
+
+void Setup_Label_Style(const LABEL* label, struct nk_context* ctx) {
+	ctx->style.text = label->style;
+	ctx->style.window.background = TRANSPARENT;
 }
 
 char* Trailing_Label_In_Current_Rect(

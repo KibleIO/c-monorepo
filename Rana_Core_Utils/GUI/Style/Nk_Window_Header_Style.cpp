@@ -15,8 +15,8 @@ struct nk_style_window_header* style, struct nk_color background,
 struct nk_color foreground) {
 	Set_Nk_Window_Header_Style(
 	style, background,
-	Nk_Button_Style(background, foreground),
-	Nk_Button_Style(background, foreground),
+	Nk_Button_Style(foreground, background),
+	Nk_Button_Style(foreground, background),
 	foreground);
 }
 
@@ -26,9 +26,9 @@ struct nk_style_button close_button, struct nk_style_button minimize_button,
 struct nk_color label_color) {
 	Set_Nk_Window_Header_Style_Defaults(style);
 
-	style->normal = nk_style_item_color((background));
-	style->hover = nk_style_item_color(lighter((background)));
-	style->active = nk_style_item_color(darker((background)));
+	style->normal = nk_style_item_color(background);
+	style->hover = nk_style_item_color(background);
+	style->active = nk_style_item_color(background);
 
 	style->close_button = close_button;
 	style->minimize_button = minimize_button;
