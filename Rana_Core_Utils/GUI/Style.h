@@ -2,6 +2,7 @@
 #define STYLE_H_
 
 #include "Style/palette.h"
+#include "Style/Abstract_Button_Style.h"
 #include "Style/Nk_Button_Style.h"
 #include "Style/Nk_Combo_Style.h"
 #include "Style/Nk_Edit_Style.h"

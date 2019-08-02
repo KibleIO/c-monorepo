@@ -22,9 +22,9 @@ struct nk_color foreground_color, struct nk_color background_color) {
 
 	style->cursor_normal = nk_style_item_color((foreground_color));
 	style->cursor_hover = nk_style_item_color(
-		lighter((foreground_color)));
+	lighter((foreground_color)));
 	style->cursor_active = nk_style_item_color(
-		darker((foreground_color)));
+	darker((foreground_color)));
 }
 
 void Set_Nk_Scrollbar_Style_Defaults(struct nk_style_scrollbar* style) {
