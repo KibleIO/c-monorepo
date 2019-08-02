@@ -10,10 +10,6 @@
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Graphics/Graphics.h"
 
-#ifdef VGSUPPORTED
-#include "../Graphics/VGGraphics.h"
-#endif
-
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -77,9 +73,6 @@ void Delete_GUI(GUI*);
 void Draw_Text(GUI*, GRAPHICS*, const struct nk_command_text*);
 void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
-#ifdef VGSUPPORTED
-void Render_VG_Nuklear_GUI(GUI*);
-#endif
 void Render_GUI(GUI* gui, char* output_buffer);
 
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);
