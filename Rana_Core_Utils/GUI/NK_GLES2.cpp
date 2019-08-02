@@ -1,14 +1,11 @@
 #if defined(__linux__) && defined(__arm__)
 
-#include "NK_GLES.h"
+#include "NK_GLES2.h"
 
 nk_context* nk_sdl_init(nk_sdl* sdl, SDL_Window *win) {
 	sdl->win = win;
 	nk_init_default(&sdl->ctx, 0);
-	sdl->ctx.clip.copy = nk_sdl_clipboard_copy;
-	sdl->ctx.clip.paste = nk_sdl_clipboard_paste;
-	sdl->ctx.clip.userdata = nk_handle_ptr(0);
-	nk_sdl_device_create();
+	nk_sdl_device_create(sdl);
 	return &sdl->ctx;
 }
 
@@ -19,9 +16,10 @@ void nk_sdl_font_stash_begin(nk_sdl* sdl, nk_font_atlas **atlas) {
 }
 
 void nk_sdl_font_stash_end(nk_sdl* sdl) {
-    const void *image; int w, h;
-    image = nk_font_atlas_bake(&sdl->atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
-    nk_sdl_device_upload_atlas(image, w, h);
+    struct nk_image* image;
+    int w, h;
+    image = (struct nk_image*) nk_font_atlas_bake(&sdl->atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
+    nk_sdl_device_upload_atlas(sdl, image, w, h);
     nk_font_atlas_end(
 	&sdl->atlas, nk_handle_id((int)sdl->ogl.font_tex), &sdl->ogl.null);
 
@@ -33,10 +31,10 @@ void nk_sdl_font_stash_end(nk_sdl* sdl) {
 void nk_sdl_render(
 nk_sdl* sdl, nk_anti_aliasing AA, int max_vertex_buffer,
 int max_element_buffer) {
-    nk_sdl_device *dev = &sdl->ogl;
+    nk_sdl_device* dev = &sdl->ogl;
     int width, height;
     int display_width, display_height;
-    nk_vec2 scale;
+    struct nk_vec2 scale;
     GLfloat ortho[4][4] = {
         {2.0f, 0.0f, 0.0f, 0.0f},
         {0.0f,-2.0f, 0.0f, 0.0f},
@@ -113,7 +111,7 @@ int max_element_buffer) {
 				NK_OFFSETOF(nk_sdl_vertex, col)},
                 {NK_VERTEX_LAYOUT_END}
             };
-            NK_MEMSET(&config, 0, sizeof(config));
+            memset(&config, 0, sizeof(config));
             config.vertex_layout = vertex_layout;
             config.vertex_size = sizeof(nk_sdl_vertex);
             config.vertex_alignment = NK_ALIGNOF(nk_sdl_vertex);
@@ -177,7 +175,7 @@ int max_element_buffer) {
 void nk_sdl_shutdown(nk_sdl* sdl) {
     nk_font_atlas_clear(&sdl->atlas);
     nk_free(&sdl->ctx);
-    nk_sdl_device_destroy();
+    nk_sdl_device_destroy(sdl);
     memset(&sdl, 0, sizeof(sdl));
 }
 
@@ -273,7 +271,7 @@ nk_sdl* sdl, const void *image, int width, int height) {
 	GL_UNSIGNED_BYTE, image);
 }
 
-nk_image nk_sdl_load_image(const char *filename) {
+struct nk_image nk_sdl_load_image(const char *filename) {
 	int x,y,n;
 	GLuint tex;
 	unsigned char *data = stbi_load(filename, &x, &y, &n, 0);

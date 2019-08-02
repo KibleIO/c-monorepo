@@ -5,18 +5,30 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
+#include <cassert>
+#include "stb_image.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
 #define NK_INCLUDE_DEFAULT_FONT
+
+#ifdef __arm__
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#endif
+
 #include "nuklear.h"
 
 #define NK_SHADER_VERSION "#version 100\n"
 
 #define MAX_VERTEX_MEMORY 128 * 1024
 #define MAX_ELEMENT_MEMORY 32 * 1024
+
+//don't ask my why this is here
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
 
 struct nk_sdl_device {
     nk_buffer cmds;
@@ -62,7 +74,7 @@ void 		nk_sdl_render(nk_sdl*, nk_anti_aliasing, int, int);
 void		nk_sdl_shutdown(nk_sdl*);
 void		nk_sdl_device_destroy(nk_sdl*);
 void		nk_sdl_device_create(nk_sdl*);
-nk_image	nk_sdl_load_image(const char*);
+struct nk_image	nk_sdl_load_image(const char*);
 void		nk_sdl_device_upload_atlas(nk_sdl*, const void*, int, int);
 
 void Initialize_NK_GLES(NK_GLES*);

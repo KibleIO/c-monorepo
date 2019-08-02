@@ -2,22 +2,22 @@
 #define  GUI_H_
 
 #include <string.h>
-
 #include "BMP.h"
 #include "FONT.h"
 #include "MOUSE.h"
 #include "KEYBOARD.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Graphics/Graphics.h"
-#include "../Graphics/NK_GLES.h"
+#include "NK_GLES2.h"
 
+#ifndef __arm__
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
 #define NK_INCLUDE_DEFAULT_FONT
-
 #include "nuklear.h"
+#endif
 
 #define GREY 0xff252525
 #define WHITE 0xff989898

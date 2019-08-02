@@ -30,6 +30,8 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 		int(gui->Height * 0.03)
 	};
 
+	(void)font_path;
+
 	gui->BakedBmp = false;
 	if (frame_buffer) {
 		gui->Graphics_Handle_Buffer		  = NULL;
