@@ -16,22 +16,12 @@ nk_handle handle, float height, const char* text, int length) {
 	return _x;
 }
 
-void Initialize_GUI_Themis(GUI* gui, int display_id) {
-	gui->Display_ID = display_id;
-	gui->NK_Context	= NULL;
-
-	gui->fonts = NULL;
-	gui->fontHeights = NULL;
-
-	gui->Graphics_Handle_Buffer	= NULL;
-	gui->Graphics_Handle		= NULL;
-}
-
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer) {
 	gui->Width				= width;
 	gui->Height				= height;
 	gui->Frame_Resolution	= width * height;
-	gui->NK_Context			= new nk_context;
+	//gui->NK_Context			= new nk_context;
+	gui->nk_gles = new NK_GLES;
 
 	gui->fonts = new GUI_FONT[GUI_TOTAL_FONTS];
 	gui->fontHeights = new int[GUI_TOTAL_FONTS] {
@@ -53,6 +43,7 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	gui->Graphics_Handle->Transparent = true;
 
+	/*
 	// Initialize each of the gui fonts
 	for(int i = 0; i < GUI_TOTAL_FONTS; i++) {
 		Initialize_GUI_Font(&gui->fonts[i], gui->fontHeights[i], font_path.c_str());
@@ -63,6 +54,11 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
 	Set_GUI_Style_Default(gui);
+	*/
+
+	Initialize_NK_GLES(gui->nk_gles);
+
+	gui->NK_Context = gui->nk_gles->ctx;
 }
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
@@ -238,7 +234,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 						KEYBOARD::Shift = true;
 						break;
 					default:
-						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
 						break;
 				}
 				break;
@@ -252,7 +247,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 						KEYBOARD::Caps_Lock = true;
 						break;
 					default:
-						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 						break;
 				}
 				break;
@@ -300,7 +294,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 							}
 							break;
 						default:
-							//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 							break;
 					}
 				}
@@ -313,6 +306,10 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 }
 
 void Render_Nuklear_GUI(GUI* gui) {
+
+	Render_NK_GLES(gui->nk_gles);
+
+	/*
 	const struct nk_command* command;
 
 	nk_foreach(command, gui->NK_Context) {
@@ -422,6 +419,7 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 	nk_clear(gui->NK_Context);
 	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	*/
 }
 
 void Render_GUI(GUI* gui, char* output_buffer) {

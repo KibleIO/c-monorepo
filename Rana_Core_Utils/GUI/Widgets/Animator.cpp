@@ -61,8 +61,6 @@ void Advance_Animation(ANIMATOR* anim) {
 	// and that the frames have finished initializing
 	if(anim->totalFrames > 0 && !anim->initializerThreadRunning) {
 		// Draw the current frame
-		Draw_BMP(anim->frames[anim->currentFrame], anim->graphicsHandle,
-			anim->x, anim->y);
 
 		// Advance to the next frame if we are not at the last frame
 		// and we are not clamped

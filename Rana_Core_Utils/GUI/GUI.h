@@ -9,6 +9,7 @@
 #include "KEYBOARD.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Graphics/Graphics.h"
+#include "../Graphics/NK_GLES.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -56,10 +57,9 @@ struct GUI {
 	GRAPHICS*		Graphics_Handle;
 
 	bool			BakedBmp;
-};
 
-//static float Font_Get_Text_Width(nk_handle, float, const char*, int);
-void Initialize_GUI_Themis(GUI* gui, int display_id);
+	NK_GLES* nk_gles;
+};
 
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
 
