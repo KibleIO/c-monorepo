@@ -313,8 +313,21 @@ void Render_NK_GLES(NK_GLES* nk_gles) {
     SDL_GL_SwapWindow(nk_gles->win);
 }
 
-void Initialize_NK_GLES(NK_GLES* nk_gles) {
+void HideCursor()
+{
+Uint8 l_data[1];
+Uint8 l_mask[1];
+
+l_data[0] = 0;
+l_mask[0] = 0;
+
+SDL_SetCursor(SDL_CreateCursor(l_data, l_mask, 1, 1, 0, 0));
+}
+
+void Initialize_NK_GLES(NK_GLES* nk_gles, string font_path) {
 	nk_gles->sdl = new nk_sdl;
+
+	//SDL_ShowCursor(SDL_DISABLE);
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     SDL_GL_SetAttribute(
@@ -330,6 +343,9 @@ void Initialize_NK_GLES(NK_GLES* nk_gles) {
 	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
 	WINDOW_HEIGHT, SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
 
+
+	HideCursor();
+
     nk_gles->glContext = SDL_GL_CreateContext(nk_gles->win);
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -340,7 +356,13 @@ void Initialize_NK_GLES(NK_GLES* nk_gles) {
     nk_sdl_font_stash_begin(nk_gles->sdl, &atlas);
 	/*nk_font *droid = nk_font_atlas_add_from_file(
 	atlas, "../../../extra_font/DroidSans.ttf", 14, 0);*/
+
+	struct nk_font *cousine = nk_font_atlas_add_from_file(atlas, font_path.c_str(), 13, 0);
+
     nk_sdl_font_stash_end(nk_gles->sdl);
+
+	nk_style_set_font(nk_gles->ctx, &cousine->handle);
+	nk_style_load_all_cursors(nk_gles->ctx, atlas->cursors);
 }
 
 void Delete_NK_GLES(NK_GLES* nk_gles) {

@@ -3,6 +3,8 @@
 #ifndef NK_GLES_H_
 #define NK_GLES_H_
 
+#include <iostream>
+#include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
 #include <cassert>
@@ -29,6 +31,8 @@
 //don't ask my why this is here
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
+
+using namespace std;
 
 struct nk_sdl_device {
     nk_buffer cmds;
@@ -77,7 +81,7 @@ void		nk_sdl_device_create(nk_sdl*);
 struct nk_image	nk_sdl_load_image(const char*);
 void		nk_sdl_device_upload_atlas(nk_sdl*, const void*, int, int);
 
-void Initialize_NK_GLES(NK_GLES*);
+void Initialize_NK_GLES(NK_GLES*, string);
 void Render_NK_GLES(NK_GLES*);
 void Delete_NK_GLES(NK_GLES*);
 

@@ -23,14 +23,14 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	//gui->NK_Context			= new nk_context;
 	gui->nk_gles = new NK_GLES;
 
+	/*
 	gui->fonts = new GUI_FONT[GUI_TOTAL_FONTS];
 	gui->fontHeights = new int[GUI_TOTAL_FONTS] {
 		int(gui->Height * 0.02),
 	 	int(gui->Height * 0.025),
 		int(gui->Height * 0.03)
 	};
-
-	(void)font_path;
+	*/
 
 	gui->BakedBmp = false;
 	if (frame_buffer) {
@@ -58,30 +58,40 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 	Set_GUI_Style_Default(gui);
 	*/
 
-	Initialize_NK_GLES(gui->nk_gles);
+	Initialize_NK_GLES(gui->nk_gles, font_path);
 
 	gui->NK_Context = gui->nk_gles->ctx;
 }
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
-	Initialize_Font(userFont, font_path, height);
-	nkFont->userdata.ptr = userFont->Baked_glyphs;
-	nkFont->height = height;
-	nkFont->width = Font_Get_Text_Width;
+	(void) nkFont;
+	(void) userFont;
+	(void) height;
+	(void) font_path;
+
+	//Initialize_Font(userFont, font_path, height);
+	//nkFont->userdata.ptr = userFont->Baked_glyphs;
+	//nkFont->height = height;
+	//nkFont->width = Font_Get_Text_Width;
 }
 
 void Initialize_GUI_Font(GUI_FONT* gfont, int height, const char* fname) {
-	Initialize_Font(&gfont->userFont, fname, height);
-	gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
-	gfont->nkFont.height = height;
-	gfont->nkFont.width = Font_Get_Text_Width;
+	(void) gfont;
+        (void) height;
+        (void) fname;
+	//Initialize_Font(&gfont->userFont, fname, height);
+	//gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
+	//gfont->nkFont.height = height;
+	//gfont->nkFont.width = Font_Get_Text_Width;
 }
 
 void Set_Font(GUI* gui, int font_index) {
-	if(font_index >= 0 && font_index < GUI_TOTAL_FONTS) {
-		gui->currentFont = font_index;
-		nk_style_set_font(gui->NK_Context, &gui->fonts[font_index].nkFont);
-	}
+	(void) gui;
+        (void) font_index;
+	//if(font_index >= 0 && font_index < GUI_TOTAL_FONTS) {
+	//	gui->currentFont = font_index;
+	//	nk_style_set_font(gui->NK_Context, &gui->fonts[font_index].nkFont);
+	//}
 }
 
 void Delete_GUI(GUI* gui) {
