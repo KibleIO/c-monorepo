@@ -27,9 +27,29 @@ nk_flags window_flags) {
 	Setup_State_ABSTRACT_BUTTON(
 	ctx, nk_widget_bounds(ctx), &selectable->state, &selectable->clicked);
 
+	// When the selectable is clicked, toggle selected bool
 	if (ABSTRACT_SELECTABLE_Clicked(selectable)) {
 		selectable->selected = !selectable->selected;
 	}
 
 	return nk_group_begin(ctx, title, window_flags);
+}
+
+bool Begin_ABSTRACT_SELECTABLE_With_Buffer(
+ABSTRACT_SELECTABLE* selectable, struct nk_context* ctx, const char* title,
+nk_flags window_flags) {
+	nk_label(ctx, "", 0);
+	return Begin_ABSTRACT_SELECTABLE(selectable, ctx, title, window_flags);
+}
+
+void End_ABSTRACT_SELECTABLE(struct nk_context* ctx) {
+	nk_group_end(ctx);
+}
+
+// ACCESSORS
+bool ABSTRACT_SELECTABLE_Clicked(const ABSTRACT_SELECTABLE* selectable) {
+	return selectable->clicked;
+}
+bool ABSTRACT_SELECTABLE_Selected(const ABSTRACT_SELECTABLE* selectable) {
+	return selectable->selected;
 }

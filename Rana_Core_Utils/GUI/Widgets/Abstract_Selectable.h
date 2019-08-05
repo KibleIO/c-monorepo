@@ -22,5 +22,6 @@ void End_ABSTRACT_SELECTABLE(struct nk_context*);
 
 // ACCESSORS
 bool ABSTRACT_SELECTABLE_Clicked(const ABSTRACT_SELECTABLE*);
+bool ABSTRACT_SELECTABLE_Selected(const ABSTRACT_SELECTABLE*);
 
 #endif
