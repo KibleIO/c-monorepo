@@ -2,25 +2,22 @@
 #define  GUI_H_
 
 #include <string.h>
-
 #include "BMP.h"
 #include "FONT.h"
 #include "MOUSE.h"
 #include "KEYBOARD.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Graphics/Graphics.h"
+#include "NK_GLES2.h"
 
-#ifdef VGSUPPORTED
-#include "../Graphics/VGGraphics.h"
-#endif
-
+#ifndef __arm__
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
 #define NK_INCLUDE_DEFAULT_FONT
-
 #include "nuklear.h"
+#endif
 
 #define GREY 0xff252525
 #define WHITE 0xff989898
@@ -60,10 +57,9 @@ struct GUI {
 	GRAPHICS*		Graphics_Handle;
 
 	bool			BakedBmp;
-};
 
-//static float Font_Get_Text_Width(nk_handle, float, const char*, int);
-void Initialize_GUI_Themis(GUI* gui, int display_id);
+	NK_GLES* nk_gles;
+};
 
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer = NULL);
 
@@ -77,9 +73,6 @@ void Delete_GUI(GUI*);
 void Draw_Text(GUI*, GRAPHICS*, const struct nk_command_text*);
 void Draw_Text(GUI*, GRAPHICS*, string, int, int, unsigned char*, unsigned char*);
 void Render_Nuklear_GUI(GUI*);
-#ifdef VGSUPPORTED
-void Render_VG_Nuklear_GUI(GUI*);
-#endif
 void Render_GUI(GUI* gui, char* output_buffer);
 
 //void Handle_Input_GUI(GUI* gui, MOUSE** mouse, KEYBOARD** keyboard, int len);

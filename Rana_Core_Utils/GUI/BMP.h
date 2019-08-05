@@ -21,10 +21,6 @@ struct BMP {
 	int W, H;
 	bool Transparent;
 	string name;
-
-#ifdef GRAPHICS_USING_HARDWARE
-	VGImage img;
-#endif
 };
 
 void Initialize_BMP(BMP*, string);

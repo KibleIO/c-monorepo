@@ -12,8 +12,6 @@ ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
 	-I/opt/vc/include/interface/vmcs_host/linux\
 	-I/opt/vc/include/interface/vcos/pthreads
-
-	VG =-DVGSUPPORTED
 endif
 
 # File names

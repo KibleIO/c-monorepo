@@ -16,29 +16,21 @@ nk_handle handle, float height, const char* text, int length) {
 	return _x;
 }
 
-void Initialize_GUI_Themis(GUI* gui, int display_id) {
-	gui->Display_ID = display_id;
-	gui->NK_Context	= NULL;
-
-	gui->fonts = NULL;
-	gui->fontHeights = NULL;
-
-	gui->Graphics_Handle_Buffer	= NULL;
-	gui->Graphics_Handle		= NULL;
-}
-
 void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* frame_buffer) {
 	gui->Width				= width;
 	gui->Height				= height;
 	gui->Frame_Resolution	= width * height;
-	gui->NK_Context			= new nk_context;
+	//gui->NK_Context			= new nk_context;
+	gui->nk_gles = new NK_GLES;
 
+	/*
 	gui->fonts = new GUI_FONT[GUI_TOTAL_FONTS];
 	gui->fontHeights = new int[GUI_TOTAL_FONTS] {
 		int(gui->Height * 0.02),
 	 	int(gui->Height * 0.025),
 		int(gui->Height * 0.03)
 	};
+	*/
 
 	gui->BakedBmp = false;
 	if (frame_buffer) {
@@ -53,6 +45,7 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	gui->Graphics_Handle->Transparent = true;
 
+	/*
 	// Initialize each of the gui fonts
 	for(int i = 0; i < GUI_TOTAL_FONTS; i++) {
 		Initialize_GUI_Font(&gui->fonts[i], gui->fontHeights[i], font_path.c_str());
@@ -63,27 +56,42 @@ void Initialize_GUI(GUI* gui, int width, int height, string font_path, char* fra
 
 	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
 	Set_GUI_Style_Default(gui);
+	*/
+
+	Initialize_NK_GLES(gui->nk_gles, font_path);
+
+	gui->NK_Context = gui->nk_gles->ctx;
 }
 
 void Pair_Fonts(nk_user_font* nkFont, FONT* userFont, float height, const char* font_path) {
-	Initialize_Font(userFont, font_path, height);
-	nkFont->userdata.ptr = userFont->Baked_glyphs;
-	nkFont->height = height;
-	nkFont->width = Font_Get_Text_Width;
+	(void) nkFont;
+	(void) userFont;
+	(void) height;
+	(void) font_path;
+
+	//Initialize_Font(userFont, font_path, height);
+	//nkFont->userdata.ptr = userFont->Baked_glyphs;
+	//nkFont->height = height;
+	//nkFont->width = Font_Get_Text_Width;
 }
 
 void Initialize_GUI_Font(GUI_FONT* gfont, int height, const char* fname) {
-	Initialize_Font(&gfont->userFont, fname, height);
-	gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
-	gfont->nkFont.height = height;
-	gfont->nkFont.width = Font_Get_Text_Width;
+	(void) gfont;
+        (void) height;
+        (void) fname;
+	//Initialize_Font(&gfont->userFont, fname, height);
+	//gfont->nkFont.userdata.ptr = gfont->userFont.Baked_glyphs;
+	//gfont->nkFont.height = height;
+	//gfont->nkFont.width = Font_Get_Text_Width;
 }
 
 void Set_Font(GUI* gui, int font_index) {
-	if(font_index >= 0 && font_index < GUI_TOTAL_FONTS) {
-		gui->currentFont = font_index;
-		nk_style_set_font(gui->NK_Context, &gui->fonts[font_index].nkFont);
-	}
+	(void) gui;
+        (void) font_index;
+	//if(font_index >= 0 && font_index < GUI_TOTAL_FONTS) {
+	//	gui->currentFont = font_index;
+	//	nk_style_set_font(gui->NK_Context, &gui->fonts[font_index].nkFont);
+	//}
 }
 
 void Delete_GUI(GUI* gui) {
@@ -238,7 +246,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 						KEYBOARD::Shift = true;
 						break;
 					default:
-						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_LEFTSHIFT or KEY_RIGHTSHIFT");
 						break;
 				}
 				break;
@@ -252,7 +259,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 						KEYBOARD::Caps_Lock = true;
 						break;
 					default:
-						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 						break;
 				}
 				break;
@@ -300,7 +306,6 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 							}
 							break;
 						default:
-							//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(element->Event.value) + " for type: " + to_string(element->Event.type) + " and code: KEY_CAPSLOCK");
 							break;
 					}
 				}
@@ -313,6 +318,10 @@ void Handle_Input_GUI(GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_
 }
 
 void Render_Nuklear_GUI(GUI* gui) {
+
+	Render_NK_GLES(gui->nk_gles);
+
+	/*
 	const struct nk_command* command;
 
 	nk_foreach(command, gui->NK_Context) {
@@ -422,137 +431,8 @@ void Render_Nuklear_GUI(GUI* gui) {
 
 	nk_clear(gui->NK_Context);
 	Set_Clip_GRAPHICS(gui->Graphics_Handle, -1, -1, -1, -1); // sets clip to full 0, 0, width, height
+	*/
 }
-
-#ifdef VGSUPPORTED
-void Render_VG_Nuklear_GUI(GUI* gui) {
-	const struct nk_command* command;
-
-	nk_foreach(command, gui->NK_Context) {
-		switch (command->type) {
-			case NK_COMMAND_NOP:
-				break;
-			case NK_COMMAND_SCISSOR:
-				break;
-			case NK_COMMAND_LINE: {
-				const struct nk_command_line* l =
-				(const struct nk_command_line*)command;
-				uint8_t color[4] =
-				{l->color.r, l->color.g, l->color.b, l->color.a};
-				Line_VGGRAPHICS(
-				l->begin.x, l->begin.y, l->end.x, l->end.y, l->line_thickness,
-				color);
-				break;
-			}
-			case NK_COMMAND_RECT: {
-				//const struct nk_command_rect* r =
-				//(const struct nk_command_rect*)command;
-				//uint8_t color[4] =
-				//{r->color.r, r->color.g, r->color.b, r->color.a};
-				//Rect_VGGRAPHICS(
-				//r->x, r->y, r->w, r->h, r->rounding, r->line_thickness, color);
-				break;
-			}
-			case NK_COMMAND_RECT_FILLED: {
-				const struct nk_command_rect_filled* r =
-				(const struct nk_command_rect_filled*)command;
-				uint8_t color[4] =
-				{r->color.r, r->color.g, r->color.b, r->color.a};
-				Rect_Filled_VGGRAPHICS(r->x, r->y, r->w, r->h, r->rounding,
-				color);
-				break;
-			}
-			case NK_COMMAND_CIRCLE: {
-				const struct nk_command_circle* c =
-				(const struct nk_command_circle*)command;
-				uint8_t color[4] =
-				{c->color.r, c->color.g, c->color.b, c->color.a};
-				Ellipse_VGGRAPHICS(c->x, c->y, c->w, c->h, c->line_thickness,
-				color);
-				break;
-			}
-			case NK_COMMAND_CIRCLE_FILLED: {
-				const struct nk_command_circle_filled* c =
-				(const struct nk_command_circle_filled*)command;
-				uint8_t color[4] =
-				{c->color.r, c->color.g, c->color.b, c->color.a};
-				Ellipse_Filled_VGGRAPHICS(c->x, c->y, c->w, c->h, color);
-				break;
-			}
-			case NK_COMMAND_TRIANGLE: {
-				const struct nk_command_triangle* t =
-				(const struct nk_command_triangle*)command;
-				uint8_t color[4] =
-				{t->color.r, t->color.g, t->color.b, t->color.a};
-				VGfloat xp[3];
-				VGfloat yp[3];
-				xp[0] = t->a.x;
-				xp[0] = t->b.x;
-				xp[0] = t->c.x;
-				yp[0] = t->a.y;
-				yp[0] = t->b.y;
-				yp[0] = t->c.y;
-				Polygon_VGGRAPHICS(xp, yp, 3, t->line_thickness, color);
-				break;
-			}
-			case NK_COMMAND_TRIANGLE_FILLED: {
-				const struct nk_command_triangle_filled* t =
-				(const struct nk_command_triangle_filled*)command;
-				uint8_t color[4] =
-				{t->color.r, t->color.g, t->color.b, t->color.a};
-				VGfloat xp[3];
-				VGfloat yp[3];
-				xp[0] = t->a.x;
-				xp[0] = t->b.x;
-				xp[0] = t->c.x;
-				yp[0] = t->a.y;
-				yp[0] = t->b.y;
-				yp[0] = t->c.y;
-				Polygon_Filled_VGGRAPHICS(xp, yp, 3, color);
-				break;
-			}
-			case NK_COMMAND_POLYGON:
-				break;
-			case NK_COMMAND_POLYGON_FILLED:
-				break;
-			case NK_COMMAND_POLYLINE:
-				break;
-			case NK_COMMAND_TEXT: {
-				const struct nk_command_text* t =
-				(const struct nk_command_text*)command;
-				uint8_t color[4] =
-				{t->foreground.r, t->foreground.g,
-				t->foreground.b, t->foreground.a};
-				Text_VGGRAPHICS(t->x, t->y, t->string,
-				gui->fontHeights[gui->currentFont] / 2, color);
-				break;
-			}
-			case NK_COMMAND_CURVE:
-				break;
-			case NK_COMMAND_RECT_MULTI_COLOR:
-				break;
-			case NK_COMMAND_IMAGE: {
-				const struct nk_command_image* i =
-				(const struct nk_command_image*)command;
-				BMP* bmp = (BMP*)i->img.handle.ptr;
-				Image_VGGRAPHICS(i->x, i->y, bmp->W, bmp->H,
-				(uint8_t*)bmp->Data);
-				break;
-			}
-			case NK_COMMAND_ARC:
-				break;
-			case NK_COMMAND_ARC_FILLED:
-				break;
-			case NK_COMMAND_CUSTOM:
-				break;
-			default:
-				break;
-		}
-	}
-
-	nk_clear(gui->NK_Context);
-}
-#endif
 
 void Render_GUI(GUI* gui, char* output_buffer) {
 	//char* swapper;
