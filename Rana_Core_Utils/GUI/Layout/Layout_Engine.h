@@ -44,6 +44,8 @@ uint8_t items, bool side_buffers);
 void Layout_Row_Homogenous(
 struct nk_context*, BREADTH_BUFFER_PAIR row_size, uint8_t columns,
 BREADTH_BUFFER_PAIR column_size);
+void Layout_Row_Homogenous_Full(
+struct nk_context*, BREADTH_BUFFER_PAIR row_size, uint8_t columns);
 
 // Layout a row with columns in symmetric pairs across the horizontal median
 void Layout_Row_Symmetric_Even_Pairs(

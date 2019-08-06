@@ -20,12 +20,12 @@ nk_flags window_flags) {
 	// Setup style of the abstract button based on whether or not is selected
 	if (selectable->selected) {
 		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.defaultColors,
+		ctx, selectable->state, &selectable->style.selectedColors,
 		selectable->style.border, selectable->style.padding);
 	}
 	else {
 		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.selectedColors,
+		ctx, selectable->state, &selectable->style.defaultColors,
 		selectable->style.border, selectable->style.padding);
 	}
 
