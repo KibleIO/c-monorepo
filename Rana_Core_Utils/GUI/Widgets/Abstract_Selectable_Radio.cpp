@@ -36,7 +36,6 @@ bool Begin_Selectable_ABSTRACT_SELECTABLE_RADIO(
 ABSTRACT_SELECTABLE_RADIO* radio, struct nk_context* ctx, const char* title,
 nk_flags flags, uint8_t index) {
 	if (index < radio->size) {
-
 		// Render the selectable at the index
 		ABSTRACT_SELECTABLE* selectable = &radio->selectables[index];
 		bool begun = Begin_ABSTRACT_SELECTABLE(selectable, ctx, title, flags);
@@ -102,33 +101,32 @@ const ABSTRACT_SELECTABLE_RADIO* radio) {
 // HELPERS
 void Update_Selected_ABSTRACT_SELECTABLE_RADIO(
 ABSTRACT_SELECTABLE_RADIO* radio) {
-	// If selectable is clicked, check if it was selected or deselected
-	if (Selectable_Clicked_ABSTRACT_SELECTABLE_RADIO(radio)) {
-		// If the selectable being rendered is selected, select it
-		if (
-		ABSTRACT_SELECTABLE_Selected(
-		Selectable_Rendering_ABSTRACT_SELECTABLE_RADIO(radio))) {
-			Select_ABSTRACT_SELECTABLE_RADIO(radio, radio->rendering);
-		}
-		// If not, deselect it
-		else {
-			Deselect_ABSTRACT_SELECTABLE_RADIO(radio, radio->rendering);
-		}
-	}
+	bool** refs = Selectable_State_Refs_ABSTRACT_SELECTABLE_RADIO(radio);
+
+	Enforce_Radio_On_Clicked(
+	refs, radio->size, radio->rendering, radio->requireOneSelected,
+	Selectable_Clicked_ABSTRACT_SELECTABLE_RADIO(radio));
+
+	delete [] refs;
 }
 
 void Select_ABSTRACT_SELECTABLE_RADIO(
 ABSTRACT_SELECTABLE_RADIO* radio, uint8_t index) {
 	bool** refs = Selectable_State_Refs_ABSTRACT_SELECTABLE_RADIO(radio);
-	Select(refs, radio->size, index);
+
+	Radio_Select(
+	refs, radio->size, index, radio->requireOneSelected);
+
 	delete [] refs;
 }
 
 void Deselect_ABSTRACT_SELECTABLE_RADIO(
 ABSTRACT_SELECTABLE_RADIO* radio, uint8_t index) {
-	// Get selectable states in an array of bools
 	bool** refs = Selectable_State_Refs_ABSTRACT_SELECTABLE_RADIO(radio);
-	Deselect(refs, radio->size, index, radio->requireOneSelected);
+
+	Radio_Deselect(
+	refs, radio->size, index, radio->requireOneSelected);
+
 	delete [] refs;
 }
 

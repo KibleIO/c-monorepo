@@ -39,6 +39,10 @@ int Layout_Transformed_Area(struct nk_context* ctx, RECT_TRANSFORM transform) {
 	}
 }
 
+void Layout_All(struct nk_context* ctx) {
+	Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(1)));
+}
+
 void Layout_Row_Single_Full(
 struct nk_context* ctx, BREADTH_BUFFER_PAIR row_size) {
 	Layout_Row_Single(ctx, row_size, Breadth(Ratio_Of_Total(1)));
