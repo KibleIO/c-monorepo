@@ -24,21 +24,21 @@ using namespace std;
 typedef int Color;
 
 struct GRAPHICS {
-  int   Width;
-  int   Height;
-  int   Width_Clip;
-  int   Height_Clip;
-  int   X_clip;
-  int   Y_clip;
-  char* Buffer;
-  long* ContourX;
-  bool  Transparent;
+  int		Width;
+  int		Height;
+  int		Width_Clip;
+  int		Height_Clip;
+  int		X_clip;
+  int		Y_clip;
+  uint8_t*	Buffer;
+  long*		ContourX;
+  bool		Transparent;
 };
 
-void Initialize_GRAPHICS(GRAPHICS*, char*, int, int);
+void Initialize_GRAPHICS(GRAPHICS*, uint8_t*, int, int);
 void Delete_GRAPHICS(GRAPHICS*);
 
-void SwapBuffers_GRAPHICS(GRAPHICS*, char* buff);
+void SwapBuffers_GRAPHICS(GRAPHICS*, uint8_t*);
 
 void ClearScreen_GRAPHICS(GRAPHICS*, int color);
 

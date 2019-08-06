@@ -1,4 +1,4 @@
-#if defined(__linux__) && defined(__arm__)
+#ifdef __arm__
 
 #ifndef NK_GLES_H_
 #define NK_GLES_H_
@@ -9,19 +9,8 @@
 #include <SDL2/SDL_opengles2.h>
 #include <cassert>
 #include "stb_image.h"
-
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_STANDARD_VARARGS
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_DEFAULT_FONT
-
-#ifdef __arm__
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#endif
-
-#include "nuklear.h"
+#include "avir.h"
+#include "NK_BASE.h"
 
 #define NK_SHADER_VERSION "#version 100\n"
 
@@ -64,13 +53,6 @@ struct nk_sdl {
     nk_font_atlas	atlas;
 };
 
-struct NK_GLES {
-	SDL_Window*		win;
-	nk_context*		ctx;
-    SDL_GLContext	glContext;
-	nk_sdl*			sdl;
-};
-
 nk_context*	nk_sdl_init(nk_sdl*, SDL_Window*);
 void		nk_sdl_font_stash_begin(nk_sdl*, nk_font_atlas**);
 void		nk_sdl_font_stash_end(nk_sdl*);
@@ -78,12 +60,17 @@ void 		nk_sdl_render(nk_sdl*, nk_anti_aliasing, int, int);
 void		nk_sdl_shutdown(nk_sdl*);
 void		nk_sdl_device_destroy(nk_sdl*);
 void		nk_sdl_device_create(nk_sdl*);
-struct nk_image	nk_sdl_load_image(const char*);
 void		nk_sdl_device_upload_atlas(nk_sdl*, const void*, int, int);
 
-void Initialize_NK_GLES(NK_GLES*, string);
-void Render_NK_GLES(NK_GLES*);
-void Delete_NK_GLES(NK_GLES*);
+struct NK_GEN {
+	SDL_Window*		win;
+    SDL_GLContext	glContext;
+	nk_sdl*			sdl;
+	struct nk_font*	fonts;
+	uint32_t		number_of_fonts;
+	nk_context* 	NK_Context;
+	void*			userdata;
+};
 
 #endif
 

@@ -1,5 +1,5 @@
-#if defined(__linux__) && defined(__arm__)
-
+#ifdef __arm__
+#define NK_IMPLEMENTATION
 #include "NK_GLES2.h"
 
 nk_context* nk_sdl_init(nk_sdl* sdl, SDL_Window *win) {
@@ -18,7 +18,9 @@ void nk_sdl_font_stash_begin(nk_sdl* sdl, nk_font_atlas **atlas) {
 void nk_sdl_font_stash_end(nk_sdl* sdl) {
     struct nk_image* image;
     int w, h;
-    image = (struct nk_image*) nk_font_atlas_bake(&sdl->atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
+    image = (struct nk_image*) nk_font_atlas_bake(
+	&sdl->atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
+
     nk_sdl_device_upload_atlas(sdl, image, w, h);
     nk_font_atlas_end(
 	&sdl->atlas, nk_handle_id((int)sdl->ogl.font_tex), &sdl->ogl.null);
@@ -237,7 +239,6 @@ void nk_sdl_device_create(nk_sdl* sdl) {
     glGetProgramiv(dev->prog, GL_LINK_STATUS, &status);
     assert(status == GL_TRUE);
 
-
     dev->uniform_tex = glGetUniformLocation(dev->prog, "Texture");
     dev->uniform_proj = glGetUniformLocation(dev->prog, "ProjMtx");
     dev->attrib_pos = glGetAttribLocation(dev->prog, "Position");
@@ -271,14 +272,24 @@ nk_sdl* sdl, const void *image, int width, int height) {
 	GL_UNSIGNED_BYTE, image);
 }
 
-struct nk_image nk_sdl_load_image(const char *filename) {
-	int x,y,n;
+struct nk_image Load_Image_NK_GEN(
+string filename, uint32_t width, uint32_t height) {
+	uint32_t w;
+	uint32_t h;
+	uint32_t n;
 	GLuint tex;
-	unsigned char *data = stbi_load(filename, &x, &y, &n, 0);
-	if (!data || n != 4) {
+	uint8_t* orig_buffer;
+	uint8_t* trans_buffer;
+	avir::CImageResizer<> air(8);
+
+	orig_buffer = stbi_load(filename.c_str(), &w, &h, &n, 0);
+	if (!orig_buffer || n != 4) {
 		printf("failed to load texture\n");
 		return nk_image_id((int) NULL);
 	}
+	trans_buffer = new uint8_t[width * height * 4];
+
+	air.resizeImage(orig_buffer, w, h, 0, trans_buffer, width, height, 4, 0);
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
@@ -291,15 +302,16 @@ struct nk_image nk_sdl_load_image(const char *filename) {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(
-	GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)x, (GLsizei)y, 0, GL_RGBA,
-	GL_UNSIGNED_BYTE, data);
+	GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA,
+	GL_UNSIGNED_BYTE, trans_buffer);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	delete trans_buffer;
 	return nk_image_id((int)tex);
 }
 
-void Render_NK_GLES(NK_GLES* nk_gles) {
+void Render_NK_GEN(NK_GEN* nk_gles, RENDER_PROC render_nk) {
     float bg[4];
     int win_width, win_height;
     nk_color_fv(bg, nk_rgb(28,48,62));
@@ -311,23 +323,24 @@ void Render_NK_GLES(NK_GLES* nk_gles) {
 	nk_gles->sdl, NK_ANTI_ALIASING_ON, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
 
     SDL_GL_SwapWindow(nk_gles->win);
+
+	render_nk(nk_gles->userdata, NULL);
 }
 
-void HideCursor()
-{
-Uint8 l_data[1];
-Uint8 l_mask[1];
-
-l_data[0] = 0;
-l_mask[0] = 0;
-
-SDL_SetCursor(SDL_CreateCursor(l_data, l_mask, 1, 1, 0, 0));
+void HideCursor() {
+	Uint8 l_data[1];
+	Uint8 l_mask[1];
+	l_data[0] = 0;
+	l_mask[0] = 0;
+	SDL_SetCursor(SDL_CreateCursor(l_data, l_mask, 1, 1, 0, 0));
 }
 
-void Initialize_NK_GLES(NK_GLES* nk_gles, string font_path) {
-	nk_gles->sdl = new nk_sdl;
-
-	//SDL_ShowCursor(SDL_DISABLE);
+void Initialize_NK_GEN(
+NK_GEN* nk_gles, void* userdata, uint32_t width, uint32_t height) {
+	nk_gles->sdl				= new nk_sdl;
+	nk_gles->fonts				= NULL;
+	nk_gles->number_of_fonts	= 0;
+	nk_fb->userdata				= userdata;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     SDL_GL_SetAttribute(
@@ -340,38 +353,56 @@ void Initialize_NK_GLES(NK_GLES* nk_gles, string font_path) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     nk_gles->win = SDL_CreateWindow(
-	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
-	WINDOW_HEIGHT, SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
-
+	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+	SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
 
 	HideCursor();
 
     nk_gles->glContext = SDL_GL_CreateContext(nk_gles->win);
+    glViewport(0, 0, width, height);
+    nk_gles->NK_Context = nk_sdl_init(nk_gles->sdl, nk_gles->win);
+}
 
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+void Load_Fonts_NK_GEN(
+NK_GEN* nk_gles, string font_path, uint32_t* font_heights,
+uint32_t total_font_heights) {
+	if (nk_gles->fonts != NULL) {
+		delete nk_gles->fonts;
+	}
+	nk_gles->fonts				= new struct nk_font[total_font_heights];
+	nk_gles->number_of_fonts	= total_font_heights;
 
-    nk_gles->ctx = nk_sdl_init(nk_gles->sdl, nk_gles->win);
-
-    nk_font_atlas *atlas;
+	nk_font_atlas *atlas;
     nk_sdl_font_stash_begin(nk_gles->sdl, &atlas);
-	/*nk_font *droid = nk_font_atlas_add_from_file(
-	atlas, "../../../extra_font/DroidSans.ttf", 14, 0);*/
 
-	struct nk_font *cousine = nk_font_atlas_add_from_file(atlas, font_path.c_str(), 13, 0);
+	for (int i = 0; i < total_font_heights; i++) {
+		nk_gles->fonts[i] = nk_font_atlas_add_from_file(
+		atlas, font_path.c_str(), gui->fontHeights[i], 0);
+	}
 
     nk_sdl_font_stash_end(nk_gles->sdl);
 
-	nk_style_set_font(nk_gles->ctx, &cousine->handle);
-	nk_style_load_all_cursors(nk_gles->ctx, atlas->cursors);
+	nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[0]->handle);
+	nk_style_load_all_cursors(nk_gles->NK_Context, atlas->cursors);
 }
 
-void Delete_NK_GLES(NK_GLES* nk_gles) {
+void Set_Font_NK_GEN(NK_GEN* nk_gles, uint32_t font_index) {
+	if (font_index >= 0 && font_index < nk_gles->number_of_fonts) {
+		nk_style_set_font(gui->NK_Context, &nk_gles->fonts[font_index]->handle);
+	}
+}
+
+void Delete_NK_GEN(NK_GEN* nk_gles) {
 	nk_sdl_shutdown(nk_gles->sdl);
     SDL_GL_DeleteContext(nk_gles->glContext);
     SDL_DestroyWindow(nk_gles->win);
     SDL_Quit();
 
 	delete nk_gles->sdl;
+
+	if (nk_gles->fonts != NULL) {
+		delete nk_gles->fonts;
+	}
 }
 
 #endif

@@ -55,7 +55,7 @@ struct nk_context* ctx, const char* original_label, struct nk_rect rect) {
 	strcpy(new_label, original_label);
 
 	// Figure out the width of the text and the width that it needs to fit in
-	float label_width = Font_Text_Width(
+	float label_width = Font_Get_Text_Width(
 	ctx->style.font->userdata, rect.h, original_label, strlen(original_label));
 
 	// If label is too wide, adjust the end of it with an ellipsis
@@ -74,7 +74,7 @@ struct nk_context* ctx, const char* original_label, struct nk_rect rect) {
 }
 
 float Ellipsis_Width(struct nk_context* ctx, float height) {
-	return Font_Text_Width(ctx->style.font->userdata, height, "...", 3);
+	return Font_Get_Text_Width(ctx->style.font->userdata, height, "...", 3);
 }
 
 char* Label_Margin_Cursor(
@@ -86,18 +86,18 @@ float margin_width, float container_width) {
 	// Amount by which the full text exceeds the space
 	// it needs to fit in.  Negative indicates the full text
 	// does not fill up the whole space
-	float excess_width = Font_Text_Width(
+	float excess_width = Font_Get_Text_Width(
 	ctx->style.font->userdata, height, label,
 	strlen(label)) - container_width;
 
 	// Current width of the text that the cursor is pointing to
-	float current_width = Font_Text_Width(
+	float current_width = Font_Get_Text_Width(
 	ctx->style.font->userdata, height,
 	current_cursor, strlen(current_cursor));
 
 	while (
 	current_cursor != label && current_width < excess_width + margin_width) {
-		current_width = Font_Text_Width(
+		current_width = Font_Get_Text_Width(
 		ctx->style.font->userdata, height,
 		current_cursor, strlen(current_cursor));
 

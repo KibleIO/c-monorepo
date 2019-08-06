@@ -2,7 +2,7 @@
 
 #include "Graphics.h"
 
-void Initialize_GRAPHICS(GRAPHICS* graphics, char* buffer, int width, int height) {
+void Initialize_GRAPHICS(GRAPHICS* graphics, uint8_t* buffer, int width, int height) {
 	graphics->Buffer      = buffer;
 	graphics->Width       = width;
 	graphics->Height      = height;
@@ -18,7 +18,7 @@ void Delete_GRAPHICS(GRAPHICS* graphics) {
 	delete [] graphics->ContourX;
 }
 
-void SwapBuffers_GRAPHICS(GRAPHICS* graphics, char* buff) {
+void SwapBuffers_GRAPHICS(GRAPHICS* graphics, uint8_t* buff) {
 	graphics->Buffer = buff;
 }
 
