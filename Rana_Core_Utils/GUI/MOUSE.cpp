@@ -1,11 +1,10 @@
 //PLATFORMS: Linux, Windows, OSX
 
 #include "MOUSE.h"
-//#include "nuklear.h"
 
-int MOUSE::Current_X;
-int MOUSE::Current_Y;
-bool MOUSE::Clicked;
+int32_t	MOUSE::Current_X;
+int32_t	MOUSE::Current_Y;
+bool	MOUSE::Clicked;
 
 // Linux specific code {{{
 #ifdef __linux__

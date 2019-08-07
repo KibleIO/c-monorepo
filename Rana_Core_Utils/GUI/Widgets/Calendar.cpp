@@ -31,7 +31,7 @@ struct nk_color selected, struct nk_color text) {
 
 void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 	if (
-	Start_Group(&ui->dateSelectionGroup, gui->NK_Context, "calendar group",
+	Start_Group(&ui->dateSelectionGroup, gui->nk_backend->NK_Context, "calendar group",
 	NK_WINDOW_NO_SCROLLBAR)) {
 		uint8_t current_button = 0;
 		uint8_t weekday_of_first_day = dayofweek(
@@ -39,13 +39,13 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 		// Layout the header where current month is displayed and adjusted
 		Layout_Row_Symmetric_Odd_Pairs(
-		gui->NK_Context, Breadth(CALENDAR_MONTH_SELECT_HEIGHT), 2,
+		gui->nk_backend->NK_Context, Breadth(CALENDAR_MONTH_SELECT_HEIGHT), 2,
 		Breadth(Ratio_Of_Total(0.2)), Breadth(Ratio_Of_Total(0.6)));
 
 		// If back button is pressed, move current month back once
 		if (
 		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
-		gui->NK_Context, "<", false)) {
+		gui->nk_backend->NK_Context, "<", false)) {
 			ui->currentMonth--;
 
 			// If decrement caused overflow, set current month to last month
@@ -55,13 +55,13 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 		}
 
 		Render_Button_Label_With_Buffer(
-		&ui->monthLabel, gui->NK_Context,
+		&ui->monthLabel, gui->nk_backend->NK_Context,
 		MONTH_NAMES[ui->currentMonth].c_str(), false);
 
 		// If forward button is pressed, more current month forward once
 		if (
 		Render_Button_Label_With_Buffer(&ui->monthSelectButtons,
-		gui->NK_Context, ">", false)) {
+		gui->nk_backend->NK_Context, ">", false)) {
 			ui->currentMonth = (ui->currentMonth + 1) % TOTAL_MONTHS;
 		}
 
@@ -70,7 +70,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 
 			// Layout a row with seven equally sized columns
 			Layout_Row_Homogenous(
-			gui->NK_Context, Buffer_And_Breadth(CALENDAR_ROW_VERTICAL_BUFFER,
+			gui->nk_backend->NK_Context, Buffer_And_Breadth(CALENDAR_ROW_VERTICAL_BUFFER,
 			CALENDAR_ROW_HEIGHT), DAYS_IN_WEEK, Buffer_And_Breadth(
 			Ratio_Of_Total(CALENDAR_BUFFER_WIDTH_RATIO),
 			Ratio_Of_Total(CALENDAR_BUTTON_WIDTH_RATIO)));
@@ -86,7 +86,7 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 					if (
 					Render_Button_Label_With_Buffer(
 					&ui->dayOfMonthButtons[ui->currentMonth],
-					gui->NK_Context, to_string(current_button + 1).c_str(),
+					gui->nk_backend->NK_Context, to_string(current_button + 1).c_str(),
 					false, current_button)) {
 						Resolve_Date_Selection(
 						ui, current_button, ui->currentMonth);
@@ -95,18 +95,18 @@ void Render_CALENDAR_UI(CALENDAR_UI* ui, GUI* gui) {
 				}
 				// If we aren't rendering the button, render empty widgets
 				else {
-					nk_label(gui->NK_Context, "", 0);
-					nk_label(gui->NK_Context, "", 0);
+					nk_label(gui->nk_backend->NK_Context, "", 0);
+					nk_label(gui->nk_backend->NK_Context, "", 0);
 				}
 			} // END foreach column
 		} // END foreach row
 	} // END if
 
-	nk_group_end(gui->NK_Context);
+	nk_group_end(gui->nk_backend->NK_Context);
 }
 
 void Render_CALENDAR_UI_With_Buffer(CALENDAR_UI* ui, GUI* gui) {
-	nk_label(gui->NK_Context, "", 0);
+	nk_label(gui->nk_backend->NK_Context, "", 0);
 	Render_CALENDAR_UI(ui, gui);
 }
 
