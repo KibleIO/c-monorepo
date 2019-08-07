@@ -39,6 +39,10 @@ int Layout_Transformed_Area(struct nk_context* ctx, RECT_TRANSFORM transform) {
 	}
 }
 
+void Layout_All(struct nk_context* ctx) {
+	Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(1)));
+}
+
 void Layout_Row_Single_Full(
 struct nk_context* ctx, BREADTH_BUFFER_PAIR row_size) {
 	Layout_Row_Single(ctx, row_size, Breadth(Ratio_Of_Total(1)));
@@ -117,6 +121,30 @@ uint8_t total_columns, BREADTH_BUFFER_PAIR column_size) {
 	int i = 0; i < total_columns &&
 	i < NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS; i++) {
 		column_size_array[i] = column_size;
+	}
+
+	Layout_Row(ctx, row_size, total_columns, column_size_array);
+}
+
+void Layout_Row_Homogenous_Full(
+struct nk_context* ctx, BREADTH_BUFFER_PAIR row_size,
+uint8_t total_columns) {
+	BREADTH_BUFFER_PAIR column_size_array[NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS];
+	uint32_t current_width = Current_Usable_Panel_Width(ctx);
+	uint32_t per_width = current_width / (float)total_columns;
+	uint32_t error = current_width - (per_width * total_columns);
+
+	// Initialize each value in the array to be the same size,
+	// perfectly filling in all available space
+	for (
+	int i = 0; i < total_columns &&
+	i < NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS; i++) {
+		if (i < total_columns - 1) {
+			column_size_array[i] = Breadth(Exact_Size(per_width));
+		}
+		else {
+			column_size_array[i] = Breadth(Exact_Size(per_width + error));
+		}
 	}
 
 	Layout_Row(ctx, row_size, total_columns, column_size_array);

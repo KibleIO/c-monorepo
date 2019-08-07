@@ -1,5 +1,11 @@
 #include "Abstract_Selectable.h"
 
+ABSTRACT_SELECTABLE Abstract_Selectable(ABSTRACT_SELECTABLE_STYLE style) {
+	ABSTRACT_SELECTABLE selectable;
+	Initialize_ABSTRACT_SELECTABLE(&selectable, style);
+	return selectable;
+}
+
 void Initialize_ABSTRACT_SELECTABLE(
 ABSTRACT_SELECTABLE* selectable, ABSTRACT_SELECTABLE_STYLE style) {
 	selectable->state = ABSTRACT_BUTTON_NORMAL;
@@ -14,12 +20,12 @@ nk_flags window_flags) {
 	// Setup style of the abstract button based on whether or not is selected
 	if (selectable->selected) {
 		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.defaultColors,
+		ctx, selectable->state, &selectable->style.selectedColors,
 		selectable->style.border, selectable->style.padding);
 	}
 	else {
 		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.selectedColors,
+		ctx, selectable->state, &selectable->style.defaultColors,
 		selectable->style.border, selectable->style.padding);
 	}
 
@@ -52,4 +58,16 @@ bool ABSTRACT_SELECTABLE_Clicked(const ABSTRACT_SELECTABLE* selectable) {
 }
 bool ABSTRACT_SELECTABLE_Selected(const ABSTRACT_SELECTABLE* selectable) {
 	return selectable->selected;
+}
+
+// MUTATORS
+bool Select_ABSTRACT_SELECTABLE(ABSTRACT_SELECTABLE* selectable) {
+	bool prev_selected = selectable->selected;
+	selectable->selected = true;
+	return !prev_selected;
+}
+bool Deselect_ABSTRACT_SELECTABLE(ABSTRACT_SELECTABLE* selectable) {
+	bool prev_deselected = !selectable->selected;
+	selectable->selected = false;
+	return !prev_deselected;
 }

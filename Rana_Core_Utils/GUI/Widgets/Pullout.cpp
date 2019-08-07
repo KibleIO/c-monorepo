@@ -63,6 +63,14 @@ void Delete_PULLOUT(PULLOUT* pullout) {
 	Delete_Panel(&pullout->windowPanel);
 }
 
+struct nk_rect Widget_Area(const PULLOUT* pullout) {
+	return pullout->widgetArea;
+}
+
+bool PULLOUT_Hovered(const PULLOUT* pullout) {
+	return pullout->hovered;
+}
+
 bool Widget_Is_Hovered_PULLOUT(
 struct nk_context* ctx, struct nk_rect widget_rect) {
 	return nk_input_is_mouse_hovering_rect(

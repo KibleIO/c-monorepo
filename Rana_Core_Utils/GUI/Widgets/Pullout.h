@@ -52,6 +52,10 @@ void End_Window_PULLOUT(struct nk_context*);
 
 void Delete_PULLOUT(PULLOUT*);
 
+// ACCESSORS
+struct nk_rect Widget_Area(const PULLOUT*);
+bool PULLOUT_Hovered(const PULLOUT*);
+
 // Helpers
 bool Widget_Is_Hovered_PULLOUT(struct nk_context*, struct nk_rect);
 

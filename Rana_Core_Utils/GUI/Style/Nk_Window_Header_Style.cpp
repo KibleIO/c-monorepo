@@ -15,8 +15,8 @@ struct nk_style_window_header* style, struct nk_color background,
 struct nk_color foreground) {
 	Set_Nk_Window_Header_Style(
 	style, background,
-	Nk_Button_Style(foreground, background),
-	Nk_Button_Style(foreground, background),
+	Nk_Button_Style(background, foreground),
+	Nk_Button_Style(background, foreground),
 	foreground);
 }
 
