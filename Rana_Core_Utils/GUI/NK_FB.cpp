@@ -47,6 +47,7 @@ void Draw_Text(NK_GEN* nk_fb, const struct nk_command_text* command) {
 			for (int y = 0; y < c->H; y++){
 				unsigned int alpha = c->Bitmap[(y*c->W)+x];
 				unsigned int inv_alpha = 255 - alpha;
+
 				result[0] = (
 				unsigned char)((alpha * fg[0] + inv_alpha * bg[0]) >> 8);
 

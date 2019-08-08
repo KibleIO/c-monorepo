@@ -33,13 +33,6 @@ colors to stay consistent across similarly themed screens
 #define SUBMISSIVE_BUTTON_COLOR nk_rgba(0xa7, 0xb6, 0xc1, 0xff)
 #define BLACK nk_rgba(0x00, 0x00, 0x00, 0xff)
 
-// NEW COLORS
-#define NEAR_WHITE nk_rgb(0xe5, 0xe5, 0xe5)
-#define YELLOW nk_rgb(0xfe, 0xea, 0x2e)
-#define LIGHT_YELLOW nk_rgb(0xfd, 0xf9, 0xce)
-#define BLUE nk_rgb(0x5c, 0x88, 0xb7)
-
-
 // Alpha channel defined for "nearly transparent" colors
 #define NEAR_TRANSPARENT 0x60
 
