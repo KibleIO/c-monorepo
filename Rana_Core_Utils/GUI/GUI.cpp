@@ -3,18 +3,19 @@
 int32_t GUI::Width;
 int32_t GUI::Height;
 
-void Initialize_GUI(
-GUI* gui, uint32_t width, uint32_t height, string font_path, void* userdata) {
-	GUI::Width				= width;
-	GUI::Height				= height;
-	gui->nk_backend			= new NK_GEN;
+void Initialize_GUI(GUI* gui, string font_path) {
+	gui->nk_backend = new NK_GEN;
+
+	Initialize_NK_GEN(gui->nk_backend);
+
+	GUI::Width				= Get_Width_NK_GEN(gui->nk_backend);
+	GUI::Height				= Get_Height_NK_GEN(gui->nk_backend);
 	uint32_t* font_heights	= new uint32_t[GUI_TOTAL_FONTS] {
 		uint32_t(gui->Height * 0.02),
 	 	uint32_t(gui->Height * 0.025),
 		uint32_t(gui->Height * 0.03)
 	};
 
-	Initialize_NK_GEN(gui->nk_backend, userdata, width, height);
 	Load_Fonts_NK_GEN(
 	gui->nk_backend, font_path, font_heights, GUI_TOTAL_FONTS);
 
@@ -180,8 +181,8 @@ GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_EVENT_T*>* k_events) {
 	nk_input_end(gui->nk_backend->NK_Context);
 }
 
-void Render_Nuklear_GUI(GUI* gui, RENDER_PROC render_nk) {
-	Render_NK_GEN(gui->nk_backend, render_nk);
+void Render_Nuklear_GUI(GUI* gui) {
+	Render_NK_GEN(gui->nk_backend);
 }
 
 void Set_Style_Default_GUI(GUI* gui) {
