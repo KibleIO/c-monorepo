@@ -82,7 +82,7 @@ string filename, uint32_t width, uint32_t height) {
 	return nk_image_ptr(picture);
 }
 
-void Render_NK_GEN(NK_GEN* nk_fb, RENDER_PROC render_nk) {
+void Render_NK_GEN(NK_GEN* nk_fb) {
 	const struct nk_command* command;
 
 	nk_foreach(command, nk_fb->NK_Context) {
@@ -214,21 +214,43 @@ void Render_NK_GEN(NK_GEN* nk_fb, RENDER_PROC render_nk) {
 	// sets clip to full 0, 0, width, height
 	Set_Clip_GRAPHICS(nk_fb->Graphics_Handle, -1, -1, -1, -1);
 
-	render_nk(nk_fb->userdata, nk_fb->Graphics_Handle_Buffer);
+	Render_FB_RENDERER(nk_fb->render_context, nk_fb->Graphics_Handle_Buffer);
 }
 
-void Initialize_NK_GEN(
-NK_GEN* nk_fb, void* userdata, uint32_t width, uint32_t height) {
+void Initialize_NK_GEN(NK_GEN* nk_fb) {
 	nk_fb->fonts			= NULL;
 	nk_fb->number_of_fonts	= 0;
 	nk_fb->current_font		= -1;
 	nk_fb->NK_Context		= new nk_context;
-	nk_fb->userdata			= userdata;
+	nk_fb->render_context	= NULL;
 
-	nk_fb->Graphics_Handle_Buffer       = new uint8_t[width * height * 4];
-	nk_fb->Graphics_Handle              = new GRAPHICS;
+	Initialize_FB_RENDERER(nk_fb->render_context);
+	if (nk_fb->render_context == NULL) {
+		log_err("render context was not initialized correctly");
+		return;
+	}
+
+	nk_fb->width					= Get_Width_FB_RENDERER(
+	nk_fb->render_context);
+
+	nk_fb->height					= Get_Height_FB_RENDERER(
+	nk_fb->render_context);
+
+	nk_fb->Graphics_Handle			= new GRAPHICS;
+	nk_fb->Graphics_Handle_Buffer	=
+	new uint8_t[nk_fb->width * nk_fb->height * 4];
+
 	Initialize_GRAPHICS(
-	nk_fb->Graphics_Handle, nk_fb->Graphics_Handle_Buffer, width, height);
+	nk_fb->Graphics_Handle, nk_fb->Graphics_Handle_Buffer, nk_fb->width,
+	nk_fb->height);
+}
+
+uint32_t Get_Width_NK_GEN(NK_GEN* nk_fb) {
+	return nk_fb->width;
+}
+
+uint32_t Get_Height_NK_GEN(NK_GEN* nk_fb) {
+	return nk_fb->height;
 }
 
 void Load_Fonts_NK_GEN(
@@ -278,6 +300,9 @@ void Set_Font_NK_GEN(NK_GEN* nk_fb, uint32_t font_index) {
 }
 
 void Delete_NK_GEN(NK_GEN* nk_fb) {
+	if (nk_fb->render_context) {
+		Delete_FB_RENDERER(nk_fb->render_context);
+	}
 	if (nk_fb->NK_Context) {
 		log_dbg("deleting nk context");
 		nk_free(nk_fb->NK_Context);

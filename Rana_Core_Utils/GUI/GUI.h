@@ -21,8 +21,8 @@ struct GUI {
 	NK_GEN* nk_backend;
 };
 
-void			Initialize_GUI(GUI*, uint32_t, uint32_t, string, void*);
-void			Render_Nuklear_GUI(GUI*, RENDER_PROC);
+void			Initialize_GUI(GUI*, string);
+void			Render_Nuklear_GUI(GUI*);
 void			Handle_Input_GUI(
 GUI*, Queue<MOUSE_EVENT_T*>*, Queue<KEYBOARD_EVENT_T*>*);
 

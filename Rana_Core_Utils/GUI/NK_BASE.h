@@ -22,14 +22,13 @@ using namespace std;
 
 struct NK_GEN;
 
-typedef void (*RENDER_PROC)(void*, uint8_t*);
-typedef void (*RENDER_H264)(void*, uint8_t*, uint32_t, RENDER_PROC, void*);
-
-void			Initialize_NK_GEN(NK_GEN*, void*, uint32_t, uint32_t);
+void			Initialize_NK_GEN(NK_GEN*);
 void			Load_Fonts_NK_GEN(NK_GEN*, string, uint32_t*, uint32_t);
 void			Set_Font_NK_GEN(NK_GEN*, uint32_t);
+uint32_t		Get_Width_NK_GEN(NK_GEN*);
+uint32_t		Get_Height_NK_GEN(NK_GEN*);
 struct nk_image	Load_Image_NK_GEN(string, uint32_t, uint32_t);
-void 			Render_NK_GEN(NK_GEN*, RENDER_PROC);
+void 			Render_NK_GEN(NK_GEN*);
 void 			Delete_NK_GEN(NK_GEN*);
 
 #endif
