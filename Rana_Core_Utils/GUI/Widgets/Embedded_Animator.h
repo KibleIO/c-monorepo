@@ -1,7 +1,7 @@
 #ifndef EMBEDDED_ANIMATOR_H_
 #define EMBEDDED_ANIMATOR_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Panel.h"
 #include "Image.h"
 #include "Simple_Ellipsis_Animation.h"
@@ -16,27 +16,11 @@ struct EMBEDDED_ANIMATOR {
 	bool looping;	// True if the animation is allowed to loop
 	int16_t currentFrame;	// Current frame being rendered
 	int16_t frameClamp;	// Animation cannot advance past this frame
-
-	// Thread used to initialize the animator frames
-	thread* initializerThread;
-	// True while the animator is initializing its frames
-	bool initializing;
-	// True if the animator has finished initializing
-	bool finishedInitializing;
-
-	// Animation that plays while the images are loading up
-	SIMPLE_ELLIPSIS_ANIMATION tempAnim;
 };
 
 EMBEDDED_ANIMATOR Embedded_Animator(
-string baseName, string fileExtension, uint8_t totalFrames, bool looping,
-SIMPLE_ELLIPSIS_ANIMATION);
-EMBEDDED_ANIMATOR Embedded_Animator(
 string baseName, string fileExtension, uint8_t totalFrames, bool looping);
 
-void Initialize_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, string baseName, string fileExtension, uint8_t totalFrames,
-bool looping, SIMPLE_ELLIPSIS_ANIMATION);
 void Initialize_EMBEDDED_ANIMATOR(
 EMBEDDED_ANIMATOR*, string baseName, string fileExtension, uint8_t totalFrames,
 bool looping);
@@ -58,9 +42,6 @@ void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 HELPERS
 */
 
-void Initialize_Images_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*, struct nk_vec2);
-void Update_Initializer_Status_EMBEDDED_ANIMATOR(
-EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM);
 void Update_Current_Frame_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 
 /*

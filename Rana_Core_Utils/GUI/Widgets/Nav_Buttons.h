@@ -1,7 +1,7 @@
 #ifndef NAV_BUTTONS_H_
 #define NAV_BUTTONS_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include <stdint.h>
 #include "Button.h"
 #include "Button_Events.h"

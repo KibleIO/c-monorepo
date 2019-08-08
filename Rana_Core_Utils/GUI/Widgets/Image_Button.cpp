@@ -60,13 +60,13 @@ string toggledActiveDir, string dormantDir) {
 	Initialize_Button(
 	&button->super, type, Button_Style(
 	// Button style for normal
-	Nk_Button_Style(&button->normal.image, &button->hover.image,
-	&button->active.image),
+	Nk_Button_Style(button->normal.picture, button->hover.picture,
+	button->active.picture),
 	// Button style while toggled
-	Nk_Button_Style(&button->toggledNormal.image, &button->toggledHover.image,
-	&button->toggledActive.image),
+	Nk_Button_Style(button->toggledNormal.picture,
+	button->toggledHover.picture, button->toggledActive.picture),
 	// Button style while dormant
-	Nk_Button_Style_Dormant(&button->dormant.image)));
+	Nk_Button_Style_Dormant(button->dormant.picture)));
 }
 
 /*
@@ -75,7 +75,6 @@ RENDERING
 
 bool Render_Image_Button_Label(IMAGE_BUTTON* button, struct nk_context* ctx,
 const char* label, bool interactable) {
-	Check_And_Load_Images(button, ctx, interactable);
 	return Render_Button_Label(&button->super, ctx, label, interactable);
 }
 bool Render_Image_Button_Label_With_Buffer(IMAGE_BUTTON* button,
@@ -100,30 +99,4 @@ void Delete_Image_Button(IMAGE_BUTTON* button) {
 	Delete_Image(&button->dormant);
 
 	Delete_Button(&button->super);
-}
-
-void Check_And_Load_Images(
-IMAGE_BUTTON* button, struct nk_context* ctx, bool interactable) {
-	if (interactable) {
-		if (!button->super.toggleState) {
-			Check_And_Load_Image_In_Current_Rect(
-			&button->normal, ctx, NO_CHANGE_RECT_TRANSFORM);
-			Check_And_Load_Image_In_Current_Rect(
-			&button->hover, ctx, NO_CHANGE_RECT_TRANSFORM);
-			Check_And_Load_Image_In_Current_Rect(
-			&button->active, ctx, NO_CHANGE_RECT_TRANSFORM);
-		}
-		else {
-			Check_And_Load_Image_In_Current_Rect(
-			&button->toggledNormal, ctx, NO_CHANGE_RECT_TRANSFORM);
-			Check_And_Load_Image_In_Current_Rect(
-			&button->toggledHover, ctx, NO_CHANGE_RECT_TRANSFORM);
-			Check_And_Load_Image_In_Current_Rect(
-			&button->toggledActive, ctx, NO_CHANGE_RECT_TRANSFORM);
-		}
-	}
-	else {
-		Check_And_Load_Image_In_Current_Rect(
-		&button->dormant, ctx, NO_CHANGE_RECT_TRANSFORM);
-	}
 }

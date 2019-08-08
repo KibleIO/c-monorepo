@@ -1,7 +1,7 @@
 #ifndef ABSTRACT_BUTTON_STYLE_H_
 #define ABSTRACT_BUTTON_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
 #include "Abstract_Button_Colors.h"
 

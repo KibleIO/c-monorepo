@@ -1,7 +1,7 @@
 #ifndef PANEL_H_
 #define PANEL_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../Style.h"
 #include "../Layout/Rect_Transform.h"
 #include "../Layout/Layout_Engine.h"

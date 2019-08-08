@@ -1,7 +1,7 @@
 #ifndef UTILITIES_H_
 #define UTILITIES_H_
 
-#include "../GUI/GUI.h"
+#include "../GUI/NK_BASE.h"
 #include "Utils.h"
 
 #include <stdint.h>
@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-
 
 string* Parse_Punctuated_List(const string, int& size, const char punctuation = ',');
 string* Parse_Punctuated_List(const string, const char punctuation = ',');
@@ -24,6 +23,7 @@ void Scale(float* ar, uint32_t arlen, float target);
 // dimensions inside the rectangle given
 struct nk_vec2 Center(struct nk_rect parent, struct nk_vec2 child_dimensions);
 
+bool Vec2_Cmp(struct nk_vec2, struct nk_vec2);
 string Rect_Str(struct nk_rect);
 string Vec2_Str(struct nk_vec2);
 string Color_Str(struct nk_color);

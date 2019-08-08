@@ -2,7 +2,7 @@
 #define BUTTON_H_
 
 #include <stdint.h>
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Label.h"
 #include "Image.h"
 #include "../Style.h"
@@ -68,13 +68,8 @@ BUTTON*, struct nk_context*, const char*, bool trailing,
 bool interactable = true);
 bool Render_Button_Symbol(
 BUTTON*, struct nk_context*, enum nk_symbol_type, bool interactable = true);
-bool Render_Button_Image(
-BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
 bool Render_Button_Symbol_Label(
 BUTTON*, struct nk_context*, enum nk_symbol_type, const char*, bool trailing,
-nk_flags alignment, bool interactable = true);
-bool Render_Button_Image_Label(
-BUTTON*, struct nk_context*, IMAGE*, const char*, bool trailing,
 nk_flags alignment, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
@@ -82,13 +77,8 @@ BUTTON*, struct nk_context*, const char*, bool trailing,
 bool interactable = true);
 bool Render_Button_Symbol_With_Buffer(
 BUTTON*, struct nk_context*, enum nk_symbol_type, bool interactable = true);
-bool Render_Button_Image_With_Buffer(
-BUTTON*, struct nk_context*, IMAGE*, bool interactable = true);
 bool Render_Button_Symbol_Label_With_Buffer(
 BUTTON*, struct nk_context*, enum nk_symbol_type, const char*,
-nk_flags alignment, bool interactable = true);
-bool Render_Button_Image_Label_With_Buffer(
-BUTTON*, struct nk_context*, IMAGE*, const char*, bool trailing,
 nk_flags alignment, bool interactable = true);
 
 bool Render_Button_Label_Buffered(

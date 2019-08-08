@@ -1,7 +1,7 @@
 #ifndef NK_EDIT_STYLE_H_
 #define NK_EDIT_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
 
 struct nk_style_edit Nk_Edit_Style_Plain(struct nk_color background_color,

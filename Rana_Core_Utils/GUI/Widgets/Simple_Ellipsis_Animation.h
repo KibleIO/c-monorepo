@@ -1,7 +1,7 @@
 #ifndef SIMPLE_ELLIPSIS_ANIMATION_H_
 #define SIMPLE_ELLIPSIS_ANIMATION_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Button.h"
 
 #define TOTAL_STRINGS 4

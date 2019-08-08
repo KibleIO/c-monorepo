@@ -95,7 +95,8 @@ uint8_t items, bool side_buffers) {
 
 		// Initialize the array of columns in this row
 		BREADTH_BUFFER_PAIR columns[NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS];
-		items = avir::clamp((int)items, 0, NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS);
+		items = items < NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS ? items :
+		NK_MAX_LAYOUT_ROW_TEMPLATE_COLUMNS - 1;
 		Evenly_Spaced_Items(columns, item_widths, ctx, items, side_buffers);
 
 		// Repeatedly push each column buffer and breadth, one after the other

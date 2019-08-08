@@ -5,7 +5,7 @@
 #include "Panel.h"
 #include "Label.h"
 #include "Button.h"
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../../Utilities/vararg_ext.h"
 
 #define MAX_MESSAGE_BOX_BUTTON_LABEL_LENGTH 64

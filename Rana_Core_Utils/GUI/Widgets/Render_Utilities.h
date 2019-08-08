@@ -1,7 +1,7 @@
 #ifndef RENDER_UTILITIES_H_
 #define RENDER_UTILITIES_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../Style/palette.h"
 #include "../Layout/Rect_Transform.h"
 

@@ -1,7 +1,7 @@
 #ifndef SLIDER_H_
 #define SLIDER_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../Style.h"
 
 struct SLIDER {

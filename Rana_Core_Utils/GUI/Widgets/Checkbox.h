@@ -1,8 +1,7 @@
 #ifndef CHECKBOX_H_
 #define CHECKBOX_H_
 
-#include "../GUI.h"
-#include "../Style.h"
+#include "../Style/Nk_Toggle_Style.h"
 
 struct CHECKBOX {
 	struct nk_style_toggle style;

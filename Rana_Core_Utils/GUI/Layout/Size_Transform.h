@@ -1,7 +1,7 @@
 #ifndef SIZE_TRANSFORM_H_
 #define SIZE_TRANSFORM_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../../Utilities/LOGGING.h"
 #include "../../Utilities/utilities.h"
 

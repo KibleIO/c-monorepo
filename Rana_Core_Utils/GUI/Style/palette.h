@@ -9,7 +9,10 @@ colors to stay consistent across similarly themed screens
 #ifndef PALETTE_H_
 #define PALETTE_H_
 
-#include "../GUI.h"
+#include <sstream>
+#include <iomanip>
+#include "../../Utilities/LOGGING.h"
+#include "../NK_BASE.h"
 #include "Palette_Color.h"
 
 #define TRANSPARENT nk_rgba(0x00, 0x00, 0x00, 0x00)

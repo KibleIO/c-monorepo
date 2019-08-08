@@ -1,10 +1,10 @@
 #ifndef TEXTBOX_H_
 #define TEXTBOX_H_
 
-#include "../Layout/nuklear_plus.h"
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../../Utilities/Function_Pointers.h"
 #include "../Style.h"
+#include "../Layout/nuklear_plus.h"
 
 /*
 TEXTBOX_STYLE

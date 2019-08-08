@@ -1,7 +1,7 @@
 #ifndef ABSTRACT_BUTTON_UTILS_H_
 #define ABSTRACT_BUTTON_UTILS_H_
 
-#include "../../GUI.h"
+#include "../../NK_BASE.h"
 #include "../../Style/Abstract_Button_Style.h"
 
 #define ABSTRACT_BUTTON_NORMAL	0
