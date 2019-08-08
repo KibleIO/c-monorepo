@@ -2,6 +2,15 @@
 #define NK_IMPLEMENTATION
 #include "NK_GLES2.h"
 
+float Font_Get_Text_Width(
+nk_handle handle, float height, const char* text, int length) {
+	(void)handle;
+	(void)height;
+	(void)text;
+	(void)length;
+	return 2000;
+}
+
 nk_context* nk_sdl_init(nk_sdl* sdl, SDL_Window *win) {
 	sdl->win = win;
 	nk_init_default(&sdl->ctx, 0);
@@ -274,9 +283,9 @@ nk_sdl* sdl, const void *image, int width, int height) {
 
 struct nk_image Load_Image_NK_GEN(
 string filename, uint32_t width, uint32_t height) {
-	uint32_t w;
-	uint32_t h;
-	uint32_t n;
+	int32_t w;
+	int32_t h;
+	int32_t n;
 	GLuint tex;
 	uint8_t* orig_buffer;
 	uint8_t* trans_buffer;
@@ -306,7 +315,7 @@ string filename, uint32_t width, uint32_t height) {
 	GL_UNSIGNED_BYTE, trans_buffer);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
+	stbi_image_free(orig_buffer);
 	delete trans_buffer;
 	return nk_image_id((int)tex);
 }
@@ -339,8 +348,8 @@ void Initialize_NK_GEN(
 NK_GEN* nk_gles, void* userdata, uint32_t width, uint32_t height) {
 	nk_gles->sdl				= new nk_sdl;
 	nk_gles->fonts				= NULL;
-	nk_gles->number_of_fonts	= 0;
-	nk_fb->userdata				= userdata;
+	nk_gles->number_of_fonts		= 0;
+	nk_gles->userdata			= userdata;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     SDL_GL_SetAttribute(
@@ -369,15 +378,15 @@ uint32_t total_font_heights) {
 	if (nk_gles->fonts != NULL) {
 		delete nk_gles->fonts;
 	}
-	nk_gles->fonts				= new struct nk_font[total_font_heights];
+	nk_gles->fonts				= new struct nk_font*[total_font_heights];
 	nk_gles->number_of_fonts	= total_font_heights;
 
 	nk_font_atlas *atlas;
     nk_sdl_font_stash_begin(nk_gles->sdl, &atlas);
 
-	for (int i = 0; i < total_font_heights; i++) {
+	for (uint32_t i = 0; i < total_font_heights; i++) {
 		nk_gles->fonts[i] = nk_font_atlas_add_from_file(
-		atlas, font_path.c_str(), gui->fontHeights[i], 0);
+		atlas, font_path.c_str(), font_heights[i], 0);
 	}
 
     nk_sdl_font_stash_end(nk_gles->sdl);
@@ -387,8 +396,8 @@ uint32_t total_font_heights) {
 }
 
 void Set_Font_NK_GEN(NK_GEN* nk_gles, uint32_t font_index) {
-	if (font_index >= 0 && font_index < nk_gles->number_of_fonts) {
-		nk_style_set_font(gui->NK_Context, &nk_gles->fonts[font_index]->handle);
+	if (font_index < nk_gles->number_of_fonts) {
+		nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[font_index]->handle);
 	}
 }
 

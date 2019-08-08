@@ -66,11 +66,13 @@ struct NK_GEN {
 	SDL_Window*		win;
     SDL_GLContext	glContext;
 	nk_sdl*			sdl;
-	struct nk_font*	fonts;
+	struct nk_font**	fonts;
 	uint32_t		number_of_fonts;
 	nk_context* 	NK_Context;
 	void*			userdata;
 };
+
+float	Font_Get_Text_Width(nk_handle, float, const char*, int);
 
 #endif
 
