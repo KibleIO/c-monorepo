@@ -11,7 +11,7 @@ void Initialize_GRAPHICS(GRAPHICS* graphics, uint8_t* buffer, int width, int hei
 	graphics->X_clip      = 0;
 	graphics->Y_clip      = 0;
 	graphics->ContourX    = new long[graphics->Height * 2];
-	graphics->Transparent = false;
+	graphics->Transparent = true;
 }
 
 void Delete_GRAPHICS(GRAPHICS* graphics) {
