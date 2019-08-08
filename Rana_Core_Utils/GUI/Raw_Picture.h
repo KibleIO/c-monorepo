@@ -13,8 +13,8 @@ struct RAW_PICTURE {
 	string filename;	// Name of the file to init the picture from
 
 	uint8_t* buffer;	// Buffer received from the loading the picture
-	uint32_t width;	// Width of the picture
-	uint32_t height;	// Height of the picture
+	int32_t width;	// Width of the picture
+	int32_t height;	// Height of the picture
 };
 
 // FUNCTIONS
@@ -28,7 +28,7 @@ void Delete_RAW_PICTURE(RAW_PICTURE*);
 void Load_RAW_PICTURE(RAW_PICTURE*, uint32_t w, uint32_t h);
 // Checks the given width/height against the picture's current width/height,
 // and only reloads the picture if it needs resizing
-void Check_Load_RAW_PICTURE(RAW_PICTURE*, uint32_t w, uint32_t h);
+void Check_Load_RAW_PICTURE(RAW_PICTURE*, int32_t w, int32_t h);
 void Rework_Buffer_RAW_PICTURE(RAW_PICTURE*);
 
 #endif

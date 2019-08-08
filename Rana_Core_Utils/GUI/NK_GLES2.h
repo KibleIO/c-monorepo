@@ -69,7 +69,8 @@ struct NK_GEN {
 	struct nk_font**	fonts;
 	uint32_t		number_of_fonts;
 	nk_context* 	NK_Context;
-	void*			userdata;
+	uint32_t	width;
+	uint32_t	height;
 };
 
 float	Font_Get_Text_Width(nk_handle, float, const char*, int);

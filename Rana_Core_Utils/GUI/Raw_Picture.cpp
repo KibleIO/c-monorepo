@@ -135,7 +135,7 @@ RAW_PICTURE* picture, uint32_t width, uint32_t height) {
 }
 
 void Check_Load_RAW_PICTURE(
-RAW_PICTURE* picture, uint32_t width, uint32_t height) {
+RAW_PICTURE* picture, int32_t width, int32_t height) {
 	if (
 	abs(picture->width - width) > RAW_PICTURE_SIGNIFICANT_DIFFERENCE ||
 	abs(picture->height - height) > RAW_PICTURE_SIGNIFICANT_DIFFERENCE) {
@@ -146,8 +146,8 @@ RAW_PICTURE* picture, uint32_t width, uint32_t height) {
 void Rework_Buffer_RAW_PICTURE(RAW_PICTURE* picture) {
 	int byte_capture;
 
-	for (uint32_t x = 0; x < picture->width; x++) {
-		for (uint32_t y = 0; y < picture->height; y++) {
+	for (int32_t x = 0; x < picture->width; x++) {
+		for (int32_t y = 0; y < picture->height; y++) {
 			// Capture 4 bytes in the buffer
 			byte_capture = ((int*)picture->buffer)[y * picture->width + x];
 

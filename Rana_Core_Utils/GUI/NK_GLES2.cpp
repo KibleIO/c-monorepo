@@ -320,7 +320,7 @@ string filename, uint32_t width, uint32_t height) {
 	return nk_image_id((int)tex);
 }
 
-void Render_NK_GEN(NK_GEN* nk_gles, RENDER_PROC render_nk) {
+void Render_NK_GEN(NK_GEN* nk_gles) {
     float bg[4];
     int win_width, win_height;
     nk_color_fv(bg, nk_rgb(28,48,62));
@@ -332,8 +332,6 @@ void Render_NK_GEN(NK_GEN* nk_gles, RENDER_PROC render_nk) {
 	nk_gles->sdl, NK_ANTI_ALIASING_ON, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
 
     SDL_GL_SwapWindow(nk_gles->win);
-
-	render_nk(nk_gles->userdata, NULL);
 }
 
 void HideCursor() {
@@ -345,11 +343,16 @@ void HideCursor() {
 }
 
 void Initialize_NK_GEN(
-NK_GEN* nk_gles, void* userdata, uint32_t width, uint32_t height) {
+NK_GEN* nk_gles) {
 	nk_gles->sdl				= new nk_sdl;
 	nk_gles->fonts				= NULL;
 	nk_gles->number_of_fonts		= 0;
-	nk_gles->userdata			= userdata;
+
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+
+	nk_gles->width	= DM.w;
+	nk_gles->height	= DM.h;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     SDL_GL_SetAttribute(
@@ -362,14 +365,22 @@ NK_GEN* nk_gles, void* userdata, uint32_t width, uint32_t height) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     nk_gles->win = SDL_CreateWindow(
-	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, nk_gles->width, nk_gles->height,
 	SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
 
 	HideCursor();
 
     nk_gles->glContext = SDL_GL_CreateContext(nk_gles->win);
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, nk_gles->width, nk_gles->height);
     nk_gles->NK_Context = nk_sdl_init(nk_gles->sdl, nk_gles->win);
+}
+
+uint32_t Get_Width_NK_GEN(NK_GEN* nk_gles) {
+	return nk_gles->width;
+}
+
+uint32_t Get_Height_NK_GEN(NK_GEN* nk_gles) {
+	return nk_gles->height;
 }
 
 void Load_Fonts_NK_GEN(
