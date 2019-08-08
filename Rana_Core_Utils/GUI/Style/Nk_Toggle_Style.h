@@ -1,7 +1,7 @@
 #ifndef NK_TOGGLE_STYLE_H_
 #define NK_TOGGLE_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
 
 #define DEFAULT_TOGGLE_PADDING 3

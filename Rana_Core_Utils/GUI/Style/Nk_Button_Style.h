@@ -1,9 +1,8 @@
 #ifndef NK_BUTTON_STYLE_H_
 #define NK_BUTTON_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
-#include "Button_Images.h"
 #include "Style_Utils.h"
 
 /*
@@ -29,9 +28,8 @@ struct nk_vec2 imag_padding, struct nk_vec2 touch_padding, float rounding = 0,
 nk_flags align = NK_TEXT_CENTERED);
 
 struct nk_style_button Nk_Button_Style(
-BUTTON_IMAGES*, nk_flags align = NK_TEXT_CENTERED);
-struct nk_style_button Nk_Button_Style(
-BMP* normal, BMP* hover, BMP* active, nk_flags align = NK_TEXT_CENTERED);
+struct nk_image normal, struct nk_image hover, struct nk_image active,
+nk_flags align = NK_TEXT_CENTERED);
 
 struct nk_style_button Nk_Button_Style_Dormant(
 struct nk_color btn_color, struct nk_color txt_color, float rounding = 0,
@@ -41,7 +39,7 @@ struct nk_color btn_color, struct nk_color txt_color, struct nk_vec2 padding,
 struct nk_vec2 imag_padding, struct nk_vec2 touch_padding, float rounding = 0,
 nk_flags align = NK_TEXT_CENTERED);
 struct nk_style_button Nk_Button_Style_Dormant(
-BMP* image, nk_flags align = NK_TEXT_CENTERED);
+struct nk_image image, nk_flags align = NK_TEXT_CENTERED);
 
 /*
 Color-based buttons
@@ -84,24 +82,24 @@ nk_flags align = NK_TEXT_CENTERED);
 Image-based buttons
 */
 void Set_Nk_Button_Style(
-struct nk_style_button*, BUTTON_IMAGES*, nk_flags align = NK_TEXT_CENTERED);
+struct nk_style_button*, struct nk_image normal, struct nk_image hover,
+struct nk_image active, nk_flags align = NK_TEXT_CENTERED);
 void Set_Nk_Button_Style(
-struct nk_style_button*, BMP* normal, BMP* hover, BMP* active,
-nk_flags align = NK_TEXT_CENTERED);
-void Set_Nk_Button_Style(
-struct nk_style_button*, BMP* normal, BMP* hover, BMP* active,
+struct nk_style_button*, struct nk_image normal, struct nk_image hover,
+struct nk_image active,
 struct nk_color txt_color, nk_flags align = NK_TEXT_CENTERED);
 
 // Overloads with padding
 void Set_Nk_Button_Style_Padded(
-struct nk_style_button*, BMP* normal, BMP* hover, BMP* active,
+struct nk_style_button*, struct nk_image* normal, struct nk_image hover,
+struct nk_image active,
 struct nk_vec2 padding, struct nk_vec2 imag_padding,
 struct nk_vec2 touch_padding, float rounding = 0,
 nk_flags align = NK_TEXT_CENTERED);
 void Set_Nk_Button_Style_Padded(
-struct nk_style_button*, BMP* normal, BMP* hover, BMP* active,
-struct nk_color txt_color, struct nk_vec2 padding, struct nk_vec2 imag_padding,
-struct nk_vec2 touch_padding, float rounding = 0,
+struct nk_style_button*, struct nk_image normal, struct nk_image hover,
+struct nk_image active, struct nk_color txt_color, struct nk_vec2 padding,
+struct nk_vec2 imag_padding, struct nk_vec2 touch_padding, float rounding = 0,
 nk_flags align = NK_TEXT_CENTERED);
 
 // Set default values on the button style

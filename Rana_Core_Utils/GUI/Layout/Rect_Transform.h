@@ -1,7 +1,7 @@
 #ifndef RECT_TRANSFORM_H_
 #define RECT_TRANSFORM_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Alignment.h"
 #include "Size_Transform.h"
 

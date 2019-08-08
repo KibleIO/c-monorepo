@@ -1,8 +1,9 @@
 #ifndef COMBOBOX_H_
 #define COMBOBOX_H_
 
-#include "../GUI.h"
-#include "../Style.h"
+#include <cstring>
+#include "../NK_BASE.h"
+#include "../Style/Nk_Combo_Style.h"
 #include "../../Utilities/vararg_ext.h"
 
 // Will the size be set by the callee or

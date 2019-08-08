@@ -1,7 +1,7 @@
 #ifndef NK_SCROLLBAR_STYLE_H_
 #define NK_SCROLLBAR_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
 
 struct nk_style_scrollbar Nk_Scrollbar_Style();

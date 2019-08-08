@@ -10,8 +10,8 @@
 #define NK_INCLUDE_DEFAULT_FONT
 
 #ifdef __arm__
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #endif
 
 #include "nuklear.h"

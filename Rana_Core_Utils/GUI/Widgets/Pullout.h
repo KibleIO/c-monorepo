@@ -1,7 +1,7 @@
 #ifndef PULLOUT_H_
 #define PULLOUT_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Panel.h"
 #include "../Layout/Rect_Transform.h"
 #include "../../Utilities/utilities.h"

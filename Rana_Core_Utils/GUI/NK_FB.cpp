@@ -71,29 +71,14 @@ void Draw_Text(NK_GEN* nk_fb, const struct nk_command_text* command) {
 
 struct nk_image Load_Image_NK_GEN(
 string filename, uint32_t width, uint32_t height) {
-	(void) filename;
-	(void) width;
-	(void) height;
-	/*
-	uint32_t w;
-	uint32_t h;
-	uint32_t n;
-	GLuint tex;
-	uint8_t* orig_buffer;
-	uint8_t* trans_buffer;
-	avir::CImageResizer<> air(8);
+	RAW_PICTURE* picture = new RAW_PICTURE;
+	Initialize_RAW_PICTURE(picture, filename);
 
-	orig_buffer = stbi_load(filename.c_str(), &w, &h, &n, 0);
-	if (!orig_buffer || n != 4) {
-		printf("failed to load texture\n");
-		return nk_image_id((int) NULL);
-	}
-	trans_buffer = new uint8_t[width * height * 4];
+	// Bypass compiler errors
+	(void)width;
+	(void)height;
 
-
-	*/
-	//fill this shit in
-	return nk_image_id((int)NULL);
+	return nk_image_ptr(picture);
 }
 
 void Render_NK_GEN(NK_GEN* nk_fb, RENDER_PROC render_nk) {
@@ -207,7 +192,12 @@ void Render_NK_GEN(NK_GEN* nk_fb, RENDER_PROC render_nk) {
 				const struct nk_command_image* image = (
 				const struct nk_command_image*)command;
 
-				(void) image;
+				RAW_PICTURE* picture = (RAW_PICTURE*)image->img.handle.ptr;
+				if (picture) {
+					Render_RAW_PICTURE(
+					picture, nk_fb->Graphics_Handle,
+					image->x, image->y, image->w, image->h);
+				}
 
 				break;
 			}
@@ -263,6 +253,20 @@ uint32_t total_font_heights) {
 
 	nk_init_default(
 	nk_fb->NK_Context, &nk_fb->fonts[nk_fb->current_font].nkFont);
+
+	struct nk_cursor* cursor = new struct nk_cursor;
+	cursor->img = Load_Image_NK_GEN("/root/RANA/res/mice/cape.png", 0, 0);
+	cursor->size = nk_vec2(30, 30);
+	nk_style_load_cursor(nk_fb->NK_Context, NK_CURSOR_ARROW, cursor);
+	nk_style_set_cursor(nk_fb->NK_Context, NK_CURSOR_ARROW);
+	nk_style_show_cursor(nk_fb->NK_Context);
+
+	// Load cursors into the nk style
+	// nk_font_atlas atlas;
+	// nk_font_atlas_init_default(&atlas);
+	// nk_style_load_all_cursors(nk_fb->NK_Context, atlas.cursors);
+	//
+	// cout << "Loaded cursors into nk style" << endl;
 }
 
 void Set_Font_NK_GEN(NK_GEN* nk_fb, uint32_t font_index) {

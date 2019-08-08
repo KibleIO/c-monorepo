@@ -2,7 +2,7 @@
 #define ALIGNMENT_H_
 
 #include <cmath>
-#include "../GUI.h"
+#include "../NK_BASE.h"
 
 enum ALIGNMENT_1D {
 	ALIGNMENT_BEGIN, ALIGNMENT_MIDDLE, ALIGNMENT_END

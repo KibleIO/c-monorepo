@@ -1,7 +1,7 @@
 #ifndef PALETTE_COLOR_H_
 #define PALETTE_COLOR_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 
 struct PALETTE_COLOR {
 	struct nk_color color;

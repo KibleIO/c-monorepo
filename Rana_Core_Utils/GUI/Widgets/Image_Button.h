@@ -1,9 +1,17 @@
 #ifndef IMAGE_BUTTON_H_
 #define IMAGE_BUTTON_H_
 
+// BROKEN
+// The way images work no longer coincides with the way the image button
+// is structured. The Image no longer has direct access to the raw image
+// class it composes, so the image button has no way of... well, actually the
+// raw picture handles the width and height on its own, so the
+// image button doesn't need to worry about it at all.
+// So maybe it does still work?  Dunno, yet. Gotta test it
+
 #include "Button.h"
 #include "Image.h"
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../../Utilities/Stuff.h"
 #include "../Style.h"
 
@@ -51,9 +59,5 @@ IMAGE_BUTTON*, struct nk_context*, const char*, bool interactable = true);
 
 // Release resources owned by image button
 void Delete_Image_Button(IMAGE_BUTTON*);
-
-// HELPERS
-void Check_And_Load_Images(
-IMAGE_BUTTON*, struct nk_context*, bool interactable);
 
 #endif

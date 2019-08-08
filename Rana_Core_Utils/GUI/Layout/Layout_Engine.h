@@ -7,7 +7,6 @@
 #include "Layout_Utilities.h"
 #include "Rect_Transform.h"
 #include "Breadth_Buffer_Pair.h"
-#include "../GUI.h"
 #include "../../Utilities/vararg_ext.h"
 #include "../../Utilities/utilities.h"
 #include "../Widgets/Panel.h"

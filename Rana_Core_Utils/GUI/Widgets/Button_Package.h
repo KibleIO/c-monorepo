@@ -80,16 +80,10 @@ uint8_t button_index, bool interactable = true);
 bool Render_Button_Symbol(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, uint8_t button_index,
 bool interactable = true);
-bool Render_Button_Image(
-BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
-bool interactable = true);
 bool Render_Button_Symbol_Label(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
 bool trailing, nk_flags alignment, uint8_t button_index,
 bool interactable = true);
-bool Render_Button_Image_Label(
-BUTTON_PACKAGE*, struct nk_context*, IMAGE*, const char*, bool trailing,
-nk_flags alignment, uint8_t button_index, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, const char*, bool trailing,
@@ -97,16 +91,10 @@ uint8_t button_index, bool interactable = true);
 bool Render_Button_Symbol_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, uint8_t button_index,
 bool interactable = true);
-bool Render_Button_Image_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, IMAGE*, uint8_t button_index,
-bool interactable = true);
 bool Render_Button_Symbol_Label_With_Buffer(
 BUTTON_PACKAGE*, struct nk_context*, enum nk_symbol_type, const char*,
 bool trailing, nk_flags alignment, uint8_t button_index,
 bool interactable = true);
-bool Render_Button_Image_Label_With_Buffer(
-BUTTON_PACKAGE*, struct nk_context*, IMAGE*, const char*, bool trailing,
-nk_flags alignment, uint8_t button_index, bool interactable = true);
 
 void Delete_Button_Package(BUTTON_PACKAGE*);
 

@@ -5,11 +5,11 @@
 
 #include <iostream>
 #include <string>
-#include "avir.h"
-#include "stb_image.h"
 #include "NK_BASE.h"
 #include "FONT.h"
 #include "../Graphics/Graphics.h"
+#include "../Utilities/utilities.h"
+#include "Raw_Picture.h"
 
 using namespace std;
 

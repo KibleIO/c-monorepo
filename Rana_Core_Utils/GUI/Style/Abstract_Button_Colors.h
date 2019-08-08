@@ -1,7 +1,7 @@
 #ifndef ABSTRACT_BUTTON_COLORS_H_
 #define ABSTRACT_BUTTON_COLORS_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "palette.h"
 
 struct ABSTRACT_BUTTON_COLORS {

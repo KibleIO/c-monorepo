@@ -1,10 +1,11 @@
 #ifndef NUKLEAR_PLUS_H_
 #define NUKLEAR_PLUS_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "../../Utilities/TIMER.h"
 #include "../../Utilities/LOGGING.h"
 #include <cstdarg>
+#include <cstring>
 
 enum sizing_policy {
   SIZING_FIXED,  // The size must be exactly equal to the hint

@@ -1,7 +1,7 @@
 #ifndef STYLE_UTILS_H_
 #define STYLE_UTILS_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Color_Manip.h"
 
 struct COLOR_PAIR {

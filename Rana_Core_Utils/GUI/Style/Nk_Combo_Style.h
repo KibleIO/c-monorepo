@@ -1,7 +1,7 @@
 #ifndef NK_COMBO_STYLE_H_
 #define NK_COMBO_STYLE_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Nk_Button_Style.h"
 #include "palette.h"
 

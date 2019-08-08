@@ -1,7 +1,7 @@
 #ifndef LAYOUT_UTILITIES_H_
 #define LAYOUT_UTILITIES_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 
 /*
 PANEL SIZING: used to get the size of the current panel and properly
