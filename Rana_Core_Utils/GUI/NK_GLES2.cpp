@@ -293,12 +293,12 @@ string filename, uint32_t width, uint32_t height) {
 
 	orig_buffer = stbi_load(filename.c_str(), &w, &h, &n, 0);
 	if (!orig_buffer || n != 4) {
-		printf("failed to load texture\n");
+		cout << "failed to load texture " << filename << endl;
 		return nk_image_id((int) NULL);
 	}
 	trans_buffer = new uint8_t[width * height * 4];
 
-	air.resizeImage(orig_buffer, w, h, 0, trans_buffer, width, height, 4, 0);
+	//air.resizeImage(orig_buffer, w, h, 0, trans_buffer, width, height, 4, 0);
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
@@ -311,8 +311,8 @@ string filename, uint32_t width, uint32_t height) {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(
-	GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA,
-	GL_UNSIGNED_BYTE, trans_buffer);
+	GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) w, (GLsizei) h, 0, GL_RGBA,
+	GL_UNSIGNED_BYTE, orig_buffer);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(orig_buffer);
@@ -348,11 +348,16 @@ NK_GEN* nk_gles) {
 	nk_gles->fonts				= NULL;
 	nk_gles->number_of_fonts		= 0;
 
+	/*
 	SDL_DisplayMode DM;
 	SDL_GetCurrentDisplayMode(0, &DM);
 
 	nk_gles->width	= DM.w;
 	nk_gles->height	= DM.h;
+	*/
+
+	nk_gles->width  = 1920;
+        nk_gles->height = 1080;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     SDL_GL_SetAttribute(
