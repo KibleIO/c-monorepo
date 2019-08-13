@@ -21,7 +21,7 @@ void Initialize_GUI(GUI* gui, string font_path) {
 
 	Set_Style_Default_GUI(gui);
 
-	delete font_heights;
+	delete [] font_heights;
 }
 
 void Set_Font(GUI* gui, int font_index) {

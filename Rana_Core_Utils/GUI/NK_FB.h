@@ -1,3 +1,4 @@
+/* PLATFORMS: Linux X86, Windows */
 #ifndef __arm__
 
 #ifndef NK_GLFB_H_
@@ -20,7 +21,7 @@ struct GUI_FONT {
 
 struct FB_RENDERER;
 
-void		Initialize_FB_RENDERER(FB_RENDERER*&);
+bool		Construct_FB_RENDERER(FB_RENDERER*&);
 uint32_t	Get_Width_FB_RENDERER(FB_RENDERER*);
 uint32_t	Get_Height_FB_RENDERER(FB_RENDERER*);
 void		Render_FB_RENDERER(FB_RENDERER*, uint8_t*);
@@ -43,5 +44,4 @@ Color	rgba (char, char, char, char);
 Color	fromNkColor(const struct nk_color&);
 
 #endif
-
 #endif

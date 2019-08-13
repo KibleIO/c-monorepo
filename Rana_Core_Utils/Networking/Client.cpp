@@ -35,7 +35,7 @@ void Client::Init() {
 		log_err("bad setsockopt: quickack");
 	}
 
-	o = 700000;
+	o = 70000000;
 	if (
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o, sizeof o) != 0) {
 		log_err("bad setsockopt: rcvbuf");
