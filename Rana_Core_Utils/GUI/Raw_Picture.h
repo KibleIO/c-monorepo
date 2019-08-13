@@ -12,7 +12,7 @@
 struct RAW_PICTURE {
 	string filename;	// Name of the file to init the picture from
 
-	uint8_t* buffer;	// Buffer received from the loading the picture
+	uint8_t* buffer;	// Buffer received from loading the picture
 	int32_t width;	// Width of the picture
 	int32_t height;	// Height of the picture
 };

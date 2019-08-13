@@ -59,7 +59,7 @@ bool dm_valid(int day, int month) {
 	day >= 1 && day <= DAYS_IN_MONTH[month];
 }
 
-std::string tm_string(const char* format, tm* t) {
+std::string tm_string(const char* format, const tm* t) {
 	char buffer[MAX_TM_STRING_BUFFER];
 	strftime(buffer, MAX_TM_STRING_BUFFER, format, t);
 	return std::string(buffer);

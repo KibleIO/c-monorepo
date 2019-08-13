@@ -204,3 +204,9 @@ string System_IP_V4() {
 	#endif
 	// }}}
 }
+
+void Delete_Thread(thread** th) {
+	(*th)->join();
+	delete *th;
+	*th = NULL;
+}

@@ -15,6 +15,7 @@ colors to stay consistent across similarly themed screens
 #include "../NK_BASE.h"
 #include "Palette_Color.h"
 
+#define WHITE nk_rgb(0xff, 0xff, 0xff)
 #define TRANSPARENT nk_rgba(0x00, 0x00, 0x00, 0x00)
 // GRAYS
 #define DARK_GRAY nk_rgba(0x70,0x86,0x9b,0xff)
