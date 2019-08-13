@@ -320,6 +320,10 @@ string filename, uint32_t width, uint32_t height) {
 	return nk_image_id((int)tex);
 }
 
+void Free_Image_NK_GEN(struct nk_image* image) {
+	(void)image;	// Bypass compiler warning
+}
+
 void Render_NK_GEN(NK_GEN* nk_gles) {
     float bg[4];
     int win_width, win_height;

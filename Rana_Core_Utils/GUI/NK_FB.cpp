@@ -82,6 +82,12 @@ string filename, uint32_t width, uint32_t height) {
 	return nk_image_ptr(picture);
 }
 
+void Free_Image_NK_GEN(struct nk_image* image) {
+	RAW_PICTURE* picture = (RAW_PICTURE*)image->handle.ptr;
+	Delete_RAW_PICTURE(picture);
+	delete picture;
+}
+
 void Render_NK_GEN(NK_GEN* nk_fb) {
 	const struct nk_command* command;
 

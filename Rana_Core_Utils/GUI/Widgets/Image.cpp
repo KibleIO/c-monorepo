@@ -7,8 +7,7 @@ void Initialize_Image(IMAGE* image, string filename, uint32_t w, uint32_t h) {
 void Render_Image(
 IMAGE* image, struct nk_context* ctx, RECT_TRANSFORM transform) {
 	// Layout the area for the image
-	if (
-	Layout_Transformed_Area(ctx, transform)) {
+	if (Layout_Transformed_Area(ctx, transform)) {
 		nk_image(ctx, image->picture);
 		nk_group_end(ctx);
 	}
@@ -25,11 +24,5 @@ void Draw_Image(IMAGE* image, struct nk_context* ctx, struct nk_rect bounds) {
 }
 
 void Delete_Image(IMAGE* image) {
-	// TODO
-	// The Image class is totally agnostic to the RAW_PICTURE class,
-	// so this delete is impossible.  The delete has to be different
-	// based on whichever backend we happen to be using
-	//Delete_RAW_PICTURE(&image->picture);
-
-	(void)image;
+	Free_Image_NK_GEN(&image->picture);
 }
