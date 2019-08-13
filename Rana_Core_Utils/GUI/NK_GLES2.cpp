@@ -408,7 +408,13 @@ uint32_t total_font_heights) {
     nk_sdl_font_stash_end(nk_gles->sdl);
 
 	nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[0]->handle);
-	nk_style_load_all_cursors(nk_gles->NK_Context, atlas->cursors);
+
+	struct nk_cursor* cursor = new struct nk_cursor;
+	cursor->img = Load_Image_NK_GEN("/root/RANA/res/mice/cape.png", 0, 0);
+	cursor->size = nk_vec2(30, 30);
+	nk_style_load_cursor(nk_gles->NK_Context, NK_CURSOR_ARROW, cursor);
+	nk_style_set_cursor(nk_gles->NK_Context, NK_CURSOR_ARROW);
+	nk_style_show_cursor(nk_gles->NK_Context);
 }
 
 void Set_Font_NK_GEN(NK_GEN* nk_gles, uint32_t font_index) {
