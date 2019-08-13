@@ -85,6 +85,8 @@ struct MOUSE_EVENT_T {
 };
 
 struct MOUSE{
+	static Display* dpy;
+
 	int32_t			Minimum_X;
 	int32_t			Maximum_X;
 	int32_t			Minimum_Y;
@@ -139,6 +141,8 @@ int open_restricted(const char* path, int flags, void* user_data);
 void close_restricted(int fd, void* user_data);
 
 void sighandler(int signal, siginfo_t* siginfo, void* userdata);
+
+void Open_Display_MOUSE();
 
 void Handle_Mouse_X11(int, Queue<MOUSE_EVENT_T*>*);
 #endif

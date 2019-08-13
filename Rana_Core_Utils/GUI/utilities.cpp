@@ -146,13 +146,13 @@ string Vec2_Str(struct nk_vec2 vec) {
 	return sout.str();
 }
 
-string Color_Str(struct nk_color color) {
-	ostringstream sout;
-	sout << hex;
-	sout << "(" << (int)color.r << ", " << (int)color.g << ", "
-	<< (int)color.b << ", " << (int)color.a << ")";
-	return sout.str();
-}
+//string Color_Str(struct nk_color color) {
+//	ostringstream sout;
+//	sout << hex;
+//	sout << "(" << (int)color.r << ", " << (int)color.g << ", "
+//	<< (int)color.b << ", " << (int)color.a << ")";
+//	return sout.str();
+//}
 
 bool Valid_IP(string ip) {
 	(void)ip;	// Bypass compiler warning

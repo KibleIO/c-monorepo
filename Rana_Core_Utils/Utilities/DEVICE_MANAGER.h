@@ -14,8 +14,8 @@
 #include <sys/stat.h>
 
 #include "CONCURRENT_QUEUE.h"
-#include "../GUI/KEYBOARD.h"
-#include "../GUI/MOUSE.h"
+#include "KEYBOARD.h"
+#include "MOUSE.h"
 #include "../Networking/Client.h"
 #include "../Networking/Server.h"
 #include "../Utilities/Stuff.h"

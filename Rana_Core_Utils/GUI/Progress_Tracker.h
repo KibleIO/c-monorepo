@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <cmath>
 #include "utilities.h"
-#include "vararg_ext.h"
-#include "Function_Pointers.h"
+#include "../Utilities/vararg_ext.h"
+#include "../Utilities/Function_Pointers.h"
 using namespace std;
 
 // Encapsulates the information a method needs to keep track of and update

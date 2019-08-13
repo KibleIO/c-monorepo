@@ -3,6 +3,7 @@
 #include "KEYBOARD.h"
 //#include "nuklear.h"
 
+Display* KEYBOARD::dpy;
 bool KEYBOARD::Shift;
 bool KEYBOARD::Caps_Lock;
 
@@ -172,9 +173,12 @@ void Handle_Key(Display* dpy, KeySym key, int32_t value, bool shift = false) {
 	}
 }
 
+void Open_Display_KEYBOARD() {
+	KEYBOARD::dpy = XOpenDisplay(":1");
+}
+
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
-	Display* dpy = XOpenDisplay(":1");
-	if (!dpy) {
+	if (!KEYBOARD::dpy) {
 		log_err("Could not open display :" + to_string(display_ID));
 		return;
 	}
@@ -187,43 +191,43 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 		switch (k_event->code) {
 		log_dbg("Key code " + to_string(k_event->code) + " received");
 			case KEY_ESC:
-				Handle_Key(dpy, XK_Escape, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
 				break;
 			case KEY_LEFTCTRL:
-				Handle_Key(dpy, XK_Control_L, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Control_L, k_event->value, true);
 				break;
 			case KEY_RIGHTCTRL:
-				Handle_Key(dpy, XK_Control_R, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Control_R, k_event->value, true);
 				break;
 			case KEY_LEFTSHIFT:
-				Handle_Key(dpy, XK_Shift_L, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Shift_L, k_event->value, true);
 				break;
 			case KEY_RIGHTSHIFT:
-				Handle_Key(dpy, XK_Shift_R, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value, true);
 				break;
 			case KEY_CAPSLOCK:
-				Handle_Key(dpy, XK_Caps_Lock, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_Caps_Lock, k_event->value);
 				break;
 			case KEY_TAB:
-				Handle_Key(dpy, XK_Tab, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_Tab, k_event->value);
 				break;
 			case KEY_BACKSPACE:
-				Handle_Key(dpy, XK_BackSpace, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_BackSpace, k_event->value);
 				break;
 			case KEY_UP:
-				Handle_Key(dpy, XK_KP_Up, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_KP_Up, k_event->value);
 				break;
 			case KEY_DOWN:
-				Handle_Key(dpy, XK_KP_Down, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_KP_Down, k_event->value);
 				break;
 			case KEY_LEFT:
-				Handle_Key(dpy, XK_KP_Left, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_KP_Left, k_event->value);
 				break;
 			case KEY_RIGHT:
-				Handle_Key(dpy, XK_KP_Right, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_KP_Right, k_event->value);
 				break;
 			case KEY_ENTER:
-				Handle_Key(dpy, XK_Return, k_event->value);
+				Handle_Key(KEYBOARD::dpy, XK_Return, k_event->value);
 				break;
 			default:
 				if (k_event->code <= 111){
@@ -236,14 +240,14 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 							key_value = KEYBOARD::Keys[k_event->code];
 							if (key_value > 0) {
 								//cout << "heyyyy " << key_value << " " << int(key_value) << " < " << XK_less << " > " << XK_greater << endl;
-								modcode = XKeysymToKeycode(dpy, int(key_value));
+								modcode = XKeysymToKeycode(KEYBOARD::dpy, int(key_value));
 								//cout << int(modcode) << endl;
-								XTestFakeKeyEvent(dpy, modcode, False, 0);
-								XFlush(dpy);
-								XTestFakeKeyEvent(dpy, modcode, True, 0);
-								XFlush(dpy);
-								XTestFakeKeyEvent(dpy, modcode, False, 0);
-								XFlush(dpy);
+								XTestFakeKeyEvent(KEYBOARD::dpy, modcode, False, 0);
+								XFlush(KEYBOARD::dpy);
+								XTestFakeKeyEvent(KEYBOARD::dpy, modcode, True, 0);
+								XFlush(KEYBOARD::dpy);
+								XTestFakeKeyEvent(KEYBOARD::dpy, modcode, False, 0);
+								XFlush(KEYBOARD::dpy);
 								//nk_input_char(gui->NK_Context, key_value);
 							}
 							break;
@@ -257,8 +261,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 		delete k_event;
 	}
 
-	XFlush(dpy);
-	XCloseDisplay(dpy);
+	XFlush(KEYBOARD::dpy);
 }
 #endif
 // }}} Windows specific code {{{

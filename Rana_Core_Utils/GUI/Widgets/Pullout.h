@@ -4,7 +4,7 @@
 #include "../NK_BASE.h"
 #include "Panel.h"
 #include "../Layout/Rect_Transform.h"
-#include "../../Utilities/utilities.h"
+#include "../utilities.h"
 
 #define PULLOUT_NOT_VISIBLE	0
 #define PULLOUT_VISIBLE		1

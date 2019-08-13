@@ -9,7 +9,7 @@
 #include "NK_BASE.h"
 #include "FONT.h"
 #include "../Graphics/Graphics.h"
-#include "../Utilities/utilities.h"
+#include "utilities.h"
 #include "Raw_Picture.h"
 
 using namespace std;
