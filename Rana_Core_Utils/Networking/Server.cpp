@@ -49,13 +49,13 @@ void Server::Set_Opts() {
 #ifdef __linux__
 	int o_ra = 1;
 	int o_nd = 1;
-	int o_sb = 700000;
+	int o_sb = 70000000;
 	int o_qa = 1;
 #endif
 #ifdef _WIN64
 	bool o_ra = true;
 	bool o_nd = true;
-	DWORD o_sb = 700000;
+	DWORD o_sb = 70000000;
 #endif
 
 	if (setsockopt(

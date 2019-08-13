@@ -198,6 +198,8 @@ void Render_NK_GEN(NK_GEN* nk_fb) {
 					Render_RAW_PICTURE(
 					picture, nk_fb->Graphics_Handle,
 					image->x, image->y, image->w, image->h);
+				} else {
+					log_err("missing image");
 				}
 
 				break;
@@ -218,14 +220,15 @@ void Render_NK_GEN(NK_GEN* nk_fb) {
 }
 
 void Initialize_NK_GEN(NK_GEN* nk_fb) {
+	*nk_fb = {};
+
 	nk_fb->fonts			= NULL;
 	nk_fb->number_of_fonts	= 0;
 	nk_fb->current_font		= -1;
 	nk_fb->NK_Context		= new nk_context;
 	nk_fb->render_context	= NULL;
 
-	Initialize_FB_RENDERER(nk_fb->render_context);
-	if (nk_fb->render_context == NULL) {
+	if (!Construct_FB_RENDERER(nk_fb->render_context)) {
 		log_err("render context was not initialized correctly");
 		return;
 	}
@@ -278,6 +281,7 @@ uint32_t total_font_heights) {
 	nk_fb->NK_Context, &nk_fb->fonts[nk_fb->current_font].nkFont);
 
 	struct nk_cursor* cursor = new struct nk_cursor;
+	memset(cursor, 0, sizeof(nk_cursor));
 	cursor->img = Load_Image_NK_GEN("/root/RANA/res/mice/cape.png", 0, 0);
 	cursor->size = nk_vec2(30, 30);
 	nk_style_load_cursor(nk_fb->NK_Context, NK_CURSOR_ARROW, cursor);
@@ -324,6 +328,8 @@ void Delete_NK_GEN(NK_GEN* nk_fb) {
 		Delete_GRAPHICS(nk_fb->Graphics_Handle);
 		delete nk_fb->Graphics_Handle;
 	}
+
+	*nk_fb = {};
 }
 
 // Given rgba components, gives a color digestible by the Graphics class
