@@ -12,20 +12,30 @@
 #define TEXTBOX_FILTER_CODE		'f'
 
 struct TEXTBOX_ARGS {
+	// Specify for code 'i'
 	bool interactable;
+
+	// Specify for code 'c'
 	bool concealed;
 	char concealChar;
+
+	// Specify for code 'g'
 	const char* ghostText;
+
+	// Specify for code 'f'
 	nk_plugin_filter inputFilter;
 };
 
 TEXTBOX_ARGS Textbox_Args_Code(
 const char*, uint8_t num_args, /* encoded args */...);
 TEXTBOX_ARGS Textbox_Args(
-bool interactable = true, bool concealed = false, char conceal_char = '*',
-const char* ghost_text = NULL,
-nk_plugin_filter input_filter = nk_filter_default);
+bool interactable, bool concealed, char conceal_char,
+const char* ghost_text, nk_plugin_filter input_filter);
 
 void Decode_Textbox_Arg(TEXTBOX_ARGS* args, char code, va_list varargs);
+
+// CONSTANTS
+static const TEXTBOX_ARGS TEXTBOX_DEFAULT_ARGS = Textbox_Args(
+true, false, '*', NULL, nk_filter_default);
 
 #endif

@@ -2,7 +2,7 @@
 
 TEXTBOX_ARGS Textbox_Args_Code(
 const char* code, uint8_t num_args, /* encoded args */...) {
-	TEXTBOX_ARGS args = Textbox_Args();
+	TEXTBOX_ARGS args = TEXTBOX_DEFAULT_ARGS;
 	va_character_decoder(code, num_args, &args, Decode_Textbox_Arg);
 	return args;
 }
