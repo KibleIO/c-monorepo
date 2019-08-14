@@ -8,7 +8,7 @@
 #include "Rect_Transform.h"
 #include "Breadth_Buffer_Pair.h"
 #include "../../Utilities/vararg_ext.h"
-#include "../../Utilities/utilities.h"
+#include "../utilities.h"
 #include "../Widgets/Panel.h"
 
 // Move the window layout down towards the bottom so that the next

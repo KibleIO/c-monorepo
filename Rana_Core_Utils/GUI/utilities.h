@@ -1,8 +1,8 @@
 #ifndef UTILITIES_H_
 #define UTILITIES_H_
 
-#include "../GUI/NK_BASE.h"
-#include "Utils.h"
+#include "NK_BASE.h"
+#include "../Utilities/Utils.h"
 
 #include <stdint.h>
 #include <cstdlib>
@@ -40,7 +40,7 @@ struct nk_vec2 Center(struct nk_rect parent, struct nk_vec2 child_dimensions);
 bool Vec2_Cmp(struct nk_vec2, struct nk_vec2);
 string Rect_Str(struct nk_rect);
 string Vec2_Str(struct nk_vec2);
-string Color_Str(struct nk_color);
+//string Color_Str(struct nk_color);
 
 /*
 IP

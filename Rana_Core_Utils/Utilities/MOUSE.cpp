@@ -2,6 +2,7 @@
 
 #include "MOUSE.h"
 
+Display* MOUSE::dpy;
 int32_t	MOUSE::Current_X;
 int32_t	MOUSE::Current_Y;
 bool	MOUSE::Clicked;
@@ -211,10 +212,12 @@ void Listen_Mouse(MOUSE* mouse) {
 	}
 }
 
-void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
-	Display* dpy = XOpenDisplay(":1");
+void Open_Display_MOUSE() {
+	MOUSE::dpy = XOpenDisplay(":1");
+}
 
-	if (!dpy) {
+void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
+	if (!MOUSE::dpy) {
 		log_err("Unable to open display :" + to_string(display_ID));
 		return;
 	}
@@ -224,21 +227,20 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 		events->pop(m_event);
 		if (m_event->clicked) {
 			XTestFakeButtonEvent(
-			dpy, m_event->button, m_event->state, CurrentTime);
+			MOUSE::dpy, m_event->button, m_event->state, CurrentTime);
 		} else {
 			if (m_event->state == MOUSE_ABS_COORD) {
 				XTestFakeMotionEvent(
-				dpy, 0, m_event->x, m_event->y, CurrentTime);
+				MOUSE::dpy, 0, m_event->x, m_event->y, CurrentTime);
 			} else {
 				XTestFakeRelativeMotionEvent(
-				dpy, m_event->x, m_event->y, CurrentTime);
+				MOUSE::dpy, m_event->x, m_event->y, CurrentTime);
 			}
 		}
 		delete m_event;
 	}
 
-	XFlush(dpy);
-	XCloseDisplay(dpy);
+	XFlush(MOUSE::dpy);
 }
 #endif
 // }}} Windows specific code {{{

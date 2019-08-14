@@ -3,7 +3,7 @@
 
 #include "../NK_BASE.h"
 #include "../../Utilities/LOGGING.h"
-#include "../../Utilities/utilities.h"
+#include "../utilities.h"
 
 // RESIZE RATIO
 

@@ -38,6 +38,8 @@ void Initialize_Font(FONT* font, const char* fname, float text_height){
 		&font->Font_info, char(32+i), &advance, &lsb);
 		font->Baked_glyphs[i].Advance = advance * scale;
 	}
+
+	fclose(fd);
 }
 
 void Delete_Font(FONT* font){

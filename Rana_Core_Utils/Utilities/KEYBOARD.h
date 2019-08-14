@@ -32,6 +32,7 @@ struct KEYBOARD_EVENT_T {
 };
 
 struct KEYBOARD {
+	static Display* dpy;
 	static bool    Shift;
 	static bool    Caps_Lock;
 	static char*   Keys;
@@ -70,6 +71,8 @@ void Initialize_Keyboard(KEYBOARD*, string, EVENT*);
 void Delete_Keyboard(KEYBOARD*);
 
 void Listen_Keyboard(KEYBOARD* keyboard);
+
+void Open_Display_KEYBOARD();
 
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events);
 #endif

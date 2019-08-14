@@ -3,8 +3,8 @@
 
 #include <string.h>
 #include "../Graphics/Graphics.h"
-#include "MOUSE.h"
-#include "KEYBOARD.h"
+#include "../Utilities/MOUSE.h"
+#include "../Utilities/KEYBOARD.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "NK_BASE.h"
 #include "NK_FB.h"
