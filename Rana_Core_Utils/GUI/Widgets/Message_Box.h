@@ -1,7 +1,7 @@
 #ifndef MESSAGE_BOX_H_
 #define MESSAGE_BOX_H_
 
-#include "Message_Box_Args.h"
+#include "Utils/Message_Box_Args.h"
 #include "Panel.h"
 #include "Label.h"
 #include "Button.h"

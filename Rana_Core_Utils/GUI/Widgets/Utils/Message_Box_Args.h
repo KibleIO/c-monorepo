@@ -2,8 +2,8 @@
 #define MESSAGE_BOX_ARGS_H_
 
 #include <cstdint>
-#include "../NK_BASE.h"
-#include "../../Utilities/vararg_ext.h"
+#include "../../NK_BASE.h"
+#include "../../../Utilities/vararg_ext.h"
 
 #define MAX_MESSAGE_BOX_BUTTONS 4
 #define MESSAGE_BOX_NO_DEFAULT_BUTTON 	-1
