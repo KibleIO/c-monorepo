@@ -22,10 +22,6 @@ struct BUTTON_PACKAGE {
 	bool requireOneSelected;
 	// Max number of buttons that can be selected
 	uint8_t maxSelected;
-
-	// Event invoked when one button within the package is clicked
-	// PASS: BUTTON_PACKAGE*
-	MULTICAST_FUNCTION_POINTER buttonClickedEvent;
 };
 
 // Initialize all buttons with the same style

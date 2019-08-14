@@ -35,7 +35,6 @@ void Initialize_Button(BUTTON* button, uint8_t type, BUTTON_STYLE style) {
 	button->type = type;
 	button->toggleState = false;
 	button->style = style;
-	Initialize_Multicast_Function_Pointer(&button->buttonClickedEvent);
 }
 
 void Initialize_Toggle_Button(BUTTON* button, BUTTON_STYLE style) {
@@ -166,7 +165,7 @@ bool interactable) {
 }
 
 void Delete_Button(BUTTON* button) {
-	Delete_Multicast_Function_Pointer(&button->buttonClickedEvent);
+	(void)button;	// Bypass compiler warnings
 }
 
 void Set_Button_Toggle_State(BUTTON* button, bool state) {
@@ -202,8 +201,6 @@ BUTTON* button, bool clicked, bool interactable) {
 	if(clicked && interactable) {
 		// Switch the button's toggle state
 		Toggle_Button_State(button);
-		// Invoke the event
-		Invoke_All_Function_Pointers(&button->buttonClickedEvent, button);
 	}
 
 	return clicked && interactable;

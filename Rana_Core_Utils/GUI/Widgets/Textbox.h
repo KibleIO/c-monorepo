@@ -47,20 +47,11 @@ struct TEXTBOX {
 	uint32_t minValidInput;
 	uint32_t maxValidInput;
 
+	// Helper data used to properly enable/disable ghost text
+	// without triggering assertions
 	bool ghostTextActive;
-	// True in the frame that the textbox loses focus
-	// The textbox is not focused on the frame after ghost text disappears
-	// to prevent text selection errors
 	bool unfocusTextbox;
-	// True in the frame the textbox is focused
-	// Textbox is focused the frame after it is unfocused
 	bool focusTextbox;
-
-	// Event called when "enter" key is pressed while textbox is active
-	// The event is only invoked if the input is valid, i.e. the length is
-	// within the given limits
-	// PASS: TEXTBOX*
-	MULTICAST_FUNCTION_POINTER inputCommittedEvent;
 };
 
 void Initialize_Textbox(

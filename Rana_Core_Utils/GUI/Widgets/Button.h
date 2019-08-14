@@ -42,9 +42,6 @@ struct BUTTON {
 	bool toggleState;
 	// Style options for the button
 	BUTTON_STYLE style;
-	// Event invoked when the button is clicked
-	// PASS: BUTTON*
-	MULTICAST_FUNCTION_POINTER buttonClickedEvent;
 };
 
 void Initialize_Button(BUTTON*, uint8_t type, BUTTON_STYLE);

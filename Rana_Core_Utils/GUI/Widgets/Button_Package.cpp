@@ -37,7 +37,6 @@ BUTTON_STYLE* styles, uint8_t total_buttons, bool require_one_selected) {
 	package->type = type;
 	package->totalButtons = total_buttons;
 	package->requireOneSelected = require_one_selected;
-	Initialize_Multicast_Function_Pointer(&package->buttonClickedEvent);
 
 	// If a button must stay selected, select one immediately
 	if(require_one_selected) {
@@ -209,7 +208,6 @@ void Delete_Button_Package(BUTTON_PACKAGE* package) {
 		Delete_Button(&package->buttons[i]);
 	}
 	delete [] package->buttons;
-	Delete_Multicast_Function_Pointer(&package->buttonClickedEvent);
 }
 
 void Select_Button(BUTTON_PACKAGE* package, uint8_t button_index) {
@@ -366,7 +364,6 @@ BUTTON_PACKAGE* package, uint8_t button_index, bool clicked) {
 	// If this button is clicked, invoke the event
 	if(clicked) {
 		Update_Button_Toggle_States(package, button_index);
-		Invoke_All_Function_Pointers(&package->buttonClickedEvent, package);
 	}
 	return clicked;
 }

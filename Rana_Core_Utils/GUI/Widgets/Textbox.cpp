@@ -48,7 +48,6 @@ TEXTBOX* textbox, TEXTBOX_STYLE style, uint32_t min, uint32_t max) {
 	textbox->ghostTextActive = false;
 	textbox->unfocusTextbox = false;
 	textbox->focusTextbox = true;
-	Initialize_Multicast_Function_Pointer(&textbox->inputCommittedEvent);
 }
 
 bool Render_Textbox(
@@ -64,16 +63,8 @@ TEXTBOX* textbox, struct nk_context* ctx, TEXTBOX_ARGS args) {
 	// Check to see if ghost text needs to be activated
 	Check_Ghost_Flags(textbox, edit_flags, args.ghostText);
 
-	// Check if input was committed and return the result
-	bool input_committed =
-	args.interactable && edit_flags == NK_EDIT_COMMITED + NK_EDIT_ACTIVE &&
-	Input_Valid(textbox);
-
-	if (input_committed) {
-		Invoke_All_Function_Pointers(&textbox->inputCommittedEvent, textbox);
-	}
-
-	return input_committed;
+	return args.interactable && edit_flags == NK_EDIT_COMMITED + NK_EDIT_ACTIVE
+	&& Input_Valid(textbox);
 }
 
 bool Render_Textbox_With_Buffer(
@@ -84,7 +75,6 @@ TEXTBOX* textbox, struct nk_context* ctx, TEXTBOX_ARGS args) {
 
 void Delete_Textbox(TEXTBOX* textbox) {
 	delete [] textbox->inputBuffer;
-	Delete_Multicast_Function_Pointer(&textbox->inputCommittedEvent);
 }
 
 // ACCESSORS
