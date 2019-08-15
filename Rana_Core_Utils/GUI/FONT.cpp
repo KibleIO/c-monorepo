@@ -15,13 +15,18 @@ void Initialize_Font(FONT* font, const char* fname, float text_height){
 	int ascent, c_w, c_h, c_xoff, c_yoff, advance, lsb;
 	unsigned char ttf_buffer[1<<20];
 	FILE* fd = fopen(fname, "rb");
+	if (fd == NULL) {
+		log_err("failed to open font file");
+	}
 	size_t read_size = fread(ttf_buffer, 1, 1<<20, fd);
 	if (read_size != 1<<20 && !feof(fd)){
 		log_err("Failed to load font\n");
 		return;
 	}
 
-	stbtt_InitFont(&font->Font_info, ttf_buffer, 0);
+	if (stbtt_InitFont(&font->Font_info, ttf_buffer, 0) == 0) {
+		log_err("failed to initialize font info");
+	}
 	scale = stbtt_ScaleForPixelHeight(&font->Font_info, text_height);
 	stbtt_GetFontVMetrics(&font->Font_info, &ascent, 0, 0);
 	font->Baseline = (int) ascent * scale;

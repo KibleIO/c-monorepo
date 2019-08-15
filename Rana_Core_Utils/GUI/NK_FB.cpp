@@ -234,8 +234,14 @@ void Initialize_NK_GEN(NK_GEN* nk_fb) {
 	nk_fb->NK_Context		= new nk_context;
 	nk_fb->render_context	= NULL;
 
-	if (!Construct_FB_RENDERER(nk_fb->render_context)) {
+	int tries = 10;
+
+	while (!Construct_FB_RENDERER(nk_fb->render_context) && tries-- > 0) {
 		log_err("render context was not initialized correctly");
+	}
+
+	if (tries < 0) {
+		log_err("could not initialize render context");
 		return;
 	}
 

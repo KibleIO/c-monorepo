@@ -89,7 +89,6 @@ size_t screen_width) {
 	size_t image_size = width * height;
 	size_t upos = image_size;
 	size_t vpos = upos + upos / 4;
-	size_t i = 0;
 
 	for (size_t line = 0; line < height; line++) {
 		if (!(line & 1)) {
