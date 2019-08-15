@@ -22,6 +22,9 @@ RAW_PICTURE Raw_Picture(string filename);
 void Initialize_RAW_PICTURE(RAW_PICTURE*, string filename);
 void Render_RAW_PICTURE(
 RAW_PICTURE*, GRAPHICS*, uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+void Render_No_Blend_RAW_PICTURE(
+RAW_PICTURE*, GRAPHICS*, uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+void Render_No_Blend_RAW_PICTURE(RAW_PICTURE* picture);
 void Delete_RAW_PICTURE(RAW_PICTURE*);
 
 // Load the picture buffer using the image at the given file

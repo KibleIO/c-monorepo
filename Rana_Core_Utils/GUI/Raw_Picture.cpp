@@ -51,7 +51,7 @@ uint32_t h) {
 				(unsigned char)((alpha *
 				((unsigned char*)&fg)[2] + inv_alpha *
 				((unsigned char*)&bg)[2]) >> 8);
-			((unsigned char*)&result)[3] = 0xff;
+			((unsigned char*)&result)[3] = 0xFF;
 
 			((int*)graphics->Buffer)[(diff_y + y) * graphics->Width
 			 + diff_x + x] = result;
@@ -80,6 +80,26 @@ uint32_t h) {
 	// 	(int*)picture->buffer + (diff_y * (2 * picture->width)),
 	// 	(int*)graphics->Buffer + (((diff_y + y) * graphics->Width) + x));
 	// }
+}
+
+void Render_No_Blend_RAW_PICTURE(
+RAW_PICTURE* picture, GRAPHICS* graphics, uint32_t x, uint32_t y, uint32_t w,
+uint32_t h) {
+	// Check to see if the picture needs to be reloaded and resized
+	Check_Load_RAW_PICTURE(picture, w, h);
+
+	if (x > (uint32_t)graphics->Width) return;
+	if (y > (uint32_t)graphics->Height) return;
+	if (x + w > (uint32_t)graphics->Width) w = graphics->Width - x;
+	if (y + h > (uint32_t)graphics->Height) h = graphics->Height - y;
+
+	for (uint32_t diff_y = 0; diff_y < h; diff_y++) {
+		for (uint32_t diff_x = 0; diff_x < w; diff_x++) {
+			((int*)graphics->Buffer)
+			[(diff_y + y) * graphics->Width+ diff_x + x] =
+			*((int*)picture->buffer + diff_y * picture->width + diff_x);
+		}
+	}
 }
 
 void Delete_RAW_PICTURE(RAW_PICTURE* picture) {
