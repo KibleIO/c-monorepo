@@ -24,10 +24,17 @@ string trimmed(string, const char = ' ');
 void Remove_Whitespace(string*);
 
 /*
-FLOAT
+FLOAT / INT
 */
 
 void Scale(float* ar, uint32_t arlen, float target);
+
+float Get_Interpolator(int32_t a, int32_t b, int32_t c);
+float Get_Interpolator(float a, float b, float c);
+
+int32_t Lerp(int32_t a, int32_t b, float t);
+float Lerp(float a, float b, float t);
+struct nk_vec2 Lerp(struct nk_vec2 a, struct nk_vec2 b, float t);
 
 /*
 NK

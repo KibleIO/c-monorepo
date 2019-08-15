@@ -124,6 +124,23 @@ void Scale(float* ar, uint32_t arlen, float target) {
 	for_each(ar, ar + arlen, mult_by_ratio);
 }
 
+float Get_Interpolator(int32_t a, int32_t b, int32_t c) {
+	return Get_Interpolator((float)a, (float)b, (float)c);
+}
+float Get_Interpolator(float a, float b, float c) {
+	return (c - a) / (b - a);
+}
+
+int32_t Lerp(int32_t a, int32_t b, float t) {
+	return (int32_t)Lerp((float)a, (float)b, (float)t);
+}
+float Lerp(float a, float b, float t) {
+	return a + ((b - a) * t);
+}
+struct nk_vec2 Lerp(struct nk_vec2 a, struct nk_vec2 b, float t) {
+	return nk_vec2(Lerp(a.x, b.x, t), Lerp(a.y, b.y, t));
+}
+
 struct nk_vec2 Center(struct nk_rect parent, struct nk_vec2 child_dimensions) {
 	struct nk_vec2 child_coords;
 	child_coords.x = parent.x + ((parent.w - child_dimensions.x) / 2);
