@@ -364,15 +364,15 @@ NK_GEN* nk_gles) {
         nk_gles->height = 1080;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
-    SDL_GL_SetAttribute(
-	SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    //SDL_GL_SetAttribute(
+	//SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 
-    SDL_GL_SetAttribute(
-	SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    //SDL_GL_SetAttribute(
+	//SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     nk_gles->win = SDL_CreateWindow(
 	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, nk_gles->width, nk_gles->height,
 	SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
@@ -414,6 +414,7 @@ uint32_t total_font_heights) {
 	nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[0]->handle);
 
 	struct nk_cursor* cursor = new struct nk_cursor;
+	memset(cursor, 0, sizeof(nk_cursor));
 	cursor->img = Load_Image_NK_GEN("/root/RANA/res/mice/cape.png", 0, 0);
 	cursor->size = nk_vec2(30, 30);
 	nk_style_load_cursor(nk_gles->NK_Context, NK_CURSOR_ARROW, cursor);

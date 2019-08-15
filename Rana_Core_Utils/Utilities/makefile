@@ -1,5 +1,5 @@
 # Declaration of variables
-CC = g++ -O3 -Wall -Wextra -Wpedantic -Werror
+CC = g++ -O3 -Wall -Wextra -Wpedantic
 
 UNAME_M = $(shell uname -m)
 USER=`whoami`
