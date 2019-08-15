@@ -363,7 +363,7 @@ void Read_Thread(DEVICE_MANAGER* dev_man) {
 
 void Send_Thread(DEVICE_MANAGER* dev_man) {
 	while (dev_man->sending) {
-		if (!Send_Keyboard_Data(dev_man) || !Send_Mouse_Data(dev_man) {
+		if (!Send_Keyboard_Data(dev_man) || !Send_Mouse_Data(dev_man)) {
 			dev_man->sending = false;
 		}
 	}
