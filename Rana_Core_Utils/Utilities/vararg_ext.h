@@ -15,7 +15,9 @@ va_end(list);\
 
 // Interpret the variadic arguments using a character array,
 // where individual characters in the array are used to decode the arguments
-#define va_character_decoder(/* const char* */ code, /* int */ num_args, /* Type* */ decoder_arg, /* void (*)(Type*, char, va_list) */ decoder_function) {\
+#define va_character_decoder(/* const char* */ code, /* int */ num_args,\
+/* Type* */ decoder_arg,\
+/* void (*)(Type*, char, va_list) */ decoder_function) {\
 /* Start up the variadic list */\
 va_list varargs;\
 va_start(varargs, num_args);\
@@ -27,6 +29,25 @@ uint8_t i = 1;\
 while (current_code != '\0') {\
 decoder_function(decoder_arg, current_code, varargs);\
 current_code = code[i++];\
+}/* end while */\
+}/* end if */\
+va_end(varargs);\
+}
+
+// Interpret the variadic arguments using a character array,
+// where individual tokens in the array are used to decode the arguments
+#define va_token_decoder(/* const char* */ code, /* const char* */ delim,\
+/* int */ num_args, /* Type* */ decoder_arg,\
+/* void (*)(Type*, const char*, va_list) */ decoder_function) {\
+/* Start up the variadic list */\
+va_list varargs;\
+va_start(varargs, num_args);\
+if (code) {\
+/* Call the decoder function for each token in the character pointer*/\
+char* current_token = strtok(code, delim);\
+while (current_token != '\0') {\
+decoder_function(decoder_arg, current_token, varargs);\
+current_token = strtok(NULL, delim);\
 }/* end while */\
 }/* end if */\
 va_end(varargs);\

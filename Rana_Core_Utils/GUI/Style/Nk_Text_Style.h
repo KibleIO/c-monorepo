@@ -20,6 +20,11 @@ EXPERIMENTAL
 static const struct nk_color DEFAULT_TEXT_COLOR = MED_BLUE;
 static const struct nk_vec2 DEFAULT_TEXT_PADDING = nk_vec2(0,0);
 
+static const char TEXT_STYLE_COLOR_CODE = 'c';
+static const char TEXT_STYLE_PADDING_CODE = 'p';
+
+struct nk_style_text Nk_Style_Text_Code(
+const char* code, uint8_t num_args, /* encoded args */...);
 struct nk_style_text Nk_Style_Text(
 struct nk_color = DEFAULT_TEXT_COLOR, struct nk_vec2 = DEFAULT_TEXT_PADDING);
 

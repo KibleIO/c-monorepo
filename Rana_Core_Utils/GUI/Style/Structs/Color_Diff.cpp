@@ -1,4 +1,4 @@
-#include "Color_Manip.h"
+#include "Color_Diff.h"
 
 COLOR_DIFF COLOR_AUTODIFF::rule = Color_Diff_Trio(0, 1, -1, false);
 uint8_t COLOR_AUTODIFF::diff = 8;

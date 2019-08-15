@@ -1,7 +1,7 @@
-#ifndef COLOR_MANIP_H_
-#define COLOR_MANIP_H_
+#ifndef COLOR_DIFF_H_
+#define COLOR_DIFF_H_
 
-#include "../NK_BASE.h"
+#include "../../NK_BASE.h"
 
 enum COLOR_TYPE {
 	COLOR_NORMAL,
