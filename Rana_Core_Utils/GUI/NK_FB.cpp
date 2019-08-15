@@ -285,21 +285,6 @@ uint32_t total_font_heights) {
 
 	nk_init_default(
 	nk_fb->NK_Context, &nk_fb->fonts[nk_fb->current_font].nkFont);
-
-	struct nk_cursor* cursor = new struct nk_cursor;
-	memset(cursor, 0, sizeof(nk_cursor));
-	cursor->img = Load_Image_NK_GEN("/root/RANA/res/mice/cape.png", 0, 0);
-	cursor->size = nk_vec2(30, 30);
-	nk_style_load_cursor(nk_fb->NK_Context, NK_CURSOR_ARROW, cursor);
-	nk_style_set_cursor(nk_fb->NK_Context, NK_CURSOR_ARROW);
-	nk_style_show_cursor(nk_fb->NK_Context);
-
-	// Load cursors into the nk style
-	// nk_font_atlas atlas;
-	// nk_font_atlas_init_default(&atlas);
-	// nk_style_load_all_cursors(nk_fb->NK_Context, atlas.cursors);
-	//
-	// cout << "Loaded cursors into nk style" << endl;
 }
 
 void Set_Font_NK_GEN(NK_GEN* nk_fb, uint32_t font_index) {
