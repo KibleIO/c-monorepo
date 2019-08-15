@@ -186,7 +186,7 @@ void Read_Keyboard_Data(DEVICE_NODE* dev) {
 	}
 }
 
-void Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
+bool Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype = KEY_PACKET;
 	int len = DEVICE_MANAGER::Keyboard_Events.size();
 	for (int i = 0; i < len; i++) {
@@ -199,9 +199,11 @@ void Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
 		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
 		!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
 			log_err("could not send keyboard event");
+			return false;
 		}
 		delete k_event;
 	}
+	return true;
 }
 
 void Read_Mouse_Data(DEVICE_NODE* dev) {
@@ -319,7 +321,7 @@ void Read_Mouse_Data(DEVICE_NODE* dev) {
 	}
 }
 
-void Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
+bool Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype = MOUSE_PACKET;
 	int len = DEVICE_MANAGER::Mouse_Events.size();
 	for (int i = 0; i < len; i++) {
@@ -332,9 +334,12 @@ void Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
 		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
 		!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
 			log_err("failed to send mouse event");
+			return false;
 		}
 		delete m_event;
 	}
+
+	return true;
 }
 
 bool Check_Device_Node(DEVICE_NODE* init) {
@@ -358,9 +363,12 @@ void Read_Thread(DEVICE_MANAGER* dev_man) {
 
 void Send_Thread(DEVICE_MANAGER* dev_man) {
 	while (dev_man->sending) {
-		Send_Keyboard_Data(dev_man);
-		Send_Mouse_Data(dev_man);
+		if (!Send_Keyboard_Data(dev_man) || !Send_Mouse_Data(dev_man) {
+			dev_man->sending = false;
+		}
 	}
+
+	log_dbg("send thread going down");
 }
 
 void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
