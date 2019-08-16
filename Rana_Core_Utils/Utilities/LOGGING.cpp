@@ -10,7 +10,7 @@ void Check_Logs() {
 	string lswc = system_output("ls /root/RANA/logs | wc -l");
 	lswc.pop_back();
 
-	if (lswc == "1") {
+	if (lswc == "0") {
 		log_dbg("there does not appear to be any old logs");
 		return;
 	}
