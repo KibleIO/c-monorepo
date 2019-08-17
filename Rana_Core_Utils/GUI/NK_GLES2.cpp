@@ -360,8 +360,10 @@ NK_GEN* nk_gles) {
 	nk_gles->height	= DM.h;
 	*/
 
-	nk_gles->width  = 1920;
-        nk_gles->height = 1080;
+	//TODO: fix this
+	nk_gles->screen_dim.bw = 1920;
+	nk_gles->screen_dim.sw = 1920;
+    nk_gles->screen_dim.h = 1080;
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
     //SDL_GL_SetAttribute(
@@ -392,6 +394,14 @@ uint32_t Get_Height_NK_GEN(NK_GEN* nk_gles) {
 	return nk_gles->height;
 }
 
+uint32_t Get_Screenwidth_NK_GEN(NK_GEN* nk_gles) {
+	return nk_gles->width;
+}
+
+SCREEN_DIM Get_Screen_Dimensions_NK_GLES(NK_GEN* nk_gles) {
+	return nk_gles->screen_dim;
+}
+
 void Load_Fonts_NK_GEN(
 NK_GEN* nk_gles, string font_path, uint32_t* font_heights,
 uint32_t total_font_heights) {
@@ -416,7 +426,8 @@ uint32_t total_font_heights) {
 
 void Set_Font_NK_GEN(NK_GEN* nk_gles, uint32_t font_index) {
 	if (font_index < nk_gles->number_of_fonts) {
-		nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[font_index]->handle);
+		nk_style_set_font(
+		nk_gles->NK_Context, &nk_gles->fonts[font_index]->handle);
 	}
 }
 

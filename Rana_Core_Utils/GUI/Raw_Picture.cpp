@@ -25,16 +25,20 @@ uint32_t h) {
 	// Alpha blend option
 	unsigned int fg, bg, alpha, inv_alpha, result;
 
-	if (x > (uint32_t)graphics->Width) return;
-	if (y > (uint32_t)graphics->Height) return;
-	if (x + w > (uint32_t)graphics->Width) w = graphics->Width - x;
-	if (y + h > (uint32_t)graphics->Height) h = graphics->Height - y;
+	if (x > (uint32_t)graphics->screen_dim.sw) return;
+	if (y > (uint32_t)graphics->screen_dim.h) return;
+	if (x + w > (uint32_t)graphics->screen_dim.sw) {
+		w = graphics->screen_dim.sw - x;
+	}
+	if (y + h > (uint32_t)graphics->screen_dim.h) {
+		h = graphics->screen_dim.h - y;
+	}
 
 	for (uint32_t diff_y = 0; diff_y < h; diff_y++) {
 		for (uint32_t diff_x = 0; diff_x < w; diff_x++) {
 			fg = *((int*)picture->buffer + diff_y * picture->width + diff_x);
 			bg = *((int*)graphics->Buffer + (diff_y + y) *
-			graphics->Width + diff_x + x);
+			graphics->screen_dim.bw + diff_x + x);
 
 			alpha = ((unsigned char*)&fg)[3] + 1;
 			inv_alpha = 256 - alpha;
@@ -53,8 +57,8 @@ uint32_t h) {
 				((unsigned char*)&bg)[2]) >> 8);
 			((unsigned char*)&result)[3] = 0xFF;
 
-			((int*)graphics->Buffer)[(diff_y + y) * graphics->Width
-			 + diff_x + x] = result;
+			((int*)graphics->Buffer)[
+			(diff_y + y) * graphics->screen_dim.bw + diff_x + x] = result;
 		}
 	}
 
@@ -88,15 +92,19 @@ uint32_t h) {
 	// Check to see if the picture needs to be reloaded and resized
 	Check_Load_RAW_PICTURE(picture, w, h);
 
-	if (x > (uint32_t)graphics->Width) return;
-	if (y > (uint32_t)graphics->Height) return;
-	if (x + w > (uint32_t)graphics->Width) w = graphics->Width - x;
-	if (y + h > (uint32_t)graphics->Height) h = graphics->Height - y;
+	if (x > (uint32_t)graphics->screen_dim.sw) return;
+	if (y > (uint32_t)graphics->screen_dim.h) return;
+	if (x + w > (uint32_t)graphics->screen_dim.sw) {
+		w = graphics->screen_dim.sw - x;
+	}
+	if (y + h > (uint32_t)graphics->screen_dim.h) {
+		h = graphics->screen_dim.h - y;
+	}
 
 	for (uint32_t diff_y = 0; diff_y < h; diff_y++) {
 		for (uint32_t diff_x = 0; diff_x < w; diff_x++) {
 			((int*)graphics->Buffer)
-			[(diff_y + y) * graphics->Width+ diff_x + x] =
+			[(diff_y + y) * graphics->screen_dim.bw + diff_x + x] =
 			*((int*)picture->buffer + diff_y * picture->width + diff_x);
 		}
 	}

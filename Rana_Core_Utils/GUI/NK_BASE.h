@@ -15,6 +15,7 @@
 #endif
 
 #include "nuklear.h"
+#include "../Graphics/SCREEN_DIM.h"
 
 #include <string>
 
@@ -25,8 +26,7 @@ struct NK_GEN;
 void			Initialize_NK_GEN(NK_GEN*);
 void			Load_Fonts_NK_GEN(NK_GEN*, string, uint32_t*, uint32_t);
 void			Set_Font_NK_GEN(NK_GEN*, uint32_t);
-uint32_t		Get_Width_NK_GEN(NK_GEN*);
-uint32_t		Get_Height_NK_GEN(NK_GEN*);
+SCREEN_DIM		Get_Screen_Dimensions_NK_GEN(NK_GEN*);
 struct nk_image	Load_Image_NK_GEN(string, uint32_t, uint32_t);
 void 			Free_Image_NK_GEN(struct nk_image*);
 void 			Render_NK_GEN(NK_GEN*);

@@ -16,8 +16,7 @@
 using namespace std;
 
 struct GUI {
-	static int32_t 		Width;
-	static int32_t 		Height;
+	static SCREEN_DIM screen_dim;
 	NK_GEN* nk_backend;
 };
 

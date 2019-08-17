@@ -1,19 +1,19 @@
 #include "GUI.h"
 
-int32_t GUI::Width;
-int32_t GUI::Height;
+SCREEN_DIM GUI::screen_dim;
 
 void Initialize_GUI(GUI* gui, string font_path) {
+	log_dbg("initializing gui");
 	gui->nk_backend = new NK_GEN;
 
 	Initialize_NK_GEN(gui->nk_backend);
 
-	GUI::Width				= Get_Width_NK_GEN(gui->nk_backend);
-	GUI::Height				= Get_Height_NK_GEN(gui->nk_backend);
+	GUI::screen_dim			= Get_Screen_Dimensions_NK_GEN(gui->nk_backend);
+
 	uint32_t* font_heights	= new uint32_t[GUI_TOTAL_FONTS] {
-		uint32_t(gui->Height * 0.02),
-	 	uint32_t(gui->Height * 0.025),
-		uint32_t(gui->Height * 0.03)
+		uint32_t(GUI::screen_dim.h * 0.02),
+	 	uint32_t(GUI::screen_dim.h * 0.025),
+		uint32_t(GUI::screen_dim.h * 0.03)
 	};
 
 	Load_Fonts_NK_GEN(
@@ -63,13 +63,13 @@ GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_EVENT_T*>* k_events) {
 			} else {
 				MOUSE::Current_X += m_event->x;
 				MOUSE::Current_Y += m_event->y;
-				if (MOUSE::Current_X > gui->Width) {
-					MOUSE::Current_X = gui->Width;
+				if (MOUSE::Current_X > GUI::screen_dim.sw) {
+					MOUSE::Current_X = GUI::screen_dim.sw;
 				} else if (MOUSE::Current_X < 0) {
 					MOUSE::Current_X = 0;
 				}
-				if (MOUSE::Current_Y > gui->Height) {
-					MOUSE::Current_Y = gui->Height;
+				if (MOUSE::Current_Y > GUI::screen_dim.h) {
+					MOUSE::Current_Y = GUI::screen_dim.h;
 				} else if (MOUSE::Current_Y < 0) {
 					MOUSE::Current_Y = 0;
 				}

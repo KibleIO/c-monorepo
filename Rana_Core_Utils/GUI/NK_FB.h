@@ -22,16 +22,14 @@ struct GUI_FONT {
 struct FB_RENDERER;
 
 bool		Construct_FB_RENDERER(FB_RENDERER*&);
-uint32_t	Get_Width_FB_RENDERER(FB_RENDERER*);
-uint32_t	Get_Height_FB_RENDERER(FB_RENDERER*);
+SCREEN_DIM	Get_Screen_Dimensions_FB_RENDERER(FB_RENDERER*);
 void		Render_FB_RENDERER(FB_RENDERER*, uint8_t*);
 void		Delete_FB_RENDERER(FB_RENDERER*);
 
 struct NK_GEN {
+	SCREEN_DIM		screen_dim;
 	GUI_FONT*		fonts;
 	uint32_t		number_of_fonts;
-	uint32_t		width;
-	uint32_t		height;
 	int32_t			current_font;
 	nk_context* 	NK_Context;
 	uint8_t*		Graphics_Handle_Buffer;

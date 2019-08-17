@@ -245,27 +245,19 @@ void Initialize_NK_GEN(NK_GEN* nk_fb) {
 		return;
 	}
 
-	nk_fb->width					= Get_Width_FB_RENDERER(
-	nk_fb->render_context);
-
-	nk_fb->height					= Get_Height_FB_RENDERER(
-	nk_fb->render_context);
+	nk_fb->screen_dim =
+	Get_Screen_Dimensions_FB_RENDERER(nk_fb->render_context);
 
 	nk_fb->Graphics_Handle			= new GRAPHICS;
 	nk_fb->Graphics_Handle_Buffer	=
-	new uint8_t[nk_fb->width * nk_fb->height * 4];
+	new uint8_t[nk_fb->screen_dim.bw * nk_fb->screen_dim.h * 4];
 
 	Initialize_GRAPHICS(
-	nk_fb->Graphics_Handle, nk_fb->Graphics_Handle_Buffer, nk_fb->width,
-	nk_fb->height);
+	nk_fb->Graphics_Handle, nk_fb->Graphics_Handle_Buffer, nk_fb->screen_dim);
 }
 
-uint32_t Get_Width_NK_GEN(NK_GEN* nk_fb) {
-	return nk_fb->width;
-}
-
-uint32_t Get_Height_NK_GEN(NK_GEN* nk_fb) {
-	return nk_fb->height;
+SCREEN_DIM Get_Screen_Dimensions_NK_GEN(NK_GEN* nk_fb) {
+	return nk_fb->screen_dim;
 }
 
 void Load_Fonts_NK_GEN(

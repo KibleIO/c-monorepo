@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "Polygon.h"
+#include "SCREEN_DIM.h"
 #include "../Utilities/LOGGING.h"
 
 #define ABS(x) ((x >= 0) ? x : -x)
@@ -24,18 +25,17 @@ using namespace std;
 typedef int Color;
 
 struct GRAPHICS {
-  int		Width;
-  int		Height;
-  int		Width_Clip;
-  int		Height_Clip;
-  int		X_clip;
-  int		Y_clip;
-  uint8_t*	Buffer;
-  long*		ContourX;
-  bool		Transparent;
+	SCREEN_DIM screen_dim;
+	int		Width_Clip;
+	int		Height_Clip;
+	int		X_clip;
+	int		Y_clip;
+	uint8_t*	Buffer;
+	long*		ContourX;
+	bool		Transparent;
 };
 
-void Initialize_GRAPHICS(GRAPHICS*, uint8_t*, int, int);
+void Initialize_GRAPHICS(GRAPHICS*, uint8_t*, SCREEN_DIM);
 void Delete_GRAPHICS(GRAPHICS*);
 
 void SwapBuffers_GRAPHICS(GRAPHICS*, uint8_t*);
