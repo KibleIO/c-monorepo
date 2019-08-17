@@ -376,29 +376,18 @@ NK_GEN* nk_gles) {
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     nk_gles->win = SDL_CreateWindow(
-	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, nk_gles->width, nk_gles->height,
+	"Demo", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	nk_gles->screen_dim.sw, nk_gles->screen_dim.h,
 	SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_ALLOW_HIGHDPI);
 
 	HideCursor();
 
     nk_gles->glContext = SDL_GL_CreateContext(nk_gles->win);
-    glViewport(0, 0, nk_gles->width, nk_gles->height);
+    glViewport(0, 0, nk_gles->screen_dim.sw, nk_gles->screen_dim.h);
     nk_gles->NK_Context = nk_sdl_init(nk_gles->sdl, nk_gles->win);
 }
 
-uint32_t Get_Width_NK_GEN(NK_GEN* nk_gles) {
-	return nk_gles->width;
-}
-
-uint32_t Get_Height_NK_GEN(NK_GEN* nk_gles) {
-	return nk_gles->height;
-}
-
-uint32_t Get_Screenwidth_NK_GEN(NK_GEN* nk_gles) {
-	return nk_gles->width;
-}
-
-SCREEN_DIM Get_Screen_Dimensions_NK_GLES(NK_GEN* nk_gles) {
+SCREEN_DIM Get_Screen_Dimensions_NK_GEN(NK_GEN* nk_gles) {
 	return nk_gles->screen_dim;
 }
 
