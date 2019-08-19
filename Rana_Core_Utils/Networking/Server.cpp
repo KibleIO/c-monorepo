@@ -53,7 +53,7 @@ void Server::Set_Opts() {
 #ifdef _WIN64
 	bool o_ra = true;
 	bool o_nd = true;
-	DWORD o_sb = 700000;
+	DWORD o_sb = 20000000;
 #endif
 
 	if (setsockopt(
