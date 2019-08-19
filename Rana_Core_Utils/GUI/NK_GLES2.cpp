@@ -316,7 +316,7 @@ string filename, uint32_t width, uint32_t height) {
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(orig_buffer);
-	delete trans_buffer;
+	delete [] trans_buffer;
 	return nk_image_id((int)tex);
 }
 
@@ -429,7 +429,7 @@ void Delete_NK_GEN(NK_GEN* nk_gles) {
 	delete nk_gles->sdl;
 
 	if (nk_gles->fonts != NULL) {
-		delete nk_gles->fonts;
+		delete [] nk_gles->fonts;
 	}
 }
 
