@@ -75,6 +75,8 @@ uint32_t* ip_addr, const char* dns_address, uint32_t timeout_val) {
 	}
 	cleanup:
 
+	delete timeout;
+
 	mutex_DNS_WRAPPER.unlock();
 
 	ares_destroy(channel);

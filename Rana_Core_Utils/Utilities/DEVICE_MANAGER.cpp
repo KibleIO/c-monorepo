@@ -31,24 +31,7 @@ void Set_Mouse_Speed(double speed) {
 
 bool Initialize_DEVICE_MANAGER(
 DEVICE_MANAGER* dev_man, int w, int h, EVENT* event_status) {
-	if (dev_man->client || dev_man->server || dev_man->Event_Status) {
-		log_err("device manager struct not properly nullified");
-		return false;
-	}
-#ifdef __linux__
-	if (dev_man->current_dev || dev_man->previous_dev || dev_man->dp ||
-	dev_man->dirp || dev_man->sending || dev_man->receiving ||
-	dev_man->c_d_size || dev_man->p_d_size) {
-		log_err("device manager struct not properly nullified");
-		return false;
-	}
-#endif
-#ifdef _WIN64
-	if (dev_man->client_mtx) {
-		log_err("device manager struct not properly nullified");
-		return false;
-	}
-#endif
+	*dev_man = {};
 
 	// Linux specific code {{{
 	#ifdef __linux__
@@ -318,6 +301,8 @@ void Read_Mouse_Data(DEVICE_NODE* dev) {
 			log_err("unknown mouse event type");
 			break;
 		}
+		libinput_event_destroy(element->Event);
+		delete element;
 	}
 }
 
@@ -510,7 +495,7 @@ void Start_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 }
 
 void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
-        DEVICE_NODE* current_dev = new DEVICE_NODE;
+        DEVICE_NODE current_dev;
         int length, i = 0, wd;
         int fd;
         char buffer[BUF_LEN];
@@ -633,12 +618,12 @@ void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
                                                         dev_man->events);
                                                         if (Get_Bit(dev_man->events, KEY_B)) {
                                                                 Initialize_Device_Node(
-                                                                current_dev, dev_man->path, _KEYBOARD);
-																Add_Device_Node(dev_man, current_dev);
+                                                                &current_dev, dev_man->path, _KEYBOARD);
+																Add_Device_Node(dev_man, &current_dev);
                                                         } else if (Get_Bit(dev_man->events, BTN_LEFT)) {
                                                                 Initialize_Device_Node(
-                                                                current_dev, dev_man->path, _MOUSE);
-                                                                Add_Device_Node(dev_man, current_dev);
+                                                                &current_dev, dev_man->path, _MOUSE);
+                                                                Add_Device_Node(dev_man, &current_dev);
                                                         }
                                                 }
                                                 close(dev_man->fd);
@@ -662,14 +647,18 @@ void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 }
 
 void Stop_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
-	dev_man->refresh_thread_running = false;
-	dev_man->refresh_thread->join();
-	delete dev_man->refresh_thread;
+	if (dev_man->refresh_thread) {
+		dev_man->refresh_thread_running = false;
+		dev_man->refresh_thread->join();
+		delete dev_man->refresh_thread;
+		dev_man->refresh_thread = NULL;
+	}
 }
 
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 	log_dbg("deleting device manager");
 	Stop_Reading_Devices_DEVICE_MANAGER(dev_man);
+	Stop_Refresh_Thread_DEVICE_MANAGER(dev_man);
 	Disconnect_Server_DEVICE_MANAGER(dev_man);
 	Disconnect_Client_DEVICE_MANAGER(dev_man);
 

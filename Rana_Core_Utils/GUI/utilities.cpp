@@ -223,6 +223,9 @@ string System_IP_V4() {
 }
 
 void Delete_Thread(thread** th) {
+	if (th == NULL || *th == NULL) {
+		return;
+	}
 	(*th)->join();
 	delete *th;
 	*th = NULL;

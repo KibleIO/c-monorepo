@@ -96,7 +96,8 @@ KEYBOARD* Construct_Keyboard(string path, EVENT* event_status) {
 }
 
 void Delete_Keyboard(KEYBOARD* keyboard) {
-	log_dbg("deleting keyboard " + keyboard->path);
+	string path = keyboard->path;
+	log_dbg("deleting keyboard " + path);
 	keyboard->Listening = false;
 	if (keyboard->Event_Listener) {
 		keyboard->Event_Listener->join();
@@ -108,7 +109,8 @@ void Delete_Keyboard(KEYBOARD* keyboard) {
 		keyboard->Events.pop(k_event);
 		delete k_event;
 	}
-	log_dbg("done deleting keyboard " + keyboard->path);
+	delete keyboard;
+	log_dbg("done deleting keyboard " + path);
 }
 
 void Listen_Keyboard(KEYBOARD* keyboard) {
