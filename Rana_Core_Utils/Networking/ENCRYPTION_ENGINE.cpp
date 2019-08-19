@@ -158,6 +158,25 @@ uint8_t origin_profile_index) {
 	return true;
 }
 
+ENCRYPTION_PROFILE* Get_New_Profile_ENCRYPTION_ENGINE(
+ENCRYPTION_ENGINE* enc_eng, string name) {
+	ENCRYPTION_PROFILE* enc_prof;
+
+	if (
+	!Add_Profile_ENCRYPTION_ENGINE(enc_eng, name, enc_eng->active_profile)) {
+		return NULL;
+	}
+
+	enc_prof =
+	enc_eng->profiles_available[enc_eng->number_of_profiles - 1];
+
+	if (!Load_Poly1305_Key_And_Nonce_ENCRYPTION_PROFILE(enc_prof)) {
+		return NULL;
+	}
+
+	return enc_prof;
+}
+
 bool Write_Active_Profile_ENCRYPTION_ENGINE(
 ENCRYPTION_ENGINE* encryption_engine) {
 	log_dbg("writing active profile");

@@ -16,62 +16,57 @@ void Nullify_BMPs(IMAGE_BUTTON* button) {
 
 void Initialize_Image_Push_Button(
 IMAGE_BUTTON* button, string normalDir, string hoverDir, string activeDir,
-string dormantDir, float width, float height) {
+string dormantDir) {
 	Initialize_Image_Button(
 	button, BUTTON_TYPE_PUSH, normalDir, hoverDir, activeDir,  "", "", "",
-	dormantDir, width, height);
+	dormantDir);
 }
 
 void Initialize_Image_Toggle_Button(
 IMAGE_BUTTON* button, string normalDir, string hoverDir, string activeDir,
 string toggledNormalDir, string toggledHoverDir, string toggledActiveDir,
-string dormantDir, float width, float height) {
+string dormantDir) {
 	Initialize_Image_Button(
 	button, BUTTON_TYPE_TOGGLE, normalDir, hoverDir, activeDir,
-	toggledNormalDir, toggledHoverDir, toggledActiveDir, dormantDir, width,
-	height);
+	toggledNormalDir, toggledHoverDir, toggledActiveDir, dormantDir);
 }
 void Initialize_Image_Push_Button(
-IMAGE_BUTTON* button, string normalDir, string hoverDir, string activeDir,
-float width, float height) {
+IMAGE_BUTTON* button, string normalDir, string hoverDir, string activeDir) {
 	Initialize_Image_Push_Button(
-	button, normalDir, hoverDir, activeDir, "", width, height);
+	button, normalDir, hoverDir, activeDir, "");
 }
 
 
 void Initialize_Image_Button(
 IMAGE_BUTTON* button, uint8_t type, string normalDir, string hoverDir,
 string activeDir, string toggledNormalDir, string toggledHoverDir,
-string toggledActiveDir, string dormantDir, float width, float height) {
+string toggledActiveDir, string dormantDir) {
 	Nullify_BMPs(button);
 
 	// Initialize normal bmps
-	Initialize_Image(&button->normal, normalDir, width, height);
-	Initialize_Image(&button->hover, hoverDir, width, height);
-	Initialize_Image(&button->active, activeDir, width, height);
+	Initialize_Image(&button->normal, normalDir);
+	Initialize_Image(&button->hover, hoverDir);
+	Initialize_Image(&button->active, activeDir);
 
 	// Initialize toggled bmps
-	Initialize_Image(
-	&button->toggledNormal, toggledNormalDir, width, height);
-	Initialize_Image(
-	&button->toggledHover, toggledHoverDir, width, height);
-	Initialize_Image(
-	&button->toggledActive, toggledActiveDir, width, height);
+	Initialize_Image(&button->toggledNormal, toggledNormalDir);
+	Initialize_Image(&button->toggledHover, toggledHoverDir);
+	Initialize_Image(&button->toggledActive, toggledActiveDir);
 
 	// Initialize dormant bmp
-	Initialize_Image(&button->dormant, dormantDir, width, height);
+	Initialize_Image(&button->dormant, dormantDir);
 
 	// Initialize the button data
 	Initialize_Button(
 	&button->super, type, Button_Style(
 	// Button style for normal
-	Nk_Button_Style(&button->normal.image, &button->hover.image,
-	&button->active.image),
+	Nk_Button_Style(button->normal.picture, button->hover.picture,
+	button->active.picture),
 	// Button style while toggled
-	Nk_Button_Style(&button->toggledNormal.image, &button->toggledHover.image,
-	&button->toggledActive.image),
+	Nk_Button_Style(button->toggledNormal.picture,
+	button->toggledHover.picture, button->toggledActive.picture),
 	// Button style while dormant
-	Nk_Button_Style_Dormant(&button->dormant.image)));
+	Nk_Button_Style_Dormant(button->dormant.picture)));
 }
 
 /*
@@ -80,7 +75,6 @@ RENDERING
 
 bool Render_Image_Button_Label(IMAGE_BUTTON* button, struct nk_context* ctx,
 const char* label, bool interactable) {
-	Check_And_Load_Images(button, ctx, interactable);
 	return Render_Button_Label(&button->super, ctx, label, interactable);
 }
 bool Render_Image_Button_Label_With_Buffer(IMAGE_BUTTON* button,
@@ -105,23 +99,4 @@ void Delete_Image_Button(IMAGE_BUTTON* button) {
 	Delete_Image(&button->dormant);
 
 	Delete_Button(&button->super);
-}
-
-void Check_And_Load_Images(
-IMAGE_BUTTON* button, struct nk_context* ctx, bool interactable) {
-	if (interactable) {
-		if (!button->super.toggleState) {
-			Check_And_Load_Image_In_Current_Rect(&button->normal, ctx);
-			Check_And_Load_Image_In_Current_Rect(&button->hover, ctx);
-			Check_And_Load_Image_In_Current_Rect(&button->active, ctx);
-		}
-		else {
-			Check_And_Load_Image_In_Current_Rect(&button->toggledNormal, ctx);
-			Check_And_Load_Image_In_Current_Rect(&button->toggledHover, ctx);
-			Check_And_Load_Image_In_Current_Rect(&button->toggledActive, ctx);
-		}
-	}
-	else {
-		Check_And_Load_Image_In_Current_Rect(&button->dormant, ctx);
-	}
 }

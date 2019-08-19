@@ -47,6 +47,6 @@ bool dm_valid(int day, int month);
 TM STRINGS
 */
 
-std::string tm_string(const char* format, tm*);
+std::string tm_string(const char* format, const tm*);
 
 #endif

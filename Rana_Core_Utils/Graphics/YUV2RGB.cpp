@@ -74,8 +74,9 @@ void Convert_YUV2RGB(YUV2RGB* trans, uint8_t* in, uint8_t* out) {
 
 	for (uint32_t i = 0; i < trans->threads; i++) {
 		yuv_planes[i][0] = in + trans->yuv_slice_i[i][0];
-		yuv_planes[i][1] = in + trans->ysize + trans->yuv_slice_i[i][1];
-		yuv_planes[i][2] = in + trans->ysize + trans->uvsize +
+		//swapped for some reason
+		yuv_planes[i][2] = in + trans->ysize + trans->yuv_slice_i[i][1];
+		yuv_planes[i][1] = in + trans->ysize + trans->uvsize +
 		trans->yuv_slice_i[i][2];
 		slice_threads[i] = new thread(sws_scale,
 		trans->sws[i],
@@ -102,8 +103,9 @@ void Convert_YUV2RGB(YUV2RGB* trans, uint8_t** in, uint8_t* out) {
 
 	for (uint32_t i = 0; i < trans->threads; i++) {
 		yuv_planes[i][0] = in[0] + trans->yuv_slice_i[i][0];
-		yuv_planes[i][1] = in[1] + trans->yuv_slice_i[i][1];
-		yuv_planes[i][2] = in[2] + trans->yuv_slice_i[i][2];
+		//swapped for some reason
+		yuv_planes[i][2] = in[1] + trans->yuv_slice_i[i][1];
+		yuv_planes[i][1] = in[2] + trans->yuv_slice_i[i][2];
 		slice_threads[i] = new thread(sws_scale,
 		trans->sws[i],
 		yuv_planes[i],

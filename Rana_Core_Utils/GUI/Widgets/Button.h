@@ -2,9 +2,11 @@
 #define BUTTON_H_
 
 #include <stdint.h>
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Label.h"
+#include "Image.h"
 #include "../Style.h"
+#include "../Layout/Rect_Transform.h"
 #include "../../Utilities/Function_Pointers.h"
 
 /*
@@ -40,9 +42,6 @@ struct BUTTON {
 	bool toggleState;
 	// Style options for the button
 	BUTTON_STYLE style;
-	// Event invoked when the button is clicked
-	// PASS: BUTTON*
-	MULTICAST_FUNCTION_POINTER buttonClickedEvent;
 };
 
 void Initialize_Button(BUTTON*, uint8_t type, BUTTON_STYLE);
@@ -62,16 +61,25 @@ void Initialize_Push_Button(BUTTON*, struct nk_style_button normal);
 // Render the button with a label
 // Return true if the button was clicked and is interactable
 bool Render_Button_Label(
-BUTTON*, struct nk_context*, const char*, bool interactable = true);
-bool Render_Button_Image(
-BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
+BUTTON*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
+bool Render_Button_Symbol(
+BUTTON*, struct nk_context*, enum nk_symbol_type, bool interactable = true);
+bool Render_Button_Symbol_Label(
+BUTTON*, struct nk_context*, enum nk_symbol_type, const char*, bool trailing,
+nk_flags alignment, bool interactable = true);
 
 bool Render_Button_Label_With_Buffer(
-BUTTON*, struct nk_context*, const char*, bool interactable = true);
-bool Render_Button_Image_With_Buffer(
-BUTTON*, struct nk_context*, struct nk_image, bool interactable = true);
+BUTTON*, struct nk_context*, const char*, bool trailing,
+bool interactable = true);
+bool Render_Button_Symbol_With_Buffer(
+BUTTON*, struct nk_context*, enum nk_symbol_type, bool interactable = true);
+bool Render_Button_Symbol_Label_With_Buffer(
+BUTTON*, struct nk_context*, enum nk_symbol_type, const char*,
+nk_flags alignment, bool interactable = true);
+
 bool Render_Button_Label_Buffered(
-BUTTON*, struct nk_context*, const char*, bool buffered,
+BUTTON*, struct nk_context*, const char*, bool trailing, bool buffered,
 bool interactable = true);
 
 void Delete_Button(BUTTON*);

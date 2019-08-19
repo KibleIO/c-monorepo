@@ -1,5 +1,14 @@
 #include "Simple_Ellipsis_Animation.h"
 
+SIMPLE_ELLIPSIS_ANIMATION Simple_Ellipsis_Animation(
+struct nk_color buttonColor, struct nk_color textColor,
+uint8_t framesPerString) {
+	SIMPLE_ELLIPSIS_ANIMATION anim;
+	Initialize_SIMPLE_ELLIPSIS_ANIMATION(
+	&anim, buttonColor, textColor, framesPerString);
+	return anim;
+}
+
 void Initialize_SIMPLE_ELLIPSIS_ANIMATION(
 SIMPLE_ELLIPSIS_ANIMATION* anim, struct nk_color buttonColor,
 struct nk_color textColor, uint8_t framesPerString) {
@@ -22,7 +31,7 @@ SIMPLE_ELLIPSIS_ANIMATION* anim, struct nk_context* ctx) {
 
 	// Render the button with the current string
 	Render_Button_Label(
-	&anim->button, ctx, anim->loadingStrings[anim->currentString]);
+	&anim->button, ctx, anim->loadingStrings[anim->currentString], false);
 }
 
 void Render_SIMPLE_ELLIPSIS_ANIMATION_With_Buffer(

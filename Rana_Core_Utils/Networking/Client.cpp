@@ -12,6 +12,8 @@ void Client::Init() {
 #ifdef __linux__
 	int o;
 
+	signal(SIGPIPE, SIG_IGN);
+
 	cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (cSocket < 0) {
 		log_err(name + ": Client socket failed to open");
@@ -33,7 +35,7 @@ void Client::Init() {
 		log_err("bad setsockopt: quickack");
 	}
 
-	o = 700000;
+	o = 70000000;
 	if (
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o, sizeof o) != 0) {
 		log_err("bad setsockopt: rcvbuf");

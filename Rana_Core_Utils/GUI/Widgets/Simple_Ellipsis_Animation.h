@@ -1,7 +1,7 @@
 #ifndef SIMPLE_ELLIPSIS_ANIMATION_H_
 #define SIMPLE_ELLIPSIS_ANIMATION_H_
 
-#include "../GUI.h"
+#include "../NK_BASE.h"
 #include "Button.h"
 
 #define TOTAL_STRINGS 4
@@ -19,6 +19,9 @@ struct SIMPLE_ELLIPSIS_ANIMATION {
 	uint8_t framesPerString;
 };
 
+SIMPLE_ELLIPSIS_ANIMATION Simple_Ellipsis_Animation(
+struct nk_color buttonColor, struct nk_color textColor,
+uint8_t framesPerString);
 void Initialize_SIMPLE_ELLIPSIS_ANIMATION(
 SIMPLE_ELLIPSIS_ANIMATION*, struct nk_color buttonColor,
 struct nk_color textColor, uint8_t framesPerString);

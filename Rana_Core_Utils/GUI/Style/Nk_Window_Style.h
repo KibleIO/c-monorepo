@@ -1,8 +1,6 @@
 #ifndef NK_WINDOW_STYLE_H_
 #define NK_WINDOW_STYLE_H_
 
-#include "../GUI.h"
-#include "palette.h"
 #include "Nk_Window_Header_Style.h"
 
 struct nk_style_window Nk_Window_Style();

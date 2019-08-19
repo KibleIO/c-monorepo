@@ -9,8 +9,13 @@ colors to stay consistent across similarly themed screens
 #ifndef PALETTE_H_
 #define PALETTE_H_
 
-#include "../GUI.h"
+#include <sstream>
+#include <iomanip>
+#include "../../Utilities/LOGGING.h"
+#include "../NK_BASE.h"
+#include "Palette_Color.h"
 
+#define WHITE nk_rgb(0xff, 0xff, 0xff)
 #define TRANSPARENT nk_rgba(0x00, 0x00, 0x00, 0x00)
 // GRAYS
 #define DARK_GRAY nk_rgba(0x70,0x86,0x9b,0xff)
@@ -20,7 +25,7 @@ colors to stay consistent across similarly themed screens
 #define DARK_BLUE nk_rgba(0x33, 0x42, 0x59, 0xff)
 #define MED_BLUE nk_rgba(0x63, 0x88, 0xad, 0xff)
 #define MED_BLUE_2 nk_rgba(0x82, 0xa4, 0xc5, 0xff)
-#define LIGHT_BLUE nk_rgba(0xbd, 0xd1, 0xdb, 0xff)
+//#define LIGHT_BLUE nk_rgba(0xbd, 0xd1, 0xdb, 0xff)
 // MISC
 #define GRAY_BLUE nk_rgba(0x66, 0x7a, 0x99, 0xff)
 #define LIGHT_GRAY_BLUE nk_rgba(0xb4, 0xc4, 0xd0, 0xff)
@@ -40,18 +45,42 @@ colors to stay consistent across similarly themed screens
 // MISC
 #define TRANSPARENT_BLACK nk_rgba(BLACK.r, BLACK.g, BLACK.b, NEAR_TRANSPARENT)
 
+// NEW COLORS
+#define NEAR_WHITE 			nk_rgb(0xe5, 0xe5, 0xe5)
+#define YELLOW  			nk_rgb(0xfe, 0xea, 0x2e)
+#define LIGHT_YELLOW    	nk_rgb(0xfd, 0xf9, 0xce)
+#define LIGHT_BLUE  		nk_rgb(0xbd, 0xd1, 0xdb)
+#define LESS_LIGHT_BLUE 	nk_rgb(0x98, 0xb8, 0xcc)
+#define BARELY_LIGHT_BLUE   nk_rgb(0x82, 0xa4, 0xc5)
+#define DESAT_BLUE  		nk_rgb(0x70, 0x86, 0x9b)
+#define BLUE    			nk_rgb(0x5c, 0x88, 0xb7)
+#define DARKEST_BLUE    	nk_rgb(0x33, 0x42, 0x59)
+#define SAND    			nk_rgb(0xc8, 0xc4, 0xb3)
+
 #define DIFF nk_rgb(0x0f, 0x0f, 0x0f)
 // Gives a color slightly lighter/darker than the color passed in
 // Great for creating different button colors when hovered/clicked
 nk_color lighter(nk_color original);
 nk_color darker(nk_color original);
 
-// Color converter algorithms convert nk colors to colors directly usable by the Graphics class in the backend
-Color rgba (char, char, char, char);
-Color fromNkColor(const struct nk_color&);
 bool bright(const struct nk_color&);
 
 // Return a color with the r-b colors flipped
 struct nk_color rb_flip(const struct nk_color&);
+
+string Color_Str(struct nk_color);
+
+/*
+EXPERIMENTAL
+*/
+
+#define MAX_COLORS 16
+
+struct PALETTE {
+	static PALETTE_COLOR colors[MAX_COLORS];
+};
+
+void Set_Color(struct nk_color, uint8_t index);
+struct nk_color Get_Color(uint8_t index);
 
 #endif /*PALLETE_H_*/

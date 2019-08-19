@@ -33,12 +33,8 @@ nk_flags align) {
 	btn_color, lighter(btn_color), darker(btn_color), txt_color, padding,
 	image_padding, touch_padding, rounding, align);
 }
-struct nk_style_button Nk_Button_Style(BUTTON_IMAGES* images, nk_flags align) {
-	struct nk_style_button style;
-	Set_Nk_Button_Style(&style, images, align);
-	return style;
-}
-struct nk_style_button Nk_Button_Style(BMP* normal, BMP* hover, BMP* active,
+struct nk_style_button Nk_Button_Style(
+struct nk_image normal, struct nk_image hover, struct nk_image active,
 nk_flags align) {
 	struct nk_style_button style;
 	Set_Nk_Button_Style(&style, normal, hover, active, align);
@@ -58,14 +54,15 @@ nk_flags align) {
 	btn_color, btn_color, btn_color, txt_color, padding, image_padding,
 	touch_padding, rounding, align);
 }
-struct nk_style_button Nk_Button_Style_Dormant(BMP* image, nk_flags align) {
+struct nk_style_button Nk_Button_Style_Dormant(struct nk_image image, nk_flags align) {
 	return Nk_Button_Style(image, image, image, align);
 }
 
 /*
 Color-based buttons
 */
-void Set_Nk_Button_Style(struct nk_style_button* style, struct nk_color btn_color,
+void Set_Nk_Button_Style(
+struct nk_style_button* style, struct nk_color btn_color,
 struct nk_color txt_color, float rounding, nk_flags align) {
     Set_Nk_Button_Style(
 	style, btn_color, lighter(btn_color), darker(btn_color), txt_color,
@@ -75,9 +72,9 @@ void Set_Nk_Button_Style(struct nk_style_button* style, struct nk_color btn_norm
 struct nk_color btn_hover, struct nk_color btn_active, struct nk_color txt_color,
 float rounding, nk_flags align) {
     Set_Nk_Button_Style_Defaults(style);
-    style->normal = nk_style_item_color(rb_flip(btn_normal));
-    style->hover = nk_style_item_color(rb_flip(btn_hover));
-    style->active = nk_style_item_color(rb_flip(btn_active));
+    style->normal = nk_style_item_color((btn_normal));
+    style->hover = nk_style_item_color((btn_hover));
+    style->active = nk_style_item_color((btn_active));
     style->text_normal = txt_color;
     style->text_hover = txt_color;
     style->text_active = txt_color;
@@ -127,22 +124,17 @@ struct nk_vec2 touch_padding, float rounding, nk_flags align) {
 Image based buttons
 */
 void Set_Nk_Button_Style(
-struct nk_style_button* style, BUTTON_IMAGES* images, nk_flags align) {
-	Set_Nk_Button_Style(
-	style, &images->normal, &images->hover, &images->active, align);
-}
-void Set_Nk_Button_Style(
-struct nk_style_button* style, BMP* normal, BMP* hover, BMP* active,
-nk_flags align) {
+struct nk_style_button* style, struct nk_image normal, struct nk_image hover,
+struct nk_image active, nk_flags align) {
 	Set_Nk_Button_Style(style, normal, hover, active, TRANSPARENT, align);
 }
 void Set_Nk_Button_Style(
-struct nk_style_button* style, BMP* normal, BMP* hover, BMP* active,
-struct nk_color txt_color, nk_flags align) {
+struct nk_style_button* style, struct nk_image normal, struct nk_image hover,
+struct nk_image active, struct nk_color txt_color, nk_flags align) {
     Set_Nk_Button_Style_Defaults(style);
-    style->normal = nk_style_item_image(nk_image_ptr(normal));
-    style->hover = nk_style_item_image(nk_image_ptr(hover));
-    style->active = nk_style_item_image(nk_image_ptr(active));
+    style->normal = nk_style_item_image((normal));
+    style->hover = nk_style_item_image((hover));
+    style->active = nk_style_item_image((active));
     style->text_normal = txt_color;
     style->text_hover = txt_color;
     style->text_active = txt_color;
@@ -150,9 +142,9 @@ struct nk_color txt_color, nk_flags align) {
 }
 
 void Set_Nk_Button_Style_Defaults(struct nk_style_button* style) {
-	style->normal = nk_style_item_color(rb_flip(MED_BLUE));
-	style->hover = nk_style_item_color(lighter(rb_flip(MED_BLUE)));
-	style->active = nk_style_item_color(darker(rb_flip(MED_BLUE)));
+	style->normal = nk_style_item_color((MED_BLUE));
+	style->hover = nk_style_item_color(lighter((MED_BLUE)));
+	style->active = nk_style_item_color(darker((MED_BLUE)));
 	style->border_color = TRANSPARENT;
 
 	style->text_background = TRANSPARENT;

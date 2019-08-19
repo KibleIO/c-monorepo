@@ -5,12 +5,39 @@
 uint8_t GOT_LOCAL_TIME = false;
 string LOG_FILE = string(LOG_DIR) + "/log";
 
+#ifdef __linux__
+void Check_Logs() {
+	string lswc = system_output("ls /root/RANA/logs | wc -l");
+	lswc.pop_back();
+
+	if (lswc == "0") {
+		log_dbg("there does not appear to be any old logs");
+		return;
+	}
+
+	string prev_log = system_output(
+	"ls /root/RANA/logs -t | head -n2 | tail -n1");
+	prev_log.pop_back();
+	prev_log = "/root/RANA/logs/" + prev_log;
+
+	string exit_status = system_output(
+	"cat " + prev_log + " | tail -n1 | awk '{print $1}'");
+	exit_status.pop_back();
+
+	if (exit_status != "CLOSE:") {
+		log_dbg("previous log shows rana exited unexpectedly, sending log");
+		system(("echo 'log file' | mail -s 'Rana Crash Report' -A '" +
+		prev_log + "' pleasedontblockme1@yandex.com &").c_str());
+	} else {
+		log_dbg("previous log shows rana exited successfully");
+	}
+}
+#endif //__linux__
+
 void set_local_start_time() {
 	// Linux specific code {{{
 	#ifdef __linux__
 	if (GOT_LOCAL_TIME) {
-		// Where is "log_lock" defined?
-		//log_lock.unlock();
 		return;
 	}
 	GOT_LOCAL_TIME = true;
@@ -46,6 +73,8 @@ void set_local_start_time() {
 		free(file_name_list[i]);
 	}
 	free(file_name_list);
+
+	Check_Logs();
 
 	return;
 	#endif

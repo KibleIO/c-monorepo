@@ -12,12 +12,12 @@ struct nk_color background, struct nk_color check, struct nk_color text) {
 	// Set default styling
 	Set_Nk_Toggle_Style_Defaults(style);
 
-	style->normal = nk_style_item_color(rb_flip(background));
-	style->hover = nk_style_item_color(lighter(rb_flip(background)));
-	style->active = nk_style_item_color(darker(rb_flip(background)));
+	style->normal = nk_style_item_color((background));
+	style->hover = nk_style_item_color(lighter((background)));
+	style->active = nk_style_item_color(darker((background)));
 
-	style->cursor_normal = nk_style_item_color(rb_flip(check));
-	style->cursor_hover = nk_style_item_color(lighter(rb_flip(check)));
+	style->cursor_normal = nk_style_item_color((check));
+	style->cursor_hover = nk_style_item_color(lighter((check)));
 
 	style->text_normal = text;
 	style->text_hover = text;
