@@ -21,16 +21,11 @@
   <ItemGroup>
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Graphics\Polygon.cpp" />
-    <ClCompile Include="GUI\BMP.cpp" />
-    <ClCompile Include="GUI\BMP_Baker.cpp" />
     <ClCompile Include="GUI\FONT.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
-    <ClCompile Include="GUI\KEYBOARD.cpp" />
     <ClCompile Include="GUI\Layout\Layout_Engine.cpp" />
     <ClCompile Include="GUI\Layout\Layout_Utilities.cpp" />
     <ClCompile Include="GUI\Layout\nuklear_plus.cpp" />
-    <ClCompile Include="GUI\MOUSE.cpp" />
-    <ClCompile Include="GUI\Style\Button_Images.cpp" />
     <ClCompile Include="GUI\Style\Nk_Button_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Combo_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Edit_Style.cpp" />
@@ -41,7 +36,6 @@
     <ClCompile Include="GUI\Style\Nk_Window_Header_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Window_Style.cpp" />
     <ClCompile Include="GUI\Style\palette.cpp" />
-    <ClCompile Include="GUI\Widgets\Animator.cpp" />
     <ClCompile Include="GUI\Widgets\Button.cpp" />
     <ClCompile Include="GUI\Widgets\Button_Events.cpp" />
     <ClCompile Include="GUI\Widgets\Button_Package.cpp" />
@@ -51,7 +45,6 @@
     <ClCompile Include="GUI\Widgets\Image.cpp" />
     <ClCompile Include="GUI\Widgets\Image_Button.cpp" />
     <ClCompile Include="GUI\Widgets\Label.cpp" />
-    <ClCompile Include="GUI\Widgets\Nav_Buttons.cpp" />
     <ClCompile Include="GUI\Widgets\Panel.cpp" />
     <ClCompile Include="GUI\Widgets\Render_Utilities.cpp" />
     <ClCompile Include="GUI\Widgets\Slider.cpp" />
@@ -68,32 +61,27 @@
     <ClCompile Include="Utilities\FPS_LIMITER.cpp" />
     <ClCompile Include="Utilities\Function_Pointers.cpp" />
     <ClCompile Include="Utilities\INDEX_QUEUE.cpp" />
+    <ClCompile Include="Utilities\KEYBOARD.cpp" />
     <ClCompile Include="Utilities\LOGGING.cpp" />
+    <ClCompile Include="Utilities\MOUSE.cpp" />
     <ClCompile Include="Utilities\TIMER.cpp" />
     <ClCompile Include="Utilities\tm_ext.cpp" />
-    <ClCompile Include="Utilities\utilities.cpp" />
     <ClCompile Include="Utilities\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\Polygon.h" />
     <ClInclude Include="GUI\avir.h" />
-    <ClInclude Include="GUI\BMP.h" />
-    <ClInclude Include="GUI\BMP_Baker.h" />
     <ClInclude Include="GUI\FONT.h" />
     <ClInclude Include="GUI\GUI.h" />
-    <ClInclude Include="GUI\input-event-codeswin.h" />
-    <ClInclude Include="GUI\KEYBOARD.h" />
     <ClInclude Include="GUI\Layout.h" />
     <ClInclude Include="GUI\Layout\Layout_Engine.h" />
     <ClInclude Include="GUI\Layout\Layout_Utilities.h" />
     <ClInclude Include="GUI\Layout\nuklear_plus.h" />
-    <ClInclude Include="GUI\MOUSE.h" />
     <ClInclude Include="GUI\nuklear.h" />
     <ClInclude Include="GUI\stb_image.h" />
     <ClInclude Include="GUI\stb_truetype.h" />
     <ClInclude Include="GUI\Style.h" />
-    <ClInclude Include="GUI\Style\Button_Images.h" />
     <ClInclude Include="GUI\Style\Nk_Button_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Combo_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Edit_Style.h" />
@@ -105,7 +93,6 @@
     <ClInclude Include="GUI\Style\Nk_Window_Style.h" />
     <ClInclude Include="GUI\Style\palette.h" />
     <ClInclude Include="GUI\Widgets.h" />
-    <ClInclude Include="GUI\Widgets\Animator.h" />
     <ClInclude Include="GUI\Widgets\Button.h" />
     <ClInclude Include="GUI\Widgets\Button_Events.h" />
     <ClInclude Include="GUI\Widgets\Button_Package.h" />
@@ -115,7 +102,6 @@
     <ClInclude Include="GUI\Widgets\Image.h" />
     <ClInclude Include="GUI\Widgets\Image_Button.h" />
     <ClInclude Include="GUI\Widgets\Label.h" />
-    <ClInclude Include="GUI\Widgets\Nav_Buttons.h" />
     <ClInclude Include="GUI\Widgets\Panel.h" />
     <ClInclude Include="GUI\Widgets\Render_Utilities.h" />
     <ClInclude Include="GUI\Widgets\Slider.h" />
@@ -135,10 +121,12 @@
     <ClInclude Include="Utilities\FPS_LIMITER.h" />
     <ClInclude Include="Utilities\Function_Pointers.h" />
     <ClInclude Include="Utilities\INDEX_QUEUE.h" />
+    <ClInclude Include="Utilities\input-event-codeswin.h" />
+    <ClInclude Include="Utilities\KEYBOARD.h" />
     <ClInclude Include="Utilities\LOGGING.h" />
+    <ClInclude Include="Utilities\MOUSE.h" />
     <ClInclude Include="Utilities\TIMER.h" />
     <ClInclude Include="Utilities\tm_ext.h" />
-    <ClInclude Include="Utilities\utilities.h" />
     <ClInclude Include="Utilities\Utils.h" />
     <ClInclude Include="Utilities\vararg_ext.h" />
   </ItemGroup>

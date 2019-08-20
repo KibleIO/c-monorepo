@@ -3,7 +3,9 @@
 #include "KEYBOARD.h"
 //#include "nuklear.h"
 
+#ifdef __linux__
 Display* KEYBOARD::dpy;
+#endif
 bool KEYBOARD::Shift;
 bool KEYBOARD::Caps_Lock;
 

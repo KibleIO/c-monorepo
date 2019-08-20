@@ -84,9 +84,7 @@ struct MOUSE_EVENT_T {
 	uint16_t state;
 };
 
-struct MOUSE{
-	static Display* dpy;
-
+struct MOUSE {
 	int32_t			Minimum_X;
 	int32_t			Maximum_X;
 	int32_t			Minimum_Y;
@@ -98,6 +96,7 @@ struct MOUSE{
 
 	// Linux specific code {{{
 	#ifdef __linux__
+	static Display* dpy;
 	libinput_device *device;
 	libinput *li;
 	bool grab;

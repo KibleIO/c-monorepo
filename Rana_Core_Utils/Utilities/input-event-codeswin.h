@@ -19,9 +19,9 @@
 #ifndef _UAPI_INPUT_EVENT_CODES_H
 #define _UAPI_INPUT_EVENT_CODES_H
 
-/*
- * Device properties and quirks
- */
+ /*
+  * Device properties and quirks
+  */
 
 #define INPUT_PROP_POINTER		0x00	/* needs a pointer */
 #define INPUT_PROP_DIRECT		0x01	/* direct input devices */
@@ -34,9 +34,9 @@
 #define INPUT_PROP_MAX			0x1f
 #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
 
-/*
- * Event types
- */
+  /*
+   * Event types
+   */
 
 #define EV_SYN			0x00
 #define EV_KEY			0x01
@@ -53,9 +53,9 @@
 #define EV_MAX			0x1f
 #define EV_CNT			(EV_MAX+1)
 
-/*
- * Synchronization events.
- */
+   /*
+	* Synchronization events.
+	*/
 
 #define SYN_REPORT		0
 #define SYN_CONFIG		1
@@ -64,16 +64,16 @@
 #define SYN_MAX			0xf
 #define SYN_CNT			(SYN_MAX+1)
 
-/*
- * Keys and buttons
- *
- * Most of the keys/buttons are modeled after USB HUT 1.12
- * (see http://www.usb.org/developers/hidpage).
- * Abbreviations in the comments:
- * AC - Application Control
- * AL - Application Launch Button
- * SC - System Control
- */
+	/*
+	 * Keys and buttons
+	 *
+	 * Most of the keys/buttons are modeled after USB HUT 1.12
+	 * (see http://www.usb.org/developers/hidpage).
+	 * Abbreviations in the comments:
+	 * AC - Application Control
+	 * AL - Application Launch Button
+	 * SC - System Control
+	 */
 
 #define KEY_RESERVED		0
 #define KEY_ESC			1
@@ -340,7 +340,7 @@
 
 #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
 
-/* Code 255 is reserved for special needs of AT keyboard driver */
+					  /* Code 255 is reserved for special needs of AT keyboard driver */
 
 #define BTN_MISC		0x100
 #define BTN_0			0x100
@@ -643,10 +643,10 @@
 #define KEY_UNMUTE			0x274
 #define KEY_FASTREVERSE			0x275
 #define KEY_SLOWREVERSE			0x276
-/*
- * Control a data application associated with the currently viewed channel,
- * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
- */
+ /*
+  * Control a data application associated with the currently viewed channel,
+  * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+  */
 #define KEY_DATA			0x277
 #define KEY_ONSCREEN_KEYBOARD		0x278
 
@@ -692,7 +692,7 @@
 #define BTN_TRIGGER_HAPPY39		0x2e6
 #define BTN_TRIGGER_HAPPY40		0x2e7
 
-/* We avoid low common keys in module aliases so they don't get huge. */
+  /* We avoid low common keys in module aliases so they don't get huge. */
 #define KEY_MIN_INTERESTING	KEY_MUTE
 #define KEY_MAX			0x2ff
 #define KEY_CNT			(KEY_MAX+1)
@@ -711,22 +711,22 @@
 #define REL_DIAL		0x07
 #define REL_WHEEL		0x08
 #define REL_MISC		0x09
-/*
- * 0x0a is reserved and should not be used in input drivers.
- * It was used by HID as REL_MISC+1 and userspace needs to detect if
- * the next REL_* event is correct or is just REL_MISC + n.
- * We define here REL_RESERVED so userspace can rely on it and detect
- * the situation described above.
- */
+ /*
+  * 0x0a is reserved and should not be used in input drivers.
+  * It was used by HID as REL_MISC+1 and userspace needs to detect if
+  * the next REL_* event is correct or is just REL_MISC + n.
+  * We define here REL_RESERVED so userspace can rely on it and detect
+  * the situation described above.
+  */
 #define REL_RESERVED		0x0a
 #define REL_WHEEL_HI_RES	0x0b
 #define REL_HWHEEL_HI_RES	0x0c
 #define REL_MAX			0x0f
 #define REL_CNT			(REL_MAX+1)
 
-/*
- * Absolute axes
- */
+  /*
+   * Absolute axes
+   */
 
 #define ABS_X			0x00
 #define ABS_Y			0x01
@@ -757,13 +757,13 @@
 
 #define ABS_MISC		0x28
 
-/*
- * 0x2e is reserved and should not be used in input drivers.
- * It was used by HID as ABS_MISC+6 and userspace needs to detect if
- * the next ABS_* event is correct or is just ABS_MISC + n.
- * We define here ABS_RESERVED so userspace can rely on it and detect
- * the situation described above.
- */
+   /*
+	* 0x2e is reserved and should not be used in input drivers.
+	* It was used by HID as ABS_MISC+6 and userspace needs to detect if
+	* the next ABS_* event is correct or is just ABS_MISC + n.
+	* We define here ABS_RESERVED so userspace can rely on it and detect
+	* the situation described above.
+	*/
 #define ABS_RESERVED		0x2e
 
 #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
@@ -786,9 +786,9 @@
 #define ABS_MAX			0x3f
 #define ABS_CNT			(ABS_MAX+1)
 
-/*
- * Switch events
- */
+	/*
+	 * Switch events
+	 */
 
 #define SW_LID			0x00  /* set = lid shut */
 #define SW_TABLET_MODE		0x01  /* set = tablet mode */
@@ -811,9 +811,9 @@
 #define SW_MAX			0x0f
 #define SW_CNT			(SW_MAX+1)
 
-/*
- * Misc events
- */
+					 /*
+					  * Misc events
+					  */
 
 #define MSC_SERIAL		0x00
 #define MSC_PULSELED		0x01
@@ -824,9 +824,9 @@
 #define MSC_MAX			0x07
 #define MSC_CNT			(MSC_MAX+1)
 
-/*
- * LEDs
- */
+					  /*
+					   * LEDs
+					   */
 
 #define LED_NUML		0x00
 #define LED_CAPSL		0x01
@@ -842,18 +842,18 @@
 #define LED_MAX			0x0f
 #define LED_CNT			(LED_MAX+1)
 
-/*
- * Autorepeat values
- */
+					   /*
+						* Autorepeat values
+						*/
 
 #define REP_DELAY		0x00
 #define REP_PERIOD		0x01
 #define REP_MAX			0x01
 #define REP_CNT			(REP_MAX+1)
 
-/*
- * Sounds
- */
+						/*
+						 * Sounds
+						 */
 
 #define SND_CLICK		0x00
 #define SND_BELL		0x01

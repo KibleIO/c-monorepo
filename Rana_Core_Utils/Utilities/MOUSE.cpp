@@ -2,7 +2,9 @@
 
 #include "MOUSE.h"
 
+#ifdef __linux__
 Display* MOUSE::dpy;
+#endif
 int32_t	MOUSE::Current_X;
 int32_t	MOUSE::Current_Y;
 bool	MOUSE::Clicked;

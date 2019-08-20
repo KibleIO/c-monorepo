@@ -30,19 +30,10 @@
     <ClCompile Include="Graphics\Polygon.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\BMP.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\FONT.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="GUI\GUI.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\KEYBOARD.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\MOUSE.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="Networking\Client.cpp">
@@ -84,9 +75,6 @@
     <ClCompile Include="Utilities\TIMER.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\BMP_Baker.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Layout\Layout_Engine.cpp">
       <Filter>GUI\Layout</Filter>
     </ClCompile>
@@ -95,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="GUI\Layout\nuklear_plus.cpp">
       <Filter>GUI\Layout</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\Style\Button_Images.cpp">
-      <Filter>GUI\Style</Filter>
     </ClCompile>
     <ClCompile Include="GUI\Style\Nk_Button_Style.cpp">
       <Filter>GUI\Style</Filter>
@@ -144,9 +129,6 @@
     <ClCompile Include="GUI\Widgets\Label.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\Widgets\Nav_Buttons.cpp">
-      <Filter>GUI\Widgets</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Widgets\Panel.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
@@ -154,9 +136,6 @@
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
     <ClCompile Include="GUI\Widgets\Textbox.cpp">
-      <Filter>GUI\Widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\Widgets\Animator.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
     <ClCompile Include="GUI\Widgets\Button.cpp">
@@ -171,9 +150,6 @@
     <ClCompile Include="Utilities\tm_ext.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\utilities.cpp">
-      <Filter>Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities\Function_Pointers.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
@@ -186,6 +162,12 @@
     <ClCompile Include="Networking\DNS_WRAPPER.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\KEYBOARD.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\MOUSE.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Graphics.h">
@@ -197,19 +179,10 @@
     <ClInclude Include="GUI\avir.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\BMP.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\FONT.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\GUI.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\KEYBOARD.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\MOUSE.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\nuklear.h">
@@ -260,9 +233,6 @@
     <ClInclude Include="Networking\direntwin.h">
       <Filter>Networking</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\input-event-codeswin.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="Networking\UDP_Client.h">
       <Filter>Networking</Filter>
     </ClInclude>
@@ -281,9 +251,6 @@
     <ClInclude Include="GUI\Widgets.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\BMP_Baker.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Layout\Layout_Engine.h">
       <Filter>GUI\Layout</Filter>
     </ClInclude>
@@ -292,9 +259,6 @@
     </ClInclude>
     <ClInclude Include="GUI\Layout\nuklear_plus.h">
       <Filter>GUI\Layout</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\Style\Button_Images.h">
-      <Filter>GUI\Style</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Style\Nk_Button_Style.h">
       <Filter>GUI\Style</Filter>
@@ -344,9 +308,6 @@
     <ClInclude Include="GUI\Widgets\Label.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Widgets\Nav_Buttons.h">
-      <Filter>GUI\Widgets</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Widgets\Panel.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
@@ -356,9 +317,6 @@
     <ClInclude Include="GUI\Widgets\Textbox.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Widgets\Animator.h">
-      <Filter>GUI\Widgets</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Widgets\Button.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
@@ -366,9 +324,6 @@
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\tm_ext.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\utilities.h">
       <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\vararg_ext.h">
@@ -385,6 +340,15 @@
     </ClInclude>
     <ClInclude Include="Networking\DNS_WRAPPER.h">
       <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\KEYBOARD.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\MOUSE.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\input-event-codeswin.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

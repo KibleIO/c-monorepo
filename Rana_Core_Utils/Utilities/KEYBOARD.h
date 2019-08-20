@@ -32,13 +32,13 @@ struct KEYBOARD_EVENT_T {
 };
 
 struct KEYBOARD {
-	static Display* dpy;
 	static bool    Shift;
 	static bool    Caps_Lock;
 	static char*   Keys;
 	static char*   Keys_Shifted;
 	
 	#ifdef __linux__
+	static Display* dpy;
 	string path;
 	int fd;
 	Queue<KEYBOARD_EVENT_T*> Events;
