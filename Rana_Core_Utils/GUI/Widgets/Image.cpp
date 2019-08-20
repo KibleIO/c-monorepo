@@ -1,14 +1,14 @@
 #include "Image.h"
 
-void Initialize_Image(IMAGE* image, string filename, uint32_t w, uint32_t h) {
-	image->picture = Load_Image_NK_GEN(filename, w, h);
+void Initialize_Image(IMAGE* image, TEXTURE* texture) {
+	image->texture = texture;
 }
 
 void Render_Image(
 IMAGE* image, struct nk_context* ctx, RECT_TRANSFORM transform) {
 	// Layout the area for the image
 	if (Layout_Transformed_Area(ctx, transform)) {
-		nk_image(ctx, image->picture);
+		nk_image(ctx, image->texture->data);
 		nk_group_end(ctx);
 	}
 }
@@ -20,9 +20,10 @@ IMAGE* image, struct nk_context* ctx, RECT_TRANSFORM transform) {
 }
 
 void Draw_Image(IMAGE* image, struct nk_context* ctx, struct nk_rect bounds) {
-	nk_draw_image(nk_window_get_canvas(ctx), bounds, &image->picture, WHITE);
+	nk_draw_image(
+	nk_window_get_canvas(ctx), bounds, &image->texture->data, WHITE);
 }
 
 void Delete_Image(IMAGE* image) {
-	Free_Image_NK_GEN(&image->picture);
+	(void)image;
 }

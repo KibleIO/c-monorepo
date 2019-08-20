@@ -7,12 +7,15 @@ MOUSE IMAGE
 void Load_MOUSE_IMAGE(
 MOUSE_IMAGE* image, struct nk_context* ctx, enum nk_style_cursor type,
 string image_path, struct nk_vec2 size) {
-	Delete_MOUSE_IMAGE(image);
-	image->path = image_path;
-	image->cursor.img = Load_Image_NK_GEN(image_path, size.x, size.y);
-	image->cursor.size = size;
-	nk_style_load_cursor(ctx, type, &image->cursor);
-	image->loaded = true;
+	TEXTURE* texture = Load_Image_GUI(image_path, size.x, size.y);
+
+	if (texture != NULL) {
+		image->path = image_path;
+		image->cursor.img = texture->data;
+		image->cursor.size = size;
+		nk_style_load_cursor(ctx, type, &image->cursor);
+		image->loaded = true;
+	}
 }
 void Resize_MOUSE_IMAGE(
 MOUSE_IMAGE* image, struct nk_context* ctx, enum nk_style_cursor type,
@@ -21,11 +24,6 @@ struct nk_vec2 size) {
 	image->loaded &&
 	(image->cursor.size.x != size.x || image->cursor.size.y != size.y)) {
 		Load_MOUSE_IMAGE(image, ctx, type, image->path, size);
-	}
-}
-void Delete_MOUSE_IMAGE(MOUSE_IMAGE* image) {
-	if (image->loaded) {
-		Free_Image_NK_GEN(&image->cursor.img);
 	}
 }
 
@@ -56,11 +54,5 @@ void Resize_All_Cursors_MOUSE_UI(
 MOUSE_UI* mice, struct nk_context* ctx, const struct nk_vec2* size_ar) {
 	for (uint8_t i = 0; i < NK_CURSOR_COUNT; i++) {
 		Resize_Cursor_MOUSE_UI(mice, ctx, (nk_style_cursor)i, size_ar[i]);
-	}
-}
-
-void Delete_MOUSE_UI(MOUSE_UI* mice) {
-	for (uint32_t i = 0; i < NK_CURSOR_COUNT; i++) {
-		Delete_MOUSE_IMAGE(&mice->images[i]);
 	}
 }

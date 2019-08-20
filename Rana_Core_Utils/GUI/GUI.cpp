@@ -1,6 +1,7 @@
 #include "GUI.h"
 
 SCREEN_DIM GUI::screen_dim;
+TEXTURE_MANAGER GUI::texture_manager;
 
 void Initialize_GUI(GUI* gui, string font_path) {
 	log_dbg("initializing gui");
@@ -18,6 +19,7 @@ void Initialize_GUI(GUI* gui, string font_path) {
 
 	Load_Fonts_NK_GEN(
 	gui->nk_backend, font_path, font_heights, GUI_TOTAL_FONTS);
+	Load_All_Textures_TEXTURE_MANAGER(&GUI::texture_manager);
 
 	Set_Style_Default_GUI(gui);
 
@@ -28,15 +30,20 @@ void Set_Font(GUI* gui, int font_index) {
 	Set_Font_NK_GEN(gui->nk_backend, font_index);
 }
 
-struct nk_image Load_Image_GUI(
+struct TEXTURE* Load_Image_GUI(
 string filename, uint32_t width, uint32_t height) {
-	return Load_Image_NK_GEN(filename, width, height);
+	return Load_Texture_TEXTURE_MANAGER(
+	&GUI::texture_manager, filename, width, height);
 }
 
 void Delete_GUI(GUI* gui) {
 	log_dbg("deleting gui");
+
 	Delete_NK_GEN(gui->nk_backend);
 	delete gui->nk_backend;
+
+	Free_All_Textures_TEXTURE_MANAGER(&GUI::texture_manager);
+
 	log_dbg("done deleting gui");
 }
 

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <mutex>
+#include "Utils.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
@@ -40,13 +41,13 @@
 
 #define log_close      Write_Message("CLOSE:   ", "", __FILE__, __LINE__, __func__)
 /*
-#endif 
+#endif
 #ifdef _WIN64
 #define log_tmp(_MSG_) cout << "DELETE:  [" << __FILE__ << " " << __LINE__ << " " << __func__ << "] " << _MSG_ << endl
 #define log_dbg(_MSG_) cout << "DEBUG:   [" << __FILE__ << " " << __LINE__ << " " << __func__ << "] " << _MSG_ << endl
 #define log_err(_MSG_) cout << "ERROR:   [" << __FILE__ << " " << __LINE__ << " " << __func__ << "] " << _MSG_ << endl
 #define log_close      cout << "CLOSE:   [" << __FILE__ << " " << __LINE__ << " " << __func__ << "]" << endl;
-#endif 
+#endif
 */
 #define LOG_DIR "./logs"
 

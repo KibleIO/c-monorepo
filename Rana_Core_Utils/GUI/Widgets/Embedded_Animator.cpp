@@ -18,7 +18,8 @@ uint8_t totalFrames, bool looping) {
 	// animator standard naming convention
 	for (uint8_t i = 0; i < anim->totalFrames; i++) {
 		Initialize_Image(
-		&anim->frames[i], baseName + to_string(i + 1) + fileExtension);
+		&anim->frames[i], Load_Image_GUI(baseName + to_string(i + 1) +
+		fileExtension, 0, 0));
 	}
 
 	anim->looping = looping;

@@ -324,6 +324,16 @@ void Free_Image_NK_GEN(struct nk_image* image) {
 	(void)image;	// Bypass compiler warning
 }
 
+bool Resize_Image_NK_GEN(
+struct nk_image* image, uint32_t width, uint32_t height) {
+	(void)image;
+	(void)width;
+	(void)height;
+
+	// *image = Load_Image_NK_GEN([filename?], width, height);
+	return false;
+}
+
 void Render_NK_GEN(NK_GEN* nk_gles) {
     float bg[4];
     int win_width, win_height;

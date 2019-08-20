@@ -44,29 +44,32 @@ string toggledActiveDir, string dormantDir) {
 	Nullify_BMPs(button);
 
 	// Initialize normal bmps
-	Initialize_Image(&button->normal, normalDir);
-	Initialize_Image(&button->hover, hoverDir);
-	Initialize_Image(&button->active, activeDir);
+	Initialize_Image(&button->normal, Load_Image_GUI(normalDir, 0, 0));
+	Initialize_Image(&button->hover, Load_Image_GUI(hoverDir, 0, 0));
+	Initialize_Image(&button->active, Load_Image_GUI(activeDir, 0, 0));
 
 	// Initialize toggled bmps
-	Initialize_Image(&button->toggledNormal, toggledNormalDir);
-	Initialize_Image(&button->toggledHover, toggledHoverDir);
-	Initialize_Image(&button->toggledActive, toggledActiveDir);
+	Initialize_Image(
+	&button->toggledNormal, Load_Image_GUI(toggledNormalDir, 0, 0));
+	Initialize_Image(
+	&button->toggledHover, Load_Image_GUI(toggledHoverDir, 0, 0));
+	Initialize_Image(
+	&button->toggledActive, Load_Image_GUI(toggledActiveDir, 0, 0));
 
 	// Initialize dormant bmp
-	Initialize_Image(&button->dormant, dormantDir);
+	Initialize_Image(&button->dormant, Load_Image_GUI(dormantDir, 0, 0));
 
 	// Initialize the button data
 	Initialize_Button(
 	&button->super, type, Button_Style(
 	// Button style for normal
-	Nk_Button_Style(button->normal.picture, button->hover.picture,
-	button->active.picture),
+	Nk_Button_Style(button->normal.texture->data, button->hover.texture->data,
+	button->active.texture->data),
 	// Button style while toggled
-	Nk_Button_Style(button->toggledNormal.picture,
-	button->toggledHover.picture, button->toggledActive.picture),
+	Nk_Button_Style(button->toggledNormal.texture->data,
+	button->toggledHover.texture->data, button->toggledActive.texture->data),
 	// Button style while dormant
-	Nk_Button_Style_Dormant(button->dormant.picture)));
+	Nk_Button_Style_Dormant(button->dormant.texture->data)));
 }
 
 /*

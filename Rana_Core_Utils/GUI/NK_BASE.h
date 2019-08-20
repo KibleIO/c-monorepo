@@ -27,8 +27,15 @@ void			Initialize_NK_GEN(NK_GEN*);
 void			Load_Fonts_NK_GEN(NK_GEN*, string, uint32_t*, uint32_t);
 void			Set_Font_NK_GEN(NK_GEN*, uint32_t);
 SCREEN_DIM		Get_Screen_Dimensions_NK_GEN(NK_GEN*);
+
+// Load a new image and get an nk_image object
 struct nk_image	Load_Image_NK_GEN(string, uint32_t, uint32_t);
+// Free dynamically allocated space for the nk_image given
 void 			Free_Image_NK_GEN(struct nk_image*);
+// Change the size of the nk_image object. Return true if the resize took place
+// or false if it did not
+void 			Resize_Image_NK_GEN(struct nk_image*, uint32_t, uint32_t);
+
 void 			Render_NK_GEN(NK_GEN*);
 void 			Delete_NK_GEN(NK_GEN*);
 

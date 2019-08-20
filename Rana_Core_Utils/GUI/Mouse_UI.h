@@ -2,6 +2,8 @@
 #define MOUSE_UI_H_
 
 #include "NK_BASE.h"
+#include "Texture.h"
+#include "GUI.h"
 
 /*
 MOUSE IMAGE
@@ -19,7 +21,6 @@ MOUSE_IMAGE*, struct nk_context*, enum nk_style_cursor, string image_path,
 struct nk_vec2);
 void Resize_MOUSE_IMAGE(
 MOUSE_IMAGE*, struct nk_context*, enum nk_style_cursor, struct nk_vec2);
-void Delete_MOUSE_IMAGE(MOUSE_IMAGE*);
 
 /*
 MOUSE UI
@@ -43,7 +44,5 @@ void Resize_All_Cursors_Uniform_MOUSE_UI(
 MOUSE_UI*, struct nk_context*, struct nk_vec2);
 void Resize_All_Cursors_MOUSE_UI(
 MOUSE_UI*, struct nk_context*, const struct nk_vec2*);
-
-void Delete_MOUSE_UI(MOUSE_UI*);
 
 #endif

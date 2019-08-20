@@ -4,13 +4,14 @@
 #include "avir.h"
 #include "../Graphics/Graphics.h"
 
-// Only resize the picture if either dimension changes by this many pixels
-#define RAW_PICTURE_SIGNIFICANT_DIFFERENCE	5
+// Only resize the picture if either dimension changes
+// by more than this many pixels
+#define RAW_PICTURE_SIGNIFICANT_DIFFERENCE	1
 
 // A raw picture with width and height
 // This is the handle in all nk_image structs and image commands
 struct RAW_PICTURE {
-	string filename;	// Name of the file to init the picture from
+	string filename = "";	// Name of the file to init the picture from
 
 	uint8_t* buffer;	// Buffer received from loading the picture
 	int32_t width;	// Width of the picture

@@ -88,6 +88,12 @@ void Free_Image_NK_GEN(struct nk_image* image) {
 	delete picture;
 }
 
+void Resize_Image_NK_GEN(
+struct nk_image* image, uint32_t width, uint32_t height) {
+	RAW_PICTURE* picture = (RAW_PICTURE*)image->handle.ptr;
+	Check_Load_RAW_PICTURE(picture, width, height);
+}
+
 void Render_NK_GEN(NK_GEN* nk_fb) {
 	const struct nk_command* command;
 
@@ -204,7 +210,8 @@ void Render_NK_GEN(NK_GEN* nk_fb) {
 					Render_RAW_PICTURE(
 					picture, nk_fb->Graphics_Handle,
 					image->x, image->y, image->w, image->h);
-				} else {
+				}
+				else {
 					log_err("missing image");
 				}
 

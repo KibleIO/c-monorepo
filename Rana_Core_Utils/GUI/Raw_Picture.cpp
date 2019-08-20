@@ -111,7 +111,10 @@ uint32_t h) {
 }
 
 void Delete_RAW_PICTURE(RAW_PICTURE* picture) {
-	delete [] picture->buffer;
+	if (picture->buffer != NULL) {
+		delete [] picture->buffer;
+		picture->buffer = NULL;
+	}
 }
 
 void Load_RAW_PICTURE(
@@ -130,9 +133,7 @@ RAW_PICTURE* picture, uint32_t width, uint32_t height) {
 	// If no error occurred, enter
 	if (base_buffer && filetype_flag == 4) {
 		// If necessary, delete the existing buffer and re-initialize it
-		if (picture != NULL) {
-			Delete_RAW_PICTURE(picture);
-		}
+		Delete_RAW_PICTURE(picture);
 		picture->buffer = new uint8_t[buffer_size];
 
 		// Resize the base buffer and copy it into the picture's buffer
@@ -148,7 +149,6 @@ RAW_PICTURE* picture, uint32_t width, uint32_t height) {
 		Rework_Buffer_RAW_PICTURE(picture);
 	}
 	else {
-
 		// Initialize the raw picture buffer with an "empty" texture
 		uint32_t* buffer = new uint32_t[width * height]{0xffff00ff};
 		picture->buffer = (uint8_t*)buffer;
@@ -156,7 +156,7 @@ RAW_PICTURE* picture, uint32_t width, uint32_t height) {
 		picture->height = height;
 
 		if (!base_buffer) {
-			log_err(string("Image file does not exist: " + picture->filename));
+			log_err(string("Image file does not exist: ") + picture->filename);
 		}
 		else {
 			log_err(string("Image file is wrong format: ") + picture->filename);
