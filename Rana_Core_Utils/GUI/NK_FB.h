@@ -10,6 +10,7 @@
 #include "FONT.h"
 #include "../Graphics/Graphics.h"
 #include "utilities.h"
+#include "nk_ops.h"
 #include "Raw_Picture.h"
 
 using namespace std;

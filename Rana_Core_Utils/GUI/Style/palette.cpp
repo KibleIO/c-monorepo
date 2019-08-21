@@ -17,14 +17,6 @@ struct nk_color rb_flip (const struct nk_color& original) {
   return nk_rgba(original.b, original.g, original.r, original.a);
 }
 
-string Color_Str(struct nk_color c) {
-	ostringstream stream;
-	stream << hex;
-	stream << "(" << (int)c.r << ", " << (int)c.b << ", "
-	<< (int)c.g << ", " << (int)c.a << ")";
-	return stream.str();
-}
-
 /*
 EXPERIMENTAL
 */

@@ -44,11 +44,6 @@ NK
 // dimensions inside the rectangle given
 struct nk_vec2 Center(struct nk_rect parent, struct nk_vec2 child_dimensions);
 
-bool Vec2_Cmp(struct nk_vec2, struct nk_vec2);
-string Rect_Str(struct nk_rect);
-string Vec2_Str(struct nk_vec2);
-//string Color_Str(struct nk_color);
-
 /*
 IP
 */

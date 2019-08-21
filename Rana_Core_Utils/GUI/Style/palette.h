@@ -68,8 +68,6 @@ bool bright(const struct nk_color&);
 // Return a color with the r-b colors flipped
 struct nk_color rb_flip(const struct nk_color&);
 
-string Color_Str(struct nk_color);
-
 /*
 EXPERIMENTAL
 */

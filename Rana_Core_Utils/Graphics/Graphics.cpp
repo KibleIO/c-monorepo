@@ -31,25 +31,15 @@ void ClearScreen_GRAPHICS(GRAPHICS* graphics, int color) {
 	}
 }
 
-void Set_Clip_GRAPHICS(GRAPHICS* graphics, int x, int y, int width, int height) {
-	if (x < 0 || x >= graphics->screen_dim.sw ||
-	y < 0 || y >= graphics->screen_dim.h) {
-		graphics->X_clip      = 0;
-		graphics->Y_clip      = 0;
-		graphics->Width_Clip  = graphics->screen_dim.sw;
-		graphics->Height_Clip = graphics->screen_dim.h;
-	} else {
-	  if ((width + x) > graphics->screen_dim.sw) {
-			width = (graphics->screen_dim.sw - x);
-	  }
-	  if ((height + y) > graphics->screen_dim.h) {
-			height = (graphics->screen_dim.h - y);
-	  }
-	  graphics->X_clip      = x;
-	  graphics->Y_clip      = y;
-	  graphics->Width_Clip  = graphics->screen_dim.sw;
-	  graphics->Height_Clip = graphics->screen_dim.h;
-	}
+void Set_Clip_GRAPHICS(
+GRAPHICS* graphics, int x, int y, int width, int height) {
+	Clip_Rect(
+	0, 0, graphics->screen_dim.sw, graphics->screen_dim.h, x, y, width, height);
+
+	graphics->X_clip = x;
+	graphics->Y_clip = y;
+	graphics->Width_Clip = width;
+	graphics->Height_Clip = height;
 }
 
 void Clip_GRAPHICS(GRAPHICS* graphics, int &x, int &y, int &w, int &h) {
@@ -178,7 +168,7 @@ void DrawPoint_Opaque_GRAPHICS(GRAPHICS* graphics, int x, int y, int color) {
 
 void DrawPoint_Opaque_GRAPHICS_UNSAFE(
 GRAPHICS* graphics, int x, int y, int color) {
-	((int*)graphics->Buffer)[x + (y * graphics->screen_dim.bw)]= color;
+	((int*)graphics->Buffer)[x + (y * graphics->screen_dim.bw)] = color;
 }
 
 void DrawLine_GRAPHICS(
@@ -272,41 +262,41 @@ GRAPHICS* graphics, int x1, int y1, int x2, int y2, int color) {
 
 void ScanLine_GRAPHICS(GRAPHICS* graphics, long x1, long y1, long x2, long y2) {
 	long sx, sy, dx1, dy1, dx2, dy2, x, y, m, n, k, cnt;
-	
+
 	sx = x2 - x1;
 	sy = y2 - y1;
-	
+
 	if ((sy < 0) || (sy == 0 && sx < 0)) {
 		k = x1; x1 = x2; x2 = k;
 		k = y1; y1 = y2; y2 = k;
 		sx = -sx;
 		sy = -sy;
 	}
-	
+
 	if (sx > 0) dx1 = 1;
 	else if (sx < 0) dx1 = -1;
 	else dx1 = 0;
-	
+
 	if (sy > 0) dy1 = 1;
 	else if (sy < 0) dy1 = -1;
 	else dy1 = 0;
-	
+
 	m = ABS(sx);
 	n = ABS(sy);
 	dx2 = dx1;
 	dy2 = 0;
-	
+
 	if (m < n) {
 		m = ABS(sy);
 		n = ABS(sx);
 		dx2 = 0;
 		dy2 = dy1;
 	}
-	
+
 	x = x1; y = y1;
 	cnt = m + 1;
 	k = n / 2;
-	
+
 	while (cnt--) {
 		if ((y >= 0) && (y < graphics->screen_dim.bw)) {
 			if (x < graphics->ContourX[y * graphics->screen_dim.h + 0]) {
@@ -316,7 +306,7 @@ void ScanLine_GRAPHICS(GRAPHICS* graphics, long x1, long y1, long x2, long y2) {
 				graphics->ContourX[y * graphics->screen_dim.h + 1] = x;
 			}
 		}
-	
+
 		k += n;
 		if (k < m) {
 			x += dx2;
@@ -347,19 +337,19 @@ GRAPHICS* graphics, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
 		graphics->ContourX[y * graphics->screen_dim.h + 0] = LONG_MAX; // min X
 		graphics->ContourX[y * graphics->screen_dim.h + 1] = LONG_MIN; // max X
 	}
-	
+
 	ScanLine_GRAPHICS(graphics, x0, y0, x1, y1);
 	ScanLine_GRAPHICS(graphics, x1, y1, x2, y2);
 	ScanLine_GRAPHICS(graphics, x2, y2, x0, y0);
-	
+
 	for (y = 0; y < graphics->screen_dim.h; y++) {
 		if (graphics->ContourX[y * graphics->screen_dim.h+ 1] >=
 		graphics->ContourX[y * graphics->screen_dim.h + 0]) {
 			long x = graphics->ContourX[y * graphics->screen_dim.h + 0];
-			long len = 
+			long len =
 			1 + graphics->ContourX[y * graphics->screen_dim.h + 1] -
 			graphics->ContourX[y * graphics->screen_dim.h+ 0];
-			
+
 			DrawLine_Transparent_GRAPHICS(graphics, x, y, x + len, y, color);
 		}
 	}
@@ -373,11 +363,11 @@ GRAPHICS* graphics, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
 		graphics->ContourX[y * graphics->screen_dim.h + 0] = LONG_MAX; // min X
 		graphics->ContourX[y * graphics->screen_dim.h + 1] = LONG_MIN; // max X
 	}
-	
+
 	ScanLine_GRAPHICS(graphics, x0, y0, x1, y1);
 	ScanLine_GRAPHICS(graphics, x1, y1, x2, y2);
 	ScanLine_GRAPHICS(graphics, x2, y2, x0, y0);
-	
+
 	for (y = 0; y < graphics->screen_dim.h; y++) {
 		if (graphics->ContourX[y * graphics->screen_dim.h + 1] >=
 		graphics->ContourX[y * graphics->screen_dim.h + 0]) {
@@ -385,7 +375,7 @@ GRAPHICS* graphics, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
 			long len =
 			1 + graphics->ContourX[y * graphics->screen_dim.h + 1] -
 			graphics->ContourX[y * graphics->screen_dim.h + 0];
-			
+
 			DrawLine_Opaque_GRAPHICS(graphics, x, y, x + len, y, color);
 		}
 	}
@@ -418,7 +408,7 @@ GRAPHICS* graphics, int x, int y, int height, int color) {
 
 	if (y < graphics->Y_clip) {
 		height -= graphics->Y_clip - y;
-		y = graphics->Y_clip; 
+		y = graphics->Y_clip;
 	}
 
 	if (height <= 0) return;
@@ -447,7 +437,7 @@ GRAPHICS* graphics, int x, int y, int height, int color) {
 
 	if (y < graphics->Y_clip) {
 		height -= graphics->Y_clip - y;
-		y = graphics->Y_clip; 
+		y = graphics->Y_clip;
 	}
 
 	if (height <= 0) return;
@@ -524,7 +514,7 @@ GRAPHICS* graphics, int x, int y, int width, int color) {
 
 	if (x < graphics->X_clip) {
 		width -= graphics->X_clip - x;
-		x = graphics->X_clip;	
+		x = graphics->X_clip;
 	}
 
 	if (width <= 0) return;
@@ -564,7 +554,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int color) {
 	}
 	if (y < graphics->Y_clip) {
 		h -= graphics->Y_clip - y;
-		y = graphics->Y_clip; 
+		y = graphics->Y_clip;
 	}
 	if (w <= 0) return;
 	if (h <= 0) return;
@@ -587,11 +577,11 @@ GRAPHICS* graphics, int x, int y, int w, int h, int color) {
 	if (y > graphics->Height_Clip + graphics->Y_clip) return;
 	if (x < graphics->X_clip) {
 		w -= graphics->X_clip - x;
-		x = graphics->X_clip; 
+		x = graphics->X_clip;
 	}
 	if (y < graphics->Y_clip) {
 		h -= graphics->Y_clip - y;
-		y = graphics->Y_clip; 
+		y = graphics->Y_clip;
 	}
 	if (w <= 0) return;
 	if (h <= 0) return;
@@ -658,11 +648,11 @@ GRAPHICS* graphics, int x, int y, int w, int h, int color) {
 	if (y > graphics->Height_Clip + graphics->Y_clip) return;
 	if (x < graphics->X_clip) {
 		w -= graphics->X_clip - x;
-		x = graphics->X_clip; 
+		x = graphics->X_clip;
 	}
 	if (y < graphics->Y_clip) {
 		h -= graphics->Y_clip - y;
-		y = graphics->Y_clip; 
+		y = graphics->Y_clip;
 	}
 	if (w <= 0) return;
 	if (h <= 0) return;
@@ -815,8 +805,8 @@ void FillPolygon_Transparent_GRAPHICS(GRAPHICS* graphics, POLYGON &p, int c) {
 			p.GetY(j) >= (double) pixelY) ||
 			(p.GetY(j) < (double) pixelY &&
 			p.GetY(i) >= (double) pixelY)) {
-				nodeX[nodes++] = 
-				(int) (p.GetX(i) + 
+				nodeX[nodes++] =
+				(int) (p.GetX(i) +
 				(pixelY - p.GetY(i)) / (p.GetY(j) -
 				p.GetY(i)) * (p.GetX(j) - p.GetX(i)));
 			}
@@ -911,10 +901,14 @@ GRAPHICS* graphics, int x, int y, int w, int h, int r, Color color) {
 	if (h <= 0) {
 		return;
 	}
+	if (x + w > graphics->Width_Clip  + graphics->X_clip) {
+		w = (graphics->Width_Clip  + graphics->X_clip) - x;
+	}
+	if (y + h > graphics->Height_Clip + graphics->Y_clip) {
+		h = (graphics->Height_Clip + graphics->Y_clip) - y;
+	}
 
-	// If there is no rounding, 
-	//the square doesn't have enough rounding to be significant
-	// Fill up a regular square
+	// If there is no rounding, fill up a regular square
 	if (r <= 0) {
 		FillSquare_GRAPHICS(graphics, x, y, w, h, color);
 	} else { // Otherwise, we've got a long function ahead of us...
@@ -927,10 +921,10 @@ GRAPHICS* graphics, int x, int y, int w, int h, int r, Color color) {
 			r = halfMinDimension;
 		}
 		// Internal width of the rectangular drawing between the quarter circles
-		int innerWidth = w - (r << 1);	
+		int innerWidth = w - (r << 1);
 		// Internal height of the rectangular drawing between the quarter
 		//circles
-		int innerHeight = h - (r << 1);	
+		int innerHeight = h - (r << 1);
 
 		// Fill the square in the middle of the rect
 		FillSquare_GRAPHICS(graphics, x + r, y, innerWidth, h, color);
@@ -975,10 +969,10 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 	const int fb2 = b2 << 2;
 
 	// X-y values used to control the loops
-	int controlX, controlY;	
+	int controlX, controlY;
 	// Calculated and used to decide which pixel intesected
 	//by the arc will be filled in
-	int selector;	
+	int selector;
 	// Points used to draw the polygons that fill up the elliptical arc
 	int xPoints[3];
 	int yPoints[3];
@@ -1026,7 +1020,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 
 		// Ovewrite previous points with these points
 		xPoints[2] = xPoints[1];
-    yPoints[2] = yPoints[1];
+    	yPoints[2] = yPoints[1];
 
 		// If selector is positive, aggregate some mathy number into it
 		//(hint: the number is almost always negative)
@@ -1168,7 +1162,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 		return;
 	}
 
-  // Super mathy constants are needed for Bresenham's algorithm
+  	// Super mathy constants are needed for Bresenham's algorithm
 	const int a2 = (w * w) >> 2;
 	const int b2 = (h * h) >> 2;
 	const int fa2 = a2 << 2;
@@ -1177,12 +1171,12 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 	// X-y values used to control the loops
 	int controlX, controlY;
 	// Calculated and used to decide which pixel intesected by the arc will be filled in
-	int selector;	
+	int selector;
 
 	// Each is positive or negative one, depending on the quadrant the arc is being filled in
 	int quadrantXConst = 1;
 	int quadrantYConst = 1;
-	
+
 	// X should be negative in second and third quadrants
 	if (quadrant == SECOND_QUADRANT || quadrant == THIRD_QUADRANT) {
 		quadrantXConst = -1;
@@ -1194,11 +1188,11 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 		quadrantYConst = -1;
 		y += h;
 	}
-	
-	// Initialize the selector 
+
+	// Initialize the selector
 	//(I have literally NO idea why it's set to this equation...)
 	selector = (b2 << 1) + (a2 * (1 - (h << 1)));
-	
+
 	// Start a loop with the loop control vars
 	for (controlX = 0, controlY = h; b2 * controlX <= a2 * controlY;
 	++controlX) {
@@ -1206,7 +1200,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 		DrawPoint_GRAPHICS(
 		graphics, x + (controlX * quadrantXConst),
 		y + (controlY * quadrantYConst), color);
-		
+
 		// If selector is positive, aggregate some mathy number into it
 		//(hint: the number is almost always negative)
 		//and update control y value
@@ -1214,14 +1208,14 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 			selector += fa2 * (1 - controlY);
 			--controlY;
 		}
-		
+
 		// Aggregate something mathy into the selector
 		selector += b2 * ((controlX << 2) + 6);
 	} // LOL THIS IS JUST THE FIRST HALF
-	
+
 	// Assign the selector something NEW and just as mathy
 	selector = (a2 << 1) + (b2 * (1 - (w << 1)));
-	
+
 	// Start a new loop for the next half (bottom half? right half? no idea)
 	for (controlX = w, controlY = 0; a2 * controlY <= b2 * controlX;
 	++controlY) {
@@ -1229,7 +1223,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 		DrawPoint_GRAPHICS(
 		graphics, x + (controlX * quadrantXConst),
 		y + (controlY * quadrantYConst), color);
-		
+
 		// If selector is positive, aggregate some mathy number into it
 		//(hint: the number is almost always negative)
 		//and update control y value
@@ -1237,7 +1231,7 @@ GRAPHICS* graphics, int x, int y, int w, int h, int quadrant, Color color) {
 			selector += fb2 * (1 - controlX);
 			--controlX;
 		}
-		
+
 		// Aggregate something mathy into the selector
 		selector += a2 * ((controlY << 2) + 6);
 	}
@@ -1250,5 +1244,30 @@ int thickness, int quadrant, Color color) {
 	for(int arc = 0; arc < thickness; ++arc) {
 		DrawQuarterArc_GRAPHICS(
 		graphics, x, y, w - arc, h - arc, quadrant, color);
+	}
+}
+
+void Clip_Rect(
+int clip_x, int clip_y, int clip_w, int clip_h,
+int& x, int& y, int& w, int& h) {
+	Clip_Line(clip_x, clip_w, x, w);
+	Clip_Line(clip_y, clip_h, y, h);
+}
+
+void Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude) {
+	// If this line lies beyond the clip line,
+	// invalidate the magnitude and return
+	if (start > clip_start + clip_magnitude) {
+		magnitude = 0;
+		return;
+	}
+	// Clip the part of the line before the clipping line
+	if (start < clip_start) {
+		magnitude -= clip_start - start;
+		start = clip_start;
+	}
+	// Clip the part of the line after the clipping line
+	if (start + magnitude > clip_start + clip_magnitude) {
+		magnitude = (clip_start + clip_magnitude) - start;
 	}
 }

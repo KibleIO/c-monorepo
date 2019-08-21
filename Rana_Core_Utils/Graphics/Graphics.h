@@ -111,4 +111,8 @@ void DrawQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int quadrant
 	// Draw a quarter of an elliptical arc in the quadrant specified
 void DrawThickQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int thickness, int quadrant, Color);
 
+void Clip_Rect(
+int clip_x, int clip_y, int clip_w, int clip_h, int& x, int& y, int& w, int& h);
+void Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude);
+
 #endif
