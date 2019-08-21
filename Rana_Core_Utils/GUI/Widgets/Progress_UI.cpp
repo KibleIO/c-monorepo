@@ -41,7 +41,7 @@ PROGRESS_TRACKER progress) {
 	ui->processStatus = PROCESS_NOT_RUNNING;
 }
 
-uint8_t Render_PROGRESS_UI(
+int8_t Render_PROGRESS_UI(
 PROGRESS_UI* ui, struct nk_context* ctx,
 struct nk_rect animation_rect, uint8_t total_message_boxes,
 /* PROGRESS_MESSAGE_BOX_ARGS */...) {
@@ -77,6 +77,7 @@ PROGRESS_UI* ui, float increment_ratios[], uint32_t total_updates) {
 void Start_PROGRESS_UI(
 PROGRESS_UI* ui, uint32_t total_updates, /* float */...) {
 	float* increment_ratios = new float[total_updates];
+	va_array(increment_ratios, total_updates, double);
 	Start_PROGRESS_UI(ui, increment_ratios, total_updates);
 	delete [] increment_ratios;
 }
@@ -190,6 +191,16 @@ void Set_Process_Not_Running_PROGRESS_UI(PROGRESS_UI* ui) {
 	Set_Process_Status_PROGRESS_UI(ui, PROCESS_NOT_RUNNING);
 }
 
+// ACCESSORS
 bool Animation_Finished_PROGRESS_UI(const PROGRESS_UI* ui) {
 	return EMBEDDED_ANIMATOR_Finished(&ui->anim);
+}
+bool Process_Not_Running_PROGRESS_UI(const PROGRESS_UI* ui) {
+	return ui->processStatus == PROCESS_NOT_RUNNING;
+}
+bool Process_In_Progress_PROGRESS_UI(const PROGRESS_UI* ui) {
+	return ui->processStatus == PROCESS_IN_PROGRESS;
+}
+int8_t Process_Finish_Status_PROGRESS_UI(const PROGRESS_UI* ui) {
+	return ui->processStatus;
 }

@@ -51,8 +51,16 @@ struct PROGRESS_UI {
 
 void Initialize_PROGRESS_UI(
 PROGRESS_UI*, EMBEDDED_ANIMATOR, MESSAGE_BOX, PROGRESS_TRACKER);
-uint8_t Render_PROGRESS_UI(
+
+// 1) Starts its own window, so call OUTSIDE of nk_begin / nk_end
+// 2) Return anywhere between -2 -> [max message box button]
+//		-2 = no message box displayed
+//		-1 = message box displayed, but no buttons pressed
+//		0  = message box displayed and first button clicked
+//		...
+int8_t Render_PROGRESS_UI(
 PROGRESS_UI*, struct nk_context*, struct nk_rect, uint8_t total_message_boxes,
+
 /* PROGRESS_MESSAGE_BOX_ARGS */...);
 void Delete_PROGRESS_UI(PROGRESS_UI*);
 
@@ -89,5 +97,8 @@ void Set_Process_Not_Running_PROGRESS_UI(PROGRESS_UI*);
 
 // ACCESSORS
 bool Animation_Finished_PROGRESS_UI(const PROGRESS_UI*);
+bool Process_Not_Running_PROGRESS_UI(const PROGRESS_UI*);
+bool Process_In_Progress_PROGRESS_UI(const PROGRESS_UI*);
+int8_t Process_Finish_Status_PROGRESS_UI(const PROGRESS_UI*);
 
 #endif

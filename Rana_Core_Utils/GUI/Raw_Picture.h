@@ -6,7 +6,7 @@
 
 // Only resize the picture if either dimension changes
 // by more than this many pixels
-#define RAW_PICTURE_SIGNIFICANT_DIFFERENCE	1
+#define RAW_PICTURE_SIGNIFICANT_DIFFERENCE	0
 
 // A raw picture with width and height
 // This is the handle in all nk_image structs and image commands
