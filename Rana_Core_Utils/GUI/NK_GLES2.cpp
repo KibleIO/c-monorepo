@@ -134,6 +134,8 @@ int max_element_buffer) {
             config.shape_AA = AA;
             config.line_AA = AA;
 
+    		nk_buffer_init_default(&dev->cmds);
+
             /* setup buffers to load vertices and elements */
             {
 				nk_buffer vbuf, ebuf;
@@ -173,6 +175,7 @@ int max_element_buffer) {
             offset += cmd->elem_count;
         }
         nk_clear(&sdl->ctx);
+    	nk_buffer_free(&dev->cmds);
     }
 
     glUseProgram(0);
@@ -200,7 +203,7 @@ void nk_sdl_device_destroy(nk_sdl* sdl) {
     glDeleteTextures(1, &dev->font_tex);
     glDeleteBuffers(1, &dev->vbo);
     glDeleteBuffers(1, &dev->ebo);
-    nk_buffer_free(&dev->cmds);
+    //nk_buffer_free(&dev->cmds);
 }
 
 void nk_sdl_device_create(nk_sdl* sdl) {
@@ -230,7 +233,7 @@ void nk_sdl_device_create(nk_sdl* sdl) {
 
     nk_sdl_device *dev = &sdl->ogl;
 
-    nk_buffer_init_default(&dev->cmds);
+    //nk_buffer_init_default(&dev->cmds);
     dev->prog = glCreateProgram();
     dev->vert_shdr = glCreateShader(GL_VERTEX_SHADER);
     dev->frag_shdr = glCreateShader(GL_FRAGMENT_SHADER);
@@ -324,14 +327,14 @@ void Free_Image_NK_GEN(struct nk_image* image) {
 	(void)image;	// Bypass compiler warning
 }
 
-bool Resize_Image_NK_GEN(
+void Resize_Image_NK_GEN(
 struct nk_image* image, uint32_t width, uint32_t height) {
 	(void)image;
 	(void)width;
 	(void)height;
 
 	// *image = Load_Image_NK_GEN([filename?], width, height);
-	return false;
+	// return false;
 }
 
 void Render_NK_GEN(NK_GEN* nk_gles) {
