@@ -7,7 +7,7 @@ string LOG_FILE = string(LOG_DIR) + "/log";
 
 #ifdef __linux__
 void Check_Logs() {
-	string lswc = system_output("ls /root/RANA/logs | wc -l");
+	string lswc = system_output(string("ls ") + LOG_DIR + " | wc -l");
 	lswc.pop_back();
 
 	if (lswc == "0") {
@@ -16,9 +16,9 @@ void Check_Logs() {
 	}
 
 	string prev_log = system_output(
-	"ls /root/RANA/logs -t | head -n2 | tail -n1");
+	string("ls ") + LOG_DIR + " -t | head -n2 | tail -n1");
 	prev_log.pop_back();
-	prev_log = "/root/RANA/logs/" + prev_log;
+	prev_log = string(LOG_DIR) + "/" + prev_log;
 
 	string exit_status = system_output(
 	"cat " + prev_log + " | tail -n1 | awk '{print $1}'");
