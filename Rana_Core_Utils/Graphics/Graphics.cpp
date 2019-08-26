@@ -33,13 +33,18 @@ void ClearScreen_GRAPHICS(GRAPHICS* graphics, int color) {
 
 void Set_Clip_GRAPHICS(
 GRAPHICS* graphics, int x, int y, int width, int height) {
-	Clip_Rect(
-	0, 0, graphics->screen_dim.sw, graphics->screen_dim.h, x, y, width, height);
-
-	graphics->X_clip = x;
-	graphics->Y_clip = y;
-	graphics->Width_Clip = width;
-	graphics->Height_Clip = height;
+	if (Clip_Rect_Against_Screen(graphics->screen_dim, x, y, width, height)) {
+		graphics->X_clip = x;
+		graphics->Y_clip = y;
+		graphics->Width_Clip = width;
+		graphics->Height_Clip = height;
+	}
+	else {
+		graphics->X_clip = 0;
+		graphics->Y_clip = 0;
+		graphics->Width_Clip = graphics->screen_dim.sw;
+		graphics->Height_Clip = graphics->screen_dim.h;
+	}
 }
 
 void Clip_GRAPHICS(GRAPHICS* graphics, int &x, int &y, int &w, int &h) {
@@ -479,23 +484,11 @@ GRAPHICS* graphics, int x, int y, int width, int color) {
 
 void DrawLine_Width_Transparent_GRAPHICS(
 GRAPHICS* graphics, int x, int y, int width, int color) {
-	if (y < graphics->Y_clip || y > graphics->Height_Clip + graphics->Y_clip) {
-		return;
-	}
-
-	if (x < graphics->X_clip) {
-		width -= graphics->X_clip - x;
-		x = graphics->X_clip;
-	}
-
-	if (width <= 0) return;
-
-	if (width + x > graphics->Width_Clip + graphics->X_clip) {
-		width = (graphics->Width_Clip + graphics->X_clip) - x;
-	}
-
-	for (int i = 0; i < width; i++) {
-		DrawPoint_Transparent_GRAPHICS_UNSAFE(graphics, x + i, y, color);
+	int height = 1;
+	if (Clip_Rect_Against_Clip_GRAPHICS(graphics, x, y, width, height)) {
+		for (int i = 0; i < width; i++) {
+			DrawPoint_Transparent_GRAPHICS_UNSAFE(graphics, x + i, y, color);
+		}
 	}
 }
 
@@ -1247,19 +1240,32 @@ int thickness, int quadrant, Color color) {
 	}
 }
 
-void Clip_Rect(
-int clip_x, int clip_y, int clip_w, int clip_h,
-int& x, int& y, int& w, int& h) {
-	Clip_Line(clip_x, clip_w, x, w);
-	Clip_Line(clip_y, clip_h, y, h);
+bool Clip_Rect_Against_Clip_GRAPHICS(
+GRAPHICS* graphics, int& x, int& y, int& w, int& h) {
+	return Clip_Rect(
+	graphics->X_clip, graphics->Y_clip, graphics->Width_Clip,
+	graphics->Height_Clip, x, y, w, h);
 }
 
-void Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude) {
+bool Clip_Rect_Against_Screen(
+SCREEN_DIM screen, int& x, int& y, int& w, int& h) {
+	return Clip_Rect(0, 0, screen.sw, screen.h, x, y, w, h);
+}
+
+bool Clip_Rect(
+int clip_x, int clip_y, int clip_w, int clip_h,
+int& x, int& y, int& w, int& h) {
+	bool horizontal_valid = Clip_Line(clip_x, clip_w, x, w);
+	bool vertical_valid = Clip_Line(clip_y, clip_h, y, h);
+	return horizontal_valid && vertical_valid;
+}
+
+bool Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude) {
 	// If this line lies beyond the clip line,
 	// invalidate the magnitude and return
 	if (start > clip_start + clip_magnitude) {
 		magnitude = 0;
-		return;
+		return false;
 	}
 	// Clip the part of the line before the clipping line
 	if (start < clip_start) {
@@ -1270,4 +1276,5 @@ void Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude) {
 	if (start + magnitude > clip_start + clip_magnitude) {
 		magnitude = (clip_start + clip_magnitude) - start;
 	}
+	return magnitude > 0;
 }

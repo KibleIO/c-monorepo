@@ -12,6 +12,7 @@
 #include "Polygon.h"
 #include "SCREEN_DIM.h"
 #include "../Utilities/LOGGING.h"
+#include "../GUI/nk_ops.h"
 
 #define ABS(x) ((x >= 0) ? x : -x)
 
@@ -111,8 +112,11 @@ void DrawQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int quadrant
 	// Draw a quarter of an elliptical arc in the quadrant specified
 void DrawThickQuarterArc_GRAPHICS(GRAPHICS*, int x, int y, int w, int h, int thickness, int quadrant, Color);
 
-void Clip_Rect(
+// Clip the given rect against the graphic's current clipping rect
+bool Clip_Rect_Against_Clip_GRAPHICS(GRAPHICS*, int& x, int& y, int& w, int& h);
+bool Clip_Rect_Against_Screen(SCREEN_DIM, int& x, int& y, int& w, int& h);
+bool Clip_Rect(
 int clip_x, int clip_y, int clip_w, int clip_h, int& x, int& y, int& w, int& h);
-void Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude);
+bool Clip_Line(int clip_start, int clip_magnitude, int& start, int& magnitude);
 
 #endif

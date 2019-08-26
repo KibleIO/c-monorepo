@@ -19,93 +19,44 @@ void Initialize_RAW_PICTURE(RAW_PICTURE* picture, string filename) {
 void Render_RAW_PICTURE(
 RAW_PICTURE* picture, GRAPHICS* graphics, uint32_t x, uint32_t y, uint32_t w,
 uint32_t h) {
-	// Check to see if the picture needs to be reloaded and resized
-	Check_Load_RAW_PICTURE(picture, w, h);
-
-	// Alpha blend option
-	unsigned int fg, bg, alpha, inv_alpha, result;
-
-	if (x > (uint32_t)graphics->screen_dim.sw) return;
-	if (y > (uint32_t)graphics->screen_dim.h) return;
-	if (x + w > (uint32_t)graphics->screen_dim.sw) {
-		w = graphics->screen_dim.sw - x;
-	}
-	if (y + h > (uint32_t)graphics->screen_dim.h) {
-		h = graphics->screen_dim.h - y;
-	}
-
-	for (uint32_t diff_y = 0; diff_y < h; diff_y++) {
-		for (uint32_t diff_x = 0; diff_x < w; diff_x++) {
-			fg = *((int*)picture->buffer + diff_y * picture->width + diff_x);
-			bg = *((int*)graphics->Buffer + (diff_y + y) *
-			graphics->screen_dim.bw + diff_x + x);
-
-			alpha = ((unsigned char*)&fg)[3] + 1;
-			inv_alpha = 256 - alpha;
-
-			((unsigned char*)&result)[0] =
-				(unsigned char)((alpha *
-				((unsigned char*)&fg)[0] + inv_alpha *
-				((unsigned char*)&bg)[0]) >> 8);
-			((unsigned char*)&result)[1] =
-				(unsigned char)((alpha *
-				((unsigned char*)&fg)[1] + inv_alpha *
-				((unsigned char*)&bg)[1]) >> 8);
-			((unsigned char*)&result)[2] =
-				(unsigned char)((alpha *
-				((unsigned char*)&fg)[2] + inv_alpha *
-				((unsigned char*)&bg)[2]) >> 8);
-			((unsigned char*)&result)[3] = 0xFF;
-
-			((int*)graphics->Buffer)[
-			(diff_y + y) * graphics->screen_dim.bw + diff_x + x] = result;
-		}
-	}
-
-	// Transparent option
-	// for (uint32_t diff_x = 0; diff_x < picture->width; diff_x++) {
-	// 	for (uint32_t diff_y = 0; diff_y < picture->height; diff_y++) {
-	// 		DrawPoint_GRAPHICS(
-	// 		graphics, diff_x + x, diff_y + y,
-	// 		((int*)picture->buffer)[diff_y * picture->width + diff_x]);
-	// 	}
-	// }
-
-	// Non-transparent option
-	// int lx = x;
-	// int ly = y;
-	// int lw = w;
-	// int lh = h;
-	// Clip_GRAPHICS(graphics, lx, ly, lw, lh);
-	//
-	// for (uint32_t diff_y = 0; diff_y < picture->height; diff_y++) {
-	// 	copy(
-	// 	(int*)picture->buffer + diff_y * picture->width,
-	// 	(int*)picture->buffer + (diff_y * (2 * picture->width)),
-	// 	(int*)graphics->Buffer + (((diff_y + y) * graphics->Width) + x));
-	// }
+	Render_RAW_PICTURE(
+	picture, graphics, x, y, w, h, DrawPoint_Transparent_GRAPHICS_UNSAFE);
 }
 
 void Render_No_Blend_RAW_PICTURE(
 RAW_PICTURE* picture, GRAPHICS* graphics, uint32_t x, uint32_t y, uint32_t w,
 uint32_t h) {
+	Render_RAW_PICTURE(
+	picture, graphics, x, y, w, h, DrawPoint_Opaque_GRAPHICS_UNSAFE);
+}
+
+void Render_RAW_PICTURE(
+RAW_PICTURE* picture, GRAPHICS* graphics, uint32_t x, uint32_t y, uint32_t w,
+uint32_t h, void (*drawpoint)(GRAPHICS*, int, int, int)) {
 	// Check to see if the picture needs to be reloaded and resized
 	Check_Load_RAW_PICTURE(picture, w, h);
 
-	if (x > (uint32_t)graphics->screen_dim.sw) return;
-	if (y > (uint32_t)graphics->screen_dim.h) return;
-	if (x + w > (uint32_t)graphics->screen_dim.sw) {
-		w = graphics->screen_dim.sw - x;
-	}
-	if (y + h > (uint32_t)graphics->screen_dim.h) {
-		h = graphics->screen_dim.h - y;
-	}
+	// Convert arguments to l-values that can be passed by reference
+	// to "Clip_Rect_GRAPHICS" below
+	int lx = x;
+	int ly = y;
+	int lw = w;
+	int lh = h;
 
-	for (uint32_t diff_y = 0; diff_y < h; diff_y++) {
-		for (uint32_t diff_x = 0; diff_x < w; diff_x++) {
-			((int*)graphics->Buffer)
-			[(diff_y + y) * graphics->screen_dim.bw + diff_x + x] =
-			*((int*)picture->buffer + diff_y * picture->width + diff_x);
+	if (Clip_Rect_Against_Clip_GRAPHICS(graphics, lx, ly, lw, lh)) {
+		// Relative coordinates inside the picture's rect
+		uint32_t picture_x = lx - x;
+		uint32_t picture_y = ly - y;
+
+		for (uint32_t diff_y = 0; diff_y < (uint32_t)lh; diff_y++) {
+			for (uint32_t diff_x = 0; diff_x < (uint32_t)lw; diff_x++) {
+				int index = (picture_y + diff_y) * picture->width +
+				(picture_x + diff_x);
+
+				drawpoint(
+				graphics, lx + diff_x, ly + diff_y,
+				*((int*)picture->buffer + index));
+			}
 		}
 	}
 }
