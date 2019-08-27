@@ -24,7 +24,9 @@ using namespace std;
 struct NK_GEN;
 
 void			Initialize_NK_GEN(NK_GEN*);
-void			Load_Fonts_NK_GEN(NK_GEN*, string, uint32_t*, uint32_t);
+void			Load_Fonts_NK_GEN(
+NK_GEN*, string, uint32_t*, uint32_t total_font_heights,
+uint32_t default_font_height);
 void			Set_Font_NK_GEN(NK_GEN*, uint32_t);
 SCREEN_DIM		Get_Screen_Dimensions_NK_GEN(NK_GEN*);
 

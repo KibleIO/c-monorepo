@@ -68,14 +68,14 @@ WINDOW
 int Start_Window(
 const PANEL* panel, struct nk_context* ctx, const char* title,
 struct nk_rect rect, nk_flags flags) {
-	Setup_Initial_Style(panel, ctx);
+	Setup_Style(panel, ctx);
 	return nk_begin(ctx, title, rect, flags);
 }
 
 int Start_Window_Titled(
 const PANEL* panel, struct nk_context* ctx, const char* name, const char* title,
 struct nk_rect bounds, nk_flags flags) {
-	Setup_Initial_Style(panel, ctx);
+	Setup_Style(panel, ctx);
 	return nk_begin_titled(ctx, name, title, bounds, flags);
 }
 
@@ -89,7 +89,7 @@ GROUP
 
 int Start_Group(
 const PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags) {
-	Setup_Initial_Style(panel, ctx);
+	Setup_Style(panel, ctx);
 	return nk_group_begin(ctx, title, flags);
 }
 
@@ -140,7 +140,7 @@ POPUP
 int Start_Popup(
 const PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
 const char *title, nk_flags flags, struct nk_rect rect) {
-	Setup_Initial_Style(panel, ctx);
+	Setup_Style(panel, ctx);
 	return nk_popup_begin(ctx, type, title, flags, rect);
 }
 
@@ -171,15 +171,12 @@ const PANEL* panel, struct nk_context* ctx, enum nk_panel_type type) {
 
 void End_Panel(
 const PANEL* panel, struct nk_context* ctx, void (*end)(struct nk_context*)) {
-	Setup_Final_Style(panel, ctx);
+	Setup_Style(panel, ctx);
 	end(ctx);
 }
 
-void Setup_Initial_Style(const PANEL* panel, struct nk_context* ctx) {
+void Setup_Style(const PANEL* panel, struct nk_context* ctx) {
 	ctx->style.window = panel->style;
-}
-
-void Setup_Final_Style(const PANEL* panel, struct nk_context* ctx) {
 	ctx->style.scrollh = panel->horizontalScrollbar;
 	ctx->style.scrollv = panel->verticalScrollbar;
 }

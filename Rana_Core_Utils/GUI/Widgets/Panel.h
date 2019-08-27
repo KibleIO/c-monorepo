@@ -93,7 +93,6 @@ void End_Panel(
 const PANEL*, struct nk_context*, void(*end_fctn)(struct nk_context*));
 
 // Setup style on the context using the panel's style
-void Setup_Initial_Style(const PANEL*, struct nk_context*);
-void Setup_Final_Style(const PANEL*, struct nk_context*);
+void Setup_Style(const PANEL*, struct nk_context*);
 
 #endif

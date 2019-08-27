@@ -406,7 +406,7 @@ SCREEN_DIM Get_Screen_Dimensions_NK_GEN(NK_GEN* nk_gles) {
 
 void Load_Fonts_NK_GEN(
 NK_GEN* nk_gles, string font_path, uint32_t* font_heights,
-uint32_t total_font_heights) {
+uint32_t total_font_heights, uint32_t default_font_height) {
 	if (nk_gles->fonts != NULL) {
 		delete nk_gles->fonts;
 	}
@@ -422,8 +422,7 @@ uint32_t total_font_heights) {
 	}
 
     nk_sdl_font_stash_end(nk_gles->sdl);
-
-	nk_style_set_font(nk_gles->NK_Context, &nk_gles->fonts[0]->handle);
+	Set_Font_NK_GEN(nk_gles, default_font_height);
 }
 
 void Set_Font_NK_GEN(NK_GEN* nk_gles, uint32_t font_index) {

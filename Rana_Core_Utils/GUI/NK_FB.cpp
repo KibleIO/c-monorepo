@@ -269,13 +269,13 @@ SCREEN_DIM Get_Screen_Dimensions_NK_GEN(NK_GEN* nk_fb) {
 
 void Load_Fonts_NK_GEN(
 NK_GEN* nk_fb, string font_path, uint32_t* font_heights,
-uint32_t total_font_heights) {
+uint32_t total_font_heights, uint32_t default_font_height) {
 	if (nk_fb->fonts != NULL) {
 		delete nk_fb->fonts;
 	}
 	nk_fb->fonts 			= new GUI_FONT[total_font_heights];
 	nk_fb->number_of_fonts	= total_font_heights;
-	nk_fb->current_font		= 0;
+	nk_fb->current_font		= default_font_height;
 
 	for (uint32_t i = 0; i < total_font_heights; i++) {
 		Initialize_Font(
