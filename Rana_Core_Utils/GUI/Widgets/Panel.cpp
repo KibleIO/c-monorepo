@@ -65,20 +65,21 @@ void Initialize_Panel(PANEL* panel, struct nk_style_window style) {
 WINDOW
 */
 
-int Start_Window(PANEL* panel, struct nk_context* ctx, const char* title,
+int Start_Window(
+const PANEL* panel, struct nk_context* ctx, const char* title,
 struct nk_rect rect, nk_flags flags) {
 	Setup_Initial_Style(panel, ctx);
 	return nk_begin(ctx, title, rect, flags);
 }
 
 int Start_Window_Titled(
-PANEL* panel, struct nk_context* ctx, const char* name, const char* title,
+const PANEL* panel, struct nk_context* ctx, const char* name, const char* title,
 struct nk_rect bounds, nk_flags flags) {
 	Setup_Initial_Style(panel, ctx);
 	return nk_begin_titled(ctx, name, title, bounds, flags);
 }
 
-void End_Window(PANEL* panel, struct nk_context* ctx) {
+void End_Window(const PANEL* panel, struct nk_context* ctx) {
 	End_Panel(panel, ctx, NK_PANEL_WINDOW);
 }
 
@@ -86,20 +87,20 @@ void End_Window(PANEL* panel, struct nk_context* ctx) {
 GROUP
 */
 
-int Start_Group(PANEL* panel, struct nk_context* ctx, const char* title,
-nk_flags flags) {
+int Start_Group(
+const PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags) {
 	Setup_Initial_Style(panel, ctx);
 	return nk_group_begin(ctx, title, flags);
 }
 
-int Start_Group_With_Buffer(PANEL* panel, struct nk_context* ctx,
-const char* title, nk_flags flags) {
+int Start_Group_With_Buffer(
+const PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags) {
 	nk_label(ctx, "", 0);
 	return Start_Group(panel, ctx, title, flags);
 }
 
 int Start_Transformed_Group(
-PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
+const PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
 RECT_TRANSFORM transform) {
 	struct nk_rect widget_bounds = nk_widget_bounds(ctx);
 	struct nk_rect group_rect = Transform_Rect(widget_bounds, transform);
@@ -118,19 +119,17 @@ RECT_TRANSFORM transform) {
 		group_rect.w)));
 	}
 
-	nk_label(ctx, "", 0);
-
-	return Start_Group(panel, ctx, title, flags);
+	return Start_Group_With_Buffer(panel, ctx, title, flags);
 }
 
 int Start_Transformed_Group_With_Buffer(
-PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
+const PANEL* panel, struct nk_context* ctx, const char* title, nk_flags flags,
 RECT_TRANSFORM transform) {
 	nk_label(ctx, "", 0);
 	return Start_Transformed_Group(panel, ctx, title, flags, transform);
 }
 
-void End_Group(PANEL* panel, struct nk_context* ctx) {
+void End_Group(const PANEL* panel, struct nk_context* ctx) {
 	End_Panel(panel, ctx, NK_PANEL_GROUP);
 }
 
@@ -139,20 +138,20 @@ POPUP
 */
 
 int Start_Popup(
-PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
+const PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
 const char *title, nk_flags flags, struct nk_rect rect) {
 	Setup_Initial_Style(panel, ctx);
 	return nk_popup_begin(ctx, type, title, flags, rect);
 }
 
 int Start_Popup_With_Buffer(
-PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
+const PANEL* panel, struct nk_context* ctx, enum nk_popup_type type,
 const char *title, nk_flags flags, struct nk_rect rect) {
 	nk_label(ctx, "", 0);
 	return Start_Popup(panel, ctx, type, title, flags, rect);
 }
 
-void End_Popup(PANEL* panel, struct nk_context* ctx) {
+void End_Popup(const PANEL* panel, struct nk_context* ctx) {
 	End_Panel(panel, ctx, NK_PANEL_POPUP);
 }
 
@@ -165,24 +164,22 @@ void Delete_Panel(PANEL* panel) {
 HELPERS
 */
 
-void End_Panel(PANEL* panel, struct nk_context* ctx, enum nk_panel_type type) {
+void End_Panel(
+const PANEL* panel, struct nk_context* ctx, enum nk_panel_type type) {
 	End_Panel(panel, ctx, END_FUNCTIONS[(int)type / 2].end);
 }
 
 void End_Panel(
-PANEL* panel, struct nk_context* ctx, void (*end)(struct nk_context*)) {
+const PANEL* panel, struct nk_context* ctx, void (*end)(struct nk_context*)) {
 	Setup_Final_Style(panel, ctx);
 	end(ctx);
 }
 
-void Setup_Initial_Style(PANEL* panel, struct nk_context* ctx) {
+void Setup_Initial_Style(const PANEL* panel, struct nk_context* ctx) {
 	ctx->style.window = panel->style;
 }
 
-void Setup_Final_Style(PANEL* panel, struct nk_context* ctx) {
-	// cout << "Scrollbar background: " << Color_Str(panel->verticalScrollbar.normal.data.color) << endl;
-	// cout << "Scrollbar cursor:     " << Color_Str(panel->verticalScrollbar.cursor_normal.data.color) << endl;
-
+void Setup_Final_Style(const PANEL* panel, struct nk_context* ctx) {
 	ctx->style.scrollh = panel->horizontalScrollbar;
 	ctx->style.scrollv = panel->verticalScrollbar;
 }

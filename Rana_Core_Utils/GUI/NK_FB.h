@@ -12,6 +12,7 @@
 #include "utilities.h"
 #include "nk_ops.h"
 #include "Raw_Picture.h"
+#include "../Utilities/Debugging.h"
 
 using namespace std;
 

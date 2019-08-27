@@ -1,3 +1,6 @@
+#include "../Utilities/Debugging.h"
+#include "nk_ops.h"
+
 /*
 /// # Nuklear
 /// ![](https://cloud.githubusercontent.com/assets/8057201/11761525/ae06f0ca-a0c6-11e5-819d-5610b25f6ef4.gif)
@@ -15945,6 +15948,8 @@ nk_panel_end(struct nk_context *ctx)
             else window->scrolled = nk_false;
         } else scroll_has_scrolling = nk_false;
 
+		DEBUGGING_MESSAGES::buffer << "Scrollbar setup for window with name " << window->name_string << endl;
+
         {
             /* vertical scrollbar */
             nk_flags state = 0;
@@ -15963,7 +15968,10 @@ nk_panel_end(struct nk_context *ctx)
             *layout->offset_y = (nk_uint)scroll_offset;
             if (in && scroll_has_scrolling)
                 in->mouse.scroll_delta.y = 0;
+
+			DEBUGGING_MESSAGES::buffer << "\tVertical scrollbar position: " << Rect_Str(scroll) << endl;
         }
+
         {
             /* horizontal scrollbar */
             nk_flags state = 0;
@@ -15980,8 +15988,23 @@ nk_panel_end(struct nk_context *ctx)
                 scroll_offset, scroll_target, scroll_step, scroll_inc,
                 &ctx->style.scrollh, in, style->font);
             *layout->offset_x = (nk_uint)scroll_offset;
+
+			DEBUGGING_MESSAGES::buffer << "\tHorizontal scrollbar position: " << Rect_Str(scroll) << endl;
         }
     }
+	else {
+		DEBUGGING_MESSAGES::buffer << "No scrollbar setup for window with name " << window->name_string << endl;
+
+		if (layout->flags & NK_WINDOW_NO_SCROLLBAR) {
+			DEBUGGING_MESSAGES::buffer << "\tReason: flags set to \"NO_SCROLLBAR\"" << endl;
+		}
+		else if (layout->flags & NK_WINDOW_MINIMIZED) {
+			DEBUGGING_MESSAGES::buffer << "\tReason: window is minimized" << endl;
+		}
+		else if (window->scrollbar_hiding_timer >= NK_SCROLLBAR_HIDING_TIMEOUT) {
+			DEBUGGING_MESSAGES::buffer << "\tReason: scrollbar hiding timer timed out" << endl;
+		}
+	}
 
     /* hide scroll if no user input */
     if (window->flags & NK_WINDOW_SCROLL_AUTO_HIDE) {
@@ -25761,4 +25784,3 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 /// in libraries and brought me to create some of my own. Finally Apoorva Joshi
 /// for his single header file packer.
 */
-

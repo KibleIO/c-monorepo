@@ -31,7 +31,8 @@ uint8_t index);
 bool Begin_Selectable_ABSTRACT_SELECTABLE_RADIO_With_Buffer(
 ABSTRACT_SELECTABLE_RADIO*, struct nk_context*, const char*, nk_flags,
 uint8_t index);
-void End_Selectable_ABSTRACT_SELECTABLE_RADIO(struct nk_context*);
+void End_Selectable_ABSTRACT_SELECTABLE_RADIO(
+const ABSTRACT_SELECTABLE_RADIO*, struct nk_context*);
 
 // ACCESSORS
 int16_t Index_Of_Selected(ABSTRACT_SELECTABLE_RADIO*);

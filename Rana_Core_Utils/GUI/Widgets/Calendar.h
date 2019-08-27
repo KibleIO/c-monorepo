@@ -42,8 +42,8 @@ void Initialize_CALENDAR_UI(
 CALENDAR_UI*, struct nk_color background, struct nk_color foreground,
 struct nk_color selected, struct nk_color text);
 // Render calendar ui in its own group
-void Render_CALENDAR_UI(CALENDAR_UI*, GUI*);
-void Render_CALENDAR_UI_With_Buffer(CALENDAR_UI*, GUI*);
+void Render_CALENDAR_UI(CALENDAR_UI*, struct nk_context*);
+void Render_CALENDAR_UI_With_Buffer(CALENDAR_UI*, struct nk_context*);
 void Delete_CALENDAR_UI(CALENDAR_UI*);
 
 // GETTERS

@@ -9,7 +9,6 @@
 #include "Breadth_Buffer_Pair.h"
 #include "../../Utilities/vararg_ext.h"
 #include "../utilities.h"
-#include "../Widgets/Panel.h"
 
 // Move the window layout down towards the bottom so that the next
 // row laid out can be the user-defined footer
@@ -43,13 +42,16 @@ uint8_t items, bool side_buffers);
 void Layout_Row_Homogenous(
 struct nk_context*, BREADTH_BUFFER_PAIR row_size, uint8_t columns,
 BREADTH_BUFFER_PAIR column_size);
+// Layout columns that are the same size that fit the width of the panel
 void Layout_Row_Homogenous_Full(
 struct nk_context*, BREADTH_BUFFER_PAIR row_size, uint8_t columns);
 
 // Layout a row with columns in symmetric pairs across the horizontal median
+// Even pairs = no item in the center
 void Layout_Row_Symmetric_Even_Pairs(
 struct nk_context*, BREADTH_BUFFER_PAIR row_size, LAYOUT_SIZE mid_buffer,
 uint8_t total_sizes, /*BREADTH_BUFFER_PAIR*/ ...);
+// Odd pairs = one item in the center
 void Layout_Row_Symmetric_Odd_Pairs(
 struct nk_context*, BREADTH_BUFFER_PAIR row_size, uint8_t total_sizes,
 /*BREADTH_BUFFER_PAIR*/ ...);

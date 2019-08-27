@@ -25,7 +25,11 @@ nk_flags window_flags) {
 	return Begin_ABSTRACT_BUTTON(button, ctx, title, window_flags);
 }
 
-void End_ABSTRACT_BUTTON(struct nk_context* ctx) {
+void End_ABSTRACT_BUTTON(
+const ABSTRACT_BUTTON* button, struct nk_context* ctx) {
+	Setup_Style_ABSTRACT_BUTTON(
+	ctx, button->state, &button->style.colors, button->style.border,
+	button->style.padding);
 	nk_group_end(ctx);
 }
 
