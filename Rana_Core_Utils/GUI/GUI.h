@@ -38,5 +38,6 @@ void 				Set_Font_Default(GUI*);
 // and return a pointer to the texture allocated
 struct TEXTURE*		Load_Image_GUI(string, uint32_t, uint32_t);
 void				Delete_GUI(GUI*);
+struct nk_rect Screen_Rect();
 
 #endif

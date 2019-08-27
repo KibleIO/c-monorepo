@@ -40,13 +40,13 @@ EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform) {
 }
 
 void Render_EMBEDDED_ANIMATOR_Standalone(
-EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, RECT_TRANSFORM transform,
-struct nk_rect r) {
+EMBEDDED_ANIMATOR* anim, struct nk_context* ctx, struct nk_rect r) {
 	PANEL panel = Panel(Nk_Window_Style());
 
 	if (Start_Window(&panel, ctx, "animation", r, NK_WINDOW_NO_SCROLLBAR)) {
 		Layout_Row_Single_Full(ctx, Breadth(Ratio_Of_Total(1)));
-		Render_EMBEDDED_ANIMATOR_With_Buffer(anim, ctx, transform);
+		Render_EMBEDDED_ANIMATOR_With_Buffer(
+		anim, ctx, NO_CHANGE_RECT_TRANSFORM);
 	}
 
 	nk_end(ctx);

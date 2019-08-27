@@ -265,3 +265,7 @@ void Set_Style_Default_GUI(GUI* gui) {
 	gui->nk_backend->NK_Context->style.edit.selected_text_normal = nk_rgb(
 	0x25,0x25,0x25);
 }
+
+struct nk_rect Screen_Rect() {
+	return nk_rect(0, 0, GUI::screen_dim.sw, GUI::screen_dim.h);
+}
