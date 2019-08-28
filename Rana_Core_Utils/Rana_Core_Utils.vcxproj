@@ -21,11 +21,27 @@
   <ItemGroup>
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Graphics\Polygon.cpp" />
+    <ClCompile Include="Graphics\RGB2YUV.cpp" />
+    <ClCompile Include="Graphics\YUV2RGB.cpp" />
     <ClCompile Include="GUI\FONT.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="GUI\Layout\Alignment.cpp" />
+    <ClCompile Include="GUI\Layout\Breadth_Buffer_Pair.cpp" />
     <ClCompile Include="GUI\Layout\Layout_Engine.cpp" />
+    <ClCompile Include="GUI\Layout\Layout_Size.cpp" />
     <ClCompile Include="GUI\Layout\Layout_Utilities.cpp" />
     <ClCompile Include="GUI\Layout\nuklear_plus.cpp" />
+    <ClCompile Include="GUI\Layout\Rect_Transform.cpp" />
+    <ClCompile Include="GUI\Layout\Size_Transform.cpp" />
+    <ClCompile Include="GUI\Mouse_UI.cpp" />
+    <ClCompile Include="GUI\NK_FB.cpp" />
+    <ClCompile Include="GUI\NK_GLES2.cpp" />
+    <ClCompile Include="GUI\nk_ops.cpp" />
+    <ClCompile Include="GUI\Progress_Tracker.cpp" />
+    <ClCompile Include="GUI\Raw_Picture.cpp" />
+    <ClCompile Include="GUI\Style\Abstract_Button_Colors.cpp" />
+    <ClCompile Include="GUI\Style\Abstract_Button_Style.cpp" />
+    <ClCompile Include="GUI\Style\Abstract_Selectable_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Button_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Combo_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Edit_Style.cpp" />
@@ -36,19 +52,44 @@
     <ClCompile Include="GUI\Style\Nk_Window_Header_Style.cpp" />
     <ClCompile Include="GUI\Style\Nk_Window_Style.cpp" />
     <ClCompile Include="GUI\Style\palette.cpp" />
+    <ClCompile Include="GUI\Style\Palette_Color.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Border.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Color.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Color_Diff.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Panel_Data.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Style_Item.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Symbol_Type.cpp" />
+    <ClCompile Include="GUI\Style\Structs\Text_Data.cpp" />
+    <ClCompile Include="GUI\Style\Structs\User_Callback.cpp" />
+    <ClCompile Include="GUI\Texture.cpp" />
+    <ClCompile Include="GUI\Texture_Manager.cpp" />
+    <ClCompile Include="GUI\utilities.cpp" />
+    <ClCompile Include="GUI\Widgets\Abstract_Button.cpp" />
+    <ClCompile Include="GUI\Widgets\Abstract_Selectable.cpp" />
+    <ClCompile Include="GUI\Widgets\Abstract_Selectable_Radio.cpp" />
     <ClCompile Include="GUI\Widgets\Button.cpp" />
     <ClCompile Include="GUI\Widgets\Button_Events.cpp" />
     <ClCompile Include="GUI\Widgets\Button_Package.cpp" />
     <ClCompile Include="GUI\Widgets\Calendar.cpp" />
     <ClCompile Include="GUI\Widgets\Checkbox.cpp" />
+    <ClCompile Include="GUI\Widgets\Checkbox_Radio_Package.cpp" />
     <ClCompile Include="GUI\Widgets\Combobox.cpp" />
+    <ClCompile Include="GUI\Widgets\Embedded_Animator.cpp" />
     <ClCompile Include="GUI\Widgets\Image.cpp" />
     <ClCompile Include="GUI\Widgets\Image_Button.cpp" />
     <ClCompile Include="GUI\Widgets\Label.cpp" />
+    <ClCompile Include="GUI\Widgets\Message_Box.cpp" />
     <ClCompile Include="GUI\Widgets\Panel.cpp" />
+    <ClCompile Include="GUI\Widgets\Progress_UI.cpp" />
+    <ClCompile Include="GUI\Widgets\Pullout.cpp" />
     <ClCompile Include="GUI\Widgets\Render_Utilities.cpp" />
+    <ClCompile Include="GUI\Widgets\Simple_Ellipsis_Animation.cpp" />
     <ClCompile Include="GUI\Widgets\Slider.cpp" />
     <ClCompile Include="GUI\Widgets\Textbox.cpp" />
+    <ClCompile Include="GUI\Widgets\Utils\Abstract_Button_Utils.cpp" />
+    <ClCompile Include="GUI\Widgets\Utils\Message_Box_Args.cpp" />
+    <ClCompile Include="GUI\Widgets\Utils\Radio_Package_Utils.cpp" />
+    <ClCompile Include="GUI\Widgets\Utils\Textbox_Args.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\DNS_WRAPPER.cpp" />
     <ClCompile Include="Networking\ENCRYPTION_ENGINE.cpp" />
@@ -56,6 +97,7 @@
     <ClCompile Include="Networking\Hermes.cpp" />
     <ClCompile Include="Networking\Server.cpp" />
     <ClCompile Include="Networking\UDP_Client.cpp" />
+    <ClCompile Include="Utilities\Debugging.cpp" />
     <ClCompile Include="Utilities\DEVICE_MANAGER.cpp" />
     <ClCompile Include="Utilities\EVENT.cpp" />
     <ClCompile Include="Utilities\FPS_LIMITER.cpp" />
@@ -64,6 +106,7 @@
     <ClCompile Include="Utilities\KEYBOARD.cpp" />
     <ClCompile Include="Utilities\LOGGING.cpp" />
     <ClCompile Include="Utilities\MOUSE.cpp" />
+    <ClCompile Include="Utilities\Nk_Debugging.cpp" />
     <ClCompile Include="Utilities\TIMER.cpp" />
     <ClCompile Include="Utilities\tm_ext.cpp" />
     <ClCompile Include="Utilities\Utils.cpp" />
@@ -71,17 +114,35 @@
   <ItemGroup>
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Graphics\Polygon.h" />
+    <ClInclude Include="Graphics\RGB2YUV.h" />
+    <ClInclude Include="Graphics\SCREEN_DIM.h" />
+    <ClInclude Include="Graphics\YUV2RGB.h" />
     <ClInclude Include="GUI\avir.h" />
     <ClInclude Include="GUI\FONT.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Layout.h" />
+    <ClInclude Include="GUI\Layout\Alignment.h" />
+    <ClInclude Include="GUI\Layout\Breadth_Buffer_Pair.h" />
     <ClInclude Include="GUI\Layout\Layout_Engine.h" />
+    <ClInclude Include="GUI\Layout\Layout_Size.h" />
     <ClInclude Include="GUI\Layout\Layout_Utilities.h" />
     <ClInclude Include="GUI\Layout\nuklear_plus.h" />
+    <ClInclude Include="GUI\Layout\Rect_Transform.h" />
+    <ClInclude Include="GUI\Layout\Size_Transform.h" />
+    <ClInclude Include="GUI\Mouse_UI.h" />
+    <ClInclude Include="GUI\NK_BASE.h" />
+    <ClInclude Include="GUI\NK_FB.h" />
+    <ClInclude Include="GUI\NK_GLES2.h" />
+    <ClInclude Include="GUI\nk_ops.h" />
     <ClInclude Include="GUI\nuklear.h" />
+    <ClInclude Include="GUI\Progress_Tracker.h" />
+    <ClInclude Include="GUI\Raw_Picture.h" />
     <ClInclude Include="GUI\stb_image.h" />
     <ClInclude Include="GUI\stb_truetype.h" />
     <ClInclude Include="GUI\Style.h" />
+    <ClInclude Include="GUI\Style\Abstract_Button_Colors.h" />
+    <ClInclude Include="GUI\Style\Abstract_Button_Style.h" />
+    <ClInclude Include="GUI\Style\Abstract_Selectable_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Button_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Combo_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Edit_Style.h" />
@@ -92,20 +153,47 @@
     <ClInclude Include="GUI\Style\Nk_Window_Header_Style.h" />
     <ClInclude Include="GUI\Style\Nk_Window_Style.h" />
     <ClInclude Include="GUI\Style\palette.h" />
+    <ClInclude Include="GUI\Style\Palette_Color.h" />
+    <ClInclude Include="GUI\Style\Structs\Border.h" />
+    <ClInclude Include="GUI\Style\Structs\Color.h" />
+    <ClInclude Include="GUI\Style\Structs\Color_Diff.h" />
+    <ClInclude Include="GUI\Style\Structs\Panel_Data.h" />
+    <ClInclude Include="GUI\Style\Structs\Style_Item.h" />
+    <ClInclude Include="GUI\Style\Structs\Style_Structs.h" />
+    <ClInclude Include="GUI\Style\Structs\Symbol_Type.h" />
+    <ClInclude Include="GUI\Style\Structs\Text_Data.h" />
+    <ClInclude Include="GUI\Style\Structs\User_Callback.h" />
+    <ClInclude Include="GUI\Style\Style_Codes.h" />
+    <ClInclude Include="GUI\Texture.h" />
+    <ClInclude Include="GUI\Texture_Manager.h" />
+    <ClInclude Include="GUI\utilities.h" />
     <ClInclude Include="GUI\Widgets.h" />
+    <ClInclude Include="GUI\Widgets\Abstract_Button.h" />
+    <ClInclude Include="GUI\Widgets\Abstract_Selectable.h" />
+    <ClInclude Include="GUI\Widgets\Abstract_Selectable_Radio.h" />
     <ClInclude Include="GUI\Widgets\Button.h" />
     <ClInclude Include="GUI\Widgets\Button_Events.h" />
     <ClInclude Include="GUI\Widgets\Button_Package.h" />
     <ClInclude Include="GUI\Widgets\Calendar.h" />
     <ClInclude Include="GUI\Widgets\Checkbox.h" />
+    <ClInclude Include="GUI\Widgets\Checkbox_Radio_Package.h" />
     <ClInclude Include="GUI\Widgets\Combobox.h" />
+    <ClInclude Include="GUI\Widgets\Embedded_Animator.h" />
     <ClInclude Include="GUI\Widgets\Image.h" />
     <ClInclude Include="GUI\Widgets\Image_Button.h" />
     <ClInclude Include="GUI\Widgets\Label.h" />
+    <ClInclude Include="GUI\Widgets\Message_Box.h" />
     <ClInclude Include="GUI\Widgets\Panel.h" />
+    <ClInclude Include="GUI\Widgets\Progress_UI.h" />
+    <ClInclude Include="GUI\Widgets\Pullout.h" />
     <ClInclude Include="GUI\Widgets\Render_Utilities.h" />
+    <ClInclude Include="GUI\Widgets\Simple_Ellipsis_Animation.h" />
     <ClInclude Include="GUI\Widgets\Slider.h" />
     <ClInclude Include="GUI\Widgets\Textbox.h" />
+    <ClInclude Include="GUI\Widgets\Utils\Abstract_Button_Utils.h" />
+    <ClInclude Include="GUI\Widgets\Utils\Message_Box_Args.h" />
+    <ClInclude Include="GUI\Widgets\Utils\Radio_Package_Utils.h" />
+    <ClInclude Include="GUI\Widgets\Utils\Textbox_Args.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\direntwin.h" />
     <ClInclude Include="Networking\DNS_WRAPPER.h" />
@@ -116,6 +204,7 @@
     <ClInclude Include="Networking\Server.h" />
     <ClInclude Include="Networking\UDP_Client.h" />
     <ClInclude Include="Utilities\CONCURRENT_QUEUE.h" />
+    <ClInclude Include="Utilities\Debugging.h" />
     <ClInclude Include="Utilities\DEVICE_MANAGER.h" />
     <ClInclude Include="Utilities\EVENT.h" />
     <ClInclude Include="Utilities\FPS_LIMITER.h" />
@@ -125,10 +214,15 @@
     <ClInclude Include="Utilities\KEYBOARD.h" />
     <ClInclude Include="Utilities\LOGGING.h" />
     <ClInclude Include="Utilities\MOUSE.h" />
+    <ClInclude Include="Utilities\Nk_Debugging.h" />
+    <ClInclude Include="Utilities\Stuff.h" />
     <ClInclude Include="Utilities\TIMER.h" />
     <ClInclude Include="Utilities\tm_ext.h" />
     <ClInclude Include="Utilities\Utils.h" />
     <ClInclude Include="Utilities\vararg_ext.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -222,7 +316,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\usr\include;C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -266,7 +360,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\usr\include;C:\Users\Kevin\Downloads\libsodium-1.0.17-msvc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -282,5 +376,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\FFmpeg.Nightly.20190805.0.0\build\native\FFmpeg.Nightly.targets" Condition="Exists('..\packages\FFmpeg.Nightly.20190805.0.0\build\native\FFmpeg.Nightly.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\FFmpeg.Nightly.20190805.0.0\build\native\FFmpeg.Nightly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FFmpeg.Nightly.20190805.0.0\build\native\FFmpeg.Nightly.targets'))" />
+  </Target>
 </Project>

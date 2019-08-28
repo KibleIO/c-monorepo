@@ -128,6 +128,12 @@ void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server);
 
 void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
+void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
+
+void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
+
+void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
+
 // Linux specific code {{{
 #ifdef __linux__
 void Set_Mouse_Speed(double);
@@ -136,17 +142,12 @@ void Start_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
 void Stop_Reading_Devices_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
-void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
-
-void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
-
 void Start_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
 
 void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
 
 void Stop_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER*);
 
-void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64
