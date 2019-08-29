@@ -495,155 +495,156 @@ void Start_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 }
 
 void Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
-        DEVICE_NODE current_dev;
-        int length, i = 0, wd;
-        int fd;
-        char buffer[BUF_LEN];
-        fd_set set;
-        timeval tv;
-        int rv;
+    DEVICE_NODE current_dev;
+    int length, i = 0, wd;
+    int fd;
+    char buffer[BUF_LEN];
+    fd_set set;
+    timeval tv;
+    int rv;
 
-		if ((dev_man->dp = opendir(INPUT_PATH)) == NULL) {
-			log_err("Error opening input directory " + to_string(errno));
-			return;
-		}
+	if ((dev_man->dp = opendir(INPUT_PATH)) == NULL) {
+		log_err("Error opening input directory " + to_string(errno));
+		return;
+	}
 
-		while ((dev_man->dirp = readdir(dev_man->dp)) != NULL) {
-			dev_man->path = string(INPUT_PATH) + "/" + dev_man->dirp->d_name;
-			lstat(dev_man->path.c_str(), &dev_man->buffer);
-			if (!S_ISDIR(dev_man->buffer.st_mode)) {
-				DEVICE_NODE* temp = Exists_Device_Node(dev_man, dev_man->path);
-				if (temp == NULL) {
-					if ((dev_man->fd = open(dev_man->path.c_str(), O_RDONLY)) < 0) {
-						log_err("could not open " + string(dev_man->path));
-						continue;
+	while ((dev_man->dirp = readdir(dev_man->dp)) != NULL) {
+		dev_man->path = string(INPUT_PATH) + "/" + dev_man->dirp->d_name;
+		lstat(dev_man->path.c_str(), &dev_man->buffer);
+		if (!S_ISDIR(dev_man->buffer.st_mode)) {
+			DEVICE_NODE* temp = Exists_Device_Node(dev_man, dev_man->path);
+			if (temp == NULL) {
+				if ((dev_man->fd = open(dev_man->path.c_str(), O_RDONLY)) < 0) {
+					log_err("could not open " + string(dev_man->path));
+					continue;
+				}
+				memset(dev_man->types, 0, sizeof(dev_man->types));
+				ioctl(dev_man->fd, EVIOCGBIT(0, EV_MAX), dev_man->types);
+
+				if (Get_Bit(dev_man->types, EV_KEY)) {
+					memset(dev_man->events, 0, sizeof(dev_man->events));
+					ioctl(
+					dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX), dev_man->events);
+					if (Get_Bit(dev_man->events, KEY_B)) {
+						Initialize_Device_Node(
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _KEYBOARD);
 					}
-					memset(dev_man->types, 0, sizeof(dev_man->types));
-					ioctl(dev_man->fd, EVIOCGBIT(0, EV_MAX), dev_man->types);
-
-					if (Get_Bit(dev_man->types, EV_KEY)) {
-						memset(dev_man->events, 0, sizeof(dev_man->events));
-						ioctl(
-							dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX), dev_man->events);
-						if (Get_Bit(dev_man->events, KEY_B)) {
-							Initialize_Device_Node(
-								dev_man->current_dev[dev_man->c_d_size++],
-								string(dev_man->path), _KEYBOARD);
-						}
-						else if (Get_Bit(dev_man->events, BTN_LEFT)) {
-							Initialize_Device_Node(
-								dev_man->current_dev[dev_man->c_d_size++],
-								string(dev_man->path), _MOUSE);
-						}
-						else {
-							Initialize_Device_Node(
-								dev_man->current_dev[dev_man->c_d_size++],
-								string(dev_man->path), _GARBAGE);
-						}
+					else if (Get_Bit(dev_man->events, BTN_LEFT)) {
+						Initialize_Device_Node(
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _MOUSE);
 					}
 					else {
 						Initialize_Device_Node(
-							dev_man->current_dev[dev_man->c_d_size++],
-							string(dev_man->path), _GARBAGE);
+						dev_man->current_dev[dev_man->c_d_size++],
+						string(dev_man->path), _GARBAGE);
 					}
-					close(dev_man->fd);
 				}
 				else {
 					Initialize_Device_Node(
-						dev_man->current_dev[dev_man->c_d_size++],
-						string(dev_man->path), temp->type);
+					dev_man->current_dev[dev_man->c_d_size++],
+					string(dev_man->path), _GARBAGE);
 				}
+				close(dev_man->fd);
+			}
+			else {
+				Initialize_Device_Node(
+				dev_man->current_dev[dev_man->c_d_size++],
+				string(dev_man->path), temp->type);
 			}
 		}
-		closedir(dev_man->dp);
+	}
+	closedir(dev_man->dp);
 
-		for (int i = 0; i < dev_man->c_d_size; i++) { //for all not touched...
-			if (Check_Device_Node(dev_man->current_dev[i])) {
-				Add_Device_Node(dev_man, dev_man->current_dev[i]); //add new!
-			}
+	for (int i = 0; i < dev_man->c_d_size; i++) { //for all not touched...
+		if (Check_Device_Node(dev_man->current_dev[i])) {
+			Add_Device_Node(dev_man, dev_man->current_dev[i]); //add new!
 		}
+	}
 
-		dev_man->c_d_size = 0;
+	dev_man->c_d_size = 0;
 
-        fd = inotify_init();
-        if (fd < 0) {
-                log_err("Couldn't initialize inotify");
-                return;
+    fd = inotify_init();
+    if (fd < 0) {
+        log_err("Couldn't initialize inotify");
+        return;
+    }
+
+    wd = inotify_add_watch(fd, INPUT_PATH, IN_CREATE | IN_MODIFY | IN_DELETE);
+    if (wd == -1) {
+        log_err("Couldn't add watch to INPUT_PATH");
+		return;
+    }
+
+    while (dev_man->refresh_thread_running) {
+        FD_ZERO(&set);
+        FD_SET(fd, &set);
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000;
+
+        rv = select(fd + 1, &set, NULL, NULL, &tv);
+        if (rv == -1) {
+            break;
+        } else if (rv == 0) {
+            continue;
         }
 
-        wd = inotify_add_watch(fd, INPUT_PATH, IN_CREATE | IN_MODIFY | IN_DELETE);
-        if (wd == -1) {
-                log_err("Couldn't add watch to INPUT_PATH");
-				return;
+        i = 0;
+        length = read(fd, buffer, BUF_LEN);
+        if (length < 0) {
+            log_err("Couldn't add read from inotify");
         }
-
-        while (dev_man->refresh_thread_running) {
-                FD_ZERO(&set);
-                FD_SET(fd, &set);
-                tv.tv_sec = 0;
-                tv.tv_usec = 100000;
-
-                rv = select(fd + 1, &set, NULL, NULL, &tv);
-                if (rv == -1) {
-                        break;
-                } else if (rv == 0) {
-                        continue;
-                }
-
-                i = 0;
-                length = read(fd, buffer, BUF_LEN);
-                if (length < 0) {
-                        log_err("Couldn't add read from inotify");
-                }
-                while (i < length) {
-                        inotify_event *event = (inotify_event*) &buffer[ i ];
-                        if (event->len) {
-                                if (event->mask & IN_CREATE) {
-                                        dev_man->path = string(INPUT_PATH) + "/" + event->name;
-                                        if (!(event->mask & IN_ISDIR)) {
-                                                if (
-                                                (dev_man->fd = open(dev_man->path.c_str(), O_RDONLY)) <
-                                                0) {
-                                                        log_err("could not open " + dev_man->path);
-                                                        continue;
-                                                }
-                                                memset(dev_man->types, 0, sizeof(dev_man->types));
-                                                ioctl(
-                                                dev_man->fd, EVIOCGBIT(0, EV_MAX), dev_man->types);
-
-                                                if (Get_Bit(dev_man->types, EV_KEY)) {
-                                                        memset(dev_man->events, 0, sizeof(dev_man->events));
-                                                        ioctl(
-                                                        dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX),
-                                                        dev_man->events);
-                                                        if (Get_Bit(dev_man->events, KEY_B)) {
-                                                                Initialize_Device_Node(
-                                                                &current_dev, dev_man->path, _KEYBOARD);
-																Add_Device_Node(dev_man, &current_dev);
-                                                        } else if (Get_Bit(dev_man->events, BTN_LEFT)) {
-                                                                Initialize_Device_Node(
-                                                                &current_dev, dev_man->path, _MOUSE);
-                                                                Add_Device_Node(dev_man, &current_dev);
-                                                        }
-                                                }
-                                                close(dev_man->fd);
-                                        }
-                                } else if (event->mask & IN_DELETE) {
-                                        if (!(event->mask & IN_ISDIR)) {
-                                                for (int i = 0; i < dev_man->p_d_size; i++) {
-                                                        if (dev_man->previous_dev[i]->str == dev_man->path) {
-                                                                Delete_Device_Node(dev_man->previous_dev[i]);
-                                                                break;
-                                                        }
-                                                }
-                                        }
-                                }
-                                i += EVENT_SIZE + event->len;
+        while (i < length) {
+            inotify_event *event = (inotify_event*) &buffer[ i ];
+            if (event->len) {
+                if (event->mask & IN_CREATE) {
+                    dev_man->path = string(INPUT_PATH) + "/" + event->name;
+                    if (!(event->mask & IN_ISDIR)) {
+                        if (
+                        (dev_man->fd = open(dev_man->path.c_str(), O_RDONLY)) <
+                        0) {
+                            log_err("could not open " + dev_man->path);
+                            continue;
                         }
+                        memset(dev_man->types, 0, sizeof(dev_man->types));
+                        ioctl(
+                        dev_man->fd, EVIOCGBIT(0, EV_MAX), dev_man->types);
+
+                        if (Get_Bit(dev_man->types, EV_KEY)) {
+                            memset(dev_man->events, 0, sizeof(dev_man->events));
+                            ioctl(
+                            dev_man->fd, EVIOCGBIT(EV_KEY, KEY_MAX),
+                            dev_man->events);
+                            if (Get_Bit(dev_man->events, KEY_B)) {
+                                Initialize_Device_Node(
+                                &current_dev, dev_man->path, _KEYBOARD);
+								Add_Device_Node(dev_man, &current_dev);
+                            } else if (Get_Bit(dev_man->events, BTN_LEFT)) {
+                                Initialize_Device_Node(
+                                &current_dev, dev_man->path, _MOUSE);
+                                Add_Device_Node(dev_man, &current_dev);
+                            }
+                        }
+                        close(dev_man->fd);
+                    }
+                } else if (event->mask & IN_DELETE) {
+                    if (!(event->mask & IN_ISDIR)) {
+                        for (int i = 0; i < dev_man->p_d_size; i++) {
+                            if (
+							dev_man->previous_dev[i]->str == dev_man->path) {
+                                Delete_Device_Node(dev_man->previous_dev[i]);
+                                break;
+                            }
+                        }
+                    }
                 }
+                i += EVENT_SIZE + event->len;
+            }
         }
-        inotify_rm_watch(fd, wd);
-        close(fd);
+	}
+	inotify_rm_watch(fd, wd);
+	close(fd);
 }
 
 void Stop_Refresh_Thread_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
