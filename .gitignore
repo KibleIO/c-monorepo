@@ -3,3 +3,5 @@
 Rana
 x64/
 .vs/
+.packages/
+/packages/FFmpeg.Nightly.20190805.0.0

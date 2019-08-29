@@ -34,7 +34,7 @@ EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM);
 // Render the embedded animator in a standalone window
 // WARNING: do NOT call between nk_begin_xxx and nk_end
 void Render_EMBEDDED_ANIMATOR_Standalone(
-EMBEDDED_ANIMATOR*, struct nk_context*, RECT_TRANSFORM, struct nk_rect);
+EMBEDDED_ANIMATOR*, struct nk_context*, struct nk_rect);
 
 void Delete_EMBEDDED_ANIMATOR(EMBEDDED_ANIMATOR*);
 

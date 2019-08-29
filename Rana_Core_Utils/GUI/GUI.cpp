@@ -11,23 +11,25 @@ void Initialize_GUI(GUI* gui, string font_path) {
 
 	GUI::screen_dim			= Get_Screen_Dimensions_NK_GEN(gui->nk_backend);
 
-	uint32_t* font_heights	= new uint32_t[GUI_TOTAL_FONTS] {
-		uint32_t(GUI::screen_dim.h * 0.02),
-	 	uint32_t(GUI::screen_dim.h * 0.025),
-		uint32_t(GUI::screen_dim.h * 0.03)
-	};
+	uint32_t font_heights[GUI_TOTAL_FONT_HEIGHTS];
+	for (uint32_t i = 0; i < GUI_TOTAL_FONT_HEIGHTS; i++) {
+		font_heights[i] =
+		GUI_FONT_HEIGHT_MIN + (GUI_FONT_HEIGHT_DIFFERENCE * i);
+	}
 
 	Load_Fonts_NK_GEN(
-	gui->nk_backend, font_path, font_heights, GUI_TOTAL_FONTS);
+	gui->nk_backend, font_path, font_heights, GUI_TOTAL_FONT_HEIGHTS,
+	GUI_FONT_DEFAULT_SIZE);
 	Load_All_Textures_TEXTURE_MANAGER(&GUI::texture_manager);
-
 	Set_Style_Default_GUI(gui);
-
-	delete [] font_heights;
 }
 
 void Set_Font(GUI* gui, int font_index) {
 	Set_Font_NK_GEN(gui->nk_backend, font_index);
+}
+
+void Set_Font_Default(GUI* gui) {
+	Set_Font(gui, GUI_FONT_DEFAULT_SIZE);
 }
 
 struct TEXTURE* Load_Image_GUI(
@@ -262,4 +264,8 @@ void Set_Style_Default_GUI(GUI* gui) {
 
 	gui->nk_backend->NK_Context->style.edit.selected_text_normal = nk_rgb(
 	0x25,0x25,0x25);
+}
+
+struct nk_rect Screen_Rect() {
+	return nk_rect(0, 0, GUI::screen_dim.sw, GUI::screen_dim.h);
 }

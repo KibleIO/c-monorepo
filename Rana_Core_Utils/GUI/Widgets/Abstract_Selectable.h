@@ -19,7 +19,7 @@ bool Begin_ABSTRACT_SELECTABLE(
 ABSTRACT_SELECTABLE*, struct nk_context*, const char*, nk_flags);
 bool Begin_ABSTRACT_SELECTABLE_With_Buffer(
 ABSTRACT_SELECTABLE*, struct nk_context*, const char*, nk_flags);
-void End_ABSTRACT_SELECTABLE(struct nk_context*);
+void End_ABSTRACT_SELECTABLE(const ABSTRACT_SELECTABLE*, struct nk_context*);
 
 // ACCESSORS
 bool ABSTRACT_SELECTABLE_Clicked(const ABSTRACT_SELECTABLE*);
@@ -28,5 +28,9 @@ bool ABSTRACT_SELECTABLE_Selected(const ABSTRACT_SELECTABLE*);
 // MUTATORS
 bool Select_ABSTRACT_SELECTABLE(ABSTRACT_SELECTABLE*);
 bool Deselect_ABSTRACT_SELECTABLE(ABSTRACT_SELECTABLE*);
+
+// HELPERS
+void Setup_Style_ABSTRACT_SELECTABLE(
+const ABSTRACT_SELECTABLE*, struct nk_context*);
 
 #endif

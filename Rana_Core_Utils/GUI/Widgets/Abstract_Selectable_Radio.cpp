@@ -63,8 +63,10 @@ nk_flags flags, uint8_t index) {
 	radio, ctx, title, flags, index);
 }
 
-void End_Selectable_ABSTRACT_SELECTABLE_RADIO(struct nk_context* ctx) {
-	nk_group_end(ctx);
+void End_Selectable_ABSTRACT_SELECTABLE_RADIO(
+const ABSTRACT_SELECTABLE_RADIO* radio, struct nk_context* ctx) {
+	End_ABSTRACT_SELECTABLE(
+	Selectable_Rendering_ABSTRACT_SELECTABLE_RADIO(radio), ctx);
 }
 
 // ACCESSORS

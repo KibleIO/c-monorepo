@@ -11,12 +11,11 @@ void Prepare_Footer_Layout(struct nk_context* ctx, LAYOUT_SIZE footer_height) {
 }
 
 int Layout_Transformed_Area(struct nk_context* ctx, RECT_TRANSFORM transform) {
- 	PANEL group = Panel(Nk_Window_Style());
 	struct nk_rect widget_bounds = nk_widget_bounds(ctx);
 	struct nk_rect group_rect = Transform_Rect(widget_bounds, transform);
 	float upper_buffer_height = abs(widget_bounds.y - group_rect.y);
 
-	if (Start_Group(&group, ctx, "transformed area", NK_WINDOW_NO_SCROLLBAR)) {
+	if (nk_group_begin(ctx, "transformed area", NK_WINDOW_NO_SCROLLBAR)) {
 
 		if (upper_buffer_height > 0.0) {
 			Layout_Row_Single(

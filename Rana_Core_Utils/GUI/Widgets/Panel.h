@@ -50,35 +50,36 @@ void Initialize_Panel(PANEL*, struct nk_style_window);
 WINDOW
 */
 int Start_Window(
-PANEL*, struct nk_context*, const char*, struct nk_rect, nk_flags);
+const PANEL*, struct nk_context*, const char*, struct nk_rect, nk_flags);
 int Start_Window_Titled(
-PANEL*, struct nk_context*, const char* name, const char* title,
+const PANEL*, struct nk_context*, const char* name, const char* title,
 struct nk_rect, nk_flags);
-void End_Window(PANEL*, struct nk_context*);
+void End_Window(const PANEL*, struct nk_context*);
 
 /*
 GROUP
 */
-int Start_Group(PANEL*, struct nk_context*, const char*, nk_flags);
-int Start_Group_With_Buffer(PANEL*, struct nk_context*, const char*, nk_flags);
+int Start_Group(const PANEL*, struct nk_context*, const char*, nk_flags);
+int Start_Group_With_Buffer(
+const PANEL*, struct nk_context*, const char*, nk_flags);
 
 int Start_Transformed_Group(
-PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
+const PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
 int Start_Transformed_Group_With_Buffer(
-PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
+const PANEL*, struct nk_context*, const char*, nk_flags, RECT_TRANSFORM);
 
-void End_Group(PANEL*, struct nk_context*);
+void End_Group(const PANEL*, struct nk_context*);
 
 /*
 POPUP
 */
 int Start_Popup(
-PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
+const PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
 nk_flags flags, struct nk_rect rect);
 int Start_Popup_With_Buffer(
-PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
+const PANEL*, struct nk_context *, enum nk_popup_type, const char *title,
 nk_flags flags, struct nk_rect rect);
-void End_Popup(PANEL*, struct nk_context*);
+void End_Popup(const PANEL*, struct nk_context*);
 
 // Delete
 void Delete_Panel(PANEL*);
@@ -87,11 +88,11 @@ void Delete_Panel(PANEL*);
 HELPERS
 */
 
-void End_Panel(PANEL*, struct nk_context*, enum nk_panel_type);
-void End_Panel(PANEL*, struct nk_context*, void(*end_fctn)(struct nk_context*));
+void End_Panel(const PANEL*, struct nk_context*, enum nk_panel_type);
+void End_Panel(
+const PANEL*, struct nk_context*, void(*end_fctn)(struct nk_context*));
 
 // Setup style on the context using the panel's style
-void Setup_Initial_Style(PANEL*, struct nk_context*);
-void Setup_Final_Style(PANEL*, struct nk_context*);
+void Setup_Style(const PANEL*, struct nk_context*);
 
 #endif

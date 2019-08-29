@@ -17,17 +17,7 @@ ABSTRACT_SELECTABLE* selectable, ABSTRACT_SELECTABLE_STYLE style) {
 bool Begin_ABSTRACT_SELECTABLE(
 ABSTRACT_SELECTABLE* selectable, struct nk_context* ctx, const char* title,
 nk_flags window_flags) {
-	// Setup style of the abstract button based on whether or not is selected
-	if (selectable->selected) {
-		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.selectedColors,
-		selectable->style.border, selectable->style.padding);
-	}
-	else {
-		Setup_Style_ABSTRACT_BUTTON(
-		ctx, selectable->state, &selectable->style.defaultColors,
-		selectable->style.border, selectable->style.padding);
-	}
+	Setup_Style_ABSTRACT_SELECTABLE(selectable, ctx);
 
 	// Setup the state and clicked bool for the selectable
 	Setup_State_ABSTRACT_BUTTON(
@@ -48,7 +38,9 @@ nk_flags window_flags) {
 	return Begin_ABSTRACT_SELECTABLE(selectable, ctx, title, window_flags);
 }
 
-void End_ABSTRACT_SELECTABLE(struct nk_context* ctx) {
+void End_ABSTRACT_SELECTABLE(
+const ABSTRACT_SELECTABLE* selectable, struct nk_context* ctx) {
+	Setup_Style_ABSTRACT_SELECTABLE(selectable, ctx);
 	nk_group_end(ctx);
 }
 
@@ -70,4 +62,19 @@ bool Deselect_ABSTRACT_SELECTABLE(ABSTRACT_SELECTABLE* selectable) {
 	bool prev_deselected = !selectable->selected;
 	selectable->selected = false;
 	return !prev_deselected;
+}
+
+void Setup_Style_ABSTRACT_SELECTABLE(
+const ABSTRACT_SELECTABLE* selectable, struct nk_context* ctx) {
+	// Setup style of the abstract button based on whether or not is selected
+	if (selectable->selected) {
+		Setup_Style_ABSTRACT_BUTTON(
+		ctx, selectable->state, &selectable->style.selectedColors,
+		selectable->style.border, selectable->style.padding);
+	}
+	else {
+		Setup_Style_ABSTRACT_BUTTON(
+		ctx, selectable->state, &selectable->style.defaultColors,
+		selectable->style.border, selectable->style.padding);
+	}
 }

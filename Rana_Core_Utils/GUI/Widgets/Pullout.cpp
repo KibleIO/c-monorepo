@@ -26,8 +26,8 @@ PULLOUT* pullout, struct nk_context* ctx, const char* title, nk_flags flags) {
 	return Begin_Widget_PULLOUT(pullout, ctx, title, flags);
 }
 
-void End_Widget_PULLOUT(struct nk_context* ctx) {
-	nk_group_end(ctx);
+void End_Widget_PULLOUT(const PULLOUT* pullout, struct nk_context* ctx) {
+	End_Group(&pullout->widgetPanel, ctx);
 }
 
 bool Begin_Window_PULLOUT(
@@ -54,8 +54,8 @@ PULLOUT* pullout, struct nk_context* ctx, const char* title, nk_flags flags) {
 	return window_visible;
 }
 
-void End_Window_PULLOUT(struct nk_context* ctx) {
-	nk_end(ctx);
+void End_Window_PULLOUT(const PULLOUT* pullout, struct nk_context* ctx) {
+	End_Window(&pullout->windowPanel, ctx);
 }
 
 void Delete_PULLOUT(PULLOUT* pullout) {
@@ -72,7 +72,7 @@ bool PULLOUT_Hovered(const PULLOUT* pullout) {
 }
 
 bool Widget_Is_Hovered_PULLOUT(
-struct nk_context* ctx, struct nk_rect widget_rect) {
+const struct nk_context* ctx, struct nk_rect widget_rect) {
 	return nk_input_is_mouse_hovering_rect(
 	&ctx->input, Transform_Rect(widget_rect, WIDGET_HOVER_EXPANSION));
 }

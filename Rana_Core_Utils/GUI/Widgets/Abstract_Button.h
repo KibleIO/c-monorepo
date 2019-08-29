@@ -20,7 +20,7 @@ bool Begin_ABSTRACT_BUTTON(
 ABSTRACT_BUTTON*, struct nk_context*, const char*, nk_flags);
 bool Begin_ABSTRACT_BUTTON_With_Buffer(
 ABSTRACT_BUTTON*, struct nk_context*, const char*, nk_flags);
-void End_ABSTRACT_BUTTON(struct nk_context*);
+void End_ABSTRACT_BUTTON(const ABSTRACT_BUTTON*, struct nk_context*);
 
 // ACCESSORS
 bool ABSTRACT_BUTTON_Clicked(const ABSTRACT_BUTTON*);

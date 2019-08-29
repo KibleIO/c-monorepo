@@ -11,6 +11,9 @@
 #define PULLOUT_HOVERED		2
 
 static const struct nk_rect NULL_RECT = {-8192.0f, -8192.0f, 16384, 16384};
+
+// Slight expansion of the widget area
+// Detects as hovering the widget even if the cursor is slightly off
 static const RECT_TRANSFORM WIDGET_HOVER_EXPANSION = Rect_Transform(
 Size_Transform(Ratio_Of_Parent(1.3), Ratio_Of_Parent(1.3)), ALIGNMENT_CENTER);
 
@@ -43,12 +46,12 @@ PULLOUT*, PANEL widget_panel, PANEL window_panel, RECT_TRANSFORM);
 bool Begin_Widget_PULLOUT(PULLOUT*, struct nk_context*, const char*, nk_flags);
 bool Begin_Widget_PULLOUT_With_Buffer(
 PULLOUT*, struct nk_context*, const char*, nk_flags);
-void End_Widget_PULLOUT(struct nk_context*);
+void End_Widget_PULLOUT(const PULLOUT*, struct nk_context*);
 
 // Begin the window part of the pullout
 // NOTE: do NOT call between nk_begin/end
 bool Begin_Window_PULLOUT(PULLOUT*, struct nk_context*, const char*, nk_flags);
-void End_Window_PULLOUT(struct nk_context*);
+void End_Window_PULLOUT(const PULLOUT*, struct nk_context*);
 
 void Delete_PULLOUT(PULLOUT*);
 
@@ -57,6 +60,6 @@ struct nk_rect Widget_Area(const PULLOUT*);
 bool PULLOUT_Hovered(const PULLOUT*);
 
 // Helpers
-bool Widget_Is_Hovered_PULLOUT(struct nk_context*, struct nk_rect);
+bool Widget_Is_Hovered_PULLOUT(const struct nk_context*, struct nk_rect);
 
 #endif
