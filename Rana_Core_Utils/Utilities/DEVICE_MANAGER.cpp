@@ -351,6 +351,7 @@ void Send_Thread(DEVICE_MANAGER* dev_man) {
 		if (!Send_Keyboard_Data(dev_man) || !Send_Mouse_Data(dev_man)) {
 			dev_man->sending = false;
 		}
+		Sleep_Milli(16);
 	}
 
 	log_dbg("send thread going down");
