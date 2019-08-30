@@ -725,6 +725,22 @@ void Send_Mouse_Data(DEVICE_MANAGER* dev_man, MOUSE_EVENT_T* m_event) {
 	}
 	dev_man->client_mtx->unlock();
 }
+
+void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client) {
+	dev_man->client_mtx->lock();
+	dev_man->client = client;
+	dev_man->client_mtx->unlock();
+}
+
+void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	dev_man->client_mtx->lock();
+	dev_man->client = NULL;
+	dev_man->client_mtx->unlock();
+}
+
+void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	delete dev_man->client_mtx;
+}
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__

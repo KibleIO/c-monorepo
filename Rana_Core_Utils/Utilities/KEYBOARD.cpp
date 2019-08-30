@@ -193,7 +193,6 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 		events->pop(k_event);
 
 		switch (k_event->code) {
-		log_dbg("Key code " + to_string(k_event->code) + " received");
 			case KEY_ESC:
 				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
 				break;
