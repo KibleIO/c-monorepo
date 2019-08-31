@@ -1,6 +1,3 @@
-#include "../Utilities/Debugging.h"
-#include "nk_ops.h"
-
 /*
 /// # Nuklear
 /// ![](https://cloud.githubusercontent.com/assets/8057201/11761525/ae06f0ca-a0c6-11e5-819d-5610b25f6ef4.gif)
@@ -15067,6 +15064,7 @@ nk_clear(struct nk_context *ctx)
 {
     struct nk_window *iter;
     struct nk_window *next;
+	struct nk_window *invalid;	// Pointer to a window that is hidden or closed but also the active window
     NK_ASSERT(ctx);
 
     if (!ctx) return;
@@ -15082,6 +15080,7 @@ nk_clear(struct nk_context *ctx)
 
     /* garbage collector */
     iter = ctx->begin;
+	invalid = 0;
     while (iter) {
         /* make sure valid minimized windows do not get removed */
         if ((iter->flags & NK_WINDOW_MINIMIZED) &&
@@ -15094,12 +15093,7 @@ nk_clear(struct nk_context *ctx)
         if (((iter->flags & NK_WINDOW_HIDDEN) ||
             (iter->flags & NK_WINDOW_CLOSED)) &&
             iter == ctx->active) {
-            ctx->active = iter->prev;
-            ctx->end = iter->prev;
-            if (!ctx->end)
-                ctx->begin = 0;
-            if (ctx->active)
-                ctx->active->flags &= ~(unsigned)NK_WINDOW_ROM;
+			invalid = iter;
         }
         /* free unused popup windows */
         if (iter->popup.win && iter->popup.win->seq != ctx->seq) {
@@ -15121,12 +15115,22 @@ nk_clear(struct nk_context *ctx)
         /* window itself is not used anymore so free */
         if (iter->seq != ctx->seq || iter->flags & NK_WINDOW_CLOSED) {
             next = iter->next;
+			/* If the invalid window is about to be removed, set it back to null */
+			if (iter == invalid) {
+				invalid = 0;
+			}
             nk_remove_window(ctx, iter);
             nk_free_window(ctx, iter);
             iter = next;
         } else iter = iter->next;
     }
     ctx->seq++;
+
+	// If a window was detected that cannot be the active window, move it into the front of the list
+	if (invalid) {
+		nk_remove_window(ctx, invalid);
+		nk_insert_window(ctx, invalid, NK_INSERT_FRONT);
+	}
 }
 NK_LIB void
 nk_start_buffer(struct nk_context *ctx, struct nk_command_buffer *buffer)
@@ -15948,8 +15952,6 @@ nk_panel_end(struct nk_context *ctx)
             else window->scrolled = nk_false;
         } else scroll_has_scrolling = nk_false;
 
-		DEBUGGING_MESSAGES::buffer << "Scrollbar setup for window with name " << window->name_string << endl;
-
         {
             /* vertical scrollbar */
             nk_flags state = 0;
@@ -15968,8 +15970,6 @@ nk_panel_end(struct nk_context *ctx)
             *layout->offset_y = (nk_uint)scroll_offset;
             if (in && scroll_has_scrolling)
                 in->mouse.scroll_delta.y = 0;
-
-			DEBUGGING_MESSAGES::buffer << "\tVertical scrollbar position: " << Rect_Str(scroll) << endl;
         }
 
         {
@@ -15988,23 +15988,8 @@ nk_panel_end(struct nk_context *ctx)
                 scroll_offset, scroll_target, scroll_step, scroll_inc,
                 &ctx->style.scrollh, in, style->font);
             *layout->offset_x = (nk_uint)scroll_offset;
-
-			DEBUGGING_MESSAGES::buffer << "\tHorizontal scrollbar position: " << Rect_Str(scroll) << endl;
         }
     }
-	else {
-		DEBUGGING_MESSAGES::buffer << "No scrollbar setup for window with name " << window->name_string << endl;
-
-		if (layout->flags & NK_WINDOW_NO_SCROLLBAR) {
-			DEBUGGING_MESSAGES::buffer << "\tReason: flags set to \"NO_SCROLLBAR\"" << endl;
-		}
-		else if (layout->flags & NK_WINDOW_MINIMIZED) {
-			DEBUGGING_MESSAGES::buffer << "\tReason: window is minimized" << endl;
-		}
-		else if (window->scrollbar_hiding_timer >= NK_SCROLLBAR_HIDING_TIMEOUT) {
-			DEBUGGING_MESSAGES::buffer << "\tReason: scrollbar hiding timer timed out" << endl;
-		}
-	}
 
     /* hide scroll if no user input */
     if (window->flags & NK_WINDOW_SCROLL_AUTO_HIDE) {
@@ -16211,6 +16196,7 @@ nk_insert_window(struct nk_context *ctx, struct nk_window *win,
     NK_ASSERT(win);
     if (!win || !ctx) return;
 
+	// Make sure you are not re-inserting a window that is already in the list
     iter = ctx->begin;
     while (iter) {
         NK_ASSERT(iter != iter->next);
