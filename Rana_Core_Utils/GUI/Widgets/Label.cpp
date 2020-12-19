@@ -38,7 +38,6 @@ void Delete_Label(LABEL* label) {
 
 void Setup_Label_Style(const LABEL* label, struct nk_context* ctx) {
 	ctx->style.text = label->style;
-	ctx->style.window.background = TRANSPARENT;
 }
 
 char* Trailing_Label_In_Current_Rect(
