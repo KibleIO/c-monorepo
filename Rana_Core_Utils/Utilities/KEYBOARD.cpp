@@ -191,7 +191,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 	for (int i = events->size(); i > 0; i--) {
 		KEYBOARD_EVENT_T* k_event = NULL;
 		events->pop(k_event);
-
+	
 		switch (k_event->code) {
 			case KEY_ESC:
 				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
@@ -231,6 +231,60 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 				break;
 			case KEY_ENTER:
 				Handle_Key(KEYBOARD::dpy, XK_Return, k_event->value);
+				break;
+			case KEY_F1:
+				Handle_Key(KEYBOARD::dpy, XK_F1, k_event->value);
+				break;
+			case KEY_F2:
+				Handle_Key(KEYBOARD::dpy, XK_F2, k_event->value);
+				break;
+			case KEY_F3:
+				Handle_Key(KEYBOARD::dpy, XK_F3, k_event->value);
+				break;
+			case KEY_F4:
+				Handle_Key(KEYBOARD::dpy, XK_F4, k_event->value);
+				break;
+			case KEY_F5:
+				Handle_Key(KEYBOARD::dpy, XK_F5, k_event->value);
+				break;
+			case KEY_F6:
+				Handle_Key(KEYBOARD::dpy, XK_F6, k_event->value);
+				break;
+			case KEY_F7:
+				Handle_Key(KEYBOARD::dpy, XK_F7, k_event->value);
+				break;
+			case KEY_F8:
+				Handle_Key(KEYBOARD::dpy, XK_F8, k_event->value);
+				break;
+			case KEY_F9:
+				Handle_Key(KEYBOARD::dpy, XK_F9, k_event->value);
+				break;
+			case KEY_F10:
+				Handle_Key(KEYBOARD::dpy, XK_F10, k_event->value);
+				break;
+			case KEY_F11:
+				Handle_Key(KEYBOARD::dpy, XK_F11, k_event->value);
+				break;
+			case KEY_F12:
+				Handle_Key(KEYBOARD::dpy, XK_F12, k_event->value);
+				break;
+			case KEY_INSERT:
+				Handle_Key(KEYBOARD::dpy, XK_Insert, k_event->value);
+				break;
+			case KEY_DELETE:
+				Handle_Key(KEYBOARD::dpy, XK_Delete, k_event->value);
+				break;
+			case KEY_HOME:
+				Handle_Key(KEYBOARD::dpy, XK_Home, k_event->value);
+				break;
+			case KEY_PAGEUP:
+				Handle_Key(KEYBOARD::dpy, XK_Page_Up, k_event->value);
+				break;
+			case KEY_PAGEDOWN:
+				Handle_Key(KEYBOARD::dpy, XK_Page_Down, k_event->value);
+				break;
+			case KEY_END:
+				Handle_Key(KEYBOARD::dpy, XK_End, k_event->value);
 				break;
 			default:
 				if (k_event->code <= 111){

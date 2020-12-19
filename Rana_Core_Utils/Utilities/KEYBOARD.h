@@ -63,6 +63,24 @@ struct KEYBOARD {
 #define XK_Control_L                     0xffe3
 #define XK_Control_R                     0xffe4
 #define XK_Escape                        0xff1b
+#define XK_F1                            0xffbe
+#define XK_F2                            0xffbf
+#define XK_F3                            0xffc0
+#define XK_F4                            0xffc1
+#define XK_F5                            0xffc2
+#define XK_F6                            0xffc3
+#define XK_F7                            0xffc4
+#define XK_F8                            0xffc5
+#define XK_F9                            0xffc6
+#define XK_F10                           0xffc7
+#define XK_F11                           0xffc8
+#define XK_F12                           0xffc9
+#define XK_Insert                        0xff63  /* Insert, insert here */
+#define XK_Delete                        0xffff  /* Delete, rubout */
+#define XK_Home                          0xff50
+#define XK_Page_Up                       0xff55
+#define XK_Page_Down                     0xff56
+#define XK_End                           0xff57  /* EOL */
 
 KEYBOARD* Construct_Keyboard(string, EVENT*);
 

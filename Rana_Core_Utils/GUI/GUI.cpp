@@ -53,10 +53,11 @@ void Handle_Input_GUI(
 GUI* gui, Queue<MOUSE_EVENT_T*>* m_events, Queue<KEYBOARD_EVENT_T*>* k_events) {
 	nk_input_begin(gui->nk_backend->NK_Context);
 	// Mouse
-
+	
 	for (int i = m_events->size(); i > 0; i--) {
 		MOUSE_EVENT_T* m_event = NULL;
 		m_events->pop(m_event);
+
 		if (m_event->clicked) {
 	    	nk_input_button(
 			gui->nk_backend->NK_Context, NK_BUTTON_LEFT, m_event->x, m_event->y,
