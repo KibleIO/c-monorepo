@@ -6,6 +6,7 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <iostream>
 
 template <typename T>
 class Queue {
@@ -19,6 +20,7 @@ public:
 			return t;
 		}
 		t = queue_.front();
+		queue_.pop();
 		mutex_.unlock();
 		return t;
 	}
