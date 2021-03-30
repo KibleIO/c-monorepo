@@ -324,7 +324,6 @@ void Delete_NK_GEN(NK_GEN* nk_fb) {
 		Delete_GRAPHICS(nk_fb->Graphics_Handle);
 		delete nk_fb->Graphics_Handle;
 	}
-
 	*nk_fb = {};
 }
 

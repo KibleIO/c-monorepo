@@ -40,7 +40,7 @@ string filename, uint32_t width, uint32_t height) {
 
 void Delete_GUI(GUI* gui) {
 	log_dbg("deleting gui");
-
+	
 	Delete_NK_GEN(gui->nk_backend);
 	delete gui->nk_backend;
 

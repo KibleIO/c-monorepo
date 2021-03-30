@@ -62,6 +62,8 @@ struct KEYBOARD {
 #define XK_Tab                           0xff09
 #define XK_Control_L                     0xffe3
 #define XK_Control_R                     0xffe4
+#define XK_Alt_L 						 0xFFE9
+#define XK_Alt_R						 0xFFEA
 #define XK_Escape                        0xff1b
 #define XK_F1                            0xffbe
 #define XK_F2                            0xffbf
@@ -82,7 +84,8 @@ struct KEYBOARD {
 #define XK_Page_Down                     0xff56
 #define XK_End                           0xff57  /* EOL */
 
-KEYBOARD* Construct_Keyboard(string, EVENT*);
+	KEYBOARD *
+	Construct_Keyboard(string, EVENT *);
 
 void Initialize_Keyboard(KEYBOARD*, string, EVENT*);
 

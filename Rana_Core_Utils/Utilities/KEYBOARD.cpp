@@ -208,6 +208,12 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 			case KEY_RIGHTSHIFT:
 				Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value, true);
 				break;
+			case KEY_LEFTALT:
+				Handle_Key(KEYBOARD::dpy, XK_Alt_L, k_event->value, true);
+				break;
+			case KEY_RIGHTALT:
+				Handle_Key(KEYBOARD::dpy, XK_Alt_R, k_event->value, true);
+				break;
 			case KEY_CAPSLOCK:
 				Handle_Key(KEYBOARD::dpy, XK_Caps_Lock, k_event->value);
 				break;
