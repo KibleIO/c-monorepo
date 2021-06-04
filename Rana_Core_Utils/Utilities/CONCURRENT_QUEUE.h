@@ -42,6 +42,58 @@ public:
 		mutex_.unlock();
 	}
 
+	void front(T& t) {
+		mutex_.lock();
+		if (queue_.empty()) {
+			mutex_.unlock();
+			return;
+		}
+		t = queue_.front();
+		mutex_.unlock();
+	}
+
+	void back(T& t) {
+		mutex_.lock();
+		if (queue_.empty()) {
+			mutex_.unlock();
+			return;
+		}
+		t = queue_.back();
+		mutex_.unlock();
+	}
+	
+	T front() {
+		T t;
+		mutex_.lock();
+		if (queue_.empty()) {
+			mutex_.unlock();
+			return t;
+		}
+		t = queue_.front();
+		mutex_.unlock();
+		return t;
+	}
+
+	T back() {
+		T t;
+		mutex_.lock();
+		if (queue_.empty()) {
+			mutex_.unlock();
+			return t;
+		}
+		t = queue_.back();
+		mutex_.unlock();
+		return t;
+	}
+
+	bool empty() {
+		bool b;
+		mutex_.lock();
+		b = queue_.empty();
+		mutex_.unlock();
+		return b;
+	}
+
 	int size() {
 		mutex_.lock();
 		int n = queue_.size();
