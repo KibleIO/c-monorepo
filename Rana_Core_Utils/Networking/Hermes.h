@@ -22,6 +22,8 @@
 #define HERMES_VIDEO	3
 #define HERMES_PRINT	4
 #define HERMES_DATA		5
+#define HERMES_MIC		6
+#define HERMES_CAM		7
 
 #define HERMES_GET_CONNECTION	1
 #define HERMES_EXIT 			2
