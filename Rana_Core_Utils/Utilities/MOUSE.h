@@ -3,26 +3,13 @@
 #ifndef  MOUSE_H_
 #define  MOUSE_H_
 
-#include <thread>
-
-#include <fcntl.h>
-#include <signal.h>
-#include <string.h>
-
 #include "LOGGING.h"
-#include "TIMER.h"
 #include "CONCURRENT_QUEUE.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
-#include <libinput.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <poll.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
-#include <linux/input.h>
-#include <libevdev/libevdev.h>
 #endif
 // }}} Windows specific includes {{{
 #ifdef _WIN64

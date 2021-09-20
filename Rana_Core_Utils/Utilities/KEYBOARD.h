@@ -3,13 +3,11 @@
 #ifndef  KEYBOARD_H_
 #define  KEYBOARD_H_
 
-#include <fcntl.h>
 #include "LOGGING.h"
 #include "CONCURRENT_QUEUE.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
-#include <unistd.h>
 #include <linux/input.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>

@@ -2,33 +2,15 @@
 #ifndef  DEVICE_MANAGER_H_
 #define  DEVICE_MANAGER_H_
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <thread>
-#include <mutex>
-
-#include <errno.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/stat.h>
-
 #include "CONCURRENT_QUEUE.h"
 #include "KEYBOARD.h"
 #include "MOUSE.h"
 #include "../Networking/Client.h"
 #include "../Networking/Server.h"
-#include "TIMER.h"
 #include "UTILS.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
-#include <linux/input.h>
-#include <libevdev/libevdev-uinput.h>
-#include <linux/uinput.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/inotify.h>
 #endif
 // }}} Windows specific includes {{{
 #ifdef _WIN64
