@@ -10,7 +10,9 @@ uint8_t padding) {
 	//}
 
 	if (_threads < 1) {
-		log_err("0 threads requested");
+		log_err(((const JSON_TYPE){
+			{"message", "0 threads requested"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -45,7 +47,9 @@ uint8_t padding) {
 		YUV2RGB_ALGO, 0, 0, 0);
 
 		if (!trans->sws[i]) {
-			log_err("failed to open sws context");
+			log_err(((const JSON_TYPE){
+				{"message", "failed to open sws context"},
+				JSON_TYPE_END}));
 			for (uint32_t j = 0; j < i; j++) {
 				sws_freeContext(trans->sws[j]);
 			}

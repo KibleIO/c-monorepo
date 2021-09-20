@@ -1,6 +1,6 @@
 //PLATFORMS: Linux, Windows, OSX
 
-#include "Hermes.h"
+#include "HERMES.h"
 
 string Hermes_Error_Str(int n) {
 	switch (n) {
