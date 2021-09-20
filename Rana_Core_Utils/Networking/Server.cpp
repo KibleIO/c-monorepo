@@ -19,11 +19,16 @@ void Server::Init() {
 
 	if (setsockopt(
 	lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o, sizeof o) != 0) {
-		log_dbg("bad setsockopt: reuseaddr");
+		log_dbg(((const JSON_TYPE){
+			{"message", "bad setsockopt: reuseaddr"},
+			JSON_TYPE_END}));
 	}
 
 	if (lSocket < 0) {
-		log_err(name + ": Server socked failed to open");
+		log_err(((const JSON_TYPE){
+			{"message", "Server socked failed to open"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 
 	o_pr = 4;
@@ -58,38 +63,62 @@ void Server::Set_Opts() {
 	DWORD o_sb = 70000000;
 #endif
 
-	if (setsockopt(
-	cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_ra, sizeof o_ra) != 0) {
-		log_err("bad setsockopt: reuseaddr");
+	if (setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_ra,
+		sizeof o_ra) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 
-	if (setsockopt(
-	cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_nd, sizeof o_nd) != 0) {
-		log_err("bad setsockopt: nodelay");
+	if (setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_nd,
+		sizeof o_nd) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: nodelay"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 
-	if (setsockopt(
-	cSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&o_sb, sizeof o_sb) != 0) {
-		log_err("bad setsockopt: sndbuf");
+	if (setsockopt(cSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&o_sb,
+		sizeof o_sb) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: sndbuf"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 
 #ifdef __linux__
-	if (setsockopt(
-	cSocket, IPPROTO_TCP, TCP_QUICKACK, (const char*)&o_qa, sizeof o_qa) != 0) {
-		log_err("bad setsockopt: quickack");
+	if (setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, (const char*)&o_qa,
+		sizeof o_qa) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: quickack"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 #endif
 
 	// User set options
-	if (setsockopt(
-	cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&o_to, sizeof o_to) != 0) {
-		log_err("bad setsockopt: timeout");
+	if (setsockopt(cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&o_to,
+		sizeof o_to) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: timeout"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 
 #ifdef __linux__
-	if (setsockopt(
-	cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o_pr, sizeof o_pr) != 0) {
-		log_err("bad setsockopt: priority");
+	if (setsockopt(cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o_pr,
+		sizeof o_pr) != 0) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: priority"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 	}
 #endif
 
@@ -143,7 +172,10 @@ bool Server::Bind(int port) {
 	destination.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(lSocket, (sockaddr*)&destination, sizeof(destination)) < 0) {
-		log_err(name + ": Unable to bind socket on port: " + to_string(port));
+		log_err(((const JSON_TYPE){
+			{"message", "Unable to bind socket on port"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 		return false;
 	}
 #endif
@@ -186,19 +218,28 @@ bool Server::Bind(int port) {
 	freeaddrinfo(result);
 #endif
 
-	log_dbg(name + ": bound on port " + to_string(port));
+	log_dbg(((const JSON_TYPE){
+		{"message", "bound on port"},
+		{"name", "name"},
+		JSON_TYPE_END}));
 	c_port = port;
 
 	return true;
 }
 
 bool Server::ListenBound() {
-	log_dbg(name + ": listening on port " + to_string(c_port));
+	log_dbg(((const JSON_TYPE){
+		{"message", "listening on port"},
+		{"name", "name"},
+		JSON_TYPE_END}));
 	uint8_t lconnected = false;
 
 #ifdef __linux__
 	if (listen(lSocket, 5) < 0) {
-		log_dbg(name + ": could not listen on socket");
+		log_err(((const JSON_TYPE){
+			{"message", "could not listen on socket"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -217,7 +258,10 @@ bool Server::ListenBound() {
 	});
 
 	if ((cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize)) < 0) {
-		log_dbg(name + ": could not accept connection on socket");
+		log_err(((const JSON_TYPE){
+			{"message", "could not accept connection on socket"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 		connect_timeo.join();
 		return false;
 	} else {
@@ -283,7 +327,10 @@ bool Server::ListenBound() {
 	*/
 #endif
 
-	log_dbg(name + ": connection accepted on port " + to_string(c_port));
+	log_dbg(((const JSON_TYPE){
+		{"message", "connection accepted on port"},
+		{"name", "name"},
+		JSON_TYPE_END}));
 	connected = true;
 	Set_Opts();
 
@@ -320,19 +367,28 @@ void Server::CloseConnection() {
 
 bool Server::Send(char *data, int size) {
 	if (!connected) {
-		log_dbg(name + ": server not connected, can't send");
+		log_err(((const JSON_TYPE){
+			{"message", "server not connected, can't send"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
 	if (enc) {
 		if (!Encrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)data, size, (uint8_t*)enc_buf_data)) {
-			log_err(name + ": unable to encrypt data");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to encrypt data"},
+				{"name", "name"},
+				JSON_TYPE_END}));
 			return false;
 		}
 		if (!Generate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err(name + ": unable to generate auth code");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to generate auth code"},
+				{"name", "name"},
+				JSON_TYPE_END}));
 			return false;
 		}
 		size += crypto_onetimeauth_BYTES;
@@ -349,7 +405,10 @@ bool Server::Send(char *data, int size) {
 
 bool Server::Receive(char *data, int size) {
 	if (!connected) {
-		log_dbg("server not connected, can't receive");
+		log_err(((const JSON_TYPE){
+			{"message", "server not connected, can't receive"},
+			{"name", "name"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -364,21 +423,32 @@ bool Server::Receive(char *data, int size) {
 #endif
 
 		if (!recvd) {
-			log_err(name + ": unable to receive");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				{"name", "name"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
 		size -= crypto_onetimeauth_BYTES;
 
-		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
-		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err(name + ": unable to authenticate data");
+		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(enc,
+			(uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
+
+			log_err(((const JSON_TYPE){
+				{"message", "unable to authenticate data"},
+				{"name", "name"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
-		if (!Decrypt_Data_ENCRYPTION_PROFILE(
-		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
-			log_err(name + ": unable to decrypt data");
+		if (!Decrypt_Data_ENCRYPTION_PROFILE(enc,
+			(uint8_t*) enc_buf_data, size, (uint8_t*)data)) {
+
+			log_err(((const JSON_TYPE){
+				{"message", "unable to decrypt data"},
+				{"name", "name"},
+				JSON_TYPE_END}));
 			return false;
 		}
 	} else {
@@ -390,7 +460,11 @@ bool Server::Receive(char *data, int size) {
 #endif
 
 		if (!recvd) {
-			log_err(name + ": unable to receive");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				{"name", "name"},
+				JSON_TYPE_END}));
+
 			return false;
 		}
 	}
