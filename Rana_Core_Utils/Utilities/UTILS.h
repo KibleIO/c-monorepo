@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define NULLIFY {}
+
 string system_output(string);
 
 uint8_t file_exists(string);

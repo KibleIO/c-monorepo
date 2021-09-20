@@ -1,7 +1,6 @@
 //PLATFORMS: Linux, Windows, OSX (TODO)
 
 #include "KEYBOARD.h"
-//#include "nuklear.h"
 
 #ifdef __linux__
 Display* KEYBOARD::dpy;
@@ -36,117 +35,9 @@ char keys_mem[] = {
 	0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0
 };
-char* KEYBOARD::Keys = keys_mem;
-
-char keys_shifted_mem[] = {
-	0, 0,
-	'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+',
-	0, 0,
-	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-	'{', '}', 0, 0,
-	'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':',
-	'"', '~', 0,
-	'|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?',
-	0,
-	0,
-	0, ' ', 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0,
-	0, 0, 0,
-	0,
-	0, 0, 0,
-	0,
-	0, 0, 0, 0,
-	0,
-	0, 0, 0,
-	0, 0,
-	0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0
-};
-char* KEYBOARD::Keys_Shifted = keys_shifted_mem;
 
 // Linux specific code {{{
 #ifdef __linux__
-void Initialize_Keyboard(KEYBOARD* keyboard, string path, EVENT* event_status) {
-	keyboard->Shift =			false;
-	keyboard->Caps_Lock = 		false;
-	keyboard->path =			path;
-	keyboard->fd = 				open(keyboard->path.c_str(), O_RDONLY);
-	keyboard->Event_Status =	event_status;
-
-	if (keyboard->fd == -1) {
-		log_err("invalid path for keyboard " + path);
-		keyboard->Listening =		false;
-		keyboard->Event_Listener =	NULL;
-	} else {
-		keyboard->Listening = 		true;
-		keyboard->Event_Listener = 	new thread(Listen_Keyboard, keyboard);
-	}
-
-	log_dbg("Keyboard " + path + " initialized");
-}
-
-KEYBOARD* Construct_Keyboard(string path, EVENT* event_status) {
-	log_dbg("Keyboard " + path + " created");
-
-	// ALLOCATION LEAKED
-	KEYBOARD* keyboard = new KEYBOARD();
-	Initialize_Keyboard(keyboard, path, event_status);
-	return keyboard;
-}
-
-void Delete_Keyboard(KEYBOARD* keyboard) {
-	string path = keyboard->path;
-	log_dbg("deleting keyboard " + path);
-	keyboard->Listening = false;
-	if (keyboard->Event_Listener) {
-		keyboard->Event_Listener->join();
-		delete keyboard->Event_Listener;
-	}
-	close(keyboard->fd);
-	while (keyboard->Events.size() > 0) {
-		KEYBOARD_EVENT_T* k_event = NULL;
-		keyboard->Events.pop(k_event);
-		delete k_event;
-	}
-	delete keyboard;
-	log_dbg("done deleting keyboard " + path);
-}
-
-void Listen_Keyboard(KEYBOARD* keyboard) {
-	fd_set set;
-	timeval tv;
-	input_event event;
-	int rv;
-
-	log_dbg("Beginning to listen to keyboard " + keyboard->path);
-	while (keyboard->Listening) {
-		FD_ZERO(&set);
-		FD_SET(keyboard->fd, &set);
-		tv.tv_sec = 0;
-		tv.tv_usec = 100000;
-
-		rv = select(keyboard->fd + 1, &set, NULL, NULL, &tv);
-		if (rv == -1) {
-			break;
-		} else if (rv == 0) {
-			continue;
-		}
-
-		if (read(keyboard->fd, &event, sizeof(input_event)) != -1 &&
-			event.type == EV_KEY && keyboard->Listening) {
-			KEYBOARD_EVENT_T* k_event = 	new KEYBOARD_EVENT_T;
-			k_event->code = 			event.code;
-			k_event->value = 			event.value;
-			keyboard->Events.push(k_event);
-			Set_Event(keyboard->Event_Status);
-		}
-	}
-	log_dbg("done listening to device " + keyboard->path);
-}
-
 void Handle_Key(Display* dpy, KeySym key, int32_t value, bool shift = false) {
 	switch (value) {
 		case 0:
@@ -172,7 +63,9 @@ void Handle_Key(Display* dpy, KeySym key, int32_t value, bool shift = false) {
 			XFlush(dpy);
 			break;
 		default:
-			log_err("invalid key event value");
+			log_err((const JSON_TYPE){
+				{"message", "invalid key event value"},
+				JSON_TYPE_END});
 			break;
 	}
 }
@@ -183,7 +76,10 @@ void Open_Display_KEYBOARD() {
 
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 	if (!KEYBOARD::dpy) {
-		log_err("Could not open display :" + to_string(display_ID));
+		log_err((const JSON_TYPE){
+			{"message", "Could not open display"},
+			{"display", to_string(display_ID)},
+			JSON_TYPE_END});
 		return;
 	}
 	KeyCode modcode = 0;
@@ -191,7 +87,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 	for (int i = events->size(); i > 0; i--) {
 		KEYBOARD_EVENT_T* k_event = NULL;
 		events->pop(k_event);
-	
+
 		switch (k_event->code) {
 			case KEY_ESC:
 				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
@@ -300,7 +196,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 						case 1: // Key Press
 						case 2: // Auto Repeat
 							char key_value;
-							key_value = KEYBOARD::Keys[k_event->code];
+							key_value = keys_mem[k_event->code];
 							if (key_value > 0) {
 								//cout << "heyyyy " << key_value << " " << int(key_value) << " < " << XK_less << " > " << XK_greater << endl;
 								modcode = XKeysymToKeycode(KEYBOARD::dpy, int(key_value));
@@ -452,7 +348,7 @@ void Handle_Keyboard_WINAPI(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 				case 1: // Key Press
 				case 2: // Auto Repeat
 					char key_value;
-					key_value = KEYBOARD::Keys[k_event->code];
+					key_value = keys_mem[k_event->code];
 					if (key_value > 0) {
 						//This let's you do a hardware scan instead of a virtual keypress
 						ip.ki.dwFlags = KEYEVENTF_SCANCODE;
@@ -535,7 +431,7 @@ void Handle_Keyboard_WINAPI(KEYBOARD_EVENT_T* k_event) {
 			case 1: // Key Press
 			case 2: // Auto Repeat
 				char key_value;
-				key_value = KEYBOARD::Keys[k_event->code];
+				key_value = keys_mem[k_event->code];
 				if (key_value > 0) {
 					//This let's you do a hardware scan instead of a virtual keypress
 					ip.ki.dwFlags = KEYEVENTF_SCANCODE;

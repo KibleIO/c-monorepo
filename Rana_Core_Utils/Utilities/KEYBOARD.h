@@ -5,9 +5,9 @@
 
 #include <fcntl.h>
 
-#include "../Utilities/EVENT.h"
-#include "../Utilities/LOGGING.h"
-#include "../Utilities/CONCURRENT_QUEUE.h"
+#include "EVENT.h"
+#include "LOGGING.h"
+#include "CONCURRENT_QUEUE.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
@@ -36,7 +36,7 @@ struct KEYBOARD {
 	static bool    Caps_Lock;
 	static char*   Keys;
 	static char*   Keys_Shifted;
-	
+
 	#ifdef __linux__
 	static Display* dpy;
 	string path;
@@ -61,9 +61,9 @@ struct KEYBOARD {
 #define XK_KP_Right                      0xff53
 #define XK_Tab                           0xff09
 #define XK_Control_L                     0xffe3
-#define XK_Control_R                     0xffe4
-#define XK_Alt_L 						 0xFFE9
-#define XK_Alt_R						 0xFFEA
+#define XK_Control_R                    0xffe4
+#define XK_Alt_L 			0xFFE9
+#define XK_Alt_R			0xFFEA
 #define XK_Escape                        0xff1b
 #define XK_F1                            0xffbe
 #define XK_F2                            0xffbf

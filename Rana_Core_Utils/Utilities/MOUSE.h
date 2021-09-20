@@ -89,8 +89,6 @@ struct MOUSE {
 	int32_t			Maximum_X;
 	int32_t			Minimum_Y;
 	int32_t			Maximum_Y;
-	static int32_t	Current_X;
-	static int32_t	Current_Y;
 	static bool		Clicked;
 	float			Sensitivity;
 
