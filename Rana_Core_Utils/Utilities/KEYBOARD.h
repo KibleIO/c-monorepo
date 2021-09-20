@@ -4,8 +4,6 @@
 #define  KEYBOARD_H_
 
 #include <fcntl.h>
-
-#include "EVENT.h"
 #include "LOGGING.h"
 #include "CONCURRENT_QUEUE.h"
 
@@ -34,17 +32,9 @@ struct KEYBOARD_EVENT_T {
 struct KEYBOARD {
 	static bool    Shift;
 	static bool    Caps_Lock;
-	static char*   Keys;
-	static char*   Keys_Shifted;
 
 	#ifdef __linux__
 	static Display* dpy;
-	string path;
-	int fd;
-	Queue<KEYBOARD_EVENT_T*> Events;
-	volatile bool Listening;
-	thread* Event_Listener;
-	EVENT* Event_Status;
 	#endif
 };
 
@@ -83,15 +73,6 @@ struct KEYBOARD {
 #define XK_Page_Up                       0xff55
 #define XK_Page_Down                     0xff56
 #define XK_End                           0xff57  /* EOL */
-
-	KEYBOARD *
-	Construct_Keyboard(string, EVENT *);
-
-void Initialize_Keyboard(KEYBOARD*, string, EVENT*);
-
-void Delete_Keyboard(KEYBOARD*);
-
-void Listen_Keyboard(KEYBOARD* keyboard);
 
 void Open_Display_KEYBOARD();
 

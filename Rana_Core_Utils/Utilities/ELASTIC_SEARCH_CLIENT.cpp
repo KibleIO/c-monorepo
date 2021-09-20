@@ -29,8 +29,8 @@ size_t Read_Callback_ELASTIC_SEARCH_CLIENT(char *ptr, size_t size, size_t nmemb,
 }
 
 bool Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
-	const JSON_TYPE json, char *file, char *line, char *function,
-	char *type) {
+	const JSON_TYPE json, const char *file, const char *line,
+	const char *function, const char *type) {
 
 	char buffer [TEMP_BUFFER_SIZE];
 	chrono::system_clock::time_point now = chrono::system_clock::now();
@@ -104,13 +104,15 @@ bool Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 
 //throw away function
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
-   return size * nmemb;
+	(void) buffer;
+	(void) userp;
+	return size * nmemb;
 }
 
 //ugh.. const.. you win this one Kord
 bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
-	const JSON_TYPE json, char *file, char *line, char *function,
-	char* type) {
+	const JSON_TYPE json, const char *file, const char *line,
+	const char *function, const char* type) {
 
 	CURLcode res;
 
@@ -166,5 +168,6 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 }
 
 void Delete_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
+	(void) client;
 	curl_global_cleanup();
 }

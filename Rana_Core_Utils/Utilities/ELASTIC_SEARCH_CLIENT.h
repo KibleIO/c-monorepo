@@ -29,15 +29,15 @@ struct ELASTIC_SEARCH_CLIENT {
 	curl_slist *hs;
 	char payload[MAX_PAYLOAD_SIZE];
 	char *payload_ptr;
-	int payload_size;
+	uint32_t payload_size;
 };
 
 bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*);
 bool Convert_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*,
-	const JSON_TYPE, char*, char*, char*, char*);
+	const JSON_TYPE, const char*, const char*, const char*, const char*);
 
-bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*, const JSON_TYPE, char*,
-	char*, char*, char*);
+bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*, const JSON_TYPE,
+	const char*, const char*, const char*, const char*);
 
 void Delete_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*);
 

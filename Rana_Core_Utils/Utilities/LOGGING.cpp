@@ -13,8 +13,8 @@ void initialize_elastic_search_client() {
 
 	Initialize_ELASTIC_SEARCH_CLIENT(&ELASTIC_CLIENT);
 }
-void Write_Message(const JSON_TYPE payload, char *file, uint32_t line,
-	char *function, char *type) {
+void Write_Message(const JSON_TYPE payload, string file, uint32_t line,
+	string function, string type) {
 
 	char buffer [TEMP_BUFFER_SIZE];
 	int ret;
@@ -23,7 +23,7 @@ void Write_Message(const JSON_TYPE payload, char *file, uint32_t line,
 
 	ret = snprintf(buffer, TEMP_BUFFER_SIZE, "%d", line);
 	if (ret > 0) {
-		Post_ELASTIC_SEARCH_CLIENT(&ELASTIC_CLIENT, file, buffer,
-			function, type);
+		Post_ELASTIC_SEARCH_CLIENT(&ELASTIC_CLIENT, payload,
+			file.c_str(), buffer, function.c_str(), type.c_str());
 	}
 }

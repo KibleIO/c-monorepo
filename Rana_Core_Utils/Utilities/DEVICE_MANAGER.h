@@ -18,9 +18,8 @@
 #include "MOUSE.h"
 #include "../Networking/Client.h"
 #include "../Networking/Server.h"
-#include "../Utilities/Stuff.h"
 #include "TIMER.h"
-#include "EVENT.h"
+#include "UTILS.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
@@ -66,17 +65,11 @@ struct DEVICE_MANAGER {
 
 void Reset_Mouse_Clicks();
 
-bool Initialize_DEVICE_MANAGER(
-DEVICE_MANAGER* dev_finder, int w, int h, EVENT* event_status = NULL);
-
+bool Initialize_DEVICE_MANAGER(DEVICE_MANAGER* dev_finder);
 void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server);
-
 void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
-
 void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
-
 void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
-
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 
 // Linux specific code {{{

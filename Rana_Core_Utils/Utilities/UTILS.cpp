@@ -1,6 +1,6 @@
 //PLATFORMS: Linux, Windows, OSX (TODO)
 
-#include "Utils.h"
+#include "UTILS.h"
 
 string system_output(string cmd) {
 	string data;

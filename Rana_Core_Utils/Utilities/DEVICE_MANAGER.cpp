@@ -35,10 +35,14 @@ bool Initialize_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 void Receive_Thread(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype;
 
-	log_dbg("receive thread started");
+	log_dbg(((const JSON_TYPE){
+		{"message", "receive thread started"},
+		JSON_TYPE_END}));
 	while (dev_man->receiving) {
 		if (!dev_man->server->Receive((char*)&ptype, sizeof(uint8_t))) {
-			log_err("could not receive input packet");
+			log_err(((const JSON_TYPE){
+				{"message", "could not receive input packet"},
+				JSON_TYPE_END}));
 			dev_man->receiving = false;
 			continue;
 		}
@@ -46,9 +50,12 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 		if (ptype == MOUSE_PACKET) {
 			MOUSE_EVENT_T* m_event = new MOUSE_EVENT_T;
 
-			if (
-			!dev_man->server->Receive((char*)m_event, sizeof(MOUSE_EVENT_T))) {
-				log_err("could not receive mouse event");
+			if (!dev_man->server->Receive((char*)m_event,
+				sizeof(MOUSE_EVENT_T))) {
+
+				log_err(((const JSON_TYPE){
+					{"message", "could not receive mouse event"},
+					JSON_TYPE_END}));
 				dev_man->receiving = false;
 				continue;
 			}
@@ -67,9 +74,12 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 			// }}}
 		} else if (ptype == KEY_PACKET) {
 			KEYBOARD_EVENT_T* k_event = new KEYBOARD_EVENT_T;
-			if (
-			!dev_man->server->Receive((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
-				log_err("could not receive keyboard event");
+			if (!dev_man->server->Receive((char*)k_event,
+				sizeof(KEYBOARD_EVENT_T))) {
+
+				log_err(((const JSON_TYPE){
+					{"message", "could not receive keyboard event"},
+					JSON_TYPE_END}));
 				dev_man->receiving = false;
 				continue;
 			}
@@ -87,10 +97,14 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 			#endif
 			// }}}
 		} else {
-			log_err("unknown packet type");
+			log_err(((const JSON_TYPE){
+				{"message", "unknown packet type"},
+				JSON_TYPE_END}));
 		}
 	}
-	log_dbg("receive thread going down");
+	log_dbg(((const JSON_TYPE){
+		{"message", "receive thread going down"},
+		JSON_TYPE_END}));
 }
 
 void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server) {
@@ -124,12 +138,18 @@ bool Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
 		KEYBOARD_EVENT_T* k_event = NULL;
 		DEVICE_MANAGER::Keyboard_Events.pop(k_event);
 		if (!k_event) {
-			log_err("expected keyboard event, found null");
+			log_err(((const JSON_TYPE){
+				{"message", "expected keyboard event, found null"},
+				JSON_TYPE_END}));
 			continue;
 		}
 		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-		!dev_man->client->Send((char*)k_event, sizeof(KEYBOARD_EVENT_T))) {
-			log_err("could not send keyboard event");
+			!dev_man->client->Send((char*)k_event,
+			sizeof(KEYBOARD_EVENT_T))) {
+
+			log_err(((const JSON_TYPE){
+				{"message", "could not send keyboard event"},
+				JSON_TYPE_END}));
 			return false;
 		}
 		delete k_event;
@@ -144,12 +164,18 @@ bool Send_Mouse_Data(DEVICE_MANAGER* dev_man) {
 		MOUSE_EVENT_T* m_event = NULL;
 		DEVICE_MANAGER::Mouse_Events.pop(m_event);
 		if (!m_event) {
-			log_err("expected mouse event, found null");
+			log_err(((const JSON_TYPE){
+				{"message", "expected mouse event, found null"},
+				JSON_TYPE_END}));
 			continue;
 		}
 		if (!dev_man->client->Send((char*)&ptype, sizeof(uint8_t)) ||
-		!dev_man->client->Send((char*)m_event, sizeof(MOUSE_EVENT_T))) {
-			log_err("failed to send mouse event");
+			!dev_man->client->Send((char*)m_event,
+			sizeof(MOUSE_EVENT_T))) {
+
+			log_err(((const JSON_TYPE){
+				{"message", "failed to send mouse event"},
+				JSON_TYPE_END}));
 			return false;
 		}
 		delete m_event;
@@ -166,7 +192,9 @@ void Send_Thread(DEVICE_MANAGER* dev_man) {
 		Sleep_Milli(16);
 	}
 
-	log_dbg("send thread going down");
+	log_dbg(((const JSON_TYPE){
+		{"message", "send thread going down"},
+		JSON_TYPE_END}));
 }
 
 void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client) {
@@ -190,12 +218,15 @@ void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 }
 
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
-	log_dbg("deleting device manager");
-	Stop_Reading_Devices_DEVICE_MANAGER(dev_man);
+	log_dbg(((const JSON_TYPE){
+		{"message", "deleting device manager"},
+		JSON_TYPE_END}));
 	Disconnect_Server_DEVICE_MANAGER(dev_man);
 	Disconnect_Client_DEVICE_MANAGER(dev_man);
 
-	log_dbg("done deleting device manager");
+	log_dbg(((const JSON_TYPE){
+		{"message", "done deleting device manager"},
+		JSON_TYPE_END}));
 	#ifdef _WIN64
 	delete dev_man->client_mtx;
 	#endif

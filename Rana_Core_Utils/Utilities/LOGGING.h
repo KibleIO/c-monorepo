@@ -24,6 +24,6 @@ extern uint8_t INITIALIZED_ELASTIC_SEARCH_CLIENT;
 extern ELASTIC_SEARCH_CLIENT ELASTIC_CLIENT;
 
 void initialize_elastic_search_client();
-void Write_Message(const JSON_TYPE, char*, uint32_t, char*, char*);
+void Write_Message(const JSON_TYPE, string, uint32_t, string, string);
 
 #endif
