@@ -4,8 +4,8 @@ CC = g++ -O3 -Wall -Wextra -Wpedantic
 UNAME_M = $(shell uname -m)
 USER=`whoami`
 
-CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -I/usr/include/libevdev-1.0 \
-					-std=c++11 -Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic
+CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I../ -std=c++11 -Wno-write-strings \
+	-Wno-implicit-fallthrough -Wno-pedantic
 
 ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
@@ -17,7 +17,6 @@ endif
 EXEC = libUtil.so
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
-
 
 # Main target
 $(EXEC): $(OBJECTS)
