@@ -10,7 +10,7 @@
 #include "ENCRYPTION_ENGINE.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Utilities/LOGGING.h"
-#include "../Utilities/Stuff.h"
+#include "../Utilities/UTILS.h"
 
 #define HERMES_CONNECTIONS_MAX 20
 
@@ -18,7 +18,7 @@
 #define HERMES_PORT_MAX 3329
 
 #define HERMES_AUDIO	1
-#define HERMES_DEVICE	2	
+#define HERMES_DEVICE	2
 #define HERMES_VIDEO	3
 #define HERMES_PRINT	4
 #define HERMES_DATA		5
@@ -53,7 +53,7 @@ struct HERMES_SERVER {
 	SERVER_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
 	uint8_t err;
-	
+
 	bool server_init_failed;
 };
 

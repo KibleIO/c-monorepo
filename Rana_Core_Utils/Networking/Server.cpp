@@ -257,7 +257,9 @@ bool Server::ListenBound() {
 		}
 	});
 
-	if ((cSocket = accept(lSocket, (sockaddr*)&cAddress, &cSize)) < 0) {
+	if ((cSocket = accept(lSocket, (sockaddr*)&cAddress,
+		(unsigned int*)&cSize)) < 0) {
+
 		log_err(((const JSON_TYPE){
 			{"message", "could not accept connection on socket"},
 			{"name", "name"},

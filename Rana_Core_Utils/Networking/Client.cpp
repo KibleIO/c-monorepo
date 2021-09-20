@@ -16,29 +16,39 @@ void Client::Init() {
 
 	cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (cSocket < 0) {
-		log_err(name + ": Client socket failed to open");
+		log_err(((const JSON_TYPE){
+			{"message", "Client socket failed to open"},
+			JSON_TYPE_END}));
 	}
 
 	o = 1;
 	if (
 	setsockopt(cSocket, SOL_SOCKET, SO_REUSEADDR, &o, sizeof o) != 0 ) {
-		log_err("bad setsockopt: reuseaddr");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: reuseaddr"},
+			JSON_TYPE_END}));
 	}
 
 	if (
 	setsockopt(cSocket, IPPROTO_TCP, TCP_NODELAY, &o, sizeof o) != 0) {
-		log_err("bad setsockopt: nodelay");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: nodelay"},
+			JSON_TYPE_END}));
 	}
 
 	if (
 	setsockopt(cSocket, IPPROTO_TCP, TCP_QUICKACK, &o, sizeof o) != 0) {
-		log_err("bad setsockopt: quickack");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: quickack"},
+			JSON_TYPE_END}));
 	}
 
 	o = 70000000;
 	if (
 	setsockopt(cSocket, SOL_SOCKET, SO_RCVBUF, &o, sizeof o) != 0) {
-		log_err("bad setsockopt: rcvbuf");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: rcvbuf"},
+			JSON_TYPE_END}));
 	}
 
 #endif
@@ -79,7 +89,9 @@ void Client::Set_Recv_Timeout(int seconds, int useconds) {
 	tv.tv_usec = useconds;
 	if (setsockopt(
 	cSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv) != 0) {
-		log_err("bad setsockopt: rcvtimeo");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: rcvtimeo"},
+			JSON_TYPE_END}));
 	}
 #endif
 #ifdef _WIN64
@@ -97,7 +109,9 @@ void Client::Set_High_Priority() {
 	o = 6;
 	if (setsockopt(
 	cSocket, SOL_SOCKET, SO_PRIORITY, (const char*)&o, sizeof o) != 0) {
-		log_err("bad setsockopt: priority");
+		log_err(((const JSON_TYPE){
+			{"message", "bad setsockopt: priority"},
+			JSON_TYPE_END}));
 	}
 #endif
 }
@@ -111,8 +125,9 @@ bool Client::OpenConnection(int port, string ip) {
 
 	if (inet_pton(AF_INET, ip.c_str(), &(destination.sin_addr.s_addr)) < 1) {
 		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip.c_str(), 2)) {
-			log_err(
-			name + ": getaddrinfo_k() failed " + ip + ":" + to_string(port));
+			log_err(((const JSON_TYPE){
+				{"message", "getaddrinfo_k() failed"},
+				JSON_TYPE_END}));
 			return false;
 		}
 	}
@@ -124,14 +139,16 @@ bool Client::OpenConnection(int port, string ip) {
 	int valopt;
 
 	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
-		log_err(
-		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		log_err(((const JSON_TYPE){
+			{"message", "Error fcntl(..., F_GETFL)"},
+			JSON_TYPE_END}));
 		return false;
 	}
 	arg |= O_NONBLOCK;
 	if (fcntl(cSocket, F_SETFL, arg) < 0) {
-		log_err(
-		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
+		log_err(((const JSON_TYPE){
+			{"message", "Error fcntl(..., F_SETFL)"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -151,33 +168,36 @@ bool Client::OpenConnection(int port, string ip) {
 				cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt),
 				(unsigned int*)&lon);
 				if (valopt) {
-					log_err(
-					name + ": Error in connection() " + ip + ":" +
-					to_string(port));
+					log_err(((const JSON_TYPE){
+						{"message", "Error in connection()"},
+						JSON_TYPE_END}));
 					return false;
 				}
 			} else {
-				log_err(
-				name + ": Timeout or Error select() " + ip + ":" +
-				to_string(port));
+				log_err(((const JSON_TYPE){
+					{"message", "Timeout or Error select()"},
+					JSON_TYPE_END}));
 				return false;
 			}
 		} else {
-			log_err(
-			name + ": Error connecting " + ip + ":" + to_string(port));
+			log_err(((const JSON_TYPE){
+				{"message", "Error connecting"},
+				JSON_TYPE_END}));
 			return false;
 		}
  	}
 
 	if ((arg = fcntl(cSocket, F_GETFL, NULL)) < 0) {
-		log_err(
-		name + ": Error fcntl(..., F_GETFL) " + ip + ":" + to_string(port));
+		log_err(((const JSON_TYPE){
+			{"message", "Error fcntl(..., F_GETFL)"},
+			JSON_TYPE_END}));
 		return false;
 	}
 	arg &= (~O_NONBLOCK);
 	if (fcntl(cSocket, F_SETFL, arg) < 0) {
-		log_err(
-		name + ": Error fcntl(..., F_SETFL) " + ip + ":" + to_string(port));
+		log_err(((const JSON_TYPE){
+			{"message", "Error fcntl(..., F_SETFL)"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -242,7 +262,9 @@ bool Client::OpenConnection(int port, string ip) {
 	}
 #endif
 
-	log_dbg(name + ": Connection successful " + ip + ":" + to_string(port));
+	log_dbg(((const JSON_TYPE){
+		{"message", "Connection successful"},
+		JSON_TYPE_END}));
 	connected = true;
 
 	return true;
@@ -257,26 +279,34 @@ void Client::CloseConnection() {
 	closesocket(cSocket);
 	WSACleanup();
 #endif
-	log_dbg(name + ": Client connection closed");
+	log_dbg(((const JSON_TYPE){
+		{"message", "Client connection closed"},
+		JSON_TYPE_END}));
 	connected = false;
 }
 
 bool Client::Send(char *data, int size) {
 	if (!connected) {
-		log_dbg(name + ": client not connected, can't send");
+		log_err(((const JSON_TYPE){
+			{"message", "client not connected, can't send"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
 	if (enc) {
 		if (!Encrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)data, size, (uint8_t*)enc_buf_data)) {
-			log_err(name + ": unable to encrypt data");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to encrypt data"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
 		if (!Generate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err(name + ": unable to generate auth code");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to generate auth code"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
@@ -294,7 +324,9 @@ bool Client::Send(char *data, int size) {
 
 bool Client::Receive(char *data, int size) {
 	if (!connected) {
-		log_dbg(name + ": client not connected, can't receive");
+		log_err(((const JSON_TYPE){
+			{"message", "client not connected, can't receive"},
+			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -308,7 +340,9 @@ bool Client::Receive(char *data, int size) {
 		bool recvd = recv(cSocket, enc_buf_auth, size, 0) == size;
 #endif
 		if (!recvd) {
-			log_err(name + ": unable to receive");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
@@ -316,13 +350,17 @@ bool Client::Receive(char *data, int size) {
 
 		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
-			log_err(name + ": unable to authenticate data");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to authenticate data"},
+				JSON_TYPE_END}));
 			return false;
 		}
 
 		if (!Decrypt_Data_ENCRYPTION_PROFILE(
 		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
-			log_err(name + ": unable to decrypt data");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to decrypt data"},
+				JSON_TYPE_END}));
 			return false;
 		}
 	} else {
@@ -333,7 +371,9 @@ bool Client::Receive(char *data, int size) {
 		bool recvd = recv(cSocket, data, size, 0) == size;
 #endif
 		if (!recvd) {
-			log_err(name + ": unable to receive");
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				JSON_TYPE_END}));
 			return false;
 		}
 	}
