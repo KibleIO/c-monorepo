@@ -26,6 +26,14 @@
 #define __CORE_SYSTEM__ "THEMIS"
 #endif
 
+#ifdef __SYSTEM_IRIS_HOST__
+#define __CORE_SYSTEM__ "IRIS_HOST"
+#endif
+
+#ifdef __SYSTEM_THEMIS_HOST__
+#define __CORE_SYSTEM__ "THEMIS_HOST"
+#endif
+
 #ifndef __CORE_SYSTEM__
 #error PLEASE DEFINE __CORE_SYSTEM__
 #endif
