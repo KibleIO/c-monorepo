@@ -49,3 +49,40 @@ uint8_t file_exists(string file) {
 	struct stat buffer;
 	return (stat(file.c_str(), &buffer) == 0);
 }
+
+void generate_uuid(char *str) {
+	uuid_t binuuid;
+        uuid_generate_random(binuuid);
+
+        uuid_unparse(binuuid, str);
+}
+
+void get_mac_address(char *str) {
+	struct ifreq s;
+
+        int fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+	if (fd < 0) {
+		goto error_lbl;
+	}
+
+	strcpy(str, "");
+	strcpy(s.ifr_name, NETWORK_CARD_NAME);
+	if (ioctl(fd, SIOCGIFHWADDR, &s) == 0) {
+		for (int i = 0; i < OCTETS_IN_MAC_ADDRESS; i++) {
+			snprintf(str, DIGITS_IN_OCTET_IN_MAC_ADDRESS + 1,
+				"%02x", (unsigned char) s.ifr_addr.sa_data[i]);
+			str += DIGITS_IN_OCTET_IN_MAC_ADDRESS;
+			if (i < OCTETS_IN_MAC_ADDRESS - 1) {
+				strcat(str, ":");
+				str += 1;
+			}
+		}
+	} else {
+		goto error_lbl;
+	}
+	close(fd);
+	return;
+
+	error_lbl:
+	strcpy(str, "FATAL");
+}

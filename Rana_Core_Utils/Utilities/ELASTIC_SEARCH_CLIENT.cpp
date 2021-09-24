@@ -8,6 +8,9 @@ bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 	client->hs = curl_slist_append(client->hs,
 		"Content-Type: application/json");
 
+	generate_uuid(client->uuid);
+	get_mac_address(client->mac_address);
+
 	return true;
 }
 
@@ -40,6 +43,7 @@ bool Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 	int thread = syscall(__NR_gettid);
 	int ret;
 	int i = 0;
+
 
 	client->payload[0] = '\0'; //lets reset that string
 
@@ -74,6 +78,24 @@ bool Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 	strcat(client->payload, "type");
 	strcat(client->payload, "\": \"");
 	strcat(client->payload, type);
+	strcat(client->payload, "\",");
+
+	strcat(client->payload, "\"");
+	strcat(client->payload, "system");
+	strcat(client->payload, "\": \"");
+	strcat(client->payload, __CORE_SYSTEM__);
+	strcat(client->payload, "\",");
+
+	strcat(client->payload, "\"");
+	strcat(client->payload, "uuid");
+	strcat(client->payload, "\": \"");
+	strcat(client->payload, client->uuid);
+	strcat(client->payload, "\",");
+
+	strcat(client->payload, "\"");
+	strcat(client->payload, "mac_address");
+	strcat(client->payload, "\": \"");
+	strcat(client->payload, client->mac_address);
 	strcat(client->payload, "\",");
 
 	ret = snprintf(buffer, TEMP_BUFFER_SIZE, "%d", thread);

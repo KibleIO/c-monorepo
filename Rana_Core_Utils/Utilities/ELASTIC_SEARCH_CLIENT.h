@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <curl/curl.h>
 #include <cstring>
+#include "UTILS.h"
 
 using namespace std;
 
@@ -30,6 +31,8 @@ struct ELASTIC_SEARCH_CLIENT {
 	char payload[MAX_PAYLOAD_SIZE];
 	char *payload_ptr;
 	uint32_t payload_size;
+	char mac_address[MAC_ADDRESS_STR_LEN];
+	char uuid[UUID_STR_SIZE];
 };
 
 bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*);

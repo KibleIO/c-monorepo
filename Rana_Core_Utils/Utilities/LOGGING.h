@@ -14,9 +14,21 @@
 #define log_close(payload) Write_Message(payload, __FILE__, __LINE__, \
 	__func__, "close")
 
-#define LOG_DIR "./logs"
+#ifdef __SYSTEM_RANA__
+#define __CORE_SYSTEM__ "RANA"
+#endif
 
-#define MAX_LOGS 20
+#ifdef __SYSTEM_IRIS__
+#define __CORE_SYSTEM__ "IRIS"
+#endif
+
+#ifdef __SYSTEM_THEMIS__
+#define __CORE_SYSTEM__ "THEMIS"
+#endif
+
+#ifndef __CORE_SYSTEM__
+#error PLEASE DEFINE __CORE_SYSTEM__
+#endif
 
 using namespace std;
 
