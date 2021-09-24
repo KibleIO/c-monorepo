@@ -33,6 +33,7 @@ struct ELASTIC_SEARCH_CLIENT {
 	uint32_t payload_size;
 	char mac_address[MAC_ADDRESS_STR_LEN];
 	char uuid[UUID_STR_SIZE];
+	char core_system[CORE_SYSTEM_STR_SIZE];
 };
 
 bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*);

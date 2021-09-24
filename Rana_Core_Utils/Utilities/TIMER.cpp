@@ -34,15 +34,6 @@ long Stop_TIMER(TIMER* timer) {
 #endif
 }
 
-void Sleep_Milli(unsigned int milli) {
-#ifdef __linux__
-	usleep(milli * 1000);
-#endif
-#ifdef _WIN64
-	Sleep(milli);
-#endif
-}
-
 void Delete_TIMER(TIMER* timer) {
 	(void)timer;
 }

@@ -10,6 +10,7 @@ bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 
 	generate_uuid(client->uuid);
 	get_mac_address(client->mac_address);
+	get_core_system(client->core_system);
 
 	return true;
 }
@@ -83,7 +84,7 @@ bool Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 	strcat(client->payload, "\"");
 	strcat(client->payload, "system");
 	strcat(client->payload, "\": \"");
-	strcat(client->payload, __CORE_SYSTEM__);
+	strcat(client->payload, client->core_system);
 	strcat(client->payload, "\",");
 
 	strcat(client->payload, "\"");

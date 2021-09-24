@@ -58,31 +58,79 @@ void generate_uuid(char *str) {
 }
 
 void get_mac_address(char *str) {
-	struct ifreq s;
+	struct ifreq ifr;
+	struct ifconf ifc;
+	struct ifreq *it;
+	struct ifreq *end;
+	char buf[SIOCGIFCONF_BUFFER_SIZE];
+	int success = 0;
+	int retry = MAC_ADDRESS_RETRY;
 
-        int fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (fd < 0) {
+	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+	if (sock < 0) {
 		goto error_lbl;
 	}
 
-	strcpy(str, "");
-	strcpy(s.ifr_name, NETWORK_CARD_NAME);
-	if (ioctl(fd, SIOCGIFHWADDR, &s) == 0) {
+	do {
+		ifc.ifc_len = sizeof(buf);
+		ifc.ifc_buf = buf;
+		if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
+			goto error_lbl;
+		}
+
+		it = ifc.ifc_req;
+		end = it + (ifc.ifc_len / sizeof(struct ifreq));
+		
+		for (; it != end; it++) {
+			strcpy(ifr.ifr_name, it->ifr_name);
+			if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
+				//don't count loopback and devices
+				//that are not running
+				if (!(ifr.ifr_flags & IFF_LOOPBACK) &&
+					(ifr.ifr_flags & IFF_RUNNING)) {
+
+					if (ioctl(sock, SIOCGIFHWADDR,
+						&ifr) == 0) {
+
+						success = 1;
+						break;
+					}
+				}
+			}
+		}
+		if (!success) {
+			Sleep_Milli(MAC_ADDRESS_RETRY_SLEEP);
+		}
+		retry--;
+	} while (/*retry >= 0 && */!success); //demorgan came knocking...
+
+	if (success) {
 		for (int i = 0; i < OCTETS_IN_MAC_ADDRESS; i++) {
 			snprintf(str, DIGITS_IN_OCTET_IN_MAC_ADDRESS + 1,
-				"%02x", (unsigned char) s.ifr_addr.sa_data[i]);
+				"%02x", (unsigned char)
+				ifr.ifr_hwaddr.sa_data[i]);
+
 			str += DIGITS_IN_OCTET_IN_MAC_ADDRESS;
 			if (i < OCTETS_IN_MAC_ADDRESS - 1) {
 				strcat(str, ":");
 				str += 1;
 			}
 		}
-	} else {
-		goto error_lbl;
+
+		close(sock);
+		return;
 	}
-	close(fd);
-	return;
 
 	error_lbl:
+	close(sock);
 	strcpy(str, "FATAL");
+}
+
+void Sleep_Milli(unsigned int milli) {
+#ifdef __linux__
+	usleep(milli * 1000);
+#endif
+#ifdef _WIN64
+	Sleep(milli);
+#endif
 }
