@@ -3,15 +3,11 @@
 #ifndef  KEYBOARD_H_
 #define  KEYBOARD_H_
 
-#include <fcntl.h>
-
-#include "../Utilities/EVENT.h"
-#include "../Utilities/LOGGING.h"
-#include "../Utilities/CONCURRENT_QUEUE.h"
+#include "LOGGING.h"
+#include "CONCURRENT_QUEUE.h"
 
 // Linux specific includes {{{
 #ifdef __linux__
-#include <unistd.h>
 #include <linux/input.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
@@ -34,17 +30,9 @@ struct KEYBOARD_EVENT_T {
 struct KEYBOARD {
 	static bool    Shift;
 	static bool    Caps_Lock;
-	static char*   Keys;
-	static char*   Keys_Shifted;
-	
+
 	#ifdef __linux__
 	static Display* dpy;
-	string path;
-	int fd;
-	Queue<KEYBOARD_EVENT_T*> Events;
-	volatile bool Listening;
-	thread* Event_Listener;
-	EVENT* Event_Status;
 	#endif
 };
 
@@ -61,9 +49,9 @@ struct KEYBOARD {
 #define XK_KP_Right                      0xff53
 #define XK_Tab                           0xff09
 #define XK_Control_L                     0xffe3
-#define XK_Control_R                     0xffe4
-#define XK_Alt_L 						 0xFFE9
-#define XK_Alt_R						 0xFFEA
+#define XK_Control_R                    0xffe4
+#define XK_Alt_L 			0xFFE9
+#define XK_Alt_R			0xFFEA
 #define XK_Escape                        0xff1b
 #define XK_F1                            0xffbe
 #define XK_F2                            0xffbf
@@ -83,15 +71,6 @@ struct KEYBOARD {
 #define XK_Page_Up                       0xff55
 #define XK_Page_Down                     0xff56
 #define XK_End                           0xff57  /* EOL */
-
-	KEYBOARD *
-	Construct_Keyboard(string, EVENT *);
-
-void Initialize_Keyboard(KEYBOARD*, string, EVENT*);
-
-void Delete_Keyboard(KEYBOARD*);
-
-void Listen_Keyboard(KEYBOARD* keyboard);
 
 void Open_Display_KEYBOARD();
 

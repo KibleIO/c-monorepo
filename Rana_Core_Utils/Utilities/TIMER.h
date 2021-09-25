@@ -29,8 +29,6 @@ struct TIMER {
 bool Initialize_TIMER(TIMER*);
 void Start_TIMER(TIMER*);
 long Stop_TIMER(TIMER*);
-void Sleep_Milli(unsigned int);
 void Delete_TIMER(TIMER*);
 
 #endif /* TIMER_H_ */
-

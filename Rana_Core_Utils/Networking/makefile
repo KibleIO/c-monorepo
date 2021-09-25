@@ -1,12 +1,12 @@
 # Declaration of variables
-CC = g++ -O3 -Wall -Wextra -Wpedantic -Werror
+CC = g++ -O3 -Wall -Wextra -Wpedantic
 C = gcc -O3 -Wall -Wextra -Wpedantic
 
 UNAME_M = $(shell uname -m)
 USER=`whoami`
 
 CC_BUILD_FLAGS =	-fPIC -Wl,--as-needed -I../ -lUtil \
-					-std=c++11 -Wno-write-strings -lcares
+					-std=c++11 -Wno-write-strings -lcares -Wno-pedantic
 C_BUILD_FLAGS =	-fPIC -Wl,--as-needed
 
 ifeq ($(UNAME_M),armv7l)

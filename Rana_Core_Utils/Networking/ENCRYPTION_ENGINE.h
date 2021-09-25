@@ -5,7 +5,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-
+#include <sys/stat.h>
 #include "ENCRYPTION_PROFILE.h"
 #include "../Utilities/LOGGING.h"
 
