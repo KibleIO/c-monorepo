@@ -194,7 +194,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	hs->connected = true;
 	hs->server = new Server();
 	hs->server->Set_Name("hermes server");
-	hs->server->Set_Recv_Timeout(30);
+	hs->server->Set_Recv_Timeout(3000);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(
@@ -529,7 +529,8 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	log_dbg(((const JSON_TYPE){
 		{"message", "connecting to"},
 		JSON_TYPE_END}));
-	int attempts = HERMES_TIMEOUT_TRIES;
+	//come on man - Joe Biden
+	int attempts = HERMES_TIMEOUT_TRIES * HERMES_TIMEOUT_TRIES;
 	while (
 	!hc->client->OpenConnection(hc->baseport, hc->ip) && attempts-- > 0) {
 		hc->client->CloseConnection();

@@ -1,6 +1,7 @@
 #ifndef _ELASTIC_SEARCH_CLIENT_H_
 #define _ELASTIC_SEARCH_CLIENT_H_
 
+#include <mutex>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -34,6 +35,7 @@ struct ELASTIC_SEARCH_CLIENT {
 	char mac_address[MAC_ADDRESS_STR_LEN];
 	char uuid[UUID_STR_SIZE];
 	char core_system[CORE_SYSTEM_STR_SIZE];
+	mutex mutex_;
 };
 
 bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT*);

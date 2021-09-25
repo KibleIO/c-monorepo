@@ -5,8 +5,10 @@
 
 #include "ELASTIC_SEARCH_CLIENT.h"
 
-#define log_dbg(payload) Write_Message(payload, __FILE__, __LINE__, __func__, \
-	"debug")
+#define log_dbg(payload)
+
+#define log_info(payload) Write_Message(payload, __FILE__, __LINE__, __func__, \
+	"info")
 
 #define log_err(payload) Write_Message(payload,  __FILE__, __LINE__, __func__, \
 	"error")

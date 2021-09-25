@@ -12,7 +12,9 @@ bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 	get_mac_address(client->mac_address);
 	get_core_system(client->core_system);
 
-	return true;
+	client->curl = curl_easy_init();
+
+	return client->curl;
 }
 
 size_t Read_Callback_ELASTIC_SEARCH_CLIENT(char *ptr, size_t size, size_t nmemb,
@@ -139,6 +141,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 
 	CURLcode res;
 
+	client->mutex_.lock();
 	if (!Convert_Hacky_JSON_ELASTIC_SEARCH_CLIENT(client, json, file, line,
 		function, type)) {
 
@@ -147,50 +150,43 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 
 	client->payload_ptr = client->payload;
 	client->payload_size = strlen(client->payload);
-	client->curl = curl_easy_init();
 
-	if (client->curl) {
-		/* specify target URL, and note that this URL should include a
-		file name, not only a directory */
-		curl_easy_setopt(client->curl, CURLOPT_URL, ELASTIC_SEARCH_URL);
+	/* specify target URL, and note that this URL should include a
+	file name, not only a directory */
+	curl_easy_setopt(client->curl, CURLOPT_URL, ELASTIC_SEARCH_URL);
 
-		/* enable uploading (implies PUT over HTTP) */
-		curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
+	/* enable uploading (implies PUT over HTTP) */
+	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
 
-		curl_easy_setopt(client->curl, CURLOPT_HTTPHEADER, client->hs);
+	curl_easy_setopt(client->curl, CURLOPT_HTTPHEADER, client->hs);
 
-		/* we want to use our own read function */
-		curl_easy_setopt(client->curl, CURLOPT_READFUNCTION,
-			Read_Callback_ELASTIC_SEARCH_CLIENT);
+	/* we want to use our own read function */
+	curl_easy_setopt(client->curl, CURLOPT_READFUNCTION,
+		Read_Callback_ELASTIC_SEARCH_CLIENT);
 
-		/* now specify which file to upload */
-		curl_easy_setopt(client->curl, CURLOPT_READDATA, client);
+	/* now specify which file to upload */
+	curl_easy_setopt(client->curl, CURLOPT_READDATA, client);
 
-		/* provide the size of the upload, we specicially typecast the
-		value to curl_off_t since we must be sure to use the correct
-		data size */
-		curl_easy_setopt(client->curl, CURLOPT_POSTFIELDSIZE,
-		     (long)client->payload_size);
+	/* provide the size of the upload, we specicially typecast the
+	value to curl_off_t since we must be sure to use the correct
+	data size */
+	curl_easy_setopt(client->curl, CURLOPT_POSTFIELDSIZE,
+	     (long)client->payload_size);
 
-		curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
+	curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
 
-		/* Now run off and do what you've been told! */
-		res = curl_easy_perform(client->curl);
+	/* Now run off and do what you've been told! */
+	res = curl_easy_perform(client->curl);
 
-		/* Check for errors */
-		if (res != CURLE_OK) {
-			return false;
-		}
+	client->mutex_.unlock();
 
-		/* always cleanup */
-		curl_easy_cleanup(client->curl);
-	} else {
-		return false;
-	}
-	return true;
+	/* Check for errors */
+	return (res != CURLE_OK);
 }
 
 void Delete_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 	(void) client;
+	/* always cleanup */
+	curl_easy_cleanup(client->curl);
 	curl_global_cleanup();
 }
