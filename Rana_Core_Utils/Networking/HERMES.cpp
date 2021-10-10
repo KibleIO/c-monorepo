@@ -411,7 +411,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 		return false;
 	}
 	flag = type;
-	log_err(((const JSON_TYPE){
+	log_dbg(((const JSON_TYPE){
 		{"message", "sending type"},
 		JSON_TYPE_END}));
 	if (!hc->client->Send((char*)&flag, sizeof(uint8_t))) {
