@@ -29,8 +29,8 @@ local: $(OBJECTS)
 
 install: $(EXEC)
 	sudo cp ./librana.so /usr/local/lib
-	sudo cp -R ./Networking /usr/local/include/rana/Networking
-	sudo cp -R ./Utilities /usr/local/include/rana/Utilities
+	sudo cp -R ./Networking/* /usr/local/include/rana/Networking
+	sudo cp -R ./Utilities/* /usr/local/include/rana/Utilities
 
 dockerimage-publish: $(EXEC)
 	docker build -t kible/coreutils .
