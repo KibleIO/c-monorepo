@@ -80,7 +80,7 @@ void get_mac_address(char *str) {
 
 		it = ifc.ifc_req;
 		end = it + (ifc.ifc_len / sizeof(struct ifreq));
-		
+
 		for (; it != end; it++) {
 			strcpy(ifr.ifr_name, it->ifr_name);
 			if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
@@ -133,4 +133,9 @@ void Sleep_Milli(unsigned int milli) {
 #ifdef _WIN64
 	Sleep(milli);
 #endif
+}
+
+const char* itoa(const char *str, int input) {
+	snprintf((char*)str, ITOA_STR_SIZE, "%d", input);
+	return str;
 }

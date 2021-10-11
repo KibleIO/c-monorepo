@@ -7,14 +7,17 @@
 
 #define log_dbg(payload)
 
-#define log_info(payload) Write_Message(payload, __FILE__, __LINE__, __func__, \
-	"info")
-
 #define log_err(payload) Write_Message(payload,  __FILE__, __LINE__, __func__, \
 	"error")
 
 #define log_close(payload) Write_Message(payload, __FILE__, __LINE__, \
 	__func__, "close")
+
+#define log_info(...) static JSON_TYPE logging_temp_var = __VA_ARGS__;\
+	Write_Message(logging_temp_var, __FILE__, __LINE__, __func__, \
+	"info")
+
+#define TO_STRING(integer) (char*) itoa((const char[ITOA_STR_SIZE]){}, integer)
 
 using namespace std;
 
