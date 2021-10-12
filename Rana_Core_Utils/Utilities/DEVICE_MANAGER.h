@@ -27,7 +27,8 @@
 using namespace std;
 
 struct DEVICE_MANAGER {
-	Client	*client;
+	//OMG OMG OMG someone fix this
+	static Client	*client;
 	Server	*server;
 
 #ifdef __linux__
@@ -48,11 +49,14 @@ struct DEVICE_MANAGER {
 void Reset_Mouse_Clicks();
 
 bool Initialize_DEVICE_MANAGER(DEVICE_MANAGER* dev_finder);
-void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server);
+bool Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server);
 void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
-void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
+bool Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client);
 void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man);
+
+bool Send_Mouse_Data_Single(MOUSE_EVENT_T *);
+bool Send_Keyboard_Data_Single(KEYBOARD_EVENT_T *);
 
 // Linux specific code {{{
 #ifdef __linux__

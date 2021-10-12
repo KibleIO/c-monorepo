@@ -51,6 +51,6 @@ void get_core_system(char*);
 
 void Sleep_Milli(unsigned int);
 
-const char* itoa();
+const char* itoa(const char *, int);
 
 #endif

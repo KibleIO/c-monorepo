@@ -117,6 +117,9 @@ void Client::Set_High_Priority() {
 }
 
 bool Client::OpenConnection(int port, string ip) {
+	char log_str[ITOA_STR_SIZE];
+	char log_str2[ITOA_STR_SIZE];
+
 #ifdef __linux__
 	// Set up server destination
 	sockaddr_in destination;
@@ -168,9 +171,13 @@ bool Client::OpenConnection(int port, string ip) {
 				cSocket, SOL_SOCKET, SO_ERROR, (void*)(&valopt),
 				(unsigned int*)&lon);
 				if (valopt) {
-					log_err(((const JSON_TYPE){
+					log_error({
 						{"message", "Error in connection()"},
-						JSON_TYPE_END}));
+						{"port", TO_STRING(log_str, port)},
+						{"ip", STRING_TO(ip)},
+						{"name", STRING_TO(name)},
+						{"error_code", TO_STRING(log_str2, valopt)},
+						JSON_TYPE_END});
 					return false;
 				}
 			} else {

@@ -406,6 +406,8 @@ bool Server::Send(char *data, int size) {
 }
 
 bool Server::Receive(char *data, int size) {
+	char log_str[ITOA_STR_SIZE];
+
 	if (!connected) {
 		log_err(((const JSON_TYPE){
 			{"message", "server not connected, can't receive"},
@@ -425,10 +427,11 @@ bool Server::Receive(char *data, int size) {
 #endif
 
 		if (!recvd) {
-			log_err(((const JSON_TYPE){
+			log_error({
 				{"message", "unable to receive"},
-				{"name", "name"},
-				JSON_TYPE_END}));
+				{"name", STRING_TO(name)},
+				{"error_code", TO_STRING(log_str, errno)},
+				JSON_TYPE_END});
 			return false;
 		}
 
@@ -462,10 +465,11 @@ bool Server::Receive(char *data, int size) {
 #endif
 
 		if (!recvd) {
-			log_err(((const JSON_TYPE){
+			log_error({
 				{"message", "unable to receive"},
-				{"name", "name"},
-				JSON_TYPE_END}));
+				{"name", STRING_TO(name)},
+				{"error_code", TO_STRING(log_str, errno)},
+				JSON_TYPE_END});
 
 			return false;
 		}

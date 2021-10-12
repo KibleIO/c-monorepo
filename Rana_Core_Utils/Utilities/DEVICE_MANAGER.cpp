@@ -2,6 +2,7 @@
 
 #include "DEVICE_MANAGER.h"
 
+Client	*DEVICE_MANAGER::client;
 Queue<KEYBOARD_EVENT_T*> DEVICE_MANAGER::Keyboard_Events;
 Queue<MOUSE_EVENT_T*> DEVICE_MANAGER::Mouse_Events;
 
@@ -34,6 +35,8 @@ bool Initialize_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 
 void Receive_Thread(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype;
+	MOUSE_EVENT_T m_event;
+	KEYBOARD_EVENT_T k_event;
 
 	log_dbg(((const JSON_TYPE){
 		{"message", "receive thread started"},
@@ -48,9 +51,7 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 		}
 
 		if (ptype == MOUSE_PACKET) {
-			MOUSE_EVENT_T* m_event = new MOUSE_EVENT_T;
-
-			if (!dev_man->server->Receive((char*)m_event,
+			if (!dev_man->server->Receive((char*)&m_event,
 				sizeof(MOUSE_EVENT_T))) {
 
 				log_err(((const JSON_TYPE){
@@ -61,7 +62,8 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 			}
 			// Linux specific code {{{
 			#ifdef __linux__
-			DEVICE_MANAGER::Mouse_Events.push(m_event);
+			Handle_Mouse_X11_Single(&m_event);
+			//DEVICE_MANAGER::Mouse_Events.push(m_event);
 			#endif
 			// }}} Windows specific code {{{
 			#ifdef _WIN64
@@ -73,8 +75,7 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 			#endif
 			// }}}
 		} else if (ptype == KEY_PACKET) {
-			KEYBOARD_EVENT_T* k_event = new KEYBOARD_EVENT_T;
-			if (!dev_man->server->Receive((char*)k_event,
+			if (!dev_man->server->Receive((char*)&k_event,
 				sizeof(KEYBOARD_EVENT_T))) {
 
 				log_err(((const JSON_TYPE){
@@ -85,7 +86,8 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 			}
 			// Linux specific code {{{
 			#ifdef __linux__
-			DEVICE_MANAGER::Keyboard_Events.push(k_event);
+			Handle_Keyboard_X11_Single(& k_event);
+			//DEVICE_MANAGER::Keyboard_Events.push(k_event);
 			#endif
 			// }}} Windows specific code {{{
 			#ifdef _WIN64
@@ -107,13 +109,23 @@ void Receive_Thread(DEVICE_MANAGER* dev_man) {
 		JSON_TYPE_END}));
 }
 
-void Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Server* server) {
+bool Connect_Server_DEVICE_MANAGER(DEVICE_MANAGER *dev_man, Server *server) {
+	if (server == NULL) {
+		log_err(((const JSON_TYPE){
+			{"message", "Null server passed into connect"},
+			JSON_TYPE_END}));
+
+		return false;
+	}
+
 	Disconnect_Server_DEVICE_MANAGER(dev_man);
 	dev_man->server = server;
 	dev_man->server->Set_Recv_Timeout(NETWORKING_NO_TIMEOUT);
 	dev_man->server->Set_High_Priority();
 	dev_man->receiving = true;
 	dev_man->recv_thr = new thread(Receive_Thread, dev_man);
+
+	return true;
 }
 
 void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
@@ -131,6 +143,52 @@ void Disconnect_Server_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 
 // Linux specific code {{{
 #ifdef __linux__
+
+bool Send_Keyboard_Data_Single(KEYBOARD_EVENT_T *k_event) {
+	uint8_t ptype = KEY_PACKET;
+	/*meh, probably not needed
+	if (!k_event) {
+		log_err(((const JSON_TYPE){
+			{"message", "expected keyboard event, found null"},
+			JSON_TYPE_END}));
+		continue;
+	}
+	*/
+	if (!DEVICE_MANAGER::client->Send((char*)&ptype, sizeof(uint8_t)) ||
+		!DEVICE_MANAGER::client->Send((char*)k_event,
+		sizeof(KEYBOARD_EVENT_T))) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "could not send keyboard event"},
+			JSON_TYPE_END}));
+		return false;
+	}
+	return true;
+}
+
+bool Send_Mouse_Data_Single(MOUSE_EVENT_T *m_event) {
+	uint8_t ptype = MOUSE_PACKET;
+	/*meh, probably not needed
+	if (!m_event) {
+		log_err(((const JSON_TYPE){
+			{"message", "expected mouse event, found null"},
+			JSON_TYPE_END}));
+		continue;
+	}
+	*/
+	if (!DEVICE_MANAGER::client->Send((char*)&ptype, sizeof(uint8_t)) ||
+		!DEVICE_MANAGER::client->Send((char*)m_event,
+		sizeof(MOUSE_EVENT_T))) {
+
+		log_err(((const JSON_TYPE){
+			{"message", "failed to send mouse event"},
+			JSON_TYPE_END}));
+		return false;
+	}
+
+	return true;
+}
+
 bool Send_Keyboard_Data(DEVICE_MANAGER* dev_man) {
 	uint8_t ptype = KEY_PACKET;
 	int len = DEVICE_MANAGER::Keyboard_Events.size();
@@ -197,11 +255,21 @@ void Send_Thread(DEVICE_MANAGER* dev_man) {
 		JSON_TYPE_END}));
 }
 
-void Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man, Client* client) {
+bool Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER *dev_man, Client *client) {
+	if (client == NULL) {
+		log_err(((const JSON_TYPE){
+			{"message", "Null client passed into connect"},
+			JSON_TYPE_END}));
+
+		return false;
+	}
 	Disconnect_Client_DEVICE_MANAGER(dev_man);
 	dev_man->client = client;
 	dev_man->sending = true;
-	dev_man->send_thr = new thread(Send_Thread, dev_man);
+	//dev_man->send_thr = new thread(Send_Thread, dev_man);
+	dev_man->send_thr = NULL;
+
+	return true;
 }
 
 void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {

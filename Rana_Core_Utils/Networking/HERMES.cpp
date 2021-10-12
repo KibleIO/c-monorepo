@@ -236,16 +236,24 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 
 	uint8_t flag;
 
-	log_dbg(((const JSON_TYPE){
-		{"message", "starting server loop"},
-		JSON_TYPE_END}));
+	log_info({
+		{"message", "starting hermes server loop"},
+		JSON_TYPE_END});
 	while (hs->connected) {
-		if (!hs->server->Receive((char*)&flag, sizeof(uint8_t))) {
+		//FIX!!
+		int attempts = HERMES_TIMEOUT_TRIES * HERMES_TIMEOUT_TRIES;
+		while (!hs->server->Receive((char*)&flag, sizeof(uint8_t)) &&
+			attempts-- >= 0) {
+
+			Sleep_Milli(1);
+		}
+		if (attempts < 0) {
 			log_err(((const JSON_TYPE){
 				{"message", "failed to receive flag"},
 				JSON_TYPE_END}));
 			hs->server_init_failed = true;
 			hs->err = EPIPE;
+
 			break;
 		}
 		if (flag == HERMES_STATUS) {
@@ -396,9 +404,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 			JSON_TYPE_END}));
 		return false;
 	}
-	//cout << "obligatory cout" << endl;
 	uint8_t flag = HERMES_GET_CONNECTION;
-	//cout << "hello" << endl;
 	log_dbg(((const JSON_TYPE){
 		{"message", "sending flag"},
 		JSON_TYPE_END}));
@@ -477,15 +483,24 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, uint8_t type) {
 		JSON_TYPE_END}));
 	int attempts = HERMES_TIMEOUT_TRIES;
 	while (!hc->connections[index].client->OpenConnection(port, hc->ip) &&
-	attempts-- > 0) {
+		attempts-- >= 0) {
+
 		hc->connections[index].client->CloseConnection();
 		hc->connections[index].client->Init();
 	}
+
+	hc->cmutx->unlock();
+
+	if (attempts < 0) {
+		log_err(((const JSON_TYPE){
+			{"message", "failed to connect to"},
+			JSON_TYPE_END}));
+		return false;
+	}
+
 	log_dbg(((const JSON_TYPE){
 		{"message", "connected"},
 		JSON_TYPE_END}));
-
-	hc->cmutx->unlock();
 
 	return true;
 }
@@ -531,8 +546,9 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 		JSON_TYPE_END}));
 	//come on man - Joe Biden
 	int attempts = HERMES_TIMEOUT_TRIES * HERMES_TIMEOUT_TRIES;
-	while (
-	!hc->client->OpenConnection(hc->baseport, hc->ip) && attempts-- > 0) {
+	while (!hc->client->OpenConnection(hc->baseport, hc->ip) &&
+		attempts-- >= 0) {
+
 		hc->client->CloseConnection();
 		hc->client->Init();
 	}
@@ -555,7 +571,12 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 		log_dbg(((const JSON_TYPE){
 			{"message", "to_string(*types)"},
 			JSON_TYPE_END}));
-		Create_CLIENT_CONNECTION(hc, *types);
+		if (!Create_CLIENT_CONNECTION(hc, *types)) {
+			log_err(((const JSON_TYPE){
+				{"message", "failed to connect to"},
+				JSON_TYPE_END}));
+			return false;
+		}
 		types++;
 	}
 	log_dbg(((const JSON_TYPE){

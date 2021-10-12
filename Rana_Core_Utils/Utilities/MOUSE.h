@@ -67,6 +67,7 @@ struct MOUSE {
 void Open_Display_MOUSE();
 
 void Handle_Mouse_X11(int, Queue<MOUSE_EVENT_T*>*);
+void Handle_Mouse_X11_Single(MOUSE_EVENT_T*);
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64
