@@ -241,7 +241,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 		JSON_TYPE_END});
 	while (hs->connected) {
 		//FIX!!
-		int attempts = HERMES_TIMEOUT_TRIES * HERMES_TIMEOUT_TRIES;
+		int attempts = HERMES_TIMEOUT_TRIES / 10;
 		while (!hs->server->Receive((char*)&flag, sizeof(uint8_t)) &&
 			attempts-- >= 0) {
 
