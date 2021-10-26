@@ -46,6 +46,7 @@ struct MOUSE_EVENT_T {
 	bool clicked;
 	uint16_t button;
 	uint16_t state;
+	uint32_t event_index; //this will eventually have a wrap around problem
 };
 
 struct MOUSE {

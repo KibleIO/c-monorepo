@@ -25,6 +25,7 @@
 struct KEYBOARD_EVENT_T {
 	uint16_t code;
 	int32_t value;
+	uint32_t event_index; //this will eventually have a wrap around problem
 };
 
 struct KEYBOARD {
