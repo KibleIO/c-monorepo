@@ -25,6 +25,7 @@
 struct KEYBOARD_EVENT_T {
 	uint16_t code;
 	int32_t value;
+	uint32_t event_index; //this will eventually have a wrap around problem
 };
 
 struct KEYBOARD {
@@ -74,6 +75,7 @@ struct KEYBOARD {
 
 void Open_Display_KEYBOARD();
 
+void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T*);
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events);
 #endif
 // }}} Windows specific code {{{

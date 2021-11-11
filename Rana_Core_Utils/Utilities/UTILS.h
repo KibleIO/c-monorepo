@@ -37,6 +37,8 @@ using namespace std;
 			}
 #endif
 
+#define ITOA_STR_SIZE 100
+
 string system_output(string);
 
 uint8_t file_exists(string);
@@ -48,5 +50,7 @@ void get_mac_address(char*);
 void get_core_system(char*);
 
 void Sleep_Milli(unsigned int);
+
+const char* itoa(const char *, int);
 
 #endif

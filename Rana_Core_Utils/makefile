@@ -21,6 +21,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 default:
 	docker run --pull=always --rm -it -v `pwd`:/root kible/coreutils make docker
 
+zorin:
+	docker run --pull=always --rm -it -v `pwd`:/root kible/coreutils:zorin make docker
+
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC)
 
@@ -29,12 +32,16 @@ local: $(OBJECTS)
 
 install: $(EXEC)
 	sudo cp ./librana.so /usr/local/lib
-	sudo cp -R ./Networking /usr/local/include/rana/Networking
-	sudo cp -R ./Utilities /usr/local/include/rana/Utilities
+	sudo cp -R ./Networking/* /usr/local/include/rana/Networking
+	sudo cp -R ./Utilities/* /usr/local/include/rana/Utilities
 
 dockerimage-publish: $(EXEC)
-	docker build -t kible/coreutils .
+	docker build --file Dockerfile -t kible/coreutils .
 	docker push kible/coreutils
+
+dockerimage-zorin-publish: $(EXEC)
+	docker build --file Dockerfile.Zorin -t kible/coreutils:zorin .
+	docker push kible/coreutils:zorin
 
 # Main target
 $(EXEC): $(OBJECTS)

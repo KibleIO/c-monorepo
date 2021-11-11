@@ -46,6 +46,7 @@ struct MOUSE_EVENT_T {
 	bool clicked;
 	uint16_t button;
 	uint16_t state;
+	uint32_t event_index; //this will eventually have a wrap around problem
 };
 
 struct MOUSE {
@@ -67,6 +68,7 @@ struct MOUSE {
 void Open_Display_MOUSE();
 
 void Handle_Mouse_X11(int, Queue<MOUSE_EVENT_T*>*);
+void Handle_Mouse_X11_Single(MOUSE_EVENT_T*);
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64

@@ -13,6 +13,22 @@ void Open_Display_MOUSE() {
 	MOUSE::dpy = XOpenDisplay(":1");
 }
 
+void Handle_Mouse_X11_Single(MOUSE_EVENT_T *m_event) {
+	if (m_event->clicked) {
+		XTestFakeButtonEvent(
+		MOUSE::dpy, m_event->button, m_event->state, CurrentTime);
+	} else {
+		if (m_event->state == MOUSE_ABS_COORD) {
+			XTestFakeMotionEvent(
+			MOUSE::dpy, 0, m_event->x, m_event->y, CurrentTime);
+		} else {
+			XTestFakeRelativeMotionEvent(
+			MOUSE::dpy, m_event->x, m_event->y, CurrentTime);
+		}
+	}
+	XFlush(MOUSE::dpy);
+}
+
 void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 	if (!MOUSE::dpy) {
 		log_err(((const JSON_TYPE){
