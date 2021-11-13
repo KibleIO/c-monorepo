@@ -38,29 +38,17 @@ char keys_mem[] = {
 
 // Linux specific code {{{
 #ifdef __linux__
-void Handle_Key(Display* dpy, KeySym key, int32_t value, bool shift = false) {
+void Handle_Key(Display* dpy, KeySym key, int32_t value) {
 	switch (value) {
 		case 0:
-			if (shift) {
-				KEYBOARD::Shift = false;
-			}
 			XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, key), False, 0);
 			XFlush(dpy);
 			break;
 		case 1:
 			XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, key), True, 0);
 			XFlush(dpy);
-			if (!shift) {
-				break;
-			}
+			break;
 		case 2:
-			if (shift) {
-				KEYBOARD::Shift = true;
-			}
-			XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, key), False, 0);
-			XFlush(dpy);
-			XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, key), True, 0);
-			XFlush(dpy);
 			break;
 		default:
 			log_err(((const JSON_TYPE){
@@ -75,135 +63,112 @@ void Open_Display_KEYBOARD() {
 }
 
 void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T* k_event) {
-	KeyCode modcode = 0;
+	if (k_event->code < 0x20) { //please don't ask me why
+		k_event->code |= 0xff00;
+	}
 
 	switch (k_event->code) {
-		case KEY_ESC:
-			Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
+		//case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_ESCAPE):
+		//	Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value);
+		//	break;
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LCTRL):
+			Handle_Key(KEYBOARD::dpy, XK_Control_L, k_event->value);
 			break;
-		case KEY_LEFTCTRL:
-			Handle_Key(KEYBOARD::dpy, XK_Control_L, k_event->value, true);
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RCTRL):
+			Handle_Key(KEYBOARD::dpy, XK_Control_R, k_event->value);
 			break;
-		case KEY_RIGHTCTRL:
-			Handle_Key(KEYBOARD::dpy, XK_Control_R, k_event->value, true);
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LSHIFT):
+			Handle_Key(KEYBOARD::dpy, XK_Shift_L, k_event->value);
 			break;
-		case KEY_LEFTSHIFT:
-			Handle_Key(KEYBOARD::dpy, XK_Shift_L, k_event->value, true);
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RSHIFT):
+			Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value);
 			break;
-		case KEY_RIGHTSHIFT:
-			Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value, true);
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LALT):
+			Handle_Key(KEYBOARD::dpy, XK_Alt_L, k_event->value);
 			break;
-		case KEY_LEFTALT:
-			Handle_Key(KEYBOARD::dpy, XK_Alt_L, k_event->value, true);
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RALT):
+			Handle_Key(KEYBOARD::dpy, XK_Alt_R, k_event->value);
 			break;
-		case KEY_RIGHTALT:
-			Handle_Key(KEYBOARD::dpy, XK_Alt_R, k_event->value, true);
-			break;
-		case KEY_CAPSLOCK:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_CAPSLOCK):
 			Handle_Key(KEYBOARD::dpy, XK_Caps_Lock, k_event->value);
 			break;
-		case KEY_TAB:
-			Handle_Key(KEYBOARD::dpy, XK_Tab, k_event->value);
-			break;
-		case KEY_BACKSPACE:
-			Handle_Key(KEYBOARD::dpy, XK_BackSpace, k_event->value);
-			break;
-		case KEY_UP:
+		//case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_TAB):
+		//	Handle_Key(KEYBOARD::dpy, XK_Tab, k_event->value);
+		//	break;
+		//case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_BACKSPACE):
+		//	Handle_Key(KEYBOARD::dpy, XK_BackSpace, k_event->value);
+		//	break;
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_UP):
 			Handle_Key(KEYBOARD::dpy, XK_KP_Up, k_event->value);
 			break;
-		case KEY_DOWN:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_DOWN):
 			Handle_Key(KEYBOARD::dpy, XK_KP_Down, k_event->value);
 			break;
-		case KEY_LEFT:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_LEFT):
 			Handle_Key(KEYBOARD::dpy, XK_KP_Left, k_event->value);
 			break;
-		case KEY_RIGHT:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RIGHT):
 			Handle_Key(KEYBOARD::dpy, XK_KP_Right, k_event->value);
 			break;
-		case KEY_ENTER:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RETURN):
 			Handle_Key(KEYBOARD::dpy, XK_Return, k_event->value);
 			break;
-		case KEY_F1:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F1):
 			Handle_Key(KEYBOARD::dpy, XK_F1, k_event->value);
 			break;
-		case KEY_F2:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F2):
 			Handle_Key(KEYBOARD::dpy, XK_F2, k_event->value);
 			break;
-		case KEY_F3:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F3):
 			Handle_Key(KEYBOARD::dpy, XK_F3, k_event->value);
 			break;
-		case KEY_F4:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F4):
 			Handle_Key(KEYBOARD::dpy, XK_F4, k_event->value);
 			break;
-		case KEY_F5:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F5):
 			Handle_Key(KEYBOARD::dpy, XK_F5, k_event->value);
 			break;
-		case KEY_F6:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F6):
 			Handle_Key(KEYBOARD::dpy, XK_F6, k_event->value);
 			break;
-		case KEY_F7:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F7):
 			Handle_Key(KEYBOARD::dpy, XK_F7, k_event->value);
 			break;
-		case KEY_F8:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F8):
 			Handle_Key(KEYBOARD::dpy, XK_F8, k_event->value);
 			break;
-		case KEY_F9:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F9):
 			Handle_Key(KEYBOARD::dpy, XK_F9, k_event->value);
 			break;
-		case KEY_F10:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F10):
 			Handle_Key(KEYBOARD::dpy, XK_F10, k_event->value);
 			break;
-		case KEY_F11:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F11):
 			Handle_Key(KEYBOARD::dpy, XK_F11, k_event->value);
 			break;
-		case KEY_F12:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F12):
 			Handle_Key(KEYBOARD::dpy, XK_F12, k_event->value);
 			break;
-		case KEY_INSERT:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_INSERT):
 			Handle_Key(KEYBOARD::dpy, XK_Insert, k_event->value);
 			break;
-		case KEY_DELETE:
-			Handle_Key(KEYBOARD::dpy, XK_Delete, k_event->value);
-			break;
-		case KEY_HOME:
+		//case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_DELETE):
+		//	Handle_Key(KEYBOARD::dpy, XK_Delete, k_event->value);
+		//	break;
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_HOME):
 			Handle_Key(KEYBOARD::dpy, XK_Home, k_event->value);
 			break;
-		case KEY_PAGEUP:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PAGEUP):
 			Handle_Key(KEYBOARD::dpy, XK_Page_Up, k_event->value);
 			break;
-		case KEY_PAGEDOWN:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_PAGEDOWN):
 			Handle_Key(KEYBOARD::dpy, XK_Page_Down, k_event->value);
 			break;
-		case KEY_END:
+		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_END):
 			Handle_Key(KEYBOARD::dpy, XK_End, k_event->value);
 			break;
 		default:
-			if (k_event->code <= 111){
-				switch (k_event->value){
-					case 0:
-						break;
-					case 1: // Key Press
-					case 2: // Auto Repeat
-						char key_value;
-						key_value = keys_mem[k_event->code];
-						if (key_value > 0) {
-							//cout << "heyyyy " << key_value << " " << int(key_value) << " < " << XK_less << " > " << XK_greater << endl;
-							modcode = XKeysymToKeycode(KEYBOARD::dpy, int(key_value));
-							//cout << int(modcode) << endl;
-							XTestFakeKeyEvent(KEYBOARD::dpy, modcode, False, 0);
-							XFlush(KEYBOARD::dpy);
-							XTestFakeKeyEvent(KEYBOARD::dpy, modcode, True, 0);
-							XFlush(KEYBOARD::dpy);
-							XTestFakeKeyEvent(KEYBOARD::dpy, modcode, False, 0);
-							XFlush(KEYBOARD::dpy);
-							//nk_input_char(gui->NK_Context, key_value);
-						}
-						break;
-					default:
-						//Write_Notice(string("@Listen_Keyboard() Unhandled event value: ") + to_string(k_event->value) + " for type: " + to_string(k_event.type) + " and code: KEY_CAPSLOCK");
-						break;
-				}
-			}
+			Handle_Key(KEYBOARD::dpy, k_event->code, k_event->value);
 			break;
 	}
 
@@ -225,25 +190,25 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 
 		switch (k_event->code) {
 			case KEY_ESC:
-				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Escape, k_event->value);
 				break;
 			case KEY_LEFTCTRL:
-				Handle_Key(KEYBOARD::dpy, XK_Control_L, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Control_L, k_event->value);
 				break;
 			case KEY_RIGHTCTRL:
-				Handle_Key(KEYBOARD::dpy, XK_Control_R, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Control_R, k_event->value);
 				break;
 			case KEY_LEFTSHIFT:
-				Handle_Key(KEYBOARD::dpy, XK_Shift_L, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Shift_L, k_event->value);
 				break;
 			case KEY_RIGHTSHIFT:
-				Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Shift_R, k_event->value);
 				break;
 			case KEY_LEFTALT:
-				Handle_Key(KEYBOARD::dpy, XK_Alt_L, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Alt_L, k_event->value);
 				break;
 			case KEY_RIGHTALT:
-				Handle_Key(KEYBOARD::dpy, XK_Alt_R, k_event->value, true);
+				Handle_Key(KEYBOARD::dpy, XK_Alt_R, k_event->value);
 				break;
 			case KEY_CAPSLOCK:
 				Handle_Key(KEYBOARD::dpy, XK_Caps_Lock, k_event->value);
