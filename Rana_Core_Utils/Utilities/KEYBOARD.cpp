@@ -110,9 +110,9 @@ void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T* k_event) {
 		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RIGHT):
 			Handle_Key(KEYBOARD::dpy, XK_KP_Right, k_event->value);
 			break;
-		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RETURN):
-			Handle_Key(KEYBOARD::dpy, XK_Return, k_event->value);
-			break;
+		//case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_RETURN):
+		//	Handle_Key(KEYBOARD::dpy, XK_Return, k_event->value);
+		//	break;
 		case SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_F1):
 			Handle_Key(KEYBOARD::dpy, XK_F1, k_event->value);
 			break;

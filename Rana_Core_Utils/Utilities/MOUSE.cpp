@@ -15,8 +15,12 @@ void Open_Display_MOUSE() {
 
 void Handle_Mouse_X11_Single(MOUSE_EVENT_T *m_event) {
 	if (m_event->clicked) {
-		XTestFakeButtonEvent(
-		MOUSE::dpy, m_event->button, m_event->state, CurrentTime);
+		XTestFakeButtonEvent(MOUSE::dpy, m_event->button,
+			m_event->state, CurrentTime);
+		if (m_event->button == 4 || m_event->button == 5) {
+			XTestFakeButtonEvent(MOUSE::dpy, m_event->button,
+				0, CurrentTime);
+		}
 	} else {
 		if (m_event->state == MOUSE_ABS_COORD) {
 			XTestFakeMotionEvent(
