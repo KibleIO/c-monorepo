@@ -10,6 +10,9 @@
  *  The values in this enumeration are based on the USB usage page standard:
  *  http://www.usb.org/developers/hidpage/Hut1_12v2.pdf
  */
+
+ #define SDLK_SCANCODE_MASK (1<<30)
+ #define SDL_SCANCODE_TO_KEYCODE(X)  (X | SDLK_SCANCODE_MASK)
 typedef enum
 {
     SDL_SCANCODE_UNKNOWN = 0,

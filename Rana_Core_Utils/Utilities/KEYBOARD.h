@@ -24,9 +24,6 @@
 
 #include "SDL_scancode.h"
 
-#define SDLK_SCANCODE_MASK (1<<30)
-#define SDL_SCANCODE_TO_KEYCODE(X)  (X | SDLK_SCANCODE_MASK)
-
 struct KEYBOARD_EVENT_T {
 	uint32_t code;
 	int32_t value;

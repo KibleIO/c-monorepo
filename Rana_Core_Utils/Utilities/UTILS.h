@@ -41,6 +41,8 @@ using namespace std;
 
 #define ITOA_STR_SIZE 100
 
+#define abs(x) ((x)<0 ? -(x) : (x))
+
 string system_output(string);
 
 string trim(const string &);
