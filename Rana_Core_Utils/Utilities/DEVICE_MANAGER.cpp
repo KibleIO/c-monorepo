@@ -273,6 +273,8 @@ bool Connect_Client_DEVICE_MANAGER(DEVICE_MANAGER *dev_man, Client *client) {
 }
 
 void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	if (!dev_man) return;
+	
 	if (dev_man->client) {
 		dev_man->client->CloseConnection();
 	}
@@ -286,6 +288,8 @@ void Disconnect_Client_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
 }
 
 void Delete_DEVICE_MANAGER(DEVICE_MANAGER* dev_man) {
+	if (!dev_man) return;
+
 	log_dbg(((const JSON_TYPE){
 		{"message", "deleting device manager"},
 		JSON_TYPE_END}));
