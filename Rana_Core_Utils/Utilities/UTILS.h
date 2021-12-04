@@ -12,17 +12,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
-
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <ifaddrs.h>
 
 #define OCTETS_IN_MAC_ADDRESS 6
 #define DIGITS_IN_OCTET_IN_MAC_ADDRESS 2
 #define MAC_ADDRESS_STR_LEN 18
 #define UUID_STR_SIZE 37
 #define CORE_SYSTEM_STR_SIZE 37
-#define SIOCGIFCONF_BUFFER_SIZE 1024
 #define MAC_ADDRESS_RETRY 5
 #define MAC_ADDRESS_RETRY_SLEEP 1000
 
