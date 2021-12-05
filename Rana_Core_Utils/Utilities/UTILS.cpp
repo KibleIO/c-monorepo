@@ -86,10 +86,7 @@ void generate_uuid(char *str) {
 
 void get_mac_address(char *str) {
     struct ifreq ifr;
-    struct ifconf ifc;
-    struct ifreq *it;
-    struct ifreq *end;
-    char buf[SIOCGIFCONF_BUFFER_SIZE];
+    struct ifaddrs *ifap, *ifa;
     int success = 0;
     int retry = MAC_ADDRESS_RETRY;
 
@@ -98,35 +95,37 @@ void get_mac_address(char *str) {
         goto error_lbl;
     }
 
+	if (getifaddrs(&ifap) < 0) {
+		goto error_lbl;
+	}
+
     do {
-        ifc.ifc_len = sizeof(buf);
-        ifc.ifc_buf = buf;
-        if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
-            goto error_lbl;
-        }
-
-        it = ifc.ifc_req;
-        end = it + (ifc.ifc_len / sizeof(struct ifreq));
-
-        for (; it != end; it++) {
-            strcpy(ifr.ifr_name, it->ifr_name);
+	for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+	    strcpy(ifr.ifr_name, ifa->ifa_name);
             if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
                 // don't count loopback and devices
-                // that are not running
-                if (!(ifr.ifr_flags & IFF_LOOPBACK) &&
-                    (ifr.ifr_flags & IFF_RUNNING)) {
-                    if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
-                        success = 1;
-                        break;
-                    }
+
+                if (!(ifr.ifr_flags & IFF_LOOPBACK)) {
+			    //we have failed to find a running interface,
+			    //instead just choose the first one that isn't a
+			    //loopback interface
+			    if ((ifr.ifr_flags & IFF_RUNNING) || retry <= 1) {
+				    if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
+		                        success = 1;
+		                        break;
+		                    }
+			    }
                 }
             }
+
         }
         if (!success) {
             Sleep_Milli(MAC_ADDRESS_RETRY_SLEEP);
         }
         retry--;
-    } while (/*retry >= 0 && */ !success);  // demorgan came knocking...
+    } while (retry > 0 && !success);  // demorgan came knocking...
+
+	freeifaddrs(ifap);
 
     if (success) {
         for (int i = 0; i < OCTETS_IN_MAC_ADDRESS; i++) {
@@ -140,6 +139,7 @@ void get_mac_address(char *str) {
             }
         }
 
+	//this is slightly confusing. should re-do eventually
         close(sock);
         return;
     }
