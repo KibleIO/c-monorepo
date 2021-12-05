@@ -117,9 +117,6 @@ void Client::Set_High_Priority() {
 }
 
 bool Client::OpenConnection(int port, string ip) {
-	char log_str[ITOA_STR_SIZE];
-	char log_str2[ITOA_STR_SIZE];
-
 #ifdef __linux__
 	// Set up server destination
 	sockaddr_in destination;

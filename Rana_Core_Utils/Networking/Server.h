@@ -9,6 +9,7 @@
 #include <thread>
 #include <string.h>
 #include "Networking.h"
+#include "../Utilities/UTILS.h"
 #include "../Utilities/TIMER.h"
 
 class Server {

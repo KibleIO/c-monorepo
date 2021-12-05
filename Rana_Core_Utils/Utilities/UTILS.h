@@ -3,6 +3,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <time.h>
 #include <linux/if.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -29,16 +30,7 @@
 
 using namespace std;
 
-#define NULLIFY \
-    {}
-
-#ifdef __CORE_SYSTEM__
-#define _DO_THIS_IN_MAIN_ \
-    void get_core_system(char *str) { strcpy(str, __CORE_SYSTEM__); }
-#else
-#define _DO_THIS_IN_MAIN_ \
-    void get_core_system(char *str) { strcpy(str, "PLS DEFINE CORE SYSTEM"); }
-#endif
+#define NULLIFY {}
 
 #define ITOA_STR_SIZE 100
 
@@ -56,7 +48,7 @@ void generate_uuid(char *);
 
 void get_mac_address(char *);
 
-void get_core_system(char *);
+void get_current_time(char *);
 
 void Sleep_Milli(unsigned int);
 

@@ -6,6 +6,7 @@
 #include <iostream>
 #include "TIMER.h"
 #include "LOGGING.h"
+#include "UTILS.h"
 
 #define MILLISECONDS_IN_A_SECOND 1000
 
