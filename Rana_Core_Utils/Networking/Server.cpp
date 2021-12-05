@@ -406,8 +406,6 @@ bool Server::Send(char *data, int size) {
 }
 
 bool Server::Receive(char *data, int size) {
-	char log_str[ITOA_STR_SIZE];
-
 	if (!connected) {
 		log_err(((const JSON_TYPE){
 			{"message", "server not connected, can't receive"},

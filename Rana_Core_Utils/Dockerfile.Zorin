@@ -7,6 +7,7 @@ RUN apt -y install libopus-dev libx264-dev
 RUN apt -y install libopusfile-dev
 RUN apt -y install qt5-qmake qtbase5-dev qtmultimedia5-dev
 RUN apt -y install libavformat-dev libavcodec-dev
+RUN apt -y install libjson-c-dev
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 COPY ./librana.so /usr/local/lib

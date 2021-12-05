@@ -8,7 +8,6 @@
 
 // Linux specific includes {{{
 #ifdef __linux__
-#define socklen_t int
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
