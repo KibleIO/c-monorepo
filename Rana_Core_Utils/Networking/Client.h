@@ -12,6 +12,8 @@
 #include "../Utilities/TIMER.h"
 #include "DNS_WRAPPER.h"
 
+#define ARBITRARILY_LARGE_PACKET 100000
+
 class Client {
 private:
 	string name;
@@ -41,7 +43,8 @@ public:
 	bool OpenConnection(int, string);
 	void CloseConnection();
 	bool Send(char *, int);
-	bool Receive(char *,int);
+	bool Receive(char *, int);
+	int Receive_Unsafe(char*);
 	~Client();
 };
 

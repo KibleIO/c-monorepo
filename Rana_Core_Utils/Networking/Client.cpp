@@ -384,6 +384,63 @@ bool Client::Receive(char *data, int size) {
 	return true;
 }
 
+int Client::Receive_Unsafe(char *data) {
+	int size;
+
+	if (!connected) {
+		log_err(((const JSON_TYPE){
+			{"message", "client not connected, can't receive"},
+			JSON_TYPE_END}));
+		return 0;
+	}
+
+	if (enc) {
+#ifdef __linux__
+		size = recv(cSocket, enc_buf_auth, ARBITRARILY_LARGE_PACKET, 0);
+#endif
+#ifdef _WIN64
+		size = recv(cSocket, enc_buf_auth, ARBITRARILY_LARGE_PACKET, 0);
+#endif
+		if (size < crypto_onetimeauth_BYTES) {
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				JSON_TYPE_END}));
+			return 0;
+		}
+
+		if (!Authenticate_Auth_Code_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)enc_buf_auth)) {
+			log_err(((const JSON_TYPE){
+				{"message", "unable to authenticate data"},
+				JSON_TYPE_END}));
+			return 0;
+		}
+
+		if (!Decrypt_Data_ENCRYPTION_PROFILE(
+		enc, (uint8_t*)enc_buf_data, size, (uint8_t*)data)) {
+			log_err(((const JSON_TYPE){
+				{"message", "unable to decrypt data"},
+				JSON_TYPE_END}));
+			return 0;
+		}
+	} else {
+#ifdef __linux__
+		size = recv(cSocket, data, ARBITRARILY_LARGE_PACKET, 0);
+#endif
+#ifdef _WIN64
+		size = recv(cSocket, data, ARBITRARILY_LARGE_PACKET, 0);
+#endif
+
+		if (size < 1) {
+			log_err(((const JSON_TYPE){
+				{"message", "unable to receive"},
+				JSON_TYPE_END}));
+			return 0;
+		}
+	}
+	return size;
+}
+
 Client::~Client() {
 	CloseConnection();
 	if (enc_buf_auth) {
