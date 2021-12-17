@@ -37,10 +37,12 @@ install: $(EXEC)
 
 dockerimage-publish: $(EXEC)
 	docker build --file Dockerfile -t kible/coreutils .
+	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils
 
 dockerimage-zorin-publish: $(EXEC)
 	docker build --file Dockerfile.Zorin -t kible/coreutils:zorin .
+	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils:zorin
 
 # Main target
