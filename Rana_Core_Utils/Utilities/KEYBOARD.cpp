@@ -61,6 +61,9 @@ void Handle_Key(Display* dpy, KeySym key, int32_t value) {
 void Open_Display_KEYBOARD() {
 	KEYBOARD::dpy = XOpenDisplay(":1");
 }
+void Close_Display_KEYBOARD() {
+	XCloseDisplay(KEYBOARD::dpy);
+}
 
 void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T* k_event) {
 	if (k_event->code < 0x20) { //please don't ask me why

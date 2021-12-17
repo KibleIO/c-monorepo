@@ -76,6 +76,7 @@ struct KEYBOARD {
 #define XK_End                           0xff57  /* EOL */
 
 void Open_Display_KEYBOARD();
+void Close_Display_KEYBOARD();
 
 void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T*);
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events);

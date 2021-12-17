@@ -13,6 +13,10 @@ void Open_Display_MOUSE() {
 	MOUSE::dpy = XOpenDisplay(":1");
 }
 
+void Close_Display_MOUSE() {
+	XCloseDisplay(MOUSE::dpy);
+}
+
 void Handle_Mouse_X11_Single(MOUSE_EVENT_T *m_event) {
 	if (m_event->clicked) {
 		XTestFakeButtonEvent(MOUSE::dpy, m_event->button,
