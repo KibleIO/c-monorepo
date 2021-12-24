@@ -174,3 +174,29 @@ const char *itoa(const char *str, int input) {
     snprintf((char *)str, ITOA_STR_SIZE, "%d", input);
     return str;
 }
+
+bool Write_Bin_To_File(char *file_name, char *buffer, int size) {
+	fstream file(file_name, ios::binary | ios::out);
+
+	if (!file.is_open()) {
+		return false;
+	}
+
+	file.write(buffer, size);
+	file.close();
+
+	return true;
+}
+
+bool Read_Bin_From_File(char *file_name, char *buffer, int size) {
+	fstream file(file_name, ios::binary | ios::in);
+
+	if (!file.is_open()) {
+		return false;
+	}
+
+	file.read(buffer, size);
+	file.close();
+
+	return true;
+}
