@@ -366,7 +366,6 @@ int Decrypt_Message_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium, char *input_payload,
 		//everytime. FYI this is technically not required. libsodium
 		//should be able to decode out of order so long as the nonce
 		//is known.
-		cout << "out of order" << endl;
 		return -1;
 	}
 
