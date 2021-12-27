@@ -2,7 +2,7 @@
 *.so
 Rana
 keygen/keygen
-partner.pub
+local.key
 x64/
 .vs/
 .packages/

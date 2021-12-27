@@ -11,7 +11,6 @@
 using namespace std;
 
 #define LOCAL_KEY_NAME "local.key"
-#define PARTNER_PUB_KEY_NAME "partner.pub"
 
 #define LOCAL_KEY_SIZE crypto_sign_PUBLICKEYBYTES + \
 	crypto_sign_SECRETKEYBYTES + crypto_sign_PUBLICKEYBYTES
@@ -66,6 +65,7 @@ int Encrypt_Message_SODIUM_WRAPPER(SODIUM_WRAPPER*, char*, int, char*);
 int Decrypt_Message_SODIUM_WRAPPER(SODIUM_WRAPPER*, char*, int, char*);
 void Delete_SODIUM_WRAPPER(SODIUM_WRAPPER*);
 
-bool Interactive_Create_Key();
+bool Interactive_Create_Key_Step_1_SODIUM_WRAPPER(SODIUM_WRAPPER*);
+bool Interactive_Create_Key_Step_2_SODIUM_WRAPPER(SODIUM_WRAPPER*);
 
 #endif

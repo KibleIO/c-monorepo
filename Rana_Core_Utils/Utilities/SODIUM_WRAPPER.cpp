@@ -69,70 +69,32 @@ bool Initialize_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium, CONTEXT *ctx, int type) {
 	return true;
 }
 
-bool Interactive_Create_Key() {
-	SODIUM_WRAPPER sodium;
-	CONTEXT ctx;
-
-	char buffer[LOCAL_KEY_SIZE];
-	char *temp_buffer_ptr;
-
-	if (!Initialize_CONTEXT(&ctx, "INTERACTIVE_CREATE_KEY")) {
-		cout << "Couldn't initialize context" << endl;
-		return false;
-	}
-
-	if (Initialize_SODIUM_WRAPPER(&sodium, &ctx,
-		SODIUM_WRAPPER_INTERACTIVE_CREATE_KEY_TYPE)) {
-
-		//in a very rare case this could signify a much deeper issue
-		//with libsodium. unlikely though
-		cout << "Looks like you are all set." << endl;
-		return false;
-	}
-
-	if (crypto_sign_keypair(sodium.local_pub_key,
-		sodium.local_priv_key) < 0) {
+bool Interactive_Create_Key_Step_1_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium) {
+	if (crypto_sign_keypair(sodium->local_pub_key,
+		sodium->local_priv_key) < 0) {
 
 		cout << "Couldn't generate local signing keypair." << endl;
 		return false;
 	}
+	return true;
+}
 
-	if (!Write_Bin_To_File(PARTNER_PUB_KEY_NAME,
-		(char*) sodium.local_pub_key, crypto_sign_PUBLICKEYBYTES)) {
-
-		cout << "Failed to write file at " << PARTNER_PUB_KEY_NAME <<
-			endl;
-		return false;
-	}
-
-	cout << "I have generated a file called " << PARTNER_PUB_KEY_NAME <<
-		". Please move this file to this system's counterpart. This "
-		"system's counterpart should also be running this same program "
-		"and should have generated it's own " << PARTNER_PUB_KEY_NAME <<
-		". Please move that file here. When finished hit enter." <<
-		endl;
-	getchar();
-
-	if (!Read_Bin_From_File(PARTNER_PUB_KEY_NAME,
-		(char*) sodium.partner_pub_key, crypto_sign_PUBLICKEYBYTES)) {
-
-		cout << "Failed to read file at " << PARTNER_PUB_KEY_NAME <<
-			endl;
-		return false;
-	}
+bool Interactive_Create_Key_Step_2_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium) {
+	char buffer[LOCAL_KEY_SIZE];
+	char *temp_buffer_ptr;
 
 	temp_buffer_ptr = buffer;
-	memcpy(temp_buffer_ptr, sodium.local_pub_key,
+	memcpy(temp_buffer_ptr, sodium->local_pub_key,
 		crypto_sign_PUBLICKEYBYTES);
 
 	temp_buffer_ptr += crypto_sign_PUBLICKEYBYTES;
 
-	memcpy(temp_buffer_ptr, sodium.local_priv_key,
+	memcpy(temp_buffer_ptr, sodium->local_priv_key,
 		crypto_sign_SECRETKEYBYTES);
 
 	temp_buffer_ptr += crypto_sign_SECRETKEYBYTES;
 
-	memcpy(temp_buffer_ptr, sodium.partner_pub_key,
+	memcpy(temp_buffer_ptr, sodium->partner_pub_key,
 		crypto_sign_PUBLICKEYBYTES);
 
 	temp_buffer_ptr += crypto_sign_PUBLICKEYBYTES;
@@ -142,9 +104,6 @@ bool Interactive_Create_Key() {
 			endl;
 		return false;
 	}
-
-	cout << "Success! You can now safely delete " << PARTNER_PUB_KEY_NAME <<
-		endl;
 
 	return true;
 }
