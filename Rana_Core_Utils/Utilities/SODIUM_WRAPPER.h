@@ -22,6 +22,11 @@ using namespace std;
 
 //may the lord have mercy on yee who enter here...
 
+/*
+https://pastebin.com/PVsP8PyQ
+https://pastebin.com/zpy4g8QW
+*/
+
 struct SODIUM_WRAPPER {
 	CONTEXT *ctx;
 	bool initialized;

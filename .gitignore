@@ -1,6 +1,8 @@
 *.o
 *.so
 Rana
+keygen/keygen
+partner.pub
 x64/
 .vs/
 .packages/
