@@ -44,8 +44,8 @@ bool Up_To_Date(string currVersion, Update_UTILITY* info) {
 	return Version(latest_version) == Version(currVersion);
 }
 
-void Update_System(Update_UTILITY* info) {
-	cout << "Started Update_Rana" << endl;
+void Update_System(Update_UTILITY* info, bool concurrent) {
+	cout << "started update" << endl;
 	// Number of tasks in the update process, and the ratios of
 	// how much time it is expected to take for each task relative to the others
 	const int total_tasks = 3;
@@ -66,7 +66,11 @@ void Update_System(Update_UTILITY* info) {
 	//    Update_Progress_Tracker(progress);
 	// Run the install file that was packaged in the tar file
 	cout << "installing" << endl;
-	system((string("bash ") + info->rootDir + "install.sh" + " &").c_str());
+	if (concurrent)
+		system((string("bash -c \"bash ") + info->rootDir + "install.sh" + " & disown\"").c_str());
+	else {
+		system((string("bash ") + info->rootDir + "install.sh").c_str());
+	}
 	//    Update_Progress_Tracker(progress);
 
 	//    if(Progress_Finished(progress)) {

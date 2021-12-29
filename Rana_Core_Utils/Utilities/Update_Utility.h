@@ -50,7 +50,7 @@ void Initialize_UPDATE_UTILITY(Update_UTILITY* info, string relativePathToVersio
 bool Up_To_Date(string currVersion, Update_UTILITY* info);
 // Update rana by downloading the package from the remote site
 // and running the update shell command
-void Update_System(Update_UTILITY* info);
+void Update_System(Update_UTILITY* info, bool concurrent = true);
 // Pointed to by curl function - sets global string based on data
 // recieved from website
 void Set_String_From_Data(void* ptr, size_t size, size_t nneb, void* stream);
