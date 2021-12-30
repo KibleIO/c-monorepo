@@ -67,7 +67,7 @@ void Update_System(Update_UTILITY* info, bool concurrent) {
 	// Run the install file that was packaged in the tar file
 	cout << "installing" << endl;
 	if (concurrent)
-		system((string("bash -c \"bash ") + info->rootDir + "install.sh" + " & disown\"").c_str());
+		system((string("bash ") + info->rootDir + "install.sh" + " &").c_str());
 	else {
 		system((string("bash ") + info->rootDir + "install.sh").c_str());
 	}
