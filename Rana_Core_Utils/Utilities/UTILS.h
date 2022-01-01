@@ -3,6 +3,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <fstream>
 #include <time.h>
 #include <linux/if.h>
 #include <netdb.h>
@@ -51,6 +52,10 @@ void get_mac_address(char *);
 void get_current_time(char *);
 
 void Sleep_Milli(unsigned int);
+
+bool Write_Bin_To_File(char*, char*, int);
+
+bool Read_Bin_From_File(char*, char*, int);
 
 const char *itoa(const char *, int);
 

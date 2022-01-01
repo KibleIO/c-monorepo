@@ -5,7 +5,8 @@
 #include "ELASTIC_SEARCH_CLIENT.h"
 #include "UTILS.h"
 
-#define MAX_LOG_LEN 256
+//WARNING: This will eventually cause an issue
+#define MAX_LOG_LEN 8192
 #define ADD_STR_LOG(key, obj)  json_object_object_add(loop.json_obj, key, json_object_new_string(obj))
 #define ADD_INT_LOG(key, obj)  json_object_object_add(loop.json_obj, key, json_object_new_int(obj))
 #define SET_UP_LOG(ctx, level) (loop.json_obj = json_object_new_object(),\
