@@ -1,0 +1,25 @@
+The great key generator
+
+How to use:
+
+1. Build for Rana
+- make
+
+2. Transfer built binary to Rana
+
+3. Build for Themis
+- make zorin
+
+4. Transfer built binary to Themis
+
+5. Run binary on Themis
+- chmod +x keygen
+- ./keygen s
+
+6. Run binary on Rana
+- chmod +x keygen
+- ./keygen c <insert themis IP>
+
+7. Allow programs to finish
+
+8. New keys should be generated on both Rana and Themis named local.keywwwwwwwwww
