@@ -14,11 +14,11 @@ How to use:
 
 5. Run binary on Themis
 - chmod +x keygen
-- ./keygen s
+- LD_LIBRARY_PATH=/usr/local/lib ./keygen s
 
 6. Run binary on Rana
 - chmod +x keygen
-- ./keygen c <insert themis IP>
+- LD_LIBRARY_PATH=/usr/local/lib ./keygen c <insert themis IP>
 
 7. Allow programs to finish
 
