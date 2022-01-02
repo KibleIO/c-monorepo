@@ -92,6 +92,7 @@ size_t Save_Date_From_Website(void* ptr, size_t size, size_t nmemb,
 }
 
 string Get_Str_From_Website(string address) {
+	str_ret = "";
 	CURL* curl;
 	CURLcode res;
 	(void)res;
