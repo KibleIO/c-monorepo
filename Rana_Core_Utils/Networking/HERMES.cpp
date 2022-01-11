@@ -230,10 +230,10 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	log_info({{"message", "starting hermes server loop"}, JSON_TYPE_END});
 	while (hs->connected) {
 		// FIX!!
-		int attempts = HERMES_TIMEOUT_TRIES / 10;
+		int attempts = HERMES_TIMEOUT_TRIES;
 		while (!hs->server->Receive((char*)&flag, sizeof(uint8_t)) &&
 			   attempts-- >= 0 && hs->connected) {
-			Sleep_Milli(100);
+			Sleep_Milli(1);
 		}
 		if (attempts < 0 || !hs->connected) {
 			log_err(((const JSON_TYPE){{"message", "failed to receive flag"},
