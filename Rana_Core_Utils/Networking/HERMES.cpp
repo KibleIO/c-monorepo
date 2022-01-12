@@ -189,7 +189,7 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	hs->connected = true;
 	hs->server = new Server();
 	hs->server->Set_Name("hermes server");
-	hs->server->Set_Recv_Timeout(3000);
+	hs->server->Set_Recv_Timeout(0, 100);
 
 	if (hs->enc_eng) {
 		if (!Add_Profile_ENCRYPTION_ENGINE(hs->enc_eng, "hermes_init",
@@ -230,12 +230,12 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	log_info({{"message", "starting hermes server loop"}, JSON_TYPE_END});
 	while (hs->connected) {
 		// FIX!!
-		int attempts = HERMES_TIMEOUT_TRIES / 10;
+		int attempts = HERMES_TIMEOUT_TRIES;
 		while (!hs->server->Receive((char*)&flag, sizeof(uint8_t)) &&
-			   attempts-- >= 0) {
+			   attempts-- >= 0 && hs->connected) {
 			Sleep_Milli(1);
 		}
-		if (attempts < 0) {
+		if (attempts < 0 || !hs->connected) {
 			log_err(((const JSON_TYPE){{"message", "failed to receive flag"},
 									   JSON_TYPE_END}));
 			hs->server_init_failed = true;
@@ -473,7 +473,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, string ip, int port, int* types) {
 	}
 
 	hc->client = new Client();
-	hc->client->Set_Recv_Timeout(30);
+	hc->client->Set_Recv_Timeout(1);
 	hc->client->Set_Name("hermes client");
 	hc->baseport = port;
 	hc->ip = ip;
