@@ -44,7 +44,7 @@ uint8_t padding) {
 	for (uint32_t i = 0; i < trans->threads; i++) {
 		trans->sws[i] = sws_getContext(
 		width, height, in, width, height, out,
-		YUV2RGB_ALGO, 0, 0, 0);
+		SWS_POINT, 0, 0, 0);
 
 		if (!trans->sws[i]) {
 			log_err(((const JSON_TYPE){

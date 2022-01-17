@@ -8,11 +8,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <Utilities/LOGGING.h>
-
-#define TEST_BUFF_SIZE 4
+#include "NETWORK.h"
+#include "../Utilities/CONTEXT.h"
 
 struct UDP_SERVER {
+	CONTEXT *ctx;
+	char name[MAX_NAME_SIZE];
+
 	int32_t		sockfd;
 	sockaddr_in	server_address;
 	sockaddr_in	client_address;
@@ -20,12 +22,14 @@ struct UDP_SERVER {
 	uint32_t	client_address_size;
 };
 
-bool Initialize_UDP_SERVER(UDP_SERVER*, uint32_t);
-void Set_Timeout_UDP_SERVER(UDP_SERVER* udp_server, int s, int u = 0);
-bool Accept_UDP_SERVER(UDP_SERVER*);
-bool Send_UDP_SERVER(UDP_SERVER*, uint8_t*, int32_t);
-int32_t Receive_UDP_SERVER(UDP_SERVER*, uint8_t*, int32_t);
-uint8_t Receive_Peek_UDP_SERVER(UDP_SERVER*, int32_t&);
+bool Initialize_UDP_SERVER(UDP_SERVER*, CONTEXT*);
+void Set_Name_UDP_SERVER(UDP_SERVER*, char*);
+bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER*, int, int);
+bool Set_High_Priority_UDP_SERVER(UDP_SERVER*);
+bool Accept_UDP_SERVER(UDP_SERVER*, int);
+bool Send_UDP_SERVER(UDP_SERVER*, char*, int);
+bool Receive_UDP_SERVER(UDP_SERVER*, char*, int);
+int Receive_Unsafe_UDP_SERVER(UDP_SERVER*, char*);
 void Delete_UDP_SERVER(UDP_SERVER*);
 
 #endif
