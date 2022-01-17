@@ -12,8 +12,9 @@ CLIENT* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
-		log_err(((const JSON_TYPE){{"message", "hermes server not connected"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "hermes client not connected");
+		}
 		return NULL;
 	}
 	hc->cmutx.lock();
@@ -31,8 +32,9 @@ CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 int Get_Index_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		log_err(((const JSON_TYPE){{"message", "hermes client not connected"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "hermes client not connected");
+		}
 		return -1;
 	}
 	hc->cmutx.lock();
@@ -64,33 +66,34 @@ void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
 
 bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
-		log_err(((const JSON_TYPE){{"message", "hermes client not connected"},
-								   JSON_TYPE_END}));
-		return false;
-	}
-	uint8_t flag = HERMES_GET_CONNECTION;
-	log_dbg(((const JSON_TYPE){{"message", "sending flag"}, JSON_TYPE_END}));
-	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		log_err(((const JSON_TYPE){{"message", "could not send flag"},
-								   JSON_TYPE_END}));
-		hc->connected = false;
-		hc->err = EPIPE;
-		return false;
-	}
-
-	log_dbg(((const JSON_TYPE){{"message", "sending type"}, JSON_TYPE_END}));
-	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
-		log_err(((const JSON_TYPE){{"message", "could not send type"},
-								   JSON_TYPE_END}));
-		hc->connected = false;
-		hc->err = EPIPE;
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "hermes client not connected");
+		}
 		return false;
 	}
 	int port;
-	log_dbg(((const JSON_TYPE){{"message", "receiving port"}, JSON_TYPE_END}));
+	uint8_t flag = HERMES_GET_CONNECTION;
+
+	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not send flag");
+		}
+		hc->connected = false;
+		hc->err = EPIPE;
+		return false;
+	}
+	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not send type");
+		}
+		hc->connected = false;
+		hc->err = EPIPE;
+		return false;
+	}
 	if (!Receive_CLIENT(&hc->client, (char*)&port, sizeof(int))) {
-		log_err(((const JSON_TYPE){{"message", "could not receive port"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not receive port");
+		}
 		hc->connected = false;
 		hc->err = EPIPE;
 		return false;
@@ -99,8 +102,9 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	//umm... I don't think this is thread safe
 	int index = Get_Index_HERMES_CLIENT(hc);
 	if (index < 0) {
-		log_err(((const JSON_TYPE){{"message", "max connections reached"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "max connections reached");
+		}
 	}
 
 	hc->cmutx.lock();
@@ -109,7 +113,6 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	hc->connections[index].type = type;
 	hc->connections[index].active = true;
 
-	log_dbg(((const JSON_TYPE){{"message", "connecting"}, JSON_TYPE_END}));
 	int attempts = HERMES_TIMEOUT_TRIES;
 
 	while (!Connect_CLIENT(&hc->connections[index].client, port, hc->ip) &&
@@ -118,12 +121,16 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	hc->cmutx.unlock();
 
 	if (attempts < 0) {
-		log_err(((const JSON_TYPE){{"message", "failed to connect to"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "failed to connect");
+			ADD_STR_LOG("name", type.name);
+		}
 		return false;
 	}
-
-	log_dbg(((const JSON_TYPE){{"message", "connected"}, JSON_TYPE_END}));
+	LOG_INFO_CTX((hc->ctx)) {
+		ADD_STR_LOG("message", "Connected!");
+		ADD_STR_LOG("name", type.name);
+	}
 
 	return true;
 }
@@ -132,8 +139,10 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	HERMES_TYPE *types) {
 
 	if (hc->connected) {
-		log_err(((const JSON_TYPE){
-			{"message", "hermes client already connected"}, JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message",
+				"hermes client already connected");
+		}
 		return false;
 	}
 
@@ -143,92 +152,102 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	hc->baseport = port;
 	strcpy(hc->ip, ip);
 
-	log_dbg(((const JSON_TYPE){{"message", "connecting to"}, JSON_TYPE_END}));
-
 	// come on man - Joe Biden
 	int attempts = HERMES_TIMEOUT_TRIES / 10;
 	while (!Connect_CLIENT(&hc->client, hc->baseport, hc->ip) &&
 		attempts-- >= 0);
 
 	if (attempts < 0) {
-		log_err(((const JSON_TYPE){{"message", "failed to connect to"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "failed to connect");
+			ADD_STR_LOG("name", "hermes client");
+		}
 
 		return false;
 	}
-
-	log_dbg(((const JSON_TYPE){{"message", "connected to"}, JSON_TYPE_END}));
+	LOG_INFO_CTX((hc->ctx)) {
+		ADD_STR_LOG("message", "Connected!");
+		ADD_STR_LOG("name", "hermes client");
+	}
 
 	hc->connected = true;
 
-	log_dbg((
-		(const JSON_TYPE){{"message", "creating connections"}, JSON_TYPE_END}));
 	while ((*types).id != 0) {
-		log_dbg(((const JSON_TYPE){{"message", "to_string(*types)"},
-								   JSON_TYPE_END}));
-
 		if (!Create_CLIENT_CONNECTION(hc, *types)) {
-			log_err(((const JSON_TYPE){{"message", "failed to connect to"},
-									   JSON_TYPE_END}));
+			LOG_ERROR_CTX((hc->ctx)) {
+				ADD_STR_LOG("message", "failed to connect");
+				ADD_STR_LOG("name", (*types).name);
+			}
 
 			return false;
 		}
 		types++;
 	}
-	log_dbg(
-		((const JSON_TYPE){{"message", "hermes connected"}, JSON_TYPE_END}));
+	LOG_INFO_CTX((hc->ctx)) {
+		ADD_STR_LOG("message", "Hermes connected!");
+	}
 
 	return true;
 }
 
 void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		log_err(((const JSON_TYPE){{"message", "hermes client not connected"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "hermes client not connected");
+		}
 		return;
 	}
 
 	uint8_t flag = HERMES_EXIT;
 
 	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		log_err(((const JSON_TYPE){{"message", "could not send exit flag"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not send exit flag");
+		}
 		hc->connected = false;
 		hc->err = EPIPE;
 		return;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		log_err(((const JSON_TYPE){{"message", "could not receive exit flag"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not receive exit flag");
+		}
 		hc->connected = false;
 		hc->err = EPIPE;
 		return;
 	}
 	if (flag != HERMES_EXIT) {
-		log_err(((const JSON_TYPE){{"message", "flag received not exit"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "flag received not exit");
+			ADD_INT_LOG("flag", flag);
+		}
+
 		hc->err = EIO;
 	}
+	//uhhhh... are we supposed to exit here or...?
 }
 
 bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		log_err(((const JSON_TYPE){{"message", "hermes client not connected"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "hermes client not connected");
+		}
 		return false;
 	}
 
 	uint8_t flag = HERMES_STATUS;
 	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		log_err(((const JSON_TYPE){{"message", "could not send status flag"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not send status flag");
+		}
 		hc->connected = false;
 		hc->err = EPIPE;
 		return false;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		log_err(((const JSON_TYPE){{"message", "could not receive status flag"},
-								   JSON_TYPE_END}));
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "could not receive status flag");
+		}
 		hc->connected = false;
 		hc->err = EPIPE;
 		return false;
@@ -244,7 +263,6 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
 	hc->err = 0;
 	hc->connected = false;
 	hc->ctx = ctx;
-	log_dbg(((const JSON_TYPE){{"message", "Hermes client initialized"},
-							   JSON_TYPE_END}));
+	
 	return true;
 }
