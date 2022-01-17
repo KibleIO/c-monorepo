@@ -200,3 +200,13 @@ bool Read_Bin_From_File(char *file_name, char *buffer, int size) {
 
 	return true;
 }
+
+bool Check_If_White_Space(char *str) {
+	while (str[0] != '\0') {
+		if (!isspace(str[0])) {
+			return false;
+		}
+		str++;
+	}
+	return true;
+}

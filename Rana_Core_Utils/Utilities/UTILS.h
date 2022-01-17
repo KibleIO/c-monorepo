@@ -57,6 +57,8 @@ bool Write_Bin_To_File(char*, char*, int);
 
 bool Read_Bin_From_File(char*, char*, int);
 
+bool Check_If_White_Space(char *);
+
 const char *itoa(const char *, int);
 
 #endif
