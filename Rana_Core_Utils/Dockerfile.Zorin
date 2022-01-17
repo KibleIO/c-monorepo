@@ -13,4 +13,5 @@ RUN rm -rf /var/lib/apt/lists/*
 COPY ./librana.so /usr/local/lib
 COPY ./Networking /usr/local/include/rana/Networking
 COPY ./Utilities /usr/local/include/rana/Utilities
+COPY ./Hermes /usr/local/include/rana/Hermes
 WORKDIR /root
