@@ -127,4 +127,8 @@ void Download_From_Website(string address, string place, uint32_t* runner) {
 	}
 	*runner = false;
 }
+
+void Delete_UPDATE_UTILITY(Update_UTILITY* info) {
+}
+
 #endif

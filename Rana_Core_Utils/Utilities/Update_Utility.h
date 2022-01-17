@@ -62,5 +62,7 @@ string Get_Str_From_Website(string address);
 // Download file from given IP and save it to given directory
 void Download_From_Website(string address, string place, uint32_t* runner);
 
+void Delete_UPDATE_UTILITY(Update_UTILITY* info);
+
 #endif	// UPDATE_UTILITY_H_
 #endif

@@ -70,13 +70,13 @@ void Epipe_HERMES_SERVER(HERMES_SERVER* hs) {
 	hs->connected = false;
 }
 
-void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
+bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	if (hs->connected) {
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message",
 				"hermes server already connected");
 		}
-		return;
+		return false;
 	}
 
 	hs->connected = true;
@@ -96,11 +96,22 @@ void Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 		}
 		hs->server_init_failed = true;
 		hs->connected = false;
-		return;
+		return false;
 	}
+	return true;
+}
 
+void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 	uint8_t flag;
 	HERMES_TYPE type;
+
+	if (!hs->connected) {
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message",
+				"hermes server not connected");
+		}
+		return;
+	}
 
 	LOG_INFO_CTX((hs->ctx)) {
 		ADD_STR_LOG("message", "starting hermes server loop");
