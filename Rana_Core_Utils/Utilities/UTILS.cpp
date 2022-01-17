@@ -150,15 +150,11 @@ error_lbl:
 }
 
 void get_current_time(char *str) {
-	time_t rawtime;
-	struct tm *timeinfo;
-
-	time ( &rawtime );
-	timeinfo = gmtime ( &rawtime );
-
-	sprintf(str, "%d-%02d-%02dT%02d:%02d:%02dZ", timeinfo->tm_year + 1900,
-		timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour,
-		timeinfo->tm_min, timeinfo->tm_sec);
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	char buff[100];
+	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
+	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
 }
 
 void Sleep_Milli(unsigned int milli) {
