@@ -37,6 +37,8 @@ using namespace std;
 
 #define abs(x) ((x)<0 ? -(x) : (x))
 
+#define CEILING(x, y) (((x) + (y)-1) / (y))
+
 string system_output(string);
 
 string trim(const string &);
