@@ -34,6 +34,7 @@ install: $(EXEC)
 	sudo cp ./librana.so /usr/local/lib
 	sudo cp -R ./Networking/* /usr/local/include/rana/Networking
 	sudo cp -R ./Utilities/* /usr/local/include/rana/Utilities
+	sudo cp -R ./Hermes/* /usr/local/include/rana/Hermes
 
 dockerimage-publish: $(EXEC)
 	docker build --file Dockerfile -t kible/coreutils .
