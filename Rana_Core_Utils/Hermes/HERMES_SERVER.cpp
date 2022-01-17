@@ -61,7 +61,10 @@ int Get_Index_HERMES_SERVER(HERMES_SERVER* hs) {
 void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	Delete_SERVER(&hs->server);
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		Delete_SERVER(&hs->connections[i].server);
+		if (hs->connections[i].active) {
+			Delete_SERVER(&hs->connections[i].server);
+			hs->connections[i].active = false;
+		}
 	}
 }
 

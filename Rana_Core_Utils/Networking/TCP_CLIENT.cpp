@@ -195,7 +195,15 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 			}
 			return false;
 		}
- 	}
+ 	} else {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Connect() threw an error");
+			ADD_INT_LOG("err", err);
+			ADD_INT_LOG("res", res);
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
 
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {

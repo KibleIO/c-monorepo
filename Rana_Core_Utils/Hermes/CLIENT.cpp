@@ -12,7 +12,7 @@ bool Initialize_CLIENT(CLIENT *client, CONTEXT *ctx, int type) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -28,7 +28,7 @@ void Set_Name_CLIENT(CLIENT *client, char *name) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 }
 
@@ -44,7 +44,7 @@ bool Set_Recv_Timeout_CLIENT(CLIENT *client, int sec, int usec) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -60,7 +60,7 @@ bool Set_High_Priority_CLIENT(CLIENT *client) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -76,7 +76,7 @@ bool Connect_CLIENT(CLIENT *client, int port, char *ip) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -92,7 +92,7 @@ bool Send_CLIENT(CLIENT *client, char *buffer, int size) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -108,7 +108,7 @@ bool Receive_CLIENT(CLIENT *client, char *buffer, int size) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -124,7 +124,7 @@ int Receive_Unsafe_CLIENT(CLIENT *client, char *buffer) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 	return false;
 }
@@ -140,6 +140,6 @@ void Delete_CLIENT(CLIENT *client) {
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", client->type);
+		ADD_INT_LOG("net_type", client->type);
 	}
 }

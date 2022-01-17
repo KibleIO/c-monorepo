@@ -12,7 +12,7 @@ bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, int type) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -28,7 +28,7 @@ void Set_Name_SERVER(SERVER *server, char *name) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 }
 
@@ -43,7 +43,7 @@ bool Set_Recv_Timeout_SERVER(SERVER *server, int sec, int usec) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -59,7 +59,7 @@ bool Set_High_Priority_SERVER(SERVER *server) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -73,7 +73,7 @@ bool Accept_SERVER(SERVER *server, int port) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -89,7 +89,7 @@ bool Send_SERVER(SERVER *server, char *buffer, int size) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -105,7 +105,7 @@ bool Receive_SERVER(SERVER *server, char *buffer, int size) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -121,7 +121,7 @@ int Receive_Unsafe_SERVER(SERVER *server, char *buffer) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 	return false;
 }
@@ -137,6 +137,6 @@ void Delete_SERVER(SERVER *server) {
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("type", server->type);
+		ADD_INT_LOG("net_type", server->type);
 	}
 }

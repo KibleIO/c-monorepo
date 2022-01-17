@@ -119,72 +119,57 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 		ADD_INT_LOG("port", port);
 	}
 
-	res = listen(server->lSocket, 5);
-	err = errno;
+	if (listen(server->lSocket, 5) >= 0) {
+		tv.tv_sec = 10;
+		tv.tv_usec = 0;
+		FD_ZERO(&myset);
+		FD_SET(server->lSocket, &myset);
+		if (select(server->lSocket + 1, &myset, NULL, NULL, &tv) > 0) {
+			lon = sizeof(int);
+			getsockopt(server->lSocket, SOL_SOCKET, SO_ERROR,
+				(void*)(&valopt), (unsigned int*)&lon);
 
-	if (res < 0) {
-		if (err == EINPROGRESS) {
-			tv.tv_sec = 10;
-			tv.tv_usec = 0;
-			FD_ZERO(&myset);
-			FD_SET(server->lSocket, &myset);
-			if (select(server->lSocket + 1, NULL, &myset, NULL,
-				&tv) > 0) {
-
-				lon = sizeof(int);
-				getsockopt(server->lSocket, SOL_SOCKET,
-					SO_ERROR, (void*)(&valopt),
-					(unsigned int*)&lon);
-
-				if (valopt) {
-					LOG_ERROR_CTX((server->ctx)) {
-						ADD_STR_LOG("message",
-							"Error in "
-							"listen()");
-
-						ADD_STR_LOG("name",
-							server->name);
-
-						ADD_INT_LOG("port", port);
-						ADD_INT_LOG("error_code",
-							valopt);
-					}
-					return false;
-				}
-
-				if ((server->cSocket = accept(server->lSocket,
-					(sockaddr*)&cAddress,
-					(unsigned int*)&cSize)) < 0) {
-
-					LOG_ERROR_CTX((server->ctx)) {
-						ADD_STR_LOG("message",
-							"Error in "
-							"accept()");
-
-						ADD_STR_LOG("name",
-							server->name);
-
-						ADD_INT_LOG("port", port);
-					}
-					return false;
-				}
-			} else {
+			if (valopt) {
 				LOG_ERROR_CTX((server->ctx)) {
 					ADD_STR_LOG("message",
-						"Timeout or Error select()");
+						"Error in listen()");
 
 					ADD_STR_LOG("name", server->name);
+					ADD_INT_LOG("port", port);
+					ADD_INT_LOG("error_code", valopt);
+				}
+				return false;
+			}
+
+			if ((server->cSocket = accept(server->lSocket,
+				(sockaddr*)&cAddress,
+				(unsigned int*)&cSize)) < 0) {
+
+				LOG_ERROR_CTX((server->ctx)) {
+					ADD_STR_LOG("message",
+						"Error in accept()");
+
+					ADD_STR_LOG("name", server->name);
+					ADD_INT_LOG("port", port);
 				}
 				return false;
 			}
 		} else {
 			LOG_ERROR_CTX((server->ctx)) {
-				ADD_STR_LOG("message", "Error connecting");
+				ADD_STR_LOG("message",
+					"Timeout or Error select()");
+
 				ADD_STR_LOG("name", server->name);
 			}
 			return false;
 		}
- 	}
+ 	} else {
+	       LOG_ERROR_CTX((server->ctx)) {
+		       ADD_STR_LOG("message", "listen() threw an error");
+		       ADD_STR_LOG("name", server->name);
+	       }
+	       return false;
+	}
 
 	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
