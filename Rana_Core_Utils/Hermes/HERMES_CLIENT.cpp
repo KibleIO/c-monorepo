@@ -50,13 +50,7 @@ int Get_Index_HERMES_CLIENT(HERMES_CLIENT* hc) {
 }
 
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
-	Delete_CLIENT(&hc->client);
-	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		if (hc->connections[i].active) {
-			Delete_CLIENT(&hc->connections[i].client);
-			hc->connections[i].active = false;
-		}
-	}
+	Disconnect_HERMES_CLIENT(hc);
 }
 
 void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
@@ -224,7 +218,15 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 
 		hc->err = EIO;
 	}
-	//uhhhh... are we supposed to exit here or...?
+
+	Delete_CLIENT(&hc->client);
+	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
+		if (hc->connections[i].active) {
+			Delete_CLIENT(&hc->connections[i].client);
+			hc->connections[i].active = false;
+		}
+	}
+	hc->connected = false;
 }
 
 bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
@@ -263,6 +265,6 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
 	hc->err = 0;
 	hc->connected = false;
 	hc->ctx = ctx;
-	
+
 	return true;
 }

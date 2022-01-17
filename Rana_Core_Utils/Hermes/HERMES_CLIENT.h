@@ -45,6 +45,7 @@ CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
 CLIENT* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
 //And this once per main loop
 bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
+void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Deletes all heap resources
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Shuts down hermes and sets err to EPIPE
