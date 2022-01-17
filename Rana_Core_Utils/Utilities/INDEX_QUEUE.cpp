@@ -15,6 +15,7 @@ INDEX_QUEUE* queue, uint32_t minimum, uint32_t maximum) {
 	}
 	queue->mtx.unlock();
 	Release_All_INDEX_QUEUE(queue);
+	return true;
 }
 
 void Release_All_INDEX_QUEUE(INDEX_QUEUE* queue) {
