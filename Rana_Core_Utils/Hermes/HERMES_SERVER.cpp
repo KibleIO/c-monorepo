@@ -85,6 +85,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 	hs->connected = true;
 
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
+		hs->connections[i].active = false;
 		hs->connections[i].port = baseport++;
 	}
 

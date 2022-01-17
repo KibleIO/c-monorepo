@@ -151,7 +151,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 
 	if (res < 0) {
 		if (err == EINPROGRESS) {
-			tv.tv_sec = 1;
+			tv.tv_sec = 10;
 			tv.tv_usec = 0;
 			FD_ZERO(&myset);
 			FD_SET(client->cSocket, &myset);
@@ -159,11 +159,19 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 				&tv) > 0) {
 
 				lon = sizeof(int);
-				getsockopt(client->cSocket, SOL_SOCKET,
+				if (getsockopt(client->cSocket, SOL_SOCKET,
 					SO_ERROR, (void*)(&valopt),
-					(unsigned int*)&lon);
+					(unsigned int*)&lon) < 0) {
 
-				if (valopt) {
+					LOG_ERROR_CTX((client->ctx)) {
+						ADD_STR_LOG("message",
+							"Error in getsockopt");
+						ADD_STR_LOG("name",
+							client->name);
+					}
+				}
+
+				if (valopt != 0) {
 					LOG_ERROR_CTX((client->ctx)) {
 						ADD_STR_LOG("message",
 							"Error in "
@@ -192,6 +200,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 			LOG_ERROR_CTX((client->ctx)) {
 				ADD_STR_LOG("message", "Error connecting");
 				ADD_STR_LOG("name", client->name);
+				ADD_INT_LOG("error_code", err);
 			}
 			return false;
 		}

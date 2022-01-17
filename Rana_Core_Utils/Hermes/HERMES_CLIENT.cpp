@@ -102,15 +102,22 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	}
 
 	hc->cmutx.lock();
-	Initialize_CLIENT(&hc->connections[index].client, hc->ctx, type.type);
-	Set_Name_CLIENT(&hc->connections[index].client, type.name);
-	hc->connections[index].type = type;
-	hc->connections[index].active = true;
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
-	while (!Connect_CLIENT(&hc->connections[index].client, port, hc->ip) &&
-		attempts-- >= 0);
+	while (attempts-- >= 0) {
+		Initialize_CLIENT(&hc->connections[index].client, hc->ctx, type.type);
+		Set_Name_CLIENT(&hc->connections[index].client, type.name);
+
+		if (Connect_CLIENT(&hc->connections[index].client, port, hc->ip)) {
+			hc->connections[index].type = type;
+			hc->connections[index].active = true;
+
+			break;
+		}
+
+		Delete_CLIENT(&hc->connections[index].client);
+	}
 
 	hc->cmutx.unlock();
 
@@ -200,7 +207,7 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		}
 		hc->connected = false;
 		hc->err = EPIPE;
-		return;
+		goto cleanup;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
 		LOG_ERROR_CTX((hc->ctx)) {
@@ -208,7 +215,7 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		}
 		hc->connected = false;
 		hc->err = EPIPE;
-		return;
+		goto cleanup;
 	}
 	if (flag != HERMES_EXIT) {
 		LOG_ERROR_CTX((hc->ctx)) {
@@ -217,7 +224,10 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		}
 
 		hc->err = EIO;
+		goto cleanup;
 	}
+
+	cleanup:
 
 	Delete_CLIENT(&hc->client);
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
@@ -265,6 +275,10 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
 	hc->err = 0;
 	hc->connected = false;
 	hc->ctx = ctx;
+
+	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
+		hc->connections[i].active = false;
+	}
 
 	return true;
 }
