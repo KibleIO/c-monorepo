@@ -42,7 +42,7 @@ bool operator>(const Version& v1, const Version& v2);
 bool operator>=(const Version& v1, const Version& v2);
 bool operator==(const Version& v1, const Version& v2);
 
-void Initialize_UPDATE_UTILITY(Update_UTILITY* info, string relativePathToVersionHtml,
+bool Initialize_UPDATE_UTILITY(Update_UTILITY* info, string relativePathToVersionHtml,
 							   string fileArchiveName, string relativePathTofileArchive,
 							   string rootDir);
 // Check the remote site to see if this Rana machine needs an update

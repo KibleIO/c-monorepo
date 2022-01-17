@@ -20,7 +20,7 @@ bool operator==(const Version& v1, const Version& v2) {
 	return v1.toTuple() == v2.toTuple();
 }
 
-void Initialize_UPDATE_UTILITY(Update_UTILITY* info, string pathToVersionHtml,
+bool Initialize_UPDATE_UTILITY(Update_UTILITY* info, string pathToVersionHtml,
 							   string fileArchiveName, string pathTofileArchive,
 							   string rootDir) {
 	info->latestVersionSite = UPDATE_IP + pathToVersionHtml;
@@ -29,6 +29,7 @@ void Initialize_UPDATE_UTILITY(Update_UTILITY* info, string pathToVersionHtml,
 	info->rootDir = rootDir;
 	info->localArchiveDir = rootDir + fileArchiveName;
 	info->installBinaryDir = rootDir + "install.sh";
+	return true;
 }
 
 bool Up_To_Date(string currVersion, Update_UTILITY* info) {
