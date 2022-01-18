@@ -2,18 +2,9 @@
 
 #include "HERMES_SERVER.h"
 
-void Close_Connections_HERMES_SERVER(HERMES_SERVER *hs) {
-	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		if (hs->connections[i].active) {
-			Delete_SERVER(&hs->connections[i].server);
-			hs->connections[i].active = false;
-		}
-	}
-}
-
 SERVER* Get_Blocking_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE type) {
 	SERVER* server = NULL;
-	while (!server && !hs->server_init_failed && hs->connected) {
+	while (!server && hs->connected) {
 		server = Get_HERMES_SERVER(hs, type);
 	}
 	return server;
@@ -58,7 +49,14 @@ int Get_Index_HERMES_SERVER(HERMES_SERVER* hs) {
 	return -1;
 }
 
-void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
+void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
+	if (!hs->connected) {
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message", "hermes server not connected");
+		}
+		return;
+	}
+
 	Delete_SERVER(&hs->server);
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		if (hs->connections[i].active) {
@@ -66,14 +64,14 @@ void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 			hs->connections[i].active = false;
 		}
 	}
-}
-
-void Epipe_HERMES_SERVER(HERMES_SERVER* hs) {
-	hs->err = EPIPE;
 	hs->connected = false;
 }
 
-bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
+void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
+	Disconnect_HERMES_SERVER(hs);
+}
+
+bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport) {
 	if (hs->connected) {
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message",
@@ -98,8 +96,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport) {
 			ADD_STR_LOG("message", "could not listen on port");
 			ADD_INT_LOG("port", port);
 		}
-		hs->server_init_failed = true;
-		hs->connected = false;
+		Disconnect_HERMES_SERVER(hs);
 		return false;
 	}
 	return true;
@@ -132,8 +129,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 				ADD_STR_LOG("message",
 					"failed to receive flag");
 			}
-			hs->server_init_failed = true;
-			hs->err = EPIPE;
 
 			break;
 		}
@@ -153,7 +148,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 						"failed to send status");
 				}
 				hs->shouldexit = false;
-				hs->err = EPIPE;
 				break;
 			}
 			if (hs->shouldexit) {
@@ -173,11 +167,10 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message", "failed to "
 						"send exit confirmation");
 				}
-				hs->err = EPIPE;
 				break;
 			}
 			hs->shouldexit = false;
-			hs->connected = false;
+			Disconnect_HERMES_SERVER(hs);
 		} else if (flag == HERMES_GET_CONNECTION) {
 			if (!Receive_SERVER(&hs->server, (char*)&type,
 				sizeof(HERMES_TYPE))) {
@@ -186,8 +179,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message", "failed to "
 						"receive connection type");
 				}
-				hs->server_init_failed = true;
-				hs->err = EPIPE;
 				break;
 			}
 
@@ -197,7 +188,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message", "max "
 						"connections reached");
 				}
-				hs->err = EPIPE;
 				break;
 			}
 
@@ -209,7 +199,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message",
 						"failed to send port");
 				}
-				hs->err = EPIPE;
 				break;
 			}
 
@@ -217,7 +206,8 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 
 			Initialize_SERVER(&hs->connections[index].server,
 				hs->ctx, type.type);
-			Set_Name_SERVER(&hs->server, type.name);
+			Set_Name_SERVER(&hs->connections[index].server,
+				type.name);
 			hs->connections[index].type = type;
 
 			if (!Accept_SERVER(&hs->connections[index].server,
@@ -228,7 +218,7 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 						"could not listen on port");
 					ADD_INT_LOG("port",
 						hs->connections[index].port);
-					ADD_STR_LOG("type",
+					ADD_STR_LOG("name",
 						hs->connections[index].type.
 						name);
 				}
@@ -240,7 +230,7 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 						"server bound!");
 					ADD_INT_LOG("port",
 						hs->connections[index].port);
-					ADD_STR_LOG("type",
+					ADD_STR_LOG("name",
 						hs->connections[index].type.
 						name);
 				}
@@ -255,15 +245,12 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 	if (hs->shouldexit) {
 		hs->shouldexit = false;
 	}
-	hs->connected = false;
-	Close_Connections_HERMES_SERVER(hs);
+	Disconnect_HERMES_SERVER(hs);
 }
 
 bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx) {
-	hs->err = 0;
 	hs->connected = false;
 	hs->shouldexit = false;
-	hs->server_init_failed = false;
 	hs->ctx = ctx;
 	return true;
 }

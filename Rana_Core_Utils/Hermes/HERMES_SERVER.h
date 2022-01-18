@@ -29,9 +29,6 @@ struct HERMES_SERVER {
 
 	SERVER_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
-	uint8_t err;
-
-	bool server_init_failed;
 	CONTEXT *ctx;
 };
 
@@ -45,11 +42,8 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs);
 SERVER* Get_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
 //Or this for blocking behavior
 SERVER* Get_Blocking_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
-//Closes all connections except main
-void Close_Connections_HERMES_SERVER(HERMES_SERVER* hs);
+void Disconnect_HERMES_SERVER(HERMES_SERVER* hs);
 //Deletes all heap resources
 void Delete_HERMES_SERVER(HERMES_SERVER* hs);
-//Shuts down hermes and sets err to EPIPE
-void Epipe_HERMES_SERVER(HERMES_SERVER* hs);
 
 #endif

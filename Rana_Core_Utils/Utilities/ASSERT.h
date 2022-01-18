@@ -33,4 +33,13 @@ if (!bool) {\
 	return false;\
 }
 
+//assert and log to elk and return current function
+#define ASSERT_E_B(ctx, message, bool) \
+if (!bool) {\
+	LOG_ERROR_CTX((ctx)) {\
+		ADD_STR_LOG("message", message);\
+	}\
+	return;\
+}
+
 #endif

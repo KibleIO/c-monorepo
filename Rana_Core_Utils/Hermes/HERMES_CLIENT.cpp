@@ -53,11 +53,6 @@ void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	Disconnect_HERMES_CLIENT(hc);
 }
 
-void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc) {
-	hc->err = EPIPE;
-	hc->connected = false;
-}
-
 bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
 		LOG_ERROR_CTX((hc->ctx)) {
@@ -72,24 +67,21 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send flag");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send type");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&port, sizeof(int))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive port");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 
@@ -205,16 +197,12 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send exit flag");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
 		goto cleanup;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive exit flag");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
 		goto cleanup;
 	}
 	if (flag != HERMES_EXIT) {
@@ -223,7 +211,6 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 			ADD_INT_LOG("flag", flag);
 		}
 
-		hc->err = EIO;
 		goto cleanup;
 	}
 
@@ -252,16 +239,14 @@ bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send status flag");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive status flag");
 		}
-		hc->connected = false;
-		hc->err = EPIPE;
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	if (flag) {	 // shouldexit
@@ -272,7 +257,6 @@ bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 }
 
 bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
-	hc->err = 0;
 	hc->connected = false;
 	hc->ctx = ctx;
 

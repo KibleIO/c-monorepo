@@ -30,7 +30,6 @@ struct HERMES_CLIENT {
 
 	CLIENT_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
-	uint8_t err;
 	CONTEXT *ctx;
 };
 
@@ -48,7 +47,5 @@ bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
 void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Deletes all heap resources
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc);
-//Shuts down hermes and sets err to EPIPE
-void Epipe_HERMES_CLIENT(HERMES_CLIENT* hc);
 
 #endif
