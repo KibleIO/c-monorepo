@@ -5,20 +5,20 @@
 
 //assert and print to console via cout
 #define ASSERT_P(bool, message) \
-if (!bool) {\
+if (!(bool)) {\
 	cout << message << endl;\
 }
 
 //assert and print to console via cout and return current function
 #define ASSERT_P_R(bool, message) \
-if (!bool) {\
+if (!(bool)) {\
 	cout << message << endl;\
 	return false;\
 }
 
 //assert and log to elk
 #define ASSERT_E(bool, message, ctx) \
-if (!bool) {\
+if (!(bool)) {\
 	LOG_ERROR_CTX((ctx)) {\
 		ADD_STR_LOG("message", message);\
 	}\
@@ -26,7 +26,7 @@ if (!bool) {\
 
 //assert and log to elk and return current function
 #define ASSERT_E_R(bool, message, ctx) \
-if (!bool) {\
+if (!(bool)) {\
 	LOG_ERROR_CTX((ctx)) {\
 		ADD_STR_LOG("message", message);\
 	}\
@@ -35,7 +35,7 @@ if (!bool) {\
 
 //assert and log to elk and return current function
 #define ASSERT_E_B(bool, message, ctx) \
-if (!bool) {\
+if (!(bool)) {\
 	LOG_ERROR_CTX((ctx)) {\
 		ADD_STR_LOG("message", message);\
 	}\
