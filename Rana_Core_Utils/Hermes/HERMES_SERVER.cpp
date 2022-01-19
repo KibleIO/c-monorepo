@@ -65,41 +65,16 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 		}
 	}
 	hs->connected = false;
+
+	if (hs->loop_thread != NULL) {
+		hs->loop_thread->join();
+		delete hs->loop_thread;
+		hs->loop_thread = NULL;
+	}
 }
 
 void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	Disconnect_HERMES_SERVER(hs);
-}
-
-bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport) {
-	if (hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message",
-				"hermes server already connected");
-		}
-		return false;
-	}
-
-	hs->connected = true;
-
-	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
-		hs->connections[i].active = false;
-		hs->connections[i].port = baseport++;
-	}
-
-	Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
-	Set_Name_SERVER(&hs->server, "hermes server");
-	Set_Recv_Timeout_SERVER(&hs->server, 0, 100);
-
-	if (!Accept_SERVER(&hs->server, port)) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "could not listen on port");
-			ADD_INT_LOG("port", port);
-		}
-		Disconnect_HERMES_SERVER(hs);
-		return false;
-	}
-	return true;
 }
 
 void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
@@ -248,9 +223,45 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 	Disconnect_HERMES_SERVER(hs);
 }
 
+bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport) {
+	if (hs->connected) {
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message",
+				"hermes server already connected");
+		}
+		return false;
+	}
+
+	hs->loop_thread = NULL;
+	hs->connected = true;
+
+	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
+		hs->connections[i].active = false;
+		hs->connections[i].port = baseport++;
+	}
+
+	Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
+	Set_Name_SERVER(&hs->server, "hermes server");
+	Set_Recv_Timeout_SERVER(&hs->server, 0, 100);
+
+	if (!Accept_SERVER(&hs->server, port)) {
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message", "could not listen on port");
+			ADD_INT_LOG("port", port);
+		}
+		Disconnect_HERMES_SERVER(hs);
+		return false;
+	}
+	hs->loop_thread = new thread(Loop_HERMES_SERVER, hs);
+
+	return true;
+}
+
 bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx) {
 	hs->connected = false;
 	hs->shouldexit = false;
 	hs->ctx = ctx;
+	hs->loop_thread = NULL;
+
 	return true;
 }

@@ -206,3 +206,8 @@ bool Check_If_White_Space(char *str) {
 	}
 	return true;
 }
+
+bool Is_Connected_To_Internet() {
+	return strcmp(Get_Str_From_Website(UPDATE_IP).c_str(),
+		"nothing here... move along\n") == 0;
+}

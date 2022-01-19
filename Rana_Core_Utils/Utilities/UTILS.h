@@ -20,6 +20,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
+#include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6
 #define DIGITS_IN_OCTET_IN_MAC_ADDRESS 2
@@ -62,5 +63,7 @@ bool Read_Bin_From_File(char*, char*, int);
 bool Check_If_White_Space(char *);
 
 const char *itoa(const char *, int);
+
+bool Is_Connected_To_Internet();
 
 #endif
