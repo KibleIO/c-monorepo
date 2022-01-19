@@ -16,9 +16,9 @@
 		ADD_STR_LOG("file", __FILE__),\
 		ADD_INT_LOG("line", __LINE__),\
 		ADD_STR_LOG("function", __func__),\
-		ADD_STR_LOG("system", ctx->core_system),\
-		ADD_STR_LOG("uuid", ctx->uuid),\
-		ADD_STR_LOG("mac_address", ctx->mac_address),\
+		ADD_STR_LOG("system", (ctx)->core_system),\
+		ADD_STR_LOG("uuid", (ctx)->uuid),\
+		ADD_STR_LOG("mac_address", (ctx)->mac_address),\
 		ADD_STR_LOG("type", level))
 #define FINISH_LOG(ctx) (strcpy(loop.str,\
 		json_object_to_json_string_ext(loop.json_obj,\
