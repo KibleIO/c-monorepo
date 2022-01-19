@@ -211,3 +211,7 @@ bool Is_Connected_To_Internet() {
 	return strcmp(Get_Str_From_Website(UPDATE_IP).c_str(),
 		"nothing here... move along\n") == 0;
 }
+
+int Get_Number_Of_Cores() {
+	return get_nprocs();
+}

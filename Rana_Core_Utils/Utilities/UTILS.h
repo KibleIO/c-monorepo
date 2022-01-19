@@ -20,6 +20,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
+#include <sys/sysinfo.h>
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6

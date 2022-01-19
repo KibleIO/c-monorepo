@@ -4,6 +4,7 @@
 #include <json-c/json.h>
 #include "ELASTIC_SEARCH_CLIENT.h"
 #include "UTILS.h"
+#include "SCREEN_DIM.h"
 
 //WARNING: This will eventually cause an issue
 #define MAX_LOG_LEN 8192
@@ -38,9 +39,12 @@ struct CONTEXT {
 	char uuid[UUID_STR_SIZE];
 	char core_system[CORE_SYSTEM_STR_SIZE];
 	ELASTIC_SEARCH_CLIENT client;
+	SCREEN_DIM screen_dim;
 };
 
 bool Initialize_CONTEXT(CONTEXT*, char*);
+SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT*);
+void Set_Screen_Dim_CONTEXT(CONTEXT*, SCREEN_DIM);
 void Log_CONTEXT(CONTEXT*, char*);
 void Delete_CONTEXT(CONTEXT*);
 

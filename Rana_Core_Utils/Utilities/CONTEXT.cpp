@@ -13,6 +13,14 @@ bool Initialize_CONTEXT(CONTEXT *ctx, char *core_system) {
 	return true;
 }
 
+SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT *ctx) {
+	return ctx->screen_dim;
+}
+
+void Set_Screen_Dim_CONTEXT(CONTEXT *ctx, SCREEN_DIM screen_dim) {
+	ctx->screen_dim = screen_dim;
+}
+
 void Log_CONTEXT(CONTEXT *ctx, char *str) {
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
 }
