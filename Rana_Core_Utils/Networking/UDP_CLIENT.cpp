@@ -14,8 +14,6 @@ bool Initialize_UDP_CLIENT(UDP_CLIENT* client, CONTEXT *ctx) {
 		}
 		return false;
 	}
-	client->server_address_size = sizeof(client->server_address);
-	memset(&client->server_address, 0, client->server_address_size);
 
 	input_var = 1000000;
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
@@ -99,90 +97,58 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
-	client->server_address.sin_family = AF_INET;
-	client->server_address.sin_port = htons(port);
+	sockaddr_in destination;
+	destination.sin_family = AF_INET;
+	destination.sin_port = htons(port);
 
-	if (inet_pton(AF_INET, ip,
-		&(client->server_address.sin_addr.s_addr)) < 1) {
-
-		struct addrinfo hints, *res;
-		struct addrinfo* itr;
-
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = PF_UNSPEC;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_flags |= AI_CANONNAME;
-
-		if (getaddrinfo(ip, NULL, &hints, &res) != 0) {
+	if (inet_pton(AF_INET, ip, &(destination.sin_addr.s_addr)) < 1) {
+		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip, 2)) {
 			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "getaddrinfo() failed");
+				ADD_STR_LOG("message", "getaddrinfo_k() failed");
 				ADD_STR_LOG("ip", ip);
 				ADD_STR_LOG("name", client->name);
 			}
-
 			return false;
 		}
-
-		itr = res;
-
-		while (itr) {
-			if (itr->ai_family == AF_INET) {
-				client->server_address.sin_addr.s_addr =
-					((struct sockaddr_in*)itr->ai_addr)->
-					sin_addr.s_addr;
-
-				freeaddrinfo(res);
-
-				goto success;
-			}
-			itr = itr->ai_next;
-		}
-
-		freeaddrinfo(res);
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "failed to find AF_INET");
-			ADD_STR_LOG("ip", ip);
-			ADD_STR_LOG("name", client->name);
-		}
-
-		return false;
 	}
-	success:
 
 	if (!Set_Recv_Timeout_UDP_CLIENT(client, 0, 100000)) {
 		return false;
 	}
 
-	while (connect_attempts-- > 0) {
-		errno = 0;
-		size = sendto(client->sockfd, (char*)test_buff,
-			TEST_BUFF_SIZE, 0, (sockaddr*)&client->server_address,
-			client->server_address_size);
+	if (connect(client->sockfd, (sockaddr*)&destination,
+		sizeof(destination)) < 0) {
 
-		if (size != TEST_BUFF_SIZE) {
-			LOG_WARN_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "Error sending test "
-					"buff... trying again");
-				ADD_STR_LOG("name", client->name);
-			}
-			continue;
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "connect() failed");
+			ADD_STR_LOG("ip", ip);
+			ADD_STR_LOG("name", client->name);
 		}
+		return false;
+	}
 
-		errno = 0;
-		size = recvfrom(client->sockfd, (char*)test_buff,
-			TEST_BUFF_SIZE, 0, (sockaddr*)&client->server_address,
-			&client->server_address_size);
+	size = send(client->sockfd, (char*)test_buff, TEST_BUFF_SIZE,
+		MSG_WAITALL);
 
-		if (size != TEST_BUFF_SIZE) {
-			LOG_WARN_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "Error receiving test "
-					"buff... trying again");
-				ADD_STR_LOG("name", client->name);
-			}
-			continue;
+	if (size != TEST_BUFF_SIZE) {
+		LOG_WARN_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Error sending test "
+				"buff... trying again");
+			ADD_STR_LOG("name", client->name);
 		}
-		break;
+		return false;
+	}
+
+	size = recv(client->sockfd, (char*)test_buff, TEST_BUFF_SIZE,
+		MSG_WAITALL);
+
+	if (size != TEST_BUFF_SIZE) {
+		LOG_WARN_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Error receiving test "
+				"buff... trying again");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
 	}
 
 	delete[] test_buff;
@@ -191,38 +157,24 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 		return false;
 	}
 
-	if (connect_attempts > 0) {
-		LOG_INFO_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Connection successful");
-			ADD_STR_LOG("name", client->name);
-		}
-		return true;
-	} else {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Connection timedout");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
+	LOG_INFO_CTX((client->ctx)) {
+		ADD_STR_LOG("message", "Connection successful");
+		ADD_STR_LOG("name", client->name);
 	}
+	return true;
 }
 
-bool Send_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int32_t size) {
-	return sendto(client->sockfd, buffer, size, 0,
-		(sockaddr*)&client->server_address,
-		client->server_address_size) == size;
+bool Send_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
+	return send(client->sockfd, buffer, size, MSG_WAITALL) == size;
 }
 
-bool Receive_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int32_t size) {
+bool Receive_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
 	//FOR THE LOVE OF GOD DO NOT USE THIS FUNCTION
-	return recvfrom(client->sockfd, buffer, size, 0,
-		(sockaddr*)&client->server_address,
-		(socklen_t*)&client->server_address_size) == size;
+	return recv(client->sockfd, buffer, size, MSG_WAITALL) == size;
 }
 
 int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT *client, char *buffer) {
-	return recvfrom(client->sockfd, buffer, ARBITRARILY_LARGE_PACKET, 0,
-		(sockaddr*)&client->server_address,
-		(socklen_t*)&client->server_address_size);
+	return recv(client->sockfd, buffer, ARBITRARILY_LARGE_PACKET, 0);
 }
 
 void Delete_UDP_CLIENT(UDP_CLIENT *client) {

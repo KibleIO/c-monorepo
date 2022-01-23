@@ -36,11 +36,10 @@ struct HERMES_SERVER {
 //Run this first on an allocated hs pointer
 bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, CONTEXT *ctx);
 //Then this
-bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport);
+bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport,
+	HERMES_TYPE* types);
 //Then this to get servers
 SERVER* Get_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
-//Or this for blocking behavior
-SERVER* Get_Blocking_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
 void Disconnect_HERMES_SERVER(HERMES_SERVER* hs);
 //Deletes all heap resources
 void Delete_HERMES_SERVER(HERMES_SERVER* hs);

@@ -2,14 +2,6 @@
 
 #include "HERMES_CLIENT.h"
 
-CLIENT* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
-	CLIENT* client = NULL;
-	while (!client && hc->connected) {
-		client = Get_HERMES_CLIENT(hc, type);
-	}
-	return client;
-}
-
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
 		LOG_ERROR_CTX((hc->ctx)) {
@@ -61,27 +53,24 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		return false;
 	}
 	int port;
-	uint8_t flag = HERMES_GET_CONNECTION;
 
-	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not send flag");
-		}
-		Disconnect_HERMES_CLIENT(hc);
-		return false;
-	}
 	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send type");
 		}
-		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&port, sizeof(int))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive port");
 		}
-		Disconnect_HERMES_CLIENT(hc);
+		return false;
+	}
+
+	if (port < 0) {
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "Server side error");
+		}
 		return false;
 	}
 
@@ -113,19 +102,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 	hc->cmutx.unlock();
 
-	if (attempts < 0) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "failed to connect");
-			ADD_STR_LOG("name", type.name);
-		}
-		return false;
-	}
-	LOG_INFO_CTX((hc->ctx)) {
-		ADD_STR_LOG("message", "Connected!");
-		ADD_STR_LOG("name", type.name);
-	}
-
-	return true;
+	return (attempts >= 0);
 }
 
 bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
@@ -161,7 +138,6 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 			ADD_STR_LOG("message", "failed to connect");
 			ADD_STR_LOG("name", "hermes client");
 		}
-		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
 
@@ -179,6 +155,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 				ADD_STR_LOG("name", (*types).name);
 			}
 
+			Disconnect_HERMES_CLIENT(hc);
 			return false;
 		}
 		types++;

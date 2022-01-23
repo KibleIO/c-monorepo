@@ -40,8 +40,6 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	HERMES_TYPE* types);
 //Then this to get clients
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
-//Or this for blocking behavior (though you shouldnt need it)
-CLIENT* Get_Blocking_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
 //And this once per main loop
 bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
 void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc);

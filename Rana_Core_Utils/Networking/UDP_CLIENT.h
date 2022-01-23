@@ -10,14 +10,13 @@
 #include <string>
 #include "NETWORK.h"
 #include "../Utilities/CONTEXT.h"
+#include "DNS_WRAPPER.h"
 
 #define CONNECT_ATTEMPTS 50
 //#define BUFLEN 1500
 
 struct UDP_CLIENT {
 	int32_t sockfd;
-	sockaddr_in server_address;
-	uint32_t server_address_size;
 	char name[MAX_NAME_SIZE];
 	CONTEXT *ctx;
 };

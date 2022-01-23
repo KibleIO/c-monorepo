@@ -120,6 +120,10 @@ bool Accept_UDP_SERVER(UDP_SERVER* server, int port) {
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
+	if (!Set_Recv_Timeout_UDP_SERVER(server, 5, 0)) {
+		return false;
+	}
+
 	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
 		(sockaddr*)&server->client_address,
 		(socklen_t*)&server->client_address_size);
