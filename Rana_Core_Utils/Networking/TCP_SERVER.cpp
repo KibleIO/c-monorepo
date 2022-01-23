@@ -29,6 +29,17 @@ bool Initialize_TCP_SERVER(TCP_SERVER *server, CONTEXT *ctx) {
 		return false;
 	}
 
+	o = 1;
+	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEPORT, (char*)&o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
 	return true;
 }
 
@@ -211,6 +222,17 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 
 	o = 1;
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+	o = 1;
+	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
 		sizeof o) != 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {

@@ -28,6 +28,17 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx) {
 		return false;
 	}
 
+	o = 1;
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
 	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_NODELAY, &o,
 		sizeof o) != 0) {
 

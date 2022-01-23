@@ -39,6 +39,16 @@ bool Initialize_UDP_CLIENT(UDP_CLIENT* client, CONTEXT *ctx) {
 		return false;
 	}
 
+	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
+		sizeof input_var) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
 	if (!Set_Recv_Timeout_UDP_CLIENT(client, 5, 0)) {
 		return false;
 	}

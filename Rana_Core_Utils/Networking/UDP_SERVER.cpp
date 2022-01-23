@@ -36,6 +36,17 @@ bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx) {
 		return false;
 	}
 
+	input_var = 1;
+	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
+		sizeof(uint32_t)) == -1) {
+
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
 	input_var = 1000000;
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_SNDBUF, &input_var,
 		sizeof(uint32_t)) == -1) {

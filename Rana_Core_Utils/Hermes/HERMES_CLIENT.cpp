@@ -139,25 +139,32 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 		return false;
 	}
 
-	Initialize_CLIENT(&hc->client, hc->ctx, NETWORK_TYPE_TCP);
-	Set_Name_CLIENT(&hc->client, "hermes client");
-	Set_Recv_Timeout_CLIENT(&hc->client, 1, 0);
+	// come on man - Joe Biden
+	int attempts = HERMES_TIMEOUT_TRIES / 10;
 	hc->baseport = port;
 	strcpy(hc->ip, ip);
 
-	// come on man - Joe Biden
-	int attempts = HERMES_TIMEOUT_TRIES / 10;
-	while (!Connect_CLIENT(&hc->client, hc->baseport, hc->ip) &&
-		attempts-- >= 0);
+	while (attempts-- >= 0) {
+		Initialize_CLIENT(&hc->client, hc->ctx, NETWORK_TYPE_TCP);
+		Set_Name_CLIENT(&hc->client, "hermes client");
+		Set_Recv_Timeout_CLIENT(&hc->client, 1, 0);
+
+		if (Connect_CLIENT(&hc->client, hc->baseport, hc->ip)) {
+			break;
+		}
+
+		Delete_CLIENT(&hc->client);
+	}
 
 	if (attempts < 0) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "failed to connect");
 			ADD_STR_LOG("name", "hermes client");
 		}
-
+		Disconnect_HERMES_CLIENT(hc);
 		return false;
 	}
+
 	LOG_INFO_CTX((hc->ctx)) {
 		ADD_STR_LOG("message", "Connected!");
 		ADD_STR_LOG("name", "hermes client");
