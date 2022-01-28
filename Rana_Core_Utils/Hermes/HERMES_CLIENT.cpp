@@ -129,6 +129,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 		if (Connect_CLIENT(&hc->client, hc->baseport, hc->ip)) {
 			break;
 		}
+		Sleep_Milli(100);
 
 		Delete_CLIENT(&hc->client);
 	}
