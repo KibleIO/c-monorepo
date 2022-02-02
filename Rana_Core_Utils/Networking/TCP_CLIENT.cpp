@@ -70,7 +70,7 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx) {
 		return false;
 	}
 
-	if (!Set_Recv_Timeout_TCP_CLIENT(client, 30, 0)) {
+	if (!Set_Recv_Timeout_TCP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 
@@ -162,8 +162,8 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 
 	if (res < 0) {
 		if (err == EINPROGRESS) {
-			tv.tv_sec = 10;
-			tv.tv_usec = 0;
+			tv.tv_sec = 0;
+			tv.tv_usec = DEFAULT_CONNECT_TIMEOUT;
 			FD_ZERO(&myset);
 			FD_SET(client->cSocket, &myset);
 			if (select(client->cSocket + 1, NULL, &myset, NULL,

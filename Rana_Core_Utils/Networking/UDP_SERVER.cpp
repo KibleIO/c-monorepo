@@ -58,7 +58,7 @@ bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx) {
 		return false;
 	}
 
-	if (!Set_Recv_Timeout_UDP_SERVER(server, 5, 0)) {
+	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 
@@ -98,13 +98,17 @@ bool Set_High_Priority_UDP_SERVER(UDP_SERVER *server) {
 	return true;
 }
 
-bool Accept_UDP_SERVER(UDP_SERVER* server, int port) {
+bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 	int32_t size;
 	uint8_t* test_buff;
 
 	server->server_address.sin_family = AF_INET;
 	server->server_address.sin_addr.s_addr = INADDR_ANY;
 	server->server_address.sin_port = htons(port);
+
+	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_CONNECT_TIMEOUT / 100000, 0)) {
+		return false;
+	}
 
 	if (bind(server->sockfd,
 		(const struct sockaddr*) &server->server_address,
@@ -119,10 +123,6 @@ bool Accept_UDP_SERVER(UDP_SERVER* server, int port) {
 	}
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
-
-	if (!Set_Recv_Timeout_UDP_SERVER(server, 5, 0)) {
-		return false;
-	}
 
 	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
 		(sockaddr*)&server->client_address,
@@ -153,6 +153,11 @@ bool Accept_UDP_SERVER(UDP_SERVER* server, int port) {
 	}
 
 	delete[] test_buff;
+
+	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
+		return false;
+	}
+
 	return true;
 }
 

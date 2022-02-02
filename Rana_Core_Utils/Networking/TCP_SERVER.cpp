@@ -96,23 +96,6 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 	destination.sin_port = htons(port);
 	destination.sin_addr.s_addr = INADDR_ANY;
 
-	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	arg |= O_NONBLOCK;
-	if (fcntl(server->lSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
 	if (bind(server->lSocket, (sockaddr*)&destination,
 		sizeof(destination)) < 0) {
 
@@ -130,8 +113,26 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 		ADD_INT_LOG("port", port);
 	}
 
-	if (listen(server->lSocket, 5) >= 0) {
-		tv.tv_sec = 10;
+
+	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+	arg |= O_NONBLOCK;
+	if (fcntl(server->lSocket, F_SETFL, arg) < 0) {
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+	if (listen(server->lSocket, 50) >= 0) {
+		tv.tv_sec = DEFAULT_CONNECT_TIMEOUT / 100000; //so ugly
 		tv.tv_usec = 0;
 		FD_ZERO(&myset);
 		FD_SET(server->lSocket, &myset);
@@ -175,11 +176,11 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 			return false;
 		}
  	} else {
-	       LOG_ERROR_CTX((server->ctx)) {
+		LOG_ERROR_CTX((server->ctx)) {
 		       ADD_STR_LOG("message", "listen() threw an error");
 		       ADD_STR_LOG("name", server->name);
-	       }
-	       return false;
+		}
+		return false;
 	}
 
 	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
@@ -274,7 +275,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 		return false;
 	}
 
-	if (!Set_Recv_Timeout_TCP_SERVER(server, 30, 0)) {
+	if (!Set_Recv_Timeout_TCP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 

@@ -3,6 +3,7 @@
 #ifndef HERMES_SERVER_H_
 #define HERMES_SERVER_H_
 
+#include <Utilities/FPS_LIMITER.h>
 #include <string>
 #include "HERMES.h"
 #include "SERVER.h"
@@ -23,6 +24,7 @@ struct SERVER_CONNECTION {
 struct HERMES_SERVER {
 	SERVER server;
 	mutex cmutx;
+	FPS_LIMITER fps_limiter;
 	thread *loop_thread;
 
 	volatile bool connected;

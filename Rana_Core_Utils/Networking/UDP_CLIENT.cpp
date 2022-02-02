@@ -47,7 +47,7 @@ bool Initialize_UDP_CLIENT(UDP_CLIENT* client, CONTEXT *ctx) {
 		return false;
 	}
 
-	if (!Set_Recv_Timeout_UDP_CLIENT(client, 5, 0)) {
+	if (!Set_Recv_Timeout_UDP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 
@@ -112,7 +112,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 		}
 	}
 
-	if (!Set_Recv_Timeout_UDP_CLIENT(client, 0, 100000)) {
+	if (!Set_Recv_Timeout_UDP_CLIENT(client, 0, DEFAULT_CONNECT_TIMEOUT)) {
 		return false;
 	}
 
@@ -153,7 +153,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 
 	delete[] test_buff;
 
-	if (!Set_Recv_Timeout_UDP_CLIENT(client, 5, 0)) {
+	if (!Set_Recv_Timeout_UDP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 

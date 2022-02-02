@@ -86,11 +86,16 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
-	while (attempts-- >= 0) {
-		Initialize_CLIENT(&hc->connections[index].client, hc->ctx, type.type);
+	while (--attempts >= 0) {
+		Start_FPS_LIMITER(&hc->fps_limiter);
+
+		Initialize_CLIENT(&hc->connections[index].client, hc->ctx,
+			type.type);
 		Set_Name_CLIENT(&hc->connections[index].client, type.name);
 
-		if (Connect_CLIENT(&hc->connections[index].client, port, hc->ip)) {
+		if (Connect_CLIENT(&hc->connections[index].client, port,
+			hc->ip)) {
+
 			hc->connections[index].type = type;
 			hc->connections[index].active = true;
 
@@ -98,6 +103,8 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		}
 
 		Delete_CLIENT(&hc->connections[index].client);
+
+		Stop_FPS_LIMITER(&hc->fps_limiter);
 	}
 
 	hc->cmutx.unlock();
@@ -116,22 +123,23 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 		return false;
 	}
 
-	// come on man - Joe Biden
-	int attempts = HERMES_TIMEOUT_TRIES / 10;
+	int attempts = HERMES_TIMEOUT_TRIES;
 	hc->baseport = port;
 	strcpy(hc->ip, ip);
 
-	while (attempts-- >= 0) {
+	while (--attempts >= 0) {
+		Start_FPS_LIMITER(&hc->fps_limiter);
+
 		Initialize_CLIENT(&hc->client, hc->ctx, NETWORK_TYPE_TCP);
 		Set_Name_CLIENT(&hc->client, "hermes client");
-		Set_Recv_Timeout_CLIENT(&hc->client, 1, 0);
 
 		if (Connect_CLIENT(&hc->client, hc->baseport, hc->ip)) {
 			break;
 		}
-		Sleep_Milli(100);
 
 		Delete_CLIENT(&hc->client);
+
+		Stop_FPS_LIMITER(&hc->fps_limiter);
 	}
 
 	if (attempts < 0) {
@@ -247,6 +255,13 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
 
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		hc->connections[i].active = false;
+	}
+
+	if (!Initialize_FPS_LIMITER(&hc->fps_limiter, 10, false)) {
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message", "failed to init fps limiter");
+		}
+		return false;
 	}
 
 	return true;

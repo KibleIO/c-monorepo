@@ -3,6 +3,7 @@
 #ifndef HERMES_CLIENT_H_
 #define HERMES_CLIENT_H_
 
+#include <Utilities/FPS_LIMITER.h>
 #include <string>
 #include "HERMES.h"
 #include "CLIENT.h"
@@ -25,7 +26,7 @@ struct HERMES_CLIENT {
 
 	char ip[MAX_NAME_SIZE];
 	uint16_t baseport;
-
+	FPS_LIMITER fps_limiter;
 	volatile bool connected;
 
 	CLIENT_CONNECTION connections[HERMES_CONNECTIONS_MAX];

@@ -118,11 +118,17 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 
 	hs->cmutx.lock();
 
-	int attempts = HERMES_TIMEOUT_TRIES;
+	//okay so why are we dividing HERMES_TIMEOUT_TRIES by 10? The answer is
+	//a bit complex, but basically the timeout code for accept is a little
+	//odd and if we allow it to retry a ton of times then the rate at which
+	//it succeeds to connect is considerably low.
+	int attempts = HERMES_TIMEOUT_TRIES / 10;
 	hs->connections[index].type = type;
 	hs->connections[index].active = false; //probably redundant
 
-	while (attempts-- >= 0) {
+	while (--attempts >= 0) {
+		Start_FPS_LIMITER(&hs->fps_limiter);
+
 		Initialize_SERVER(&hs->connections[index].server, hs->ctx,
 			type.type);
 		Set_Name_SERVER(&hs->connections[index].server, type.name);
@@ -135,6 +141,8 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 		}
 
 		Delete_SERVER(&hs->connections[index].server);
+
+		Stop_FPS_LIMITER(&hs->fps_limiter);
 	}
 
 	hs->cmutx.unlock();
@@ -157,18 +165,13 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 		ADD_STR_LOG("message", "starting hermes server loop");
 	}
 	while (hs->connected) {
-		// FIX!!
-		int attempts = HERMES_TIMEOUT_TRIES;
-		while (!Receive_SERVER(&hs->server, (char*)&flag,
-			sizeof(uint8_t)) && attempts-- >= 0 && hs->connected) {
-			Sleep_Milli(1);
-		}
-		if (attempts < 0 || !hs->connected) {
+		if (!Receive_SERVER(&hs->server, (char*)&flag,
+			sizeof(uint8_t))) {
+
 			LOG_ERROR_CTX((hs->ctx)) {
 				ADD_STR_LOG("message",
 					"failed to receive flag");
 			}
-
 			break;
 		}
 		if (flag == HERMES_STATUS) {
@@ -243,19 +246,21 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport,
 		hs->connections[i].port = baseport++;
 	}
 
-	// come on man - Joe Biden
 	int attempts = HERMES_TIMEOUT_TRIES / 10;
 
-	while (attempts-- >= 0) {
+	while (--attempts >= 0) {
+		Start_FPS_LIMITER(&hs->fps_limiter);
+
 		Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
 		Set_Name_SERVER(&hs->server, "hermes server");
-		Set_Recv_Timeout_SERVER(&hs->server, 1, 0);
 
 		if (Accept_SERVER(&hs->server, port)) {
 			break;
 		}
 
 		Delete_SERVER(&hs->server);
+
+		Stop_FPS_LIMITER(&hs->fps_limiter);
 	}
 
 	if (attempts < 0) {
@@ -299,6 +304,13 @@ bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx) {
 	hs->shouldexit = false;
 	hs->ctx = ctx;
 	hs->loop_thread = NULL;
+
+	if (!Initialize_FPS_LIMITER(&hs->fps_limiter, 10, false)) {
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message", "failed to init fps limiter");
+		}
+		return false;
+	}
 
 	return true;
 }

@@ -32,7 +32,7 @@
 #define HERMES_EXIT 		2
 #define HERMES_STATUS 		3
 
-#define HERMES_TIMEOUT_TRIES 1000
+#define HERMES_TIMEOUT_TRIES 50
 
 struct HERMES_TYPE {
 	char name[MAX_NAME_SIZE];
