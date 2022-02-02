@@ -118,36 +118,23 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 
 	hs->cmutx.lock();
 
-	//okay so why are we dividing HERMES_TIMEOUT_TRIES by 10? The answer is
-	//a bit complex, but basically the timeout code for accept is a little
-	//odd and if we allow it to retry a ton of times then the rate at which
-	//it succeeds to connect is considerably low.
-	int attempts = HERMES_TIMEOUT_TRIES / 10;
 	hs->connections[index].type = type;
 	hs->connections[index].active = false; //probably redundant
 
-	while (--attempts >= 0) {
-		Start_FPS_LIMITER(&hs->fps_limiter);
+	Initialize_SERVER(&hs->connections[index].server, hs->ctx, type.type);
+	Set_Name_SERVER(&hs->connections[index].server, type.name);
 
-		Initialize_SERVER(&hs->connections[index].server, hs->ctx,
-			type.type);
-		Set_Name_SERVER(&hs->connections[index].server, type.name);
+	if (Accept_SERVER(&hs->connections[index].server,
+		hs->connections[index].port)) {
 
-		if (Accept_SERVER(&hs->connections[index].server,
-			hs->connections[index].port)) {
-
-			hs->connections[index].active = true;
-			break;
-		}
-
+		hs->connections[index].active = true;
+	} else {
 		Delete_SERVER(&hs->connections[index].server);
-
-		Stop_FPS_LIMITER(&hs->fps_limiter);
 	}
 
 	hs->cmutx.unlock();
 
-	return (attempts >= 0);
+	return hs->connections[index].active;
 }
 
 void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
@@ -246,24 +233,12 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport,
 		hs->connections[i].port = baseport++;
 	}
 
-	int attempts = HERMES_TIMEOUT_TRIES / 10;
+	Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
+	Set_Name_SERVER(&hs->server, "hermes server");
 
-	while (--attempts >= 0) {
-		Start_FPS_LIMITER(&hs->fps_limiter);
-
-		Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
-		Set_Name_SERVER(&hs->server, "hermes server");
-
-		if (Accept_SERVER(&hs->server, port)) {
-			break;
-		}
-
+	if (!Accept_SERVER(&hs->server, port)) {
 		Delete_SERVER(&hs->server);
 
-		Stop_FPS_LIMITER(&hs->fps_limiter);
-	}
-
-	if (attempts < 0) {
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message", "could not listen on port");
 			ADD_INT_LOG("port", port);
@@ -304,13 +279,6 @@ bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx) {
 	hs->shouldexit = false;
 	hs->ctx = ctx;
 	hs->loop_thread = NULL;
-
-	if (!Initialize_FPS_LIMITER(&hs->fps_limiter, 10, false)) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "failed to init fps limiter");
-		}
-		return false;
-	}
 
 	return true;
 }

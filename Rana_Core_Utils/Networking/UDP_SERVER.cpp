@@ -106,7 +106,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 	server->server_address.sin_addr.s_addr = INADDR_ANY;
 	server->server_address.sin_port = htons(port);
 
-	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_CONNECT_TIMEOUT / 100000, 0)) {
+	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_ACCEPT_TIMEOUT, 0)) {
 		return false;
 	}
 

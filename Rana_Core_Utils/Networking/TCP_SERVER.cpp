@@ -132,7 +132,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 	}
 
 	if (listen(server->lSocket, 50) >= 0) {
-		tv.tv_sec = DEFAULT_CONNECT_TIMEOUT / 100000; //so ugly
+		tv.tv_sec = DEFAULT_ACCEPT_TIMEOUT;
 		tv.tv_usec = 0;
 		FD_ZERO(&myset);
 		FD_SET(server->lSocket, &myset);
