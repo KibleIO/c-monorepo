@@ -52,7 +52,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		}
 		return false;
 	}
-	int port;
+	int ack;
 
 	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
 		LOG_ERROR_CTX((hc->ctx)) {
@@ -60,14 +60,14 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		}
 		return false;
 	}
-	if (!Receive_CLIENT(&hc->client, (char*)&port, sizeof(int))) {
+	if (!Receive_CLIENT(&hc->client, (char*)&ack, sizeof(int))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive port");
 		}
 		return false;
 	}
 
-	if (port < 0) {
+	if (ack < 0) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "Server side error");
 		}
@@ -93,7 +93,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 			type.type);
 		Set_Name_CLIENT(&hc->connections[index].client, type.name);
 
-		if (Connect_CLIENT(&hc->connections[index].client, port,
+		if (Connect_CLIENT(&hc->connections[index].client, hc->port,
 			hc->ip)) {
 
 			hc->connections[index].type = type;
@@ -124,7 +124,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	}
 
 	int attempts = HERMES_TIMEOUT_TRIES;
-	hc->baseport = port;
+	hc->port = port;
 	strcpy(hc->ip, ip);
 
 	while (--attempts >= 0) {
@@ -133,7 +133,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 		Initialize_CLIENT(&hc->client, hc->ctx, NETWORK_TYPE_TCP);
 		Set_Name_CLIENT(&hc->client, "hermes client");
 
-		if (Connect_CLIENT(&hc->client, hc->baseport, hc->ip)) {
+		if (Connect_CLIENT(&hc->client, hc->port, hc->ip)) {
 			break;
 		}
 

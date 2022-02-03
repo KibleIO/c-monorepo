@@ -1,14 +1,17 @@
 #include "SERVER.h"
 
-bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, int type) {
+bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, SERVER_MASTER *master) {
 	server->ctx = ctx;
-	server->type = type;
+	server->type = master->type;
+	server->master = master;
 
 	switch(server->type) {
 		case NETWORK_TYPE_TCP:
-			return Initialize_TCP_SERVER(&server->tcp_server, ctx);
+			return Initialize_TCP_SERVER(&server->tcp_server, ctx,
+				&master->tcp_server_master);
 		case NETWORK_TYPE_UDP:
-			return Initialize_UDP_SERVER(&server->udp_server, ctx);
+			return Initialize_UDP_SERVER(&server->udp_server, ctx,
+				&master->udp_server_master);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -64,12 +67,12 @@ bool Set_High_Priority_SERVER(SERVER *server) {
 	return false;
 }
 
-bool Accept_SERVER(SERVER *server, int port) {
+bool Accept_SERVER(SERVER *server) {
 	switch(server->type) {
 		case NETWORK_TYPE_TCP:
-			return Accept_TCP_SERVER(&server->tcp_server, port);
+			return Accept_TCP_SERVER(&server->tcp_server);
 		case NETWORK_TYPE_UDP:
-			return Accept_UDP_SERVER(&server->udp_server, port);
+			return Accept_UDP_SERVER(&server->udp_server);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");

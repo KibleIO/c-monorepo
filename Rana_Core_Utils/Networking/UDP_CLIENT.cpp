@@ -94,15 +94,20 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 	int32_t size;
 	int connect_attempts = CONNECT_ATTEMPTS;
 	uint8_t* test_buff;
+	sockaddr_in server_address;
+	uint32_t server_address_size;
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
-	sockaddr_in destination;
-	destination.sin_family = AF_INET;
-	destination.sin_port = htons(port);
+	memset(&server_address, 0, server_address_size);
+	server_address_size = sizeof(server_address);
 
-	if (inet_pton(AF_INET, ip, &(destination.sin_addr.s_addr)) < 1) {
-		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip, 2)) {
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = INADDR_ANY;
+	server_address.sin_port = htons(port);
+
+	if (inet_pton(AF_INET, ip, &(server_address.sin_addr.s_addr)) < 1) {
+		if (!getaddrinfo_k(&server_address.sin_addr.s_addr, ip, 2)) {
 			LOG_ERROR_CTX((client->ctx)) {
 				ADD_STR_LOG("message", "getaddrinfo_k() failed");
 				ADD_STR_LOG("ip", ip);
@@ -116,8 +121,8 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 		return false;
 	}
 
-	if (connect(client->sockfd, (sockaddr*)&destination,
-		sizeof(destination)) < 0) {
+	if (connect(client->sockfd, (sockaddr*)&server_address,
+		sizeof(server_address)) < 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "connect() failed");

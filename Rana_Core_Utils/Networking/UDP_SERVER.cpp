@@ -1,20 +1,15 @@
 #include "UDP_SERVER.h"
 
-bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx) {
+bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx, UDP_SERVER_MASTER *udp_master) {
 	uint32_t input_var;
 
 	server->ctx = ctx;
+	server->udp_master = udp_master;
 	Set_Name_UDP_SERVER(server, "unknown");
 
 	log_dbg(((const JSON_TYPE){
 		{"message", "initializing udp server on port"},
 		JSON_TYPE_END}));
-
-	server->server_address_size = sizeof(server->server_address);
-	server->client_address_size = sizeof(server->client_address);
-
-	memset(&server->server_address, 0, server->server_address_size);
-	memset(&server->client_address, 0, server->client_address_size);
 
 	server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (server->sockfd < 0) {
@@ -98,21 +93,29 @@ bool Set_High_Priority_UDP_SERVER(UDP_SERVER *server) {
 	return true;
 }
 
-bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
+bool Accept_UDP_SERVER(UDP_SERVER *server) {
 	int32_t size;
 	uint8_t* test_buff;
 
-	server->server_address.sin_family = AF_INET;
-	server->server_address.sin_addr.s_addr = INADDR_ANY;
-	server->server_address.sin_port = htons(port);
+	sockaddr_in	server_address;
+	sockaddr_in	client_address;
+
+	int32_t server_address_size = sizeof(server_address);
+	int32_t client_address_size = sizeof(client_address);
+
+	memset(&server_address, 0, server_address_size);
+	memset(&client_address, 0, client_address_size);
+
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = INADDR_ANY;
+	server_address.sin_port = htons(server->udp_master->port);
 
 	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_ACCEPT_TIMEOUT, 0)) {
 		return false;
 	}
 
-	if (bind(server->sockfd,
-		(const struct sockaddr*) &server->server_address,
-		server->server_address_size) < 0) {
+	if (bind(server->sockfd, (const struct sockaddr*) &server_address,
+		server_address_size) < 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
 			ADD_STR_LOG("message",
@@ -125,8 +128,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
 	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-		(sockaddr*)&server->client_address,
-		(socklen_t*)&server->client_address_size);
+		(sockaddr*)&client_address, (socklen_t*)&client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
@@ -139,8 +141,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 	}
 
 	size = sendto(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-		(sockaddr*)&server->client_address,
-		server->client_address_size);
+		(sockaddr*)&client_address, client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
@@ -149,6 +150,16 @@ bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 			ADD_STR_LOG("name", server->name);
 		}
 		delete[] test_buff;
+		return false;
+	}
+
+	if (connect(server->sockfd, (sockaddr*)&client_address,
+		client_address_size) < 0) {
+
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "connect() failed");
+			ADD_STR_LOG("name", server->name);
+		}
 		return false;
 	}
 
@@ -162,21 +173,15 @@ bool Accept_UDP_SERVER(UDP_SERVER *server, int port) {
 }
 
 bool Send_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
-	return sendto(server->sockfd, buffer, size, 0,
-		(sockaddr*)&server->client_address,
-		server->client_address_size) == size;
+	return send(server->sockfd, buffer, size, MSG_WAITALL) == size;
 }
 
 bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
-	return recvfrom(server->sockfd, buffer, size, 0,
-		(sockaddr*)&server->client_address,
-		(socklen_t*)&server->client_address_size) == size;
+	return recv(server->sockfd, buffer, size, MSG_WAITALL) == size;
 }
 
 int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
-	return recvfrom(server->sockfd, buffer, ARBITRARILY_LARGE_PACKET, 0,
-		(sockaddr*)&server->client_address,
-		(socklen_t*)&server->client_address_size);
+	return recv(server->sockfd, buffer, ARBITRARILY_LARGE_PACKET, 0);
 }
 
 void Delete_UDP_SERVER(UDP_SERVER *server) {

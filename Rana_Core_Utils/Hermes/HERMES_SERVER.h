@@ -6,6 +6,7 @@
 #include <string>
 #include "HERMES.h"
 #include "SERVER.h"
+#include "SERVER_MASTER.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 #include "../Utilities/LOGGING.h"
 #include "../Utilities/UTILS.h"
@@ -17,13 +18,15 @@ struct SERVER_CONNECTION {
 	SERVER server;
 	HERMES_TYPE type;
 	bool active;
-	int port;
 };
 
 struct HERMES_SERVER {
+	SERVER_MASTER udp_master;
+	SERVER_MASTER tcp_master;
 	SERVER server;
 	mutex cmutx;
 	thread *loop_thread;
+	int port;
 
 	volatile bool connected;
 	volatile bool shouldexit;
@@ -34,10 +37,9 @@ struct HERMES_SERVER {
 };
 
 //Run this first on an allocated hs pointer
-bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, CONTEXT *ctx);
+bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, CONTEXT *ctx, int port);
 //Then this
-bool Connect_HERMES_SERVER(HERMES_SERVER* hs, int port, int baseport,
-	HERMES_TYPE* types);
+bool Connect_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE* types);
 //Then this to get servers
 SERVER* Get_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
 void Disconnect_HERMES_SERVER(HERMES_SERVER* hs);

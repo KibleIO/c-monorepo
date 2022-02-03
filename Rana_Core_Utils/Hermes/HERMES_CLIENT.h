@@ -23,9 +23,9 @@ struct CLIENT_CONNECTION {
 struct HERMES_CLIENT {
 	CLIENT client;
 	mutex cmutx;
+	int port;
 
 	char ip[MAX_NAME_SIZE];
-	uint16_t baseport;
 	FPS_LIMITER fps_limiter;
 	volatile bool connected;
 

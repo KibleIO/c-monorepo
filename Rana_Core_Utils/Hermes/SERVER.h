@@ -1,6 +1,7 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#include "SERVER_MASTER.h"
 #include "../Networking/NETWORK.h"
 #include "../Utilities/CONTEXT.h"
 #include "../Networking/TCP_SERVER.h"
@@ -9,6 +10,7 @@
 struct SERVER {
 	CONTEXT *ctx;
 	int type;
+	SERVER_MASTER *master;
 	//just tryin to be fancy here, this is totally not needed
 	union {
 		TCP_SERVER tcp_server;
@@ -16,11 +18,11 @@ struct SERVER {
 	};
 };
 
-bool Initialize_SERVER(SERVER*, CONTEXT*, int);
+bool Initialize_SERVER(SERVER*, CONTEXT*, SERVER_MASTER*);
 void Set_Name_SERVER(SERVER*, char*);
 bool Set_Recv_Timeout_SERVER(SERVER*, int, int);
 bool Set_High_Priority_SERVER(SERVER*);
-bool Accept_SERVER(SERVER*, int);
+bool Accept_SERVER(SERVER*);
 bool Send_SERVER(SERVER*, char*, int);
 bool Receive_SERVER(SERVER*, char*, int);
 int Receive_Unsafe_SERVER(SERVER*, char*);

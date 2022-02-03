@@ -1,44 +1,16 @@
 #include "TCP_SERVER.h"
 
-bool Initialize_TCP_SERVER(TCP_SERVER *server, CONTEXT *ctx) {
+bool Initialize_TCP_SERVER(TCP_SERVER *server, CONTEXT *ctx,
+	TCP_SERVER_MASTER *tcp_master) {
+
 	int o;
 
 	server->ctx = ctx;
+	server->tcp_master = tcp_master;
 	server->cSocket = NULL;
 	Set_Name_TCP_SERVER(server, "unknown");
 
-	signal(SIGPIPE, SIG_IGN);
-
-	server->lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (server->lSocket < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	o = 1;
-	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	o = 1;
-	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEPORT, (char*)&o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
+	signal(SIGPIPE, SIG_IGN); //wtf is this
 
 	return true;
 }
@@ -79,7 +51,7 @@ bool Set_High_Priority_TCP_SERVER(TCP_SERVER *server) {
 	return true;
 }
 
-bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
+bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	long arg;
 	timeval tv;
 	fd_set myset;
@@ -88,112 +60,48 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 	int32_t res;
 	int err;
 	int o;
-	sockaddr_in destination;
 	sockaddr_in cAddress;
 	socklen_t cSize = sizeof(cAddress);
 
-	destination.sin_family = AF_INET;
-	destination.sin_port = htons(port);
-	destination.sin_addr.s_addr = INADDR_ANY;
+	tv.tv_sec = DEFAULT_ACCEPT_TIMEOUT;
+	tv.tv_usec = 0;
+	FD_ZERO(&myset);
+	FD_SET(server->tcp_master->lSocket, &myset);
+	if (select(server->tcp_master->lSocket + 1, &myset, NULL, NULL,
+		&tv) > 0) {
 
-	if (bind(server->lSocket, (sockaddr*)&destination,
-		sizeof(destination)) < 0) {
+		lon = sizeof(int);
+		getsockopt(server->tcp_master->lSocket, SOL_SOCKET, SO_ERROR,
+			(void*)(&valopt), (unsigned int*)&lon);
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Unable to bind socket on port");
-			ADD_STR_LOG("name", server->name);
-			ADD_INT_LOG("port", port);
-		}
-		return false;
-	}
-
-	LOG_INFO_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "bound on port");
-		ADD_STR_LOG("name", server->name);
-		ADD_INT_LOG("port", port);
-	}
-
-
-	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	arg |= O_NONBLOCK;
-	if (fcntl(server->lSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	if (listen(server->lSocket, 50) >= 0) {
-		tv.tv_sec = DEFAULT_ACCEPT_TIMEOUT;
-		tv.tv_usec = 0;
-		FD_ZERO(&myset);
-		FD_SET(server->lSocket, &myset);
-		if (select(server->lSocket + 1, &myset, NULL, NULL, &tv) > 0) {
-			lon = sizeof(int);
-			getsockopt(server->lSocket, SOL_SOCKET, SO_ERROR,
-				(void*)(&valopt), (unsigned int*)&lon);
-
-			if (valopt) {
-				LOG_ERROR_CTX((server->ctx)) {
-					ADD_STR_LOG("message",
-						"Error in listen()");
-
-					ADD_STR_LOG("name", server->name);
-					ADD_INT_LOG("port", port);
-					ADD_INT_LOG("error_code", valopt);
-				}
-				return false;
-			}
-
-			if ((server->cSocket = accept(server->lSocket,
-				(sockaddr*)&cAddress,
-				(unsigned int*)&cSize)) < 0) {
-
-				LOG_ERROR_CTX((server->ctx)) {
-					ADD_STR_LOG("message",
-						"Error in accept()");
-
-					ADD_STR_LOG("name", server->name);
-					ADD_INT_LOG("port", port);
-				}
-				return false;
-			}
-		} else {
+		if (valopt) {
 			LOG_ERROR_CTX((server->ctx)) {
 				ADD_STR_LOG("message",
-					"Timeout or Error select()");
+					"Error in listen()");
+
+				ADD_STR_LOG("name", server->name);
+				ADD_INT_LOG("error_code", valopt);
+			}
+			return false;
+		}
+
+		if ((server->cSocket = accept(server->tcp_master->lSocket,
+			(sockaddr*)&cAddress,
+			(unsigned int*)&cSize)) < 0) {
+
+			LOG_ERROR_CTX((server->ctx)) {
+				ADD_STR_LOG("message",
+					"Error in accept()");
 
 				ADD_STR_LOG("name", server->name);
 			}
 			return false;
 		}
- 	} else {
+	} else {
 		LOG_ERROR_CTX((server->ctx)) {
-		       ADD_STR_LOG("message", "listen() threw an error");
-		       ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
+			ADD_STR_LOG("message",
+				"Timeout or Error select()");
 
-	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-	arg &= (~O_NONBLOCK);
-	if (fcntl(server->lSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
 			ADD_STR_LOG("name", server->name);
 		}
 		return false;
@@ -213,12 +121,6 @@ bool Accept_TCP_SERVER(TCP_SERVER *server, int port) {
 			ADD_STR_LOG("name", server->name);
 		}
 		return false;
-	}
-
-	LOG_INFO_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "connection accepted on port");
-		ADD_STR_LOG("name", server->name);
-		ADD_INT_LOG("port", port);
 	}
 
 	o = 1;
@@ -300,19 +202,6 @@ int Receive_Unsafe_TCP_SERVER(TCP_SERVER *server, char *buffer) {
 }
 
 void Delete_TCP_SERVER(TCP_SERVER *server) {
-	if (server->lSocket > 0) {
-		shutdown(server->lSocket, 2);
-		close(server->lSocket);
-
-		server->lSocket = NULL;
-	} else {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message",
-				"Server connection has already been closed");
-			ADD_STR_LOG("name", server->name);
-		}
-	}
-
 	if (server->cSocket > 0) {
 		shutdown(server->cSocket, 2);
 		close(server->cSocket);

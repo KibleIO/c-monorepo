@@ -67,11 +67,14 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 
 void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	Disconnect_HERMES_SERVER(hs);
+
+	Delete_SERVER_MASTER(&hs->tcp_master);
+	Delete_SERVER_MASTER(&hs->udp_master);
 }
 
 bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	HERMES_TYPE type_in;
-	int port;
+	int ack;
 	int index;
 
 	if (!Receive_SERVER(&hs->server, (char*)&type_in,
@@ -85,7 +88,7 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	}
 
 	if (type_in.id != type.id) {
-		port = -1;
+		ack = -1;
 
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message", "type mismatch");
@@ -94,25 +97,25 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 		index = Get_Index_HERMES_SERVER(hs);
 
 		if (index < 0) {
-			port = -1;
+			ack = -1;
 
 			LOG_ERROR_CTX((hs->ctx)) {
 				ADD_STR_LOG("message",
 					"max connections reached");
 			}
 		} else {
-			port = hs->connections[index].port;
+			ack = 1;
 		}
 	}
 
-	if (!Send_SERVER(&hs->server, (char*)&port, sizeof(int))) {
+	if (!Send_SERVER(&hs->server, (char*)&ack, sizeof(int))) {
 		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "failed to send port");
+			ADD_STR_LOG("message", "failed to send ack");
 		}
 		return false;
 	}
 
-	if (port < 0) {
+	if (ack < 0) {
 		return false;
 	}
 
@@ -121,12 +124,12 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	hs->connections[index].type = type;
 	hs->connections[index].active = false; //probably redundant
 
-	Initialize_SERVER(&hs->connections[index].server, hs->ctx, type.type);
+	Initialize_SERVER(&hs->connections[index].server, hs->ctx,
+		((type.type == NETWORK_TYPE_TCP) ? &hs->tcp_master :
+		&hs->udp_master));
 	Set_Name_SERVER(&hs->connections[index].server, type.name);
 
-	if (Accept_SERVER(&hs->connections[index].server,
-		hs->connections[index].port)) {
-
+	if (Accept_SERVER(&hs->connections[index].server)) {
 		hs->connections[index].active = true;
 	} else {
 		Delete_SERVER(&hs->connections[index].server);
@@ -211,9 +214,7 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 	Disconnect_HERMES_SERVER(hs);
 }
 
-bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport,
-	HERMES_TYPE *types) {
-
+bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	if (hs->connected) {
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message",
@@ -230,18 +231,16 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport,
 
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		hs->connections[i].active = false;
-		hs->connections[i].port = baseport++;
 	}
 
-	Initialize_SERVER(&hs->server, hs->ctx, NETWORK_TYPE_TCP);
+	Initialize_SERVER(&hs->server, hs->ctx, &hs->tcp_master);
 	Set_Name_SERVER(&hs->server, "hermes server");
 
-	if (!Accept_SERVER(&hs->server, port)) {
+	if (!Accept_SERVER(&hs->server)) {
 		Delete_SERVER(&hs->server);
 
 		LOG_ERROR_CTX((hs->ctx)) {
 			ADD_STR_LOG("message", "could not listen on port");
-			ADD_INT_LOG("port", port);
 		}
 		return false;
 	}
@@ -274,11 +273,21 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, int port, int baseport,
 	return true;
 }
 
-bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx) {
+bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx, int port) {
 	hs->connected = false;
 	hs->shouldexit = false;
 	hs->ctx = ctx;
 	hs->loop_thread = NULL;
+	hs->port = port;
+
+	if (!Initialize_SERVER_MASTER(&hs->tcp_master, hs->ctx, NETWORK_TYPE_TCP,
+		port)) {
+		return false;
+	}
+	if (!Initialize_SERVER_MASTER(&hs->udp_master, hs->ctx, NETWORK_TYPE_UDP,
+		port)) {
+		return false;
+	}
 
 	return true;
 }
