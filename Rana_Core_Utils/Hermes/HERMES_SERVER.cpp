@@ -162,16 +162,11 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 				ADD_STR_LOG("message",
 					"failed to receive flag");
 			}
+			hs->shouldexit = true;
 			break;
 		}
 		if (flag == HERMES_STATUS) {
-			flag = hs->shouldexit;
-			if (hs->shouldexit) {
-				LOG_ERROR_CTX((hs->ctx)) {
-					ADD_STR_LOG("message",
-						"sending quit packet");
-				}
-			}
+			flag = false;
 			if (!Send_SERVER(&hs->server, (char*)&flag,
 				sizeof(uint8_t))) {
 
@@ -179,14 +174,8 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message",
 						"failed to send status");
 				}
-				hs->shouldexit = false;
+				hs->shouldexit = true;
 				break;
-			}
-			if (hs->shouldexit) {
-				LOG_ERROR_CTX((hs->ctx)) {
-					ADD_STR_LOG("message",
-						"quit packet sent");
-				}
 			}
 		} else if (flag == HERMES_EXIT) {
 			LOG_INFO_CTX((hs->ctx)) {
@@ -199,19 +188,15 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message", "failed to "
 						"send exit confirmation");
 				}
+				hs->shouldexit = true;
 				break;
 			}
-			hs->shouldexit = false;
-			Disconnect_HERMES_SERVER(hs);
+			hs->shouldexit = true;
 		}
 	}
 	LOG_INFO_CTX((hs->ctx)) {
 		ADD_STR_LOG("message", "ending server loop");
 	}
-	if (hs->shouldexit) {
-		hs->shouldexit = false;
-	}
-	Disconnect_HERMES_SERVER(hs);
 }
 
 bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
@@ -222,6 +207,8 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		}
 		return false;
 	}
+
+	hs->shouldexit = false;
 
 	if (hs->loop_thread != NULL) {
 		hs->loop_thread->join();
