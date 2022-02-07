@@ -6,6 +6,22 @@
 #include "UTILS.h"
 #include "SCREEN_DIM.h"
 
+//oh god... check here for explanation: https://stackoverflow.com/questions/57008541/how-to-avoid-a-globally-defined-c-macro-of-status-from-xlib-h
+
+#if defined (Status)
+# undef Status
+typedef int Status;
+#endif
+
+//beging grpc
+#include <grpc/grpc.h>
+#include <grpcpp/channel.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/create_channel.h>
+#include <grpcpp/security/credentials.h>
+#include "../idl/cpp/gen/gaia.grpc.pb.h"
+//end grpc
+
 //WARNING: This will eventually cause an issue
 #define MAX_LOG_LEN 8192
 #define ADD_STR_LOG(key, obj)  json_object_object_add(loop.json_obj, key, json_object_new_string(obj))

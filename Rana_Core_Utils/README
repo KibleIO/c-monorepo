@@ -1,0 +1,9 @@
+Some things here:
+
+the idl directory is a sub module of KibleIO/Gaia
+in order to make everything please first generate the protobuf files
+- make build_proto
+
+also install rename
+
+apt install rename
