@@ -127,7 +127,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
-	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
+	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, MSG_WAITALL,
 		(sockaddr*)&client_address, (socklen_t*)&client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
@@ -140,7 +140,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 		return false;
 	}
 
-	size = sendto(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
+	size = sendto(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, MSG_WAITALL,
 		(sockaddr*)&client_address, client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {

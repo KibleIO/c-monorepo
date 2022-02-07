@@ -96,11 +96,16 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 	uint8_t* test_buff;
 	sockaddr_in server_address;
 	uint32_t server_address_size;
+	sockaddr_in client_address;
+	uint32_t client_address_size;
 
 	test_buff = new uint8_t[TEST_BUFF_SIZE];
 
-	memset(&server_address, 0, server_address_size);
 	server_address_size = sizeof(server_address);
+	memset(&server_address, 0, server_address_size);
+	client_address_size = sizeof(client_address);
+	memset(&client_address, 0, client_address_size);
+
 
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = INADDR_ANY;
@@ -118,6 +123,44 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 	}
 
 	if (!Set_Recv_Timeout_UDP_CLIENT(client, 0, DEFAULT_CONNECT_TIMEOUT)) {
+		return false;
+	}
+
+	client_address.sin_family = AF_INET;
+	client_address.sin_addr.s_addr = INADDR_ANY;
+
+	/*
+	okay explain this shit...
+
+	so basically UDP is complex to use... so how does one get multiple
+	"connections" to the same port on a connectionless protocol? Easy, set
+	the source port. TCP does this automatically for you. UDP does not. In
+	order to set a source port for a UDP socket you call bind() and pass in
+	INADDR_ANY for the port, and don't set sin_port. This will cause the
+	kernel to assign that socket a emphemeral source port (not to be
+	confused with the server destination port, 4440 in this case.) The
+	send()/sendto() function will automatically call bind() on a socket if
+	not called manually. However somehow this source port has some kind of
+	expiration time on it. So you MUST call it manually in order for the
+	source port to stick.
+
+	Resources for more info:
+
+	https://stackoverflow.com/questions/52228275/send-udp-packet-with-fixed-source-port-number-using-getaddrinfo-and-bind
+	https://stackoverflow.com/questions/9873061/how-to-set-the-source-port-in-the-udp-socket-in-c
+	Kevin Bailey (the UDP master)
+
+	*/
+
+	if (bind(client->sockfd, (const struct sockaddr*) &client_address,
+		client_address_size) < 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message",
+				"Failed to bind UDP client socket");
+			ADD_STR_LOG("ip", ip);
+			ADD_STR_LOG("name", client->name);
+		}
 		return false;
 	}
 
