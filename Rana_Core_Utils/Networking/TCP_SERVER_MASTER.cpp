@@ -12,7 +12,7 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 
 	signal(SIGPIPE, SIG_IGN);
 
-	server->lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	server->lSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
 	if (server->lSocket < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
 			ADD_STR_LOG("message", "Server socket failed to open");
@@ -106,16 +106,11 @@ void Delete_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server) {
 		close(server->lSocket);
 
 		server->lSocket = NULL;
-	} else {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message",
-				"Server connection has already been closed");
-			ADD_STR_LOG("name", server->name);
-		}
+		return;
 	}
-
-	LOG_INFO_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Server connection closed");
+	LOG_WARN_CTX((server->ctx)) {
+		ADD_STR_LOG("message",
+			"Server connection has already been closed");
 		ADD_STR_LOG("name", server->name);
 	}
 }

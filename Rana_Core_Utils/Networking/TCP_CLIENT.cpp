@@ -7,8 +7,8 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx) {
 	Set_Name_TCP_CLIENT(client, "unknown");
 
 	signal(SIGPIPE, SIG_IGN);
-
-	client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	//https://stackoverflow.com/questions/38191726/c-how-to-prevent-child-process-binding-port-after-fork-on-linux
+	client->cSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
 	if (client->cSocket < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Client socket failed to open");
@@ -130,7 +130,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip, 2)) {
 			LOG_ERROR_CTX((client->ctx)) {
 				ADD_STR_LOG("message",
-					"getaddrinfo_k() failed");
+					"Failed to connect: getaddrinfo_k() failed");
 
 				ADD_STR_LOG("ip", ip);
 				ADD_STR_LOG("name", client->name);
@@ -141,7 +141,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
+			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
@@ -150,7 +150,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 	arg |= O_NONBLOCK;
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
+			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_SETFL)");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
@@ -176,7 +176,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 
 					LOG_ERROR_CTX((client->ctx)) {
 						ADD_STR_LOG("message",
-							"Error in getsockopt");
+							"Failed to connect: Error in getsockopt");
 						ADD_STR_LOG("name",
 							client->name);
 					}
@@ -185,7 +185,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 				if (valopt != 0) {
 					LOG_ERROR_CTX((client->ctx)) {
 						ADD_STR_LOG("message",
-							"Error in "
+							"Failed to connect: Error in "
 							"connection()");
 
 						ADD_STR_LOG("name",
@@ -201,7 +201,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 			} else {
 				LOG_ERROR_CTX((client->ctx)) {
 					ADD_STR_LOG("message",
-						"Timeout or Error select()");
+						"Failed to connect: Timeout or Error select()");
 
 					ADD_STR_LOG("name", client->name);
 				}
@@ -209,7 +209,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 			}
 		} else {
 			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "Error connecting");
+				ADD_STR_LOG("message", "Failed to connect: Error connecting");
 				ADD_STR_LOG("name", client->name);
 				ADD_INT_LOG("error_code", err);
 			}
@@ -217,7 +217,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 		}
  	} else {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Connect() threw an error");
+			ADD_STR_LOG("message", "Failed to connect: Connect() threw an error");
 			ADD_INT_LOG("err", err);
 			ADD_INT_LOG("res", res);
 			ADD_STR_LOG("name", client->name);
@@ -227,7 +227,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
+			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
@@ -235,15 +235,10 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 	arg &= (~O_NONBLOCK);
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
+			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_SETFL)");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
-	}
-
-	LOG_INFO_CTX((client->ctx)) {
-		ADD_STR_LOG("message", "Connection successful");
-		ADD_STR_LOG("name", client->name);
 	}
 
 	return true;
@@ -266,9 +261,4 @@ int Receive_Unsafe_TCP_CLIENT(TCP_CLIENT *client, char *buffer) {
 void Delete_TCP_CLIENT(TCP_CLIENT *client) {
 	shutdown(client->cSocket, 2);
 	close(client->cSocket);
-
-	LOG_INFO_CTX((client->ctx)) {
-		ADD_STR_LOG("message", "Client connection closed");
-		ADD_STR_LOG("name", client->name);
-	}
 }

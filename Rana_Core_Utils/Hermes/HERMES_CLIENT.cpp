@@ -86,7 +86,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
-	while (--attempts >= 0) {
+	while (--attempts >= 0 && hc->connected) {
 		Start_FPS_LIMITER(&hc->fps_limiter);
 
 		Initialize_CLIENT(&hc->connections[index].client, hc->ctx,
@@ -109,14 +109,14 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 	hc->cmutx.unlock();
 
-	return (attempts >= 0);
+	return (attempts >= 0 && hc->connected);
 }
 
 bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	HERMES_TYPE *types) {
 
 	if (hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
+		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message",
 				"hermes client already connected");
 		}
@@ -143,34 +143,17 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 	}
 
 	if (attempts < 0) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "failed to connect");
-			ADD_STR_LOG("name", "hermes client");
-		}
 		return false;
-	}
-
-	LOG_INFO_CTX((hc->ctx)) {
-		ADD_STR_LOG("message", "Connected!");
-		ADD_STR_LOG("name", "hermes client");
 	}
 
 	hc->connected = true;
 
 	while ((*types).id != 0) {
 		if (!Create_CLIENT_CONNECTION(hc, *types)) {
-			LOG_ERROR_CTX((hc->ctx)) {
-				ADD_STR_LOG("message", "failed to connect");
-				ADD_STR_LOG("name", (*types).name);
-			}
-
 			Disconnect_HERMES_CLIENT(hc);
 			return false;
 		}
 		types++;
-	}
-	LOG_INFO_CTX((hc->ctx)) {
-		ADD_STR_LOG("message", "Hermes connected!");
 	}
 
 	return true;
@@ -178,7 +161,9 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 
 void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
+		//this is only a warning because disconnecting something that is
+		//already disconnected
+		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "hermes client not connected");
 		}
 		return;
@@ -187,19 +172,19 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	uint8_t flag = HERMES_EXIT;
 
 	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_ERROR_CTX((hc->ctx)) {
+		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not send exit flag");
 		}
 		goto cleanup;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_ERROR_CTX((hc->ctx)) {
+		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive exit flag");
 		}
 		goto cleanup;
 	}
 	if (flag != HERMES_EXIT) {
-		LOG_ERROR_CTX((hc->ctx)) {
+		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "flag received not exit");
 			ADD_INT_LOG("flag", flag);
 		}

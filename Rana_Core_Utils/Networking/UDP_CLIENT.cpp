@@ -6,7 +6,7 @@ bool Initialize_UDP_CLIENT(UDP_CLIENT* client, CONTEXT *ctx) {
 	client->ctx = ctx;
 	Set_Name_UDP_CLIENT(client, "unknown");
 
-	client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	client->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (client->sockfd < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Client socket failed to open");
@@ -114,7 +114,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 	if (inet_pton(AF_INET, ip, &(server_address.sin_addr.s_addr)) < 1) {
 		if (!getaddrinfo_k(&server_address.sin_addr.s_addr, ip, 2)) {
 			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "getaddrinfo_k() failed");
+				ADD_STR_LOG("message", "Failed to connect: getaddrinfo_k() failed");
 				ADD_STR_LOG("ip", ip);
 				ADD_STR_LOG("name", client->name);
 			}
@@ -157,7 +157,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message",
-				"Failed to bind UDP client socket");
+				"Failed to connect: Failed to bind UDP client socket");
 			ADD_STR_LOG("ip", ip);
 			ADD_STR_LOG("name", client->name);
 		}
@@ -168,7 +168,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 		sizeof(server_address)) < 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "connect() failed");
+			ADD_STR_LOG("message", "Failed to connect: connect() failed");
 			ADD_STR_LOG("ip", ip);
 			ADD_STR_LOG("name", client->name);
 		}
@@ -180,8 +180,8 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_WARN_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error sending test "
-				"buff... trying again");
+			ADD_STR_LOG("message", "Failed to connect: Error sending test "
+				"buff");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
@@ -192,7 +192,7 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_WARN_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Error receiving test "
+			ADD_STR_LOG("message", "Failed to connect: Error receiving test "
 				"buff... trying again");
 			ADD_STR_LOG("name", client->name);
 		}
@@ -205,10 +205,6 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client, int port, char *ip) {
 		return false;
 	}
 
-	LOG_INFO_CTX((client->ctx)) {
-		ADD_STR_LOG("message", "Connection successful");
-		ADD_STR_LOG("name", client->name);
-	}
 	return true;
 }
 
@@ -231,14 +227,10 @@ void Delete_UDP_CLIENT(UDP_CLIENT *client) {
 		close(client->sockfd);
 		client->sockfd = NULL;
 
-		LOG_INFO_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client connection closed");
-			ADD_STR_LOG("name", client->name);
-		}
 		return;
 	}
 
-	LOG_ERROR_CTX((client->ctx)) {
+	LOG_WARN_CTX((client->ctx)) {
 		ADD_STR_LOG("message",
 			"Client connection has already been closed");
 		ADD_STR_LOG("name", client->name);

@@ -43,7 +43,9 @@ int Get_Index_HERMES_SERVER(HERMES_SERVER* hs) {
 
 void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 	if (!hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
+		//this is only a warning because disconnecting something that is
+		//already disconnected
+		LOG_WARN_CTX((hs->ctx)) {
 			ADD_STR_LOG("message", "hermes server not connected");
 		}
 		return;
@@ -150,10 +152,6 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 		}
 		return;
 	}
-
-	LOG_INFO_CTX((hs->ctx)) {
-		ADD_STR_LOG("message", "starting hermes server loop");
-	}
 	while (hs->connected) {
 		if (!Receive_SERVER(&hs->server, (char*)&flag,
 			sizeof(uint8_t))) {
@@ -194,14 +192,11 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 			hs->shouldexit = true;
 		}
 	}
-	LOG_INFO_CTX((hs->ctx)) {
-		ADD_STR_LOG("message", "ending server loop");
-	}
 }
 
 bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	if (hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
+		LOG_WARN_CTX((hs->ctx)) {
 			ADD_STR_LOG("message",
 				"hermes server already connected");
 		}
@@ -225,34 +220,17 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 
 	if (!Accept_SERVER(&hs->server)) {
 		Delete_SERVER(&hs->server);
-
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "could not listen on port");
-		}
 		return false;
-	}
-
-	LOG_INFO_CTX((hs->ctx)) {
-		ADD_STR_LOG("message", "Connected!");
-		ADD_STR_LOG("name", "hermes server");
 	}
 
 	hs->connected = true;
 
 	while ((*types).id != 0) {
 		if (!Create_SERVER_CONNECTION(hs, *types)) {
-			LOG_ERROR_CTX((hs->ctx)) {
-				ADD_STR_LOG("message", "failed to connect");
-				ADD_STR_LOG("name", (*types).name);
-			}
-
 			Disconnect_HERMES_SERVER(hs);
 			return false;
 		}
 		types++;
-	}
-	LOG_INFO_CTX((hs->ctx)) {
-		ADD_STR_LOG("message", "Hermes connected!");
 	}
 
 	hs->loop_thread = new thread(Loop_HERMES_SERVER, hs);

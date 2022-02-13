@@ -42,4 +42,10 @@ if (!(boolean)) {\
 	return;\
 }
 
+//assert and return current function
+#define ASSERT_R(boolean) \
+if (!(boolean)) {\
+	return false;\
+}
+
 #endif

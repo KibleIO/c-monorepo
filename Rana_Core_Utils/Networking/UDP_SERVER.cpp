@@ -7,11 +7,7 @@ bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx, UDP_SERVER_MASTER *
 	server->udp_master = udp_master;
 	Set_Name_UDP_SERVER(server, "unknown");
 
-	log_dbg(((const JSON_TYPE){
-		{"message", "initializing udp server on port"},
-		JSON_TYPE_END}));
-
-	server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	server->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (server->sockfd < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
 			ADD_STR_LOG("message", "Server socket failed to open");
@@ -119,7 +115,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 
 		LOG_ERROR_CTX((server->ctx)) {
 			ADD_STR_LOG("message",
-				"Failed to bind UDP server socket");
+				"Failed to accept: Failed to bind UDP server socket");
 			ADD_STR_LOG("name", server->name);
 		}
 		return false;
@@ -132,7 +128,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "There was an error receiving "
+			ADD_STR_LOG("message", "Failed to accept: There was an error receiving "
 				"test buffer from client");
 			ADD_STR_LOG("name", server->name);
 		}
@@ -145,7 +141,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "There was an error sending "
+			ADD_STR_LOG("message", "Failed to accept: There was an error sending "
 				"test buffer to client");
 			ADD_STR_LOG("name", server->name);
 		}
@@ -157,7 +153,7 @@ bool Accept_UDP_SERVER(UDP_SERVER *server) {
 		client_address_size) < 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "connect() failed");
+			ADD_STR_LOG("message", "Failed to accept: connect() failed");
 			ADD_STR_LOG("name", server->name);
 		}
 		return false;
@@ -190,14 +186,10 @@ void Delete_UDP_SERVER(UDP_SERVER *server) {
 		close(server->sockfd);
 		server->sockfd = NULL;
 
-		LOG_INFO_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server connection closed");
-			ADD_STR_LOG("name", server->name);
-		}
 		return;
 	}
 
-	LOG_ERROR_CTX((server->ctx)) {
+	LOG_WARN_CTX((server->ctx)) {
 		ADD_STR_LOG("message",
 			"Server connection has already been closed");
 		ADD_STR_LOG("name", server->name);
