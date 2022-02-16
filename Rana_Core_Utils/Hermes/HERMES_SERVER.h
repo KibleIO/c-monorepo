@@ -29,7 +29,7 @@ struct HERMES_SERVER {
 	int port;
 
 	volatile bool connected;
-	volatile bool shouldexit;
+	volatile uint8_t status;
 
 	SERVER_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
@@ -42,6 +42,7 @@ bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, CONTEXT *ctx, int port);
 bool Connect_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE* types);
 //Then this to get servers
 SERVER* Get_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE type);
+void Clean_Exit_HERMES_SERVER(HERMES_SERVER* hs);
 void Disconnect_HERMES_SERVER(HERMES_SERVER* hs);
 //Deletes all heap resources
 void Delete_HERMES_SERVER(HERMES_SERVER* hs);

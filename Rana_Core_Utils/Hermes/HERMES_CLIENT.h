@@ -42,7 +42,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
 //Then this to get clients
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
 //And this once per main loop
-bool Status_HERMES_CLIENT(HERMES_CLIENT* hc);
+uint8_t Status_HERMES_CLIENT(HERMES_CLIENT* hc);
 void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc);
 //Deletes all heap resources
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc);

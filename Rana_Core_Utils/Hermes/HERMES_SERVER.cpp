@@ -74,6 +74,10 @@ void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	Delete_SERVER_MASTER(&hs->udp_master);
 }
 
+void Clean_Exit_HERMES_SERVER(HERMES_SERVER* hs) {
+	hs->status = HERMES_STATUS_EXPECTED_DISCONNECT;
+}
+
 bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	HERMES_TYPE type_in;
 	int ack;
@@ -160,11 +164,11 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 				ADD_STR_LOG("message",
 					"failed to receive flag");
 			}
-			hs->shouldexit = true;
+			hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
 			break;
 		}
 		if (flag == HERMES_STATUS) {
-			flag = false;
+			flag = hs->status;
 			if (!Send_SERVER(&hs->server, (char*)&flag,
 				sizeof(uint8_t))) {
 
@@ -172,7 +176,11 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message",
 						"failed to send status");
 				}
-				hs->shouldexit = true;
+				hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
+				break;
+			}
+
+			if (flag != HERMES_STATUS_NORMAL) {
 				break;
 			}
 		} else if (flag == HERMES_EXIT) {
@@ -186,12 +194,13 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 					ADD_STR_LOG("message", "failed to "
 						"send exit confirmation");
 				}
-				hs->shouldexit = true;
+				hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
 				break;
 			}
-			hs->shouldexit = true;
+			break;
 		}
 	}
+	hs->status = HERMES_STATUS_DISCONNECTED;
 }
 
 bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
@@ -203,7 +212,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		return false;
 	}
 
-	hs->shouldexit = false;
+	hs->status = HERMES_STATUS_NORMAL;
 
 	if (hs->loop_thread != NULL) {
 		hs->loop_thread->join();
@@ -240,7 +249,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 
 bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx, int port) {
 	hs->connected = false;
-	hs->shouldexit = false;
+	hs->status = HERMES_STATUS_DISCONNECTED;
 	hs->ctx = ctx;
 	hs->loop_thread = NULL;
 	hs->port = port;

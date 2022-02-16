@@ -204,12 +204,12 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	hc->connected = false;
 }
 
-bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
+uint8_t Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "hermes client not connected");
 		}
-		return false;
+		return HERMES_STATUS_DISCONNECTED;
 	}
 
 	uint8_t flag = HERMES_STATUS;
@@ -218,20 +218,20 @@ bool Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 			ADD_STR_LOG("message", "could not send status flag");
 		}
 		Disconnect_HERMES_CLIENT(hc);
-		return false;
+		return HERMES_STATUS_UNEXPECTED_DISCONNECT;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "could not receive status flag");
 		}
 		Disconnect_HERMES_CLIENT(hc);
-		return false;
+		return HERMES_STATUS_UNEXPECTED_DISCONNECT;
 	}
-	if (flag) {	 // shouldexit
+	if (flag != HERMES_STATUS_NORMAL) { // shouldexit
 		Disconnect_HERMES_CLIENT(hc);
-		return false;
+		return HERMES_STATUS_EXPECTED_DISCONNECT;
 	}
-	return true;
+	return HERMES_STATUS_NORMAL;
 }
 
 bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx) {
