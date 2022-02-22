@@ -114,7 +114,7 @@ bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
 	if (server->id < 0) return false;
 
 	while (--attempts >= 0 &&
-		server->udp_master->recv_queues[server->id].empty()) {
+		server->udp_master->recv_queues[server->id]->empty()) {
 		//OKAY THERE IS A MASSIVE ERROR HERE
 		//please eventually also take into account usec pls
 		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
@@ -124,11 +124,11 @@ bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
 		return false;
 	}
 
-	temp_buff = server->udp_master->recv_queues[server->id].pop();
+	temp_buff = server->udp_master->recv_queues[server->id]->pop();
 
 	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
 
-	server->udp_master->recv_pool.push(temp_buff);
+	server->udp_master->recv_pool->push(temp_buff);
 
 	return (temp_buff->size - 1) == size;
 }
@@ -140,7 +140,7 @@ int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
 	if (server->id < 0) return false;
 
 	while (--attempts >= 0 &&
-		server->udp_master->recv_queues[server->id].empty()) {
+		server->udp_master->recv_queues[server->id]->empty()) {
 
 		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
@@ -149,20 +149,20 @@ int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
 		return false;
 	}
 
-	temp_buff = server->udp_master->recv_queues[server->id].pop();
+	temp_buff = server->udp_master->recv_queues[server->id]->pop();
 
 	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
 
-	server->udp_master->recv_pool.push(temp_buff);
+	server->udp_master->recv_pool->push(temp_buff);
 
 	return temp_buff->size - 1;
 }
 
 void Delete_UDP_SERVER(UDP_SERVER *server) {
 	if (server->id >= 0) {
-		while (!server->udp_master->recv_queues[server->id].empty()) {
-			server->udp_master->recv_pool.push(
-				server->udp_master->recv_queues[server->id].
+		while (!server->udp_master->recv_queues[server->id]->empty()) {
+			server->udp_master->recv_pool->push(
+				server->udp_master->recv_queues[server->id]->
 				pop());
 		}
 

@@ -28,8 +28,8 @@ struct UDP_SERVER_MASTER {
 
 	thread *recv_thread;
 
-	Queue<UDP_PACKET*> recv_pool;
-	Queue<UDP_PACKET*> recv_queues[MAX_UDP_CONNECTIONS];
+	Queue<UDP_PACKET*> *recv_pool;
+	Queue<UDP_PACKET*> *recv_queues[MAX_UDP_CONNECTIONS];
 };
 
 bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER*, CONTEXT*, int);

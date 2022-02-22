@@ -116,7 +116,7 @@ bool Receive_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
 	if (client->id < 0) return false;
 
 	while (--attempts >= 0 &&
-		client->udp_master->recv_queues[client->id].empty()) {
+		client->udp_master->recv_queues[client->id]->empty()) {
 
 		Sleep_Milli((client->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
@@ -125,11 +125,11 @@ bool Receive_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
 		return false;
 	}
 
-	temp_buff = client->udp_master->recv_queues[client->id].pop();
+	temp_buff = client->udp_master->recv_queues[client->id]->pop();
 
 	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
 
-	client->udp_master->recv_pool.push(temp_buff);
+	client->udp_master->recv_pool->push(temp_buff);
 
 	return (temp_buff->size - 1) == size;
 }
@@ -141,7 +141,7 @@ int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT *client, char *buffer) {
 	if (client->id < 0) return false;
 
 	while (--attempts >= 0 &&
-		client->udp_master->recv_queues[client->id].empty()) {
+		client->udp_master->recv_queues[client->id]->empty()) {
 
 		Sleep_Milli((client->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
@@ -150,20 +150,20 @@ int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT *client, char *buffer) {
 		return false;
 	}
 
-	temp_buff = client->udp_master->recv_queues[client->id].pop();
+	temp_buff = client->udp_master->recv_queues[client->id]->pop();
 
 	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
 
-	client->udp_master->recv_pool.push(temp_buff);
+	client->udp_master->recv_pool->push(temp_buff);
 
 	return temp_buff->size - 1;
 }
 
 void Delete_UDP_CLIENT(UDP_CLIENT *client) {
 	if (client->id >= 0) {
-		while (!client->udp_master->recv_queues[client->id].empty()) {
-			client->udp_master->recv_pool.push(
-				client->udp_master->recv_queues[client->id].
+		while (!client->udp_master->recv_queues[client->id]->empty()) {
+			client->udp_master->recv_pool->push(
+				client->udp_master->recv_queues[client->id]->
 				pop());
 		}
 

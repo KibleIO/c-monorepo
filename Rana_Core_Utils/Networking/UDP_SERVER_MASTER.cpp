@@ -75,8 +75,14 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 		return false;
 	}
 
+	server->recv_pool = new Queue<UDP_PACKET*>;
+
 	for (int i = 0; i < POOL_QUEUE_SIZE; i++) {
-		server->recv_pool.push(new UDP_PACKET);
+		server->recv_queues[i] = new Queue<UDP_PACKET*>;
+	}
+
+	for (int i = 0; i < POOL_QUEUE_SIZE; i++) {
+		server->recv_pool->push(new UDP_PACKET);
 	}
 
 	return true;
@@ -93,11 +99,11 @@ void Recv_Loop_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 
 	while (server->running) {
 		if (temp_buff == NULL) {
-			if (server->recv_pool.empty()) {
+			if (server->recv_pool->empty()) {
 				//what? should never happen
 				continue;
 			}
-			temp_buff = server->recv_pool.pop();
+			temp_buff = server->recv_pool->pop();
 		}
 
 		temp_buff->size = recvfrom(server->sockfd, temp_buff->buffer,
@@ -106,7 +112,7 @@ void Recv_Loop_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 			(socklen_t*)&client_address_size);
 
 		if (temp_buff->size > 0) {
-			server->recv_queues[temp_buff->buffer[0]].push(
+			server->recv_queues[temp_buff->buffer[0]]->push(
 				temp_buff);
 
 			temp_buff = NULL;
@@ -151,13 +157,19 @@ void Delete_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 		server->sockfd = NULL;
 
 		for (int i = 0; i < MAX_UDP_CONNECTIONS; i++) {
-			while (!server->recv_queues[i].empty()) {
-				delete server->recv_queues[i].pop();
+			while (!server->recv_queues[i]->empty()) {
+				delete server->recv_queues[i]->pop();
 			}
 		}
 
-		while (!server->recv_pool.empty()) {
-			delete server->recv_pool.pop();
+		while (!server->recv_pool->empty()) {
+			delete server->recv_pool->pop();
+		}
+
+		delete server->recv_pool;
+
+		for (int i = 0; i < POOL_QUEUE_SIZE; i++) {
+			delete server->recv_queues[i];
 		}
 
 		if (server->recv_thread != NULL) {
