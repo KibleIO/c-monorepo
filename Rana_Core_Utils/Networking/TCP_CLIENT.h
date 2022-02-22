@@ -6,6 +6,7 @@
 #include <string>
 #include <string.h>
 #include "NETWORK.h"
+#include "TCP_CLIENT_MASTER.h"
 #include "../Utilities/TIMER.h"
 #include "../Utilities/CONTEXT.h"
 #include "DNS_WRAPPER.h"
@@ -14,13 +15,14 @@ struct TCP_CLIENT {
 	CONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
 	int cSocket;
+	TCP_CLIENT_MASTER *tcp_master;
 };
 
-bool Initialize_TCP_CLIENT(TCP_CLIENT*, CONTEXT*);
+bool Initialize_TCP_CLIENT(TCP_CLIENT*, CONTEXT*, TCP_CLIENT_MASTER*, int);
 void Set_Name_TCP_CLIENT(TCP_CLIENT*, char*);
 bool Set_Recv_Timeout_TCP_CLIENT(TCP_CLIENT*, int, int);
 bool Set_High_Priority_TCP_CLIENT(TCP_CLIENT*);
-bool Connect_TCP_CLIENT(TCP_CLIENT*, int, char*);
+bool Connect_TCP_CLIENT(TCP_CLIENT*);
 bool Send_TCP_CLIENT(TCP_CLIENT*, char*, int);
 bool Receive_TCP_CLIENT(TCP_CLIENT*, char*, int);
 int Receive_Unsafe_TCP_CLIENT(TCP_CLIENT*, char*);

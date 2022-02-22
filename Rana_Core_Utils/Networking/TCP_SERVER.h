@@ -14,7 +14,7 @@ struct TCP_SERVER {
 	int cSocket;
 };
 
-bool Initialize_TCP_SERVER(TCP_SERVER*, CONTEXT*, TCP_SERVER_MASTER*);
+bool Initialize_TCP_SERVER(TCP_SERVER*, CONTEXT*, TCP_SERVER_MASTER*, int);
 void Set_Name_TCP_SERVER(TCP_SERVER*, char*);
 bool Set_Recv_Timeout_TCP_SERVER(TCP_SERVER*, int, int);
 bool Set_High_Priority_TCP_SERVER(TCP_SERVER*);

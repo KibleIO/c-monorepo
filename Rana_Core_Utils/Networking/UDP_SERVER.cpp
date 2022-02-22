@@ -1,57 +1,15 @@
 #include "UDP_SERVER.h"
 
-bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx, UDP_SERVER_MASTER *udp_master) {
-	uint32_t input_var;
+bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx,
+	UDP_SERVER_MASTER *udp_master, int id) {
 
 	server->ctx = ctx;
 	server->udp_master = udp_master;
+	server->id = id;
+	server->buffer[0] = id;
 	Set_Name_UDP_SERVER(server, "unknown");
 
-	server->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
-	if (server->sockfd < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	input_var = 1;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,
-		sizeof(uint32_t)) == -1) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	input_var = 1;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
-		sizeof(uint32_t)) == -1) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	input_var = 1000000;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_SNDBUF, &input_var,
-		sizeof(uint32_t)) == -1) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: sndbuf");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
-		return false;
-	}
+	Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0);
 
 	return true;
 }
@@ -61,137 +19,159 @@ void Set_Name_UDP_SERVER(UDP_SERVER *server, char *name) {
 }
 
 bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER *server, int sec, int usec) {
-	timeval o_to = { sec, usec };
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_RCVTIMEO, &o_to,
-		sizeof(timeval)) == -1) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: timeout");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
+	server->timeout.tv_sec = sec;
+	server->timeout.tv_usec = usec;
 	return true;
 }
 
 bool Set_High_Priority_UDP_SERVER(UDP_SERVER *server) {
-	int32_t o;
-	o = 6;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_PRIORITY,
-		(const char*)&o, sizeof o) != 0) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: priority");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-	return true;
+	return Set_High_Priority_UDP_SERVER_MASTER(server->udp_master);
 }
 
 bool Accept_UDP_SERVER(UDP_SERVER *server) {
 	int32_t size;
-	uint8_t* test_buff;
+	uint8_t test_buff[TEST_BUFF_SIZE];
 
-	sockaddr_in	server_address;
-	sockaddr_in	client_address;
+	if (server->udp_master->accepted) {
+		//already accepted brother
+		return true;
+	}
 
-	int32_t server_address_size = sizeof(server_address);
-	int32_t client_address_size = sizeof(client_address);
+	if (!Set_Recv_Timeout_UDP_SERVER_MASTER(server->udp_master,
+		DEFAULT_ACCEPT_TIMEOUT, 0)) {
 
-	memset(&server_address, 0, server_address_size);
-	memset(&client_address, 0, client_address_size);
-
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = INADDR_ANY;
-	server_address.sin_port = htons(server->udp_master->port);
-
-	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_ACCEPT_TIMEOUT, 0)) {
 		return false;
 	}
 
-	if (bind(server->sockfd, (const struct sockaddr*) &server_address,
-		server_address_size) < 0) {
-
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message",
-				"Failed to accept: Failed to bind UDP server socket");
-			ADD_STR_LOG("name", server->name);
-		}
-		return false;
-	}
-
-	test_buff = new uint8_t[TEST_BUFF_SIZE];
-
-	size = recvfrom(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, MSG_WAITALL,
-		(sockaddr*)&client_address, (socklen_t*)&client_address_size);
+	size = recvfrom(server->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL,
+		(sockaddr*) &server->udp_master->client_address,
+		(socklen_t*) &server->udp_master->client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: There was an error receiving "
-				"test buffer from client");
+			ADD_STR_LOG("message", "Failed to accept: There was an "
+				"error receiving test buffer from client");
 			ADD_STR_LOG("name", server->name);
 		}
-		delete[] test_buff;
 		return false;
 	}
 
-	size = sendto(server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, MSG_WAITALL,
-		(sockaddr*)&client_address, client_address_size);
+	size = sendto(server->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL,
+		(sockaddr*) &server->udp_master->client_address,
+		server->udp_master->client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: There was an error sending "
-				"test buffer to client");
+			ADD_STR_LOG("message", "Failed to accept: There was an "
+				"error sending test buffer to client");
 			ADD_STR_LOG("name", server->name);
 		}
-		delete[] test_buff;
 		return false;
 	}
 
-	if (connect(server->sockfd, (sockaddr*)&client_address,
-		client_address_size) < 0) {
+	if (!Set_Recv_Timeout_UDP_SERVER_MASTER(server->udp_master,
+		DEFAULT_RECV_TIMEOUT, 0)) {
 
+		return false;
+	}
+
+	if (server->udp_master->recv_thread != NULL) {
+		//whoa... what a weird scenario
 		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: connect() failed");
+			ADD_STR_LOG("message", "Failed to accept: Weird, "
+				"unresolvable error occured");
 			ADD_STR_LOG("name", server->name);
 		}
 		return false;
 	}
 
-	delete[] test_buff;
+	server->udp_master->running = true;
+	server->udp_master->recv_thread = new thread(
+		Recv_Loop_UDP_SERVER_MASTER, server->udp_master);
 
-	if (!Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
-		return false;
-	}
+	server->udp_master->accepted = true;
 
 	return true;
 }
 
 bool Send_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
-	return send(server->sockfd, buffer, size, MSG_WAITALL) == size;
+	if (server->id < 0) return false;
+
+	memcpy(server->buffer + 1, buffer, size);
+
+	return sendto(server->udp_master->sockfd, (char*) server->buffer,
+		size + 1, MSG_WAITALL,
+		(sockaddr*)&server->udp_master->client_address,
+		server->udp_master->client_address_size) == size;
 }
 
 bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
-	return recv(server->sockfd, buffer, size, MSG_WAITALL) == size;
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
+
+	if (server->id < 0) return false;
+
+	while (--attempts >= 0 &&
+		server->udp_master->recv_queues[server->id].empty()) {
+		//OKAY THERE IS A MASSIVE ERROR HERE
+		//please eventually also take into account usec pls
+		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
+	}
+
+	if (attempts < 0) {
+		return false;
+	}
+
+	temp_buff = server->udp_master->recv_queues[server->id].pop();
+
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	server->udp_master->recv_pool.push(temp_buff);
+
+	return (temp_buff->size - 1) == size;
 }
 
 int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
-	return recv(server->sockfd, buffer, ARBITRARILY_LARGE_PACKET, 0);
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
+
+	if (server->id < 0) return false;
+
+	while (--attempts >= 0 &&
+		server->udp_master->recv_queues[server->id].empty()) {
+
+		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
+	}
+
+	if (attempts < 0) {
+		return false;
+	}
+
+	temp_buff = server->udp_master->recv_queues[server->id].pop();
+
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	server->udp_master->recv_pool.push(temp_buff);
+
+	return temp_buff->size - 1;
 }
 
 void Delete_UDP_SERVER(UDP_SERVER *server) {
-	if (server->sockfd < 0) {
-		shutdown(server->sockfd, 2);
-		close(server->sockfd);
-		server->sockfd = NULL;
+	if (server->id >= 0) {
+		while (!server->udp_master->recv_queues[server->id].empty()) {
+			server->udp_master->recv_pool.push(
+				server->udp_master->recv_queues[server->id].
+				pop());
+		}
 
-		return;
+		server->id = -1;
 	}
 
 	LOG_WARN_CTX((server->ctx)) {
 		ADD_STR_LOG("message",
-			"Server connection has already been closed");
+			"Client connection has already been closed");
 		ADD_STR_LOG("name", server->name);
 	}
 }

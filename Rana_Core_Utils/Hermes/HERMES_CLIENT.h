@@ -21,6 +21,8 @@ struct CLIENT_CONNECTION {
 };
 
 struct HERMES_CLIENT {
+	CLIENT_MASTER udp_master;
+	CLIENT_MASTER tcp_master;
 	CLIENT client;
 	mutex cmutx;
 	int port;
@@ -35,10 +37,10 @@ struct HERMES_CLIENT {
 };
 
 //Run this first on an allocated hc pointer
-bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx);
+bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx, char *ip,
+	int port);
 //Then this, but not in a thread
-bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, char *ip, int port,
-	HERMES_TYPE* types);
+bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE* types);
 //Then this to get clients
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type);
 //And this once per main loop

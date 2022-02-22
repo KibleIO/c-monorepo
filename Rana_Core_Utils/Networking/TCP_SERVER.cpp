@@ -1,9 +1,7 @@
 #include "TCP_SERVER.h"
 
 bool Initialize_TCP_SERVER(TCP_SERVER *server, CONTEXT *ctx,
-	TCP_SERVER_MASTER *tcp_master) {
-
-	int o;
+	TCP_SERVER_MASTER *tcp_master, int id) {
 
 	server->ctx = ctx;
 	server->tcp_master = tcp_master;

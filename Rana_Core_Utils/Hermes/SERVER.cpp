@@ -1,6 +1,8 @@
 #include "SERVER.h"
 
-bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, SERVER_MASTER *master) {
+bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, SERVER_MASTER *master,
+	int id) {
+
 	server->ctx = ctx;
 	server->type = master->type;
 	server->master = master;
@@ -8,10 +10,10 @@ bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, SERVER_MASTER *master) {
 	switch(server->type) {
 		case NETWORK_TYPE_TCP:
 			return Initialize_TCP_SERVER(&server->tcp_server, ctx,
-				&master->tcp_server_master);
+				&master->tcp_server_master, id);
 		case NETWORK_TYPE_UDP:
 			return Initialize_UDP_SERVER(&server->udp_server, ctx,
-				&master->udp_server_master);
+				&master->udp_server_master, id);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");

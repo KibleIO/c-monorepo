@@ -18,7 +18,7 @@ struct SERVER {
 	};
 };
 
-bool Initialize_SERVER(SERVER*, CONTEXT*, SERVER_MASTER*);
+bool Initialize_SERVER(SERVER*, CONTEXT*, SERVER_MASTER*, int);
 void Set_Name_SERVER(SERVER*, char*);
 bool Set_Recv_Timeout_SERVER(SERVER*, int, int);
 bool Set_High_Priority_SERVER(SERVER*);

@@ -9,7 +9,7 @@
 #include "../Utilities/LOGGING.h"
 #include "../Utilities/UTILS.h"
 
-#define HERMES_CONNECTIONS_MAX 20
+#define HERMES_CONNECTIONS_MAX MAX_UDP_CONNECTIONS
 
 #define HERMES_PORT_MIN 2230
 #define HERMES_PORT_MAX 3329
@@ -26,6 +26,8 @@
 #define HERMES_VIDEO_INIT	(HERMES_TYPE){"video_init", NETWORK_TYPE_TCP, 9}
 #define HERMES_KEYBOARD		(HERMES_TYPE){"keyboard", NETWORK_TYPE_UDP, 10}
 #define HERMES_MOUSE		(HERMES_TYPE){"mouse", NETWORK_TYPE_UDP, 11}
+#define HERMES_CLIENT_T		(HERMES_TYPE){"hermes client", NETWORK_TYPE_TCP, 12}
+#define HERMES_SERVER_T		(HERMES_TYPE){"hermes server", NETWORK_TYPE_TCP, 13}
 
 #define HERMES_GET_CONNECTION	1
 #define HERMES_EXIT 		2

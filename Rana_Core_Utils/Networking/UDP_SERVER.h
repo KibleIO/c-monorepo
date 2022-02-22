@@ -15,13 +15,14 @@
 struct UDP_SERVER {
 	CONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
+	char buffer[MAX_UDP_PACKET_SIZE + 1]; //plus 1 for the type
 
 	UDP_SERVER_MASTER *udp_master;
-
-	int32_t		sockfd;
+	timeval timeout;
+	volatile int id;
 };
 
-bool Initialize_UDP_SERVER(UDP_SERVER*, CONTEXT*, UDP_SERVER_MASTER*);
+bool Initialize_UDP_SERVER(UDP_SERVER*, CONTEXT*, UDP_SERVER_MASTER*, int);
 void Set_Name_UDP_SERVER(UDP_SERVER*, char*);
 bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER*, int, int);
 bool Set_High_Priority_UDP_SERVER(UDP_SERVER*);

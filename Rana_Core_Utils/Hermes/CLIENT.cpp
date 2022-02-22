@@ -1,14 +1,19 @@
 #include "CLIENT.h"
 
-bool Initialize_CLIENT(CLIENT *client, CONTEXT *ctx, int type) {
+bool Initialize_CLIENT(CLIENT *client, CONTEXT *ctx, CLIENT_MASTER *master,
+	int id) {
+
 	client->ctx = ctx;
-	client->type = type;
+	client->type = master->type;
+	client->master = master;
 
 	switch(client->type) {
 		case NETWORK_TYPE_TCP:
-			return Initialize_TCP_CLIENT(&client->tcp_client, ctx);
+			return Initialize_TCP_CLIENT(&client->tcp_client, ctx,
+				&master->tcp_client_master, id);
 		case NETWORK_TYPE_UDP:
-			return Initialize_UDP_CLIENT(&client->udp_client, ctx);
+			return Initialize_UDP_CLIENT(&client->udp_client, ctx,
+				&master->udp_client_master, id);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -65,14 +70,12 @@ bool Set_High_Priority_CLIENT(CLIENT *client) {
 	return false;
 }
 
-bool Connect_CLIENT(CLIENT *client, int port, char *ip) {
+bool Connect_CLIENT(CLIENT *client) {
 	switch(client->type) {
 		case NETWORK_TYPE_TCP:
-			return Connect_TCP_CLIENT(&client->tcp_client, port,
-				ip);
+			return Connect_TCP_CLIENT(&client->tcp_client);
 		case NETWORK_TYPE_UDP:
-			return Connect_UDP_CLIENT(&client->udp_client, port,
-				ip);
+			return Connect_UDP_CLIENT(&client->udp_client);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");

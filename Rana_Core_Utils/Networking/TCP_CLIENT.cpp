@@ -1,9 +1,12 @@
 #include "TCP_CLIENT.h"
 
-bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx) {
+bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
+	TCP_CLIENT_MASTER *master, int id) {
+
 	int o; //yes! best variable name evar
 
 	client->ctx = ctx;
+	client->tcp_master = master;
 	Set_Name_TCP_CLIENT(client, "unknown");
 
 	signal(SIGPIPE, SIG_IGN);
@@ -112,7 +115,7 @@ bool Set_High_Priority_TCP_CLIENT(TCP_CLIENT *client) {
 	return true;
 }
 
-bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
+bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	long arg;
 	timeval tv;
 	fd_set myset;
@@ -124,15 +127,20 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 	// Set up server destination
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
-	destination.sin_port = htons(port);
+	destination.sin_port = htons(client->tcp_master->port);
 
-	if (inet_pton(AF_INET, ip, &(destination.sin_addr.s_addr)) < 1) {
-		if (!getaddrinfo_k(&destination.sin_addr.s_addr, ip, 2)) {
+	if (inet_pton(AF_INET, client->tcp_master->ip,
+		&(destination.sin_addr.s_addr)) < 1) {
+
+		if (!getaddrinfo_k(&destination.sin_addr.s_addr,
+			client->tcp_master->ip, 2)) {
+
 			LOG_ERROR_CTX((client->ctx)) {
 				ADD_STR_LOG("message",
-					"Failed to connect: getaddrinfo_k() failed");
+					"Failed to connect: getaddrinfo_k() "
+					"failed");
 
-				ADD_STR_LOG("ip", ip);
+				ADD_STR_LOG("ip", client->tcp_master->ip);
 				ADD_STR_LOG("name", client->name);
 			}
 			return false;
@@ -191,8 +199,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client, int port, char *ip) {
 						ADD_STR_LOG("name",
 							client->name);
 
-						ADD_STR_LOG("ip", ip);
-						ADD_INT_LOG("port", port);
 						ADD_INT_LOG("error_code",
 							valopt);
 					}
