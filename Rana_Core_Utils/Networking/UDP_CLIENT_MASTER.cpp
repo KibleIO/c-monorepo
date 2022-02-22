@@ -77,7 +77,7 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 
 	client->recv_pool = new Queue<UDP_PACKET*>;
 
-	for (int i = 0; i < POOL_QUEUE_SIZE; i++) {
+	for (int i = 0; i < MAX_UDP_CONNECTIONS; i++) {
 		client->recv_queues[i] = new Queue<UDP_PACKET*>;
 	}
 
@@ -180,7 +180,9 @@ void Delete_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
 			client->running = false;
 			client->recv_thread->join();
 			delete client->recv_thread;
+			client->recv_thread = NULL;
 		}
+		client->connected = false;
 
 		return;
 	}

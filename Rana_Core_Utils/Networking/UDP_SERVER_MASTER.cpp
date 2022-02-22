@@ -77,7 +77,7 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 
 	server->recv_pool = new Queue<UDP_PACKET*>;
 
-	for (int i = 0; i < POOL_QUEUE_SIZE; i++) {
+	for (int i = 0; i < MAX_UDP_CONNECTIONS; i++) {
 		server->recv_queues[i] = new Queue<UDP_PACKET*>;
 	}
 
@@ -176,7 +176,9 @@ void Delete_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 			server->running = false;
 			server->recv_thread->join();
 			delete server->recv_thread;
+			server->recv_thread = NULL;
 		}
+		server->accepted = false;
 
 		return;
 	}

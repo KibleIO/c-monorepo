@@ -167,6 +167,14 @@ void Delete_UDP_SERVER(UDP_SERVER *server) {
 		}
 
 		server->id = -1;
+
+		if (server->udp_master->recv_thread != NULL) {
+			server->udp_master->running = false;
+			server->udp_master->recv_thread->join();
+			delete server->udp_master->recv_thread;
+			server->udp_master->recv_thread = NULL;
+		}
+		server->udp_master->accepted = false;
 	}
 
 	LOG_WARN_CTX((server->ctx)) {

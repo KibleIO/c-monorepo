@@ -168,6 +168,14 @@ void Delete_UDP_CLIENT(UDP_CLIENT *client) {
 		}
 
 		client->id = -1;
+
+		if (client->udp_master->recv_thread != NULL) {
+			client->udp_master->running = false;
+			client->udp_master->recv_thread->join();
+			delete client->udp_master->recv_thread;
+			client->udp_master->recv_thread = NULL;
+		}
+		client->udp_master->connected = false;
 	}
 
 	LOG_WARN_CTX((client->ctx)) {
