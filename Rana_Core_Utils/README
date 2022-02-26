@@ -7,3 +7,5 @@ in order to make everything please first generate the protobuf files
 also install rename
 
 apt install rename
+
+git submodule update --init --recursive
