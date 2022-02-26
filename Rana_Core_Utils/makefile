@@ -32,6 +32,9 @@ docker: $(OBJECTS)
 local: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
+docker-build-proto:
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
+
 build_proto:
 	mkdir -p idl/cpp/gen
 	PATH=$(PATH):$(HOME)/.local/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=$(HOME)/.local/bin/grpc_cpp_plugin idl/idl/*.proto
