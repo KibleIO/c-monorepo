@@ -41,9 +41,9 @@
 #define HERMES_STATUS_DISCONNECTED 3
 
 struct HERMES_TYPE {
-	char name[MAX_NAME_SIZE];
-	int type;
-	int id;
-};
+	uint8_t name[MAX_NAME_SIZE];
+	int32_t type;
+	int32_t id;
+}  __attribute__((packed));
 
 #endif

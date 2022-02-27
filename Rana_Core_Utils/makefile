@@ -21,10 +21,13 @@ SOURCES = $(wildcard */*.cpp) $(wildcard idl/cpp/gen/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make docker
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make docker
 
 zorin:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:zorin make docker
+
+xubuntu:
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker
 
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
@@ -33,7 +36,7 @@ local: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
 docker-build-proto:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
 
 build_proto:
 	mkdir -p idl/cpp/gen
@@ -56,7 +59,7 @@ install: $(EXEC)
 	sudo cp -R ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen
 
 dockerimage-publish: $(EXEC)
-	docker build --file Dockerfile -t kible/coreutils .
+	docker build --platform linux/amd64 --file Dockerfile -t kible/coreutils .
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils
 
@@ -64,6 +67,11 @@ dockerimage-zorin-publish: $(EXEC)
 	docker build --file Dockerfile.Zorin -t kible/coreutils:zorin .
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils:zorin
+
+dockerimage-xubuntu-publish: $(EXEC)
+	docker build --file Dockerfile.Xubuntu -t kible/coreutils:xubuntu .
+	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
+	docker push kible/coreutils:xubuntu
 
 # Main target
 $(EXEC): $(OBJECTS)

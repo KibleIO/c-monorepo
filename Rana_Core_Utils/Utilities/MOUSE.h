@@ -43,11 +43,11 @@
 struct MOUSE_EVENT_T {
 	int16_t x;
 	int16_t y;
-	bool clicked;
+	int8_t clicked;
 	uint16_t button;
 	uint16_t state;
 	uint32_t event_index; //this will eventually have a wrap around problem
-};
+} __attribute__((packed));
 
 struct MOUSE {
 	// Linux specific code {{{

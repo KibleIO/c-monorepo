@@ -95,7 +95,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		Initialize_CLIENT(&hc->connections[index].client, hc->ctx,
 			((type.type == NETWORK_TYPE_TCP) ? &hc->tcp_master :
 			&hc->udp_master), type.id);
-		Set_Name_CLIENT(&hc->connections[index].client, type.name);
+		Set_Name_CLIENT(&hc->connections[index].client, (char*) type.name);
 
 		if (Connect_CLIENT(&hc->connections[index].client)) {
 

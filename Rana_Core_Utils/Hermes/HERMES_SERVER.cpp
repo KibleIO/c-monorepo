@@ -133,7 +133,7 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	Initialize_SERVER(&hs->connections[index].server, hs->ctx,
 		((type.type == NETWORK_TYPE_TCP) ? &hs->tcp_master :
 		&hs->udp_master), type.id);
-	Set_Name_SERVER(&hs->connections[index].server, type.name);
+	Set_Name_SERVER(&hs->connections[index].server, (char*) type.name);
 
 	if (Accept_SERVER(&hs->connections[index].server)) {
 		hs->connections[index].active = true;
