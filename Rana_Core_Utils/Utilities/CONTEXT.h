@@ -43,17 +43,20 @@ typedef int Status;
 		Log_CONTEXT(ctx, loop.str))
 #define LOG_CTX(ctx, level)\
 	for (struct {char str[MAX_LOG_LEN]; int _break; json_object *json_obj;}\
-	loop = {"", (SET_UP_LOG(ctx, level), 1), NULL}; loop._break; \
-	loop._break = 0, FINISH_LOG(ctx))
+	loop = {"", 1, NULL}, dummy = {"", (SET_UP_LOG(ctx, level), 1), NULL}; \
+        loop._break; loop._break = 0, FINISH_LOG(ctx))
 
 #define LOG_INFO_CTX(ctx) LOG_CTX(ctx, "INFO")
 #define LOG_WARN_CTX(ctx) LOG_CTX(ctx, "WARN")
 #define LOG_ERROR_CTX(ctx) LOG_CTX(ctx, "ERROR")
 
+#define RESOURCE_DIR_MAX_LEN 2048
+
 struct CONTEXT {
 	char mac_address[MAC_ADDRESS_STR_LEN];
 	char uuid[UUID_STR_SIZE];
 	char core_system[CORE_SYSTEM_STR_SIZE];
+        char system_resource_dir[RESOURCE_DIR_MAX_LEN];
 	ELASTIC_SEARCH_CLIENT client;
 	SCREEN_DIM screen_dim;
 };
@@ -61,6 +64,7 @@ struct CONTEXT {
 bool Initialize_CONTEXT(CONTEXT*, char*);
 SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT*);
 void Set_Screen_Dim_CONTEXT(CONTEXT*, SCREEN_DIM);
+void Set_System_Resource_Dir_CONTEXT(CONTEXT*, char*);
 void Log_CONTEXT(CONTEXT*, char*);
 void Delete_CONTEXT(CONTEXT*);
 

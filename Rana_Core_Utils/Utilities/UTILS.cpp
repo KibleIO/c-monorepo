@@ -85,6 +85,7 @@ void generate_uuid(char *str) {
 }
 
 void get_mac_address(char *str) {
+        #ifdef linux
     struct ifreq ifr;
     struct ifaddrs *ifap, *ifa;
     int success = 0;
@@ -146,6 +147,8 @@ void get_mac_address(char *str) {
 
 error_lbl:
     close(sock);
+    
+    #endif
     strcpy(str, "FATAL");
 }
 
@@ -158,6 +161,7 @@ void get_current_time(char *str) {
 }
 
 void Sleep_Milli(unsigned int milli) {
+        usleep(milli * 1000);
 #ifdef __linux__
     usleep(milli * 1000);
 #endif
@@ -213,5 +217,14 @@ bool Is_Connected_To_Internet() {
 }
 
 int Get_Number_Of_Cores() {
-	return get_nprocs();
+        #ifdef linux
+	
+        return get_nprocs();
+
+        #else
+
+        //god help us
+        return 8;
+
+        #endif
 }

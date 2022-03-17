@@ -1,5 +1,4 @@
 // PLATFORMS LINUX
-#ifdef __linux__
 #include "Update_Utility.h"
 
 string str_ret;
@@ -130,5 +129,3 @@ void Download_From_Website(string address, string place, uint32_t* runner) {
 
 void Delete_UPDATE_UTILITY(Update_UTILITY* info) {
 }
-
-#endif

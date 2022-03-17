@@ -35,6 +35,8 @@ bool Set_Recv_Timeout_TCP_SERVER(TCP_SERVER *server, int sec, int usec) {
 }
 
 bool Set_High_Priority_TCP_SERVER(TCP_SERVER *server) {
+        #ifdef linux
+
 	int32_t o;
 	o = 6;
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_PRIORITY,
@@ -46,6 +48,9 @@ bool Set_High_Priority_TCP_SERVER(TCP_SERVER *server) {
 		}
 		return false;
 	}
+
+        #endif
+
 	return true;
 }
 
@@ -164,6 +169,8 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		return false;
 	}
 
+        #ifdef linux
+
 	o = 1;
 	if (setsockopt(server->cSocket, IPPROTO_TCP, TCP_QUICKACK, &o,
 		sizeof o) != 0) {
@@ -174,6 +181,8 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		}
 		return false;
 	}
+
+        #endif
 
 	if (!Set_Recv_Timeout_TCP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;

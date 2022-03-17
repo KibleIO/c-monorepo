@@ -3,6 +3,7 @@
 #ifndef DNS_WRAPPER_H_
 #define DNS_WRAPPER_H_
 
+#include <sys/select.h>
 #include <ares.h>
 #include <netdb.h>
 #include <mutex>

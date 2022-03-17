@@ -47,6 +47,10 @@ void Set_Screen_Dim_CONTEXT(CONTEXT *ctx, SCREEN_DIM screen_dim) {
 	ctx->screen_dim = screen_dim;
 }
 
+void Set_System_Resource_Dir_CONTEXT(CONTEXT *ctx, char *str) {
+        strcpy(ctx->system_resource_dir, str);
+}
+
 void Log_CONTEXT(CONTEXT *ctx, char *str) {
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
 }

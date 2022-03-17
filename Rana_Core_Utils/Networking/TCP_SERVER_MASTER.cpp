@@ -12,6 +12,8 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 
 	signal(SIGPIPE, SIG_IGN);
 
+        #ifdef linux
+
 	server->lSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
 	if (server->lSocket < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
@@ -20,6 +22,19 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+        #else
+
+        server->lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (server->lSocket < 0) {
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Server socket failed to open");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+        #endif
 
 	o = 1;
 	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o,
@@ -47,7 +62,7 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 	destination.sin_port = htons(port);
 	destination.sin_addr.s_addr = INADDR_ANY;
 
-	if (bind(server->lSocket, (sockaddr*)&destination,
+	if (::bind(server->lSocket, (sockaddr*)&destination,
 		sizeof(destination)) < 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {

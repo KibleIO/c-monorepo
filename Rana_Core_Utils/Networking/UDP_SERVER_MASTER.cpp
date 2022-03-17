@@ -18,6 +18,8 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 	server->running = false;
 	Set_Name_UDP_SERVER_MASTER(server, "master");
 
+        #ifdef linux
+
 	server->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (server->sockfd < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
@@ -26,6 +28,19 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+        #else
+
+        server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (server->sockfd < 0) {
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Server socket failed to open");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+        #endif
 
 	input_var = 1;
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,
@@ -64,7 +79,7 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 	server_address.sin_addr.s_addr = INADDR_ANY;
 	server_address.sin_port = htons(port);
 
-	if (bind(server->sockfd, (const struct sockaddr*) &server_address,
+	if (::bind(server->sockfd, (const struct sockaddr*) &server_address,
 		server_address_size) < 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -135,6 +150,8 @@ bool Set_Recv_Timeout_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, int sec, int 
 }
 
 bool Set_High_Priority_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
+        #ifdef linux
+
 	int32_t o;
 	o = 6;
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_PRIORITY,
@@ -146,6 +163,9 @@ bool Set_High_Priority_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 		}
 		return false;
 	}
+
+        #endif
+
 	return true;
 }
 

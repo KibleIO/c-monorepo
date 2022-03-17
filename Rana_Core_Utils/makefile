@@ -5,9 +5,9 @@ UNAME_M = $(shell uname -m)
 USER=`whoami`
 
 CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I./ -I$(HOME)/.local/include -std=c++11 \
-	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic
+	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable -mmacosx-version-min=10.13
 
-CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf)
+CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/:/usr/local/opt/openssl@3/lib/pkgconfig pkg-config --libs grpc grpc++ protobuf)
 
 ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
@@ -16,7 +16,7 @@ ifeq ($(UNAME_M),armv7l)
 endif
 
 # File names
-EXEC = librana.so
+EXEC = librana.dylib
 SOURCES = $(wildcard */*.cpp) $(wildcard idl/cpp/gen/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
@@ -33,7 +33,7 @@ docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
 local: $(OBJECTS)
-	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
+	$(CC) -dynamiclib -undefined suppress -flat_namespace $(OBJECTS) -o $(EXEC) $(CXXFLAGS) -framework Cocoa -L/usr/local/Cellar/libsodium/1.0.18_1/lib -L/usr/local/Cellar/ffmpeg/5.0/lib -lsodium -lswscale -lcurl -ljson-c -mmacosx-version-min=10.13
 
 docker-build-proto:
 	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
@@ -44,7 +44,7 @@ build_proto:
 	rename 's/\.cc$$/.cpp/' ./idl/cpp/gen/*.cc
 
 install: $(EXEC)
-	sudo cp ./librana.so /usr/local/lib
+	sudo cp ./$(EXEC) /usr/local/lib
 	sudo mkdir -p /usr/local/include/rana/Networking/
 	sudo mkdir -p /usr/local/include/rana/Utilities/
 	sudo mkdir -p /usr/local/include/rana/Hermes/

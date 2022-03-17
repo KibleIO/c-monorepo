@@ -9,3 +9,19 @@ also install rename
 apt install rename
 
 git submodule update --init --recursive
+git submodule foreach git pull origin master
+
+mac osx:
+
+https://stackoverflow.com/questions/64951024/how-can-i-run-two-isolated-installations-of-homebrew
+
+https://github.com/json-c/json-c
+https://grpc.io/docs/languages/cpp/quickstart/
+brew install cmake
+brew install rename
+brew install ffmpeg
+
+SWITCH BETWEEM x86 and ARM
+
+arch -x86_64 zsh
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin

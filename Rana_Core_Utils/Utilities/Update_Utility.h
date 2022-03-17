@@ -1,5 +1,4 @@
 // PLATFORMS LINUX
-#ifdef __linux__
 #ifndef UPDATE_UTILITY_H_
 #define UPDATE_UTILITY_H_
 
@@ -65,4 +64,3 @@ void Download_From_Website(string address, string place, uint32_t* runner);
 void Delete_UPDATE_UTILITY(Update_UTILITY* info);
 
 #endif	// UPDATE_UTILITY_H_
-#endif

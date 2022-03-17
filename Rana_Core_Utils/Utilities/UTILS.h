@@ -5,7 +5,18 @@
 
 #include <fstream>
 #include <time.h>
+
+#ifdef linux
+
 #include <linux/if.h>
+#include <sys/sysinfo.h>
+
+#else
+
+#include <net/if.h>
+
+#endif
+
 #include <netdb.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +31,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
-#include <sys/sysinfo.h>
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6

@@ -14,6 +14,8 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 	client->recv_thread = NULL;
 	Set_Name_UDP_CLIENT_MASTER(client, "unknown");
 
+        #ifdef linux
+
 	client->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (client->sockfd < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
@@ -22,6 +24,19 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+        #else
+
+        client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (client->sockfd < 0) {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Client socket failed to open");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+        #endif
 
 	input_var = 1000000;
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
@@ -140,6 +155,8 @@ bool Set_Recv_Timeout_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, int s,
 }
 
 bool Set_High_Priority_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
+        #ifdef linux
+
 	int32_t o;
 	o = 6;
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_PRIORITY,
@@ -151,6 +168,9 @@ bool Set_High_Priority_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
 		}
 		return false;
 	}
+
+        #endif
+
 	return true;
 }
 
