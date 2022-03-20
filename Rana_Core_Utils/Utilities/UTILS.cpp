@@ -154,7 +154,23 @@ error_lbl:
 
 void get_current_time(char *str) {
 	struct timespec ts;
+
+	#ifdef linux
+
 	timespec_get(&ts, TIME_UTC);
+
+	#else
+
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	ts.tv_sec = mts.tv_sec;
+	ts.tv_nsec = mts.tv_nsec;
+
+	#endif
+
 	char buff[100];
 	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
 	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
