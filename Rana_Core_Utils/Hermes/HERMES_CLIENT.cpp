@@ -85,7 +85,13 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		}
 	}
 
+        if (hc->use_tcp) {
+                type.type = NETWORK_TYPE_TCP;
+        }
+
 	hc->cmutx.lock();
+
+        connect:
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
@@ -111,12 +117,23 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	}
 
 	hc->cmutx.unlock();
+        /*
+        if (hc->connected && attempts < 0 && type.type == NETWORK_TYPE_UDP) {
+                type.type = NETWORK_TYPE_TCP;
+                hc->use_tcp = true;
+
+                LOG_WARN_CTX((hc->ctx)) {
+                        ADD_STR_LOG("message", "UDP failed... reverting to TCP. Performance will be degraded");
+                }
+
+                goto connect;
+        }
+        */
 
 	return (attempts >= 0 && hc->connected);
 }
 
 bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
-
 	if (hc->connected) {
 		LOG_WARN_CTX((hc->ctx)) {
 			ADD_STR_LOG("message",
@@ -203,6 +220,7 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		}
 	}
 	hc->connected = false;
+        hc->use_tcp = false;
 }
 
 uint8_t Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
@@ -240,6 +258,7 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx,
 
 	hc->connected = false;
 	hc->ctx = ctx;
+        hc->use_tcp = false;
 
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		hc->connections[i].active = false;

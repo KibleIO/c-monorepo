@@ -41,7 +41,6 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client) {
 
 	if (!Set_Recv_Timeout_UDP_CLIENT_MASTER(client->udp_master, 0,
 		DEFAULT_CONNECT_TIMEOUT)) {
-
 		return false;
 	}
 

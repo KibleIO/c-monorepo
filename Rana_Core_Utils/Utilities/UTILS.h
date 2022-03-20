@@ -47,7 +47,7 @@ using namespace std;
 
 #define ITOA_STR_SIZE 100
 
-#define abs(x) ((x)<0 ? -(x) : (x))
+#define k_abs(x) ((x)<0 ? -(x) : (x))
 
 #define CEILING(x, y) (((x) + (y)-1) / (y))
 
