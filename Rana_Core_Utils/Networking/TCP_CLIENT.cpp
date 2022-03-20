@@ -80,9 +80,7 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 		return false;
 	}
 
-        #endif
-
-	o = 70000000;
+        o = 70000000;
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVBUF, &o,
 		sizeof o) != 0) {
 
@@ -92,6 +90,8 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+        #endif
 
 	if (!Set_Recv_Timeout_TCP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
 		return false;

@@ -27,6 +27,7 @@ struct HERMES_SERVER {
 	mutex cmutx;
 	thread *loop_thread;
 	int port;
+        bool use_tcp;
 
 	volatile bool connected;
 	volatile uint8_t status;

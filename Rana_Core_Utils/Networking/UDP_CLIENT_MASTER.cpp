@@ -25,6 +25,17 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 		return false;
 	}
 
+        input_var = 1000000;
+	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
+				   sizeof(uint32_t)) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: recvbuf");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
         #else
 
         client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -37,17 +48,6 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 	}
 
         #endif
-
-	input_var = 1000000;
-	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
-				   sizeof(uint32_t)) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: recvbuf");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
 
 	input_var = 1;
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,

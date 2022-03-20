@@ -59,6 +59,7 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 		}
 	}
 	hs->connected = false;
+        hs->use_tcp = false;
 
 	if (hs->loop_thread != NULL) {
 		hs->loop_thread->join();
@@ -130,6 +131,12 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	hs->connections[index].type = type;
 	hs->connections[index].active = false; //probably redundant
 
+        if (hs->use_tcp) {
+                type.type = NETWORK_TYPE_TCP;
+        }
+
+        connect:
+
 	Initialize_SERVER(&hs->connections[index].server, hs->ctx,
 		((type.type == NETWORK_TYPE_TCP) ? &hs->tcp_master :
 		&hs->udp_master), type.id);
@@ -139,7 +146,21 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 		hs->connections[index].active = true;
 	} else {
 		Delete_SERVER(&hs->connections[index].server);
-	}
+
+                /*
+                //idk maybe UDP crapped out, try again with TCP
+                if (type.type == NETWORK_TYPE_UDP) {
+                        type.type = NETWORK_TYPE_TCP;
+                        hs->use_tcp = true;
+
+                        LOG_WARN_CTX((hs->ctx)) {
+                                ADD_STR_LOG("message", "UDP failed... reverting to TCP. Performance will be degraded");
+                        }
+
+                        goto connect;
+                }
+                */
+ 	}
 
 	hs->cmutx.unlock();
 
@@ -254,6 +275,7 @@ bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx, int port) {
 	hs->ctx = ctx;
 	hs->loop_thread = NULL;
 	hs->port = port;
+        hs->use_tcp = false;
 
 	if (!Initialize_SERVER_MASTER(&hs->tcp_master, hs->ctx, NETWORK_TYPE_TCP,
 		port)) {

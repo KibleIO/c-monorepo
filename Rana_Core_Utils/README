@@ -13,11 +13,12 @@ git submodule foreach git pull origin master
 
 mac osx:
 
+https://brew.sh/
+
 https://stackoverflow.com/questions/64951024/how-can-i-run-two-isolated-installations-of-homebrew
 
 https://github.com/json-c/json-c
 https://grpc.io/docs/languages/cpp/quickstart/
-brew install cmake
 brew install rename
 brew install ffmpeg
 

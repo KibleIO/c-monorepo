@@ -26,6 +26,7 @@ struct HERMES_CLIENT {
 	CLIENT client;
 	mutex cmutx;
 	int port;
+        bool use_tcp;
 
 	char ip[MAX_NAME_SIZE];
 	FPS_LIMITER fps_limiter;
