@@ -5,6 +5,7 @@
 #include "ELASTIC_SEARCH_CLIENT.h"
 #include "UTILS.h"
 #include "SCREEN_DIM.h"
+#include "ASSERT.h"
 
 //oh god... check here for explanation: https://stackoverflow.com/questions/57008541/how-to-avoid-a-globally-defined-c-macro-of-status-from-xlib-h
 
@@ -33,8 +34,8 @@ typedef int Status;
 		ADD_INT_LOG("line", __LINE__),\
 		ADD_STR_LOG("function", __func__),\
 		ADD_STR_LOG("system", (ctx)->core_system),\
-		ADD_STR_LOG("uuid", (ctx)->uuid),\
-		ADD_STR_LOG("mac_address", (ctx)->mac_address),\
+		ADD_STR_LOG("trace_uuid", (ctx)->trace_uuid),\
+                ADD_STR_LOG("uuid", (ctx)->uuid.c_str()),\
 		ADD_STR_LOG("type", level))
 #define FINISH_LOG(ctx) (strcpy(loop.str,\
 		json_object_to_json_string_ext(loop.json_obj,\
@@ -52,19 +53,27 @@ typedef int Status;
 
 #define RESOURCE_DIR_MAX_LEN 2048
 
+#define INFO_FILE_NAME "info"
+#define CONTAINER_ID_LOC "/etc/hostname"
+//in seconds
+#define DEFAULT_GRPC_TIMEOUT 2
+
 struct CONTEXT {
-	char mac_address[MAC_ADDRESS_STR_LEN];
-	char uuid[UUID_STR_SIZE];
+	char trace_uuid[UUID_STR_SIZE];
+        string uuid;
 	char core_system[CORE_SYSTEM_STR_SIZE];
         char system_resource_dir[RESOURCE_DIR_MAX_LEN];
 	ELASTIC_SEARCH_CLIENT client;
 	SCREEN_DIM screen_dim;
+        bool connection_initialized;
+        project::Connection connection;
 };
 
 bool Initialize_CONTEXT(CONTEXT*, char*);
 SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT*);
 void Set_Screen_Dim_CONTEXT(CONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_CONTEXT(CONTEXT*, char*);
+bool Initialize_Connection_CONTEXT(CONTEXT*, string);
 void Log_CONTEXT(CONTEXT*, char*);
 void Delete_CONTEXT(CONTEXT*);
 
