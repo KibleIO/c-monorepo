@@ -14,6 +14,8 @@
 #else
 
 #include <net/if.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
 
 #endif
 
