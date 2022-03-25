@@ -155,7 +155,7 @@ error_lbl:
 void get_current_time(char *str) {
 	struct timespec ts;
 
-	#ifdef linux
+	#ifdef __linux__
 
 	timespec_get(&ts, TIME_UTC);
 
@@ -233,7 +233,7 @@ bool Is_Connected_To_Internet() {
 }
 
 int Get_Number_Of_Cores() {
-        #ifdef linux
+        #ifdef __linux__
 	
         return get_nprocs();
 

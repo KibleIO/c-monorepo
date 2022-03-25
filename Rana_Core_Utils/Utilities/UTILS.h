@@ -6,7 +6,7 @@
 #include <fstream>
 #include <time.h>
 
-#ifdef linux
+#ifdef __linux__
 
 #include <linux/if.h>
 #include <sys/sysinfo.h>

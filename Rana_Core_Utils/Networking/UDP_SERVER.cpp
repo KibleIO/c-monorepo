@@ -111,16 +111,14 @@ bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
 	UDP_PACKET *temp_buff;
 	int attempts = RECV_ATTEMPTS;
 
-	if (server->id < 0) return false;
-
-	while (--attempts >= 0 &&
+	while (server->id >= 0 && --attempts >= 0 &&
 		server->udp_master->recv_queues[server->id]->empty()) {
 		//OKAY THERE IS A MASSIVE ERROR HERE
 		//please eventually also take into account usec pls
 		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
 
-	if (attempts < 0) {
+	if (attempts < 0 || server->id < 0) {
 		return false;
 	}
 
@@ -137,15 +135,13 @@ int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
 	UDP_PACKET *temp_buff;
 	int attempts = RECV_ATTEMPTS;
 
-	if (server->id < 0) return false;
-
-	while (--attempts >= 0 &&
+	while (server->id >= 0 && --attempts >= 0 &&
 		server->udp_master->recv_queues[server->id]->empty()) {
 
 		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
 
-	if (attempts < 0) {
+	if (attempts < 0 || server->id < 0) {
 		return false;
 	}
 
@@ -159,21 +155,24 @@ int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
 }
 
 void Delete_UDP_SERVER(UDP_SERVER *server) {
-	if (server->id >= 0) {
-		while (!server->udp_master->recv_queues[server->id]->empty()) {
-			server->udp_master->recv_pool->push(
-				server->udp_master->recv_queues[server->id]->
-				pop());
-		}
+        int temp_id = server->id;
 
-		server->id = -1;
+        server->id = -1;
 
-		if (server->udp_master->recv_thread != NULL) {
+	if (temp_id >= 0) {
+                if (server->udp_master->recv_thread != NULL) {
 			server->udp_master->running = false;
 			server->udp_master->recv_thread->join();
 			delete server->udp_master->recv_thread;
 			server->udp_master->recv_thread = NULL;
 		}
+
+		while (!server->udp_master->recv_queues[temp_id]->empty()) {
+                        server->udp_master->recv_pool->push(
+				server->udp_master->recv_queues[temp_id]->
+				pop());
+		}
+
 		server->udp_master->accepted = false;
 	}
 
