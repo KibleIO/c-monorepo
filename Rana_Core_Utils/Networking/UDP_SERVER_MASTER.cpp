@@ -126,7 +126,7 @@ void Recv_Loop_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 			(sockaddr*)&client_address,
 			(socklen_t*)&client_address_size);
 
-		if (temp_buff->size > 0) {
+		if (temp_buff->size > 1 && temp_buff->buffer[0] >= 0 && temp_buff->buffer[0] < MAX_UDP_CONNECTIONS) {
 			server->recv_queues[temp_buff->buffer[0]]->push(
 				temp_buff);
 

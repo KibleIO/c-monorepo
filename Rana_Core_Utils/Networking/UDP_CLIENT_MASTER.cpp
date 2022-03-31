@@ -111,22 +111,20 @@ void Recv_Loop_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
 	sockaddr_in	server_address;
 	int32_t server_address_size = sizeof(server_address);
 	UDP_PACKET *temp_buff = NULL;
-
 	while (client->running) {
 		if (temp_buff == NULL) {
 			if (client->recv_pool->empty()) {
 				//what? should never happen
+				//cout << "uhhh is this being triggered?" << endl;
 				continue;
 			}
 			temp_buff = client->recv_pool->pop();
 		}
-
 		temp_buff->size = recvfrom(client->sockfd, temp_buff->buffer,
 			ARBITRARILY_LARGE_PACKET, 0,
 			(sockaddr*)&server_address,
 			(socklen_t*)&server_address_size);
-
-		if (temp_buff->size > 0) {
+		if (temp_buff->size > 1 && temp_buff->buffer[0] >= 0 && temp_buff->buffer[0] < MAX_UDP_CONNECTIONS) {
 			client->recv_queues[temp_buff->buffer[0]]->push(
 				temp_buff);
 

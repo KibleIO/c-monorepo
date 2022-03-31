@@ -142,7 +142,7 @@ int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
 	}
 
 	if (attempts < 0 || server->id < 0) {
-		return false;
+		return 0;
 	}
 
 	temp_buff = server->udp_master->recv_queues[server->id]->pop();

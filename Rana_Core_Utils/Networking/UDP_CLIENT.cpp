@@ -146,7 +146,7 @@ int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT *client, char *buffer) {
 	}
 
 	if (attempts < 0) {
-		return false;
+		return 0;
 	}
 
 	temp_buff = client->udp_master->recv_queues[client->id]->pop();
