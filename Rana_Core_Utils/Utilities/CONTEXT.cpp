@@ -40,8 +40,14 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                         project::Rana rana;
                         project::Themis themis;
                         project::RanaUUID ranaID;
+			project::CreateInstanceRequest createRequest;
+			project::CreateInstanceResponse createResponse;
+			project::Email email;
+			bool dont_create_rana;
 
                         ranaID.mutable_uuid()->set_value(ctx->uuid);
+                        email.set_value(email_);
+			createRequest.mutable_email()->set_value(email_);
 
                         {
                                 grpc::Status status;
@@ -51,10 +57,59 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                                 context.set_deadline(deadline);
 
                                 status = stub->GetRana(&context, ranaID, &rana);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up rana UUID.",
-                                ctx);
+
+				//if we couldn't search for rana then create it
+				dont_create_rana = status.ok();
                         }
+
+			if (!dont_create_rana) {
+				ASSERT_E_R((email_.find(string("@")) != std::string::npos),
+					"Email address is invalid.",
+					ctx);
+				
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->SearchRana(&context, email, &rana);
+
+					//Okay so what happened? The UUID om file is missing, but the email is legit
+					if (status.ok()) {
+						goto normal_flow;
+					}
+				}
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->CreateInstance(&context, createRequest, &createResponse);
+					ASSERT_E_R(status.ok(),
+					"Could not create instance.",
+					ctx);
+				}
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->GetRana(&context, createResponse.ranaid(), &rana);
+					ASSERT_E_R(status.ok(),
+					"Could not get Rana.",
+					ctx);
+				}
+			}
+
+			normal_flow:
 
                         {
                                 grpc::Status status;
@@ -82,7 +137,16 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                                 ctx);
                         }
 
+			ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+                        ASSERT_E_R(output,
+                                "Could not open info location.",
+                                ctx);
+                        output << rana.ranaid().uuid().value() << endl;
+                        output.close();
+
                         ctx->connection_initialized = true;
+
+                        ctx->uuid = rana.ranaid().uuid().value();
 
                         return true;
                 } else {
@@ -111,6 +175,10 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                         }
 
 			if (!dont_create_rana) {
+				ASSERT_E_R((email_.find(string("@")) != std::string::npos),
+					"Email address is invalid.",
+					ctx);
+
 				{
 					grpc::Status status;
 					grpc::ClientContext context;
@@ -163,7 +231,6 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
 				"Could not look up connection UUID.",
 				ctx);
 			}
-			
 
                         ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
                         ASSERT_E_R(output,
