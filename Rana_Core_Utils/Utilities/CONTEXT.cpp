@@ -90,8 +90,12 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                         project::Themis themis;
                         project::RanaUUID ranaID;
                         project::Email email;
+			project::CreateInstanceRequest createRequest;
+			project::CreateInstanceResponse createResponse;
+			bool dont_create_rana;
 
                         email.set_value(email_);
+			createRequest.mutable_email()->set_value(email_);
 
                         {
                                 grpc::Status status;
@@ -101,36 +105,65 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
                                 context.set_deadline(deadline);
 
                                 status = stub->SearchRana(&context, email, &rana);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up rana UUID.",
-                                ctx);
+
+				//if we couldn't search for rana then create it
+				dont_create_rana = status.ok();
                         }
 
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
+			if (!dont_create_rana) {
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
 
-                                status = stub->GetThemis(&context, rana.themisid(), &themis);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up themis UUID.",
-                                ctx);
-                        }
+					status = stub->CreateInstance(&context, createRequest, &createResponse);
+					ASSERT_E_R(status.ok(),
+					"Could not create instance.",
+					ctx);
+				}
 
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
 
-                                status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up connection UUID.",
-                                ctx);
-                        }
+					status = stub->GetRana(&context, createResponse.ranaid(), &rana);
+					ASSERT_E_R(status.ok(),
+					"Could not get Rana.",
+					ctx);
+				}
+			}
+
+			{
+				grpc::Status status;
+				grpc::ClientContext context;
+				chrono::system_clock::time_point deadline =
+				chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+				context.set_deadline(deadline);
+
+				status = stub->GetThemis(&context, rana.themisid(), &themis);
+				ASSERT_E_R(status.ok(),
+				"Could not look up themis UUID.",
+				ctx);
+			}
+
+			{
+				grpc::Status status;
+				grpc::ClientContext context;
+				chrono::system_clock::time_point deadline =
+				chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+				context.set_deadline(deadline);
+
+				status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
+				ASSERT_E_R(status.ok(),
+				"Could not look up connection UUID.",
+				ctx);
+			}
+			
 
                         ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
                         ASSERT_E_R(output,
