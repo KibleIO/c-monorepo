@@ -16,8 +16,8 @@ bool Initialize_CONTEXT(CONTEXT *ctx, char *core_system) {
 	return true;
 }
 
-//email is optional for Themis
-bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
+//email and uuid are optional for Themis
+bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
         std::unique_ptr<project::GAIA::Stub> stub;
 
         stub = project::GAIA::NewStub(grpc::CreateChannel("api.kible.io:50052",
@@ -76,8 +76,13 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
 
 					status = stub->SearchRana(&context, email, &rana);
 
-					//Okay so what happened? The UUID om file is missing, but the email is legit
+					//Okay so what happened? The UUID on
+					//file is missing, but the email is
+					//legit. Update the UUID to what is
+					//passed into this function to check to
+					//see if they know their UUID
 					if (status.ok()) {
+						ranaID.mutable_uuid()->set_value(uuid_);
 						goto normal_flow;
 					}
 				}
@@ -107,9 +112,26 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
 					"Could not get Rana.",
 					ctx);
 				}
+				
+				ranaID.mutable_uuid()->set_value(createResponse.ranaid().uuid().value());
 			}
 
 			normal_flow:
+
+			//yea this is sorta redundant, but required if the email
+			//is legit, but the UUID on file isn't
+			{
+                                grpc::Status status;
+                                grpc::ClientContext context;
+                                chrono::system_clock::time_point deadline =
+                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+                                context.set_deadline(deadline);
+
+                                status = stub->GetRana(&context, ranaID, &rana);
+				ASSERT_E_R(status.ok(),
+                                "Could not validate rana UUID.",
+                                ctx);
+                        }
 
                         {
                                 grpc::Status status;
@@ -160,6 +182,7 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
 
                         email.set_value(email_);
 			createRequest.mutable_email()->set_value(email_);
+			ranaID.mutable_uuid()->set_value(uuid_);
 
                         {
                                 grpc::Status status;
@@ -203,8 +226,25 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_) {
 					ASSERT_E_R(status.ok(),
 					"Could not get Rana.",
 					ctx);
+
+					ranaID.mutable_uuid()->set_value(rana.ranaid().uuid().value());
 				}
 			}
+
+			//yea this is sorta redundant, but required if the email
+			//is legit, but the UUID on file isn't
+			{
+                                grpc::Status status;
+                                grpc::ClientContext context;
+                                chrono::system_clock::time_point deadline =
+                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+                                context.set_deadline(deadline);
+
+                                status = stub->GetRana(&context, ranaID, &rana);
+				ASSERT_E_R(status.ok(),
+                                "Could not validate rana UUID.",
+                                ctx);
+                        }
 
 			{
 				grpc::Status status;
