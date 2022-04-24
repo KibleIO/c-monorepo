@@ -248,6 +248,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	Initialize_SERVER(&hs->server, hs->ctx, &hs->tcp_master,
 		HERMES_SERVER_T.id);
 	Set_Name_SERVER(&hs->server, "hermes server");
+	Set_Recv_Timeout_SERVER(&hs->server, HERMES_CORE_TIMEOUT, 0);
 
 	if (!Accept_SERVER(&hs->server)) {
 		Delete_SERVER(&hs->server);

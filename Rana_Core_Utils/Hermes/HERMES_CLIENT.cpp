@@ -150,6 +150,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 		Initialize_CLIENT(&hc->client, hc->ctx, &hc->tcp_master,
 			HERMES_CLIENT_T.id);
 		Set_Name_CLIENT(&hc->client, "hermes client");
+		Set_Recv_Timeout_CLIENT(&hc->client, HERMES_CORE_TIMEOUT, 0);
 
 		if (Connect_CLIENT(&hc->client)) {
 			break;
