@@ -74,6 +74,7 @@ SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT*);
 void Set_Screen_Dim_CONTEXT(CONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_CONTEXT(CONTEXT*, char*);
 bool Initialize_Connection_CONTEXT(CONTEXT*, string, string);
+bool Check_For_Update_CONTEXT(CONTEXT*, char*);
 void Log_CONTEXT(CONTEXT*, char*);
 void Delete_CONTEXT(CONTEXT*);
 

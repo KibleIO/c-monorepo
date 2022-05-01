@@ -390,6 +390,33 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
         }
 }
 
+bool Check_For_Update_CONTEXT(CONTEXT *ctx, char *verion) {
+	std::unique_ptr<project::GAIA::Stub> stub;
+
+        stub = project::GAIA::NewStub(grpc::CreateChannel("api.kible.io:50052",
+		grpc::InsecureChannelCredentials()));
+
+	project::GetVersionStoreRequest request;
+	project::GetVersionStoreResponse response;
+
+	request.mutable_name()->set_value(string(ctx->core_system));
+
+	{
+		grpc::Status status;
+		grpc::ClientContext context;
+		chrono::system_clock::time_point deadline =
+		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+		context.set_deadline(deadline);
+
+		status = stub->GetVersionStore(&context, request, &response);
+		ASSERT_E_R(status.ok(),
+		"Could not find version store.",
+		ctx);
+	}
+
+	return strcmp(response.versionstore().version().value().c_str(), verion) != 0;
+}
+
 SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT *ctx) {
 	return ctx->screen_dim;
 }
