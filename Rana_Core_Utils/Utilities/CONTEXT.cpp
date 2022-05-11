@@ -20,7 +20,7 @@ bool Initialize_CONTEXT(CONTEXT *ctx, char *core_system) {
 bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
         std::unique_ptr<project::GAIA::Stub> stub;
 
-        stub = project::GAIA::NewStub(grpc::CreateChannel("api.kible.io:50052",
+        stub = project::GAIA::NewStub(grpc::CreateChannel("45.57.227.210:50052",
 		grpc::InsecureChannelCredentials()));
 
         ASSERT_E_R(strcmp(ctx->system_resource_dir, "ERROR") != 0,
@@ -393,7 +393,7 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
 bool Check_For_Update_CONTEXT(CONTEXT *ctx, char *verion) {
 	std::unique_ptr<project::GAIA::Stub> stub;
 
-        stub = project::GAIA::NewStub(grpc::CreateChannel("api.kible.io:50052",
+        stub = project::GAIA::NewStub(grpc::CreateChannel("45.57.227.210:50052",
 		grpc::InsecureChannelCredentials()));
 
 	project::GetVersionStoreRequest request;
