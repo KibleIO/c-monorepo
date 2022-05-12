@@ -118,8 +118,6 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
 
 			normal_flow:
 
-			//yea this is sorta redundant, but required if the email
-			//is legit, but the UUID on file isn't
 			{
                                 grpc::Status status;
                                 grpc::ClientContext context;
@@ -127,7 +125,7 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
                                 chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
                                 context.set_deadline(deadline);
 
-                                status = stub->GetRana(&context, ranaID, &rana);
+                                status = stub->LoginRana(&context, ranaID, &rana);
 				ASSERT_E_R(status.ok(),
                                 "Could not validate rana UUID.",
                                 ctx);
@@ -231,8 +229,6 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
 				}
 			}
 
-			//yea this is sorta redundant, but required if the email
-			//is legit, but the UUID on file isn't
 			{
                                 grpc::Status status;
                                 grpc::ClientContext context;
@@ -240,7 +236,7 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
                                 chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
                                 context.set_deadline(deadline);
 
-                                status = stub->GetRana(&context, ranaID, &rana);
+                                status = stub->LoginRana(&context, ranaID, &rana);
 				ASSERT_E_R(status.ok(),
                                 "Could not validate rana UUID.",
                                 ctx);
