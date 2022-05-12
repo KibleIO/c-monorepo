@@ -145,10 +145,12 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 		hc->port, hc->ip)) {
 		return false;
 	}
+	/*
 	if (!Initialize_CLIENT_MASTER(&hc->udp_master, hc->ctx, NETWORK_TYPE_UDP,
 		hc->port, hc->ip)) {
 		return false;
 	}
+	*/
 
 	while (--attempts >= 0) {
 		Start_FPS_LIMITER(&hc->fps_limiter);
@@ -228,7 +230,7 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	}
 
 	Delete_CLIENT_MASTER(&hc->tcp_master);
-	Delete_CLIENT_MASTER(&hc->udp_master);
+	//Delete_CLIENT_MASTER(&hc->udp_master);
 
 	hc->connected = false;
         hc->use_tcp = false;

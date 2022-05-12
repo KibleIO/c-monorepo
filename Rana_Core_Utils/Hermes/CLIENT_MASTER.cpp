@@ -72,8 +72,10 @@ void Delete_CLIENT_MASTER(CLIENT_MASTER *client) {
 	switch(client->type) {
 		case NETWORK_TYPE_TCP:
 			Delete_TCP_CLIENT_MASTER(&client->tcp_client_master);
+			return;
 		case NETWORK_TYPE_UDP:
 			Delete_UDP_CLIENT_MASTER(&client->udp_client_master);
+			return;
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
