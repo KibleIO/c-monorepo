@@ -11,14 +11,20 @@
 #include <linux/if.h>
 #include <sys/sysinfo.h>
 
-#endif
-
-#ifdef _WIN64
+#elif _WIN64
 
 #include <Winsock2.h>
 #include <chrono>
 
-#else
+#elif __APPLE__
+
+#include <net/if.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
+
+#endif
+
+#ifndef _WIN64
 
 #include <uuid/uuid.h>
 #include <netdb.h>
