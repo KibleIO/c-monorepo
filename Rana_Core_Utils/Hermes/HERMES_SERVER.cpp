@@ -58,6 +58,10 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 			hs->connections[i].active = false;
 		}
 	}
+
+	Delete_SERVER_MASTER(&hs->tcp_master);
+	//Delete_SERVER_MASTER(&hs->udp_master);
+
 	hs->connected = false;
         hs->use_tcp = false;
 
@@ -70,9 +74,6 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 
 void Delete_HERMES_SERVER(HERMES_SERVER* hs) {
 	Disconnect_HERMES_SERVER(hs);
-
-	Delete_SERVER_MASTER(&hs->tcp_master);
-	Delete_SERVER_MASTER(&hs->udp_master);
 }
 
 void Clean_Exit_HERMES_SERVER(HERMES_SERVER* hs) {
@@ -245,6 +246,17 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		hs->connections[i].active = false;
 	}
 
+	if (!Initialize_SERVER_MASTER(&hs->tcp_master, hs->ctx, NETWORK_TYPE_TCP,
+		hs->port)) {
+		return false;
+	}
+	/* god help us all... enable this for UDP
+	if (!Initialize_SERVER_MASTER(&hs->udp_master, hs->ctx, NETWORK_TYPE_UDP,
+		hs->port)) {
+		return false;
+	}
+	*/
+
 	Initialize_SERVER(&hs->server, hs->ctx, &hs->tcp_master,
 		HERMES_SERVER_T.id);
 	Set_Name_SERVER(&hs->server, "hermes server");
@@ -277,15 +289,7 @@ bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, KCONTEXT *ctx, int port) {
 	hs->loop_thread = NULL;
 	hs->port = port;
         hs->use_tcp = false;
-
-	if (!Initialize_SERVER_MASTER(&hs->tcp_master, hs->ctx, NETWORK_TYPE_TCP,
-		port)) {
-		return false;
-	}
-	if (!Initialize_SERVER_MASTER(&hs->udp_master, hs->ctx, NETWORK_TYPE_UDP,
-		port)) {
-		return false;
-	}
+	hs->port = port;
 
 	return true;
 }

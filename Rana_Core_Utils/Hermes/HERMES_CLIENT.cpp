@@ -43,9 +43,6 @@ int Get_Index_HERMES_CLIENT(HERMES_CLIENT* hc) {
 
 void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	Disconnect_HERMES_CLIENT(hc);
-
-	Delete_CLIENT_MASTER(&hc->tcp_master);
-	Delete_CLIENT_MASTER(&hc->udp_master);
 }
 
 bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
@@ -144,6 +141,17 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
+	if (!Initialize_CLIENT_MASTER(&hc->tcp_master, hc->ctx, NETWORK_TYPE_TCP,
+		hc->port, hc->ip)) {
+		return false;
+	}
+	/*
+	if (!Initialize_CLIENT_MASTER(&hc->udp_master, hc->ctx, NETWORK_TYPE_UDP,
+		hc->port, hc->ip)) {
+		return false;
+	}
+	*/
+
 	while (--attempts >= 0) {
 		Start_FPS_LIMITER(&hc->fps_limiter);
 
@@ -220,6 +228,10 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 			hc->connections[i].active = false;
 		}
 	}
+
+	Delete_CLIENT_MASTER(&hc->tcp_master);
+	//Delete_CLIENT_MASTER(&hc->udp_master);
+
 	hc->connected = false;
         hc->use_tcp = false;
 }
@@ -260,6 +272,8 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, KCONTEXT *ctx,
 	hc->connected = false;
 	hc->ctx = ctx;
         hc->use_tcp = false;
+	hc->port = port;
+	strcpy(hc->ip, ip);
 
 	for (int i = 0; i < HERMES_CONNECTIONS_MAX; i++) {
 		hc->connections[i].active = false;
@@ -269,15 +283,6 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, KCONTEXT *ctx,
 		LOG_ERROR_CTX((hc->ctx)) {
 			ADD_STR_LOG("message", "failed to init fps limiter");
 		}
-		return false;
-	}
-
-	if (!Initialize_CLIENT_MASTER(&hc->tcp_master, hc->ctx, NETWORK_TYPE_TCP,
-		port, ip)) {
-		return false;
-	}
-	if (!Initialize_CLIENT_MASTER(&hc->udp_master, hc->ctx, NETWORK_TYPE_UDP,
-		port, ip)) {
 		return false;
 	}
 

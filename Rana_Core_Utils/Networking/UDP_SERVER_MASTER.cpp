@@ -174,6 +174,7 @@ bool Set_High_Priority_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 }
 
 void Delete_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
+	//this logic causes a segfault... buyer beware
 	if (server->sockfd > 0) {
 		shutdown(server->sockfd, 2);
 		close(server->sockfd);

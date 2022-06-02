@@ -118,8 +118,6 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
 
 			normal_flow:
 
-			//yea this is sorta redundant, but required if the email
-			//is legit, but the UUID on file isn't
 			{
                                 grpc::Status status;
                                 grpc::ClientContext context;
@@ -231,8 +229,6 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
 				}
 			}
 
-			//yea this is sorta redundant, but required if the email
-			//is legit, but the UUID on file isn't
 			{
                                 grpc::Status status;
                                 grpc::ClientContext context;
