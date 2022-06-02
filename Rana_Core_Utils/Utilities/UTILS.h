@@ -13,26 +13,30 @@
 
 #else
 
+/*
 #include <net/if.h>
 #include <mach/clock.h>
 #include <mach/mach.h>
+*/
+
+#include <Winsock2.h>
+#include <chrono>
 
 #endif
 
-#include <netdb.h>
+//#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
+//#include <sys/ioctl.h>
+//#include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <uuid/uuid.h>
 #include <algorithm>
 #include <iostream>
 #include <vector>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
+//#include <arpa/inet.h>
+//#include <sys/socket.h>
+//#include <ifaddrs.h>
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6

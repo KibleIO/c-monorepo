@@ -1,6 +1,6 @@
 #include "TCP_CLIENT.h"
 
-bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
+bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	TCP_CLIENT_MASTER *master, int id) {
 
 	int o; //yes! best variable name evar
@@ -9,7 +9,7 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 	client->tcp_master = master;
 	Set_Name_TCP_CLIENT(client, "unknown");
 
-	signal(SIGPIPE, SIG_IGN);
+	//signal(SIGPIPE, SIG_IGN);
 
         #ifdef linux
 
@@ -25,77 +25,18 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 
         #else
 
-        client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (client->cSocket < 0) {
+	WSADATA wsaData;
+	int ret;
+
+	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
 		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client socket failed to open");
+			ADD_STR_LOG("message", "WSAStartup failed");
 			ADD_STR_LOG("name", client->name);
 		}
 		return false;
 	}
 
         #endif
-
-	o = 1;
-	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
-
-	o = 1;
-	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
-
-	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_NODELAY, &o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: nodelay");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
-
-        #ifdef linux
-
-	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_QUICKACK, &o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: quickack");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
-
-        o = 70000000;
-	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVBUF, &o,
-		sizeof o) != 0) {
-
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: rcvbuf");
-			ADD_STR_LOG("name", client->name);
-		}
-		return false;
-	}
-
-        #endif
-
-	if (!Set_Recv_Timeout_TCP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
-		return false;
-	}
 
 	return true;
 }
@@ -108,7 +49,7 @@ bool Set_Recv_Timeout_TCP_CLIENT(TCP_CLIENT *client, int sec, int usec) {
 	struct timeval tv;
 	tv.tv_sec = sec;
 	tv.tv_usec = usec;
-	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVTIMEO, &tv,
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv,
 		sizeof tv) != 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {
@@ -148,6 +89,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	int32_t res;
 	int err;
 
+	/*
 	// Set up server destination
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
@@ -171,6 +113,8 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		}
 	}
 
+	#ifndef _WIN64
+
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
@@ -188,6 +132,13 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
+	#else
+
+	u_long mode = 1;  // 1 to enable non-blocking socket
+	ioctlsocket(client->cSocket, FIONBIO, &mode);
+
+	#endif
+
 	res = connect(client->cSocket, (sockaddr*)&destination,
 		sizeof(destination));
 	err = errno;
@@ -203,8 +154,8 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 
 				lon = sizeof(int);
 				if (getsockopt(client->cSocket, SOL_SOCKET,
-					SO_ERROR, (void*)(&valopt),
-					(unsigned int*)&lon) < 0) {
+					SO_ERROR, (char*)(&valopt),
+					(int*)&lon) < 0) {
 
 					LOG_ERROR_CTX((client->ctx)) {
 						ADD_STR_LOG("message",
@@ -255,6 +206,8 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
+	#ifndef _WIN64
+
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
@@ -262,6 +215,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		}
 		return false;
 	}
+
 	arg &= (~O_NONBLOCK);
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
@@ -271,13 +225,82 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
+	#else
+
+	mode = 0;  // 1 to enable non-blocking socket
+	ioctlsocket(client->cSocket, FIONBIO, &mode);
+
+	#endif
+	*/
+
+	struct addrinfo *result = NULL, *ptr = NULL, hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	int ret = getaddrinfo(client->tcp_master->ip, to_string(client->tcp_master->port).c_str(), &hints, &result);
+	if (ret != 0) {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "getaddrinfo failed");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+	client->cSocket = INVALID_SOCKET;
+
+	// Connect to server
+	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+		client->cSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+		if (client->cSocket == INVALID_SOCKET) {
+			LOG_ERROR_CTX((client->ctx)) {
+				ADD_STR_LOG("message", "socket failed withd");
+				ADD_STR_LOG("name", to_string(WSAGetLastError()).c_str());
+			}
+			return false;
+		}
+
+		ret = connect(client->cSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+
+		if (ret == SOCKET_ERROR) {
+			closesocket(client->cSocket);
+			client->cSocket = INVALID_SOCKET;
+		} else {
+			break;
+		}
+	}
+
+	bool o_b = true;
+	if (setsockopt(
+	client->cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_b, sizeof o_b) != 0 ) {
+		log_err("bad setsockopt: reuseaddr");
+	}
+
+	if (setsockopt(
+	client->cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_b, sizeof o_b) != 0) {
+		log_err("bad setsockopt: nodelay");
+	}
+
+	int o_d = 700000;
+	if (setsockopt(
+	client->cSocket, SOL_SOCKET, SO_RCVBUF, (const char*)&o_d, sizeof o_d) != 0) {
+		log_err("bad setsockopt: rcvbuf");
+	}
+
+	freeaddrinfo(result);
+
+	if (client->cSocket == INVALID_SOCKET) {
+		return false;
+	}
+
 	return true;
 }
 
 bool Send_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {
 	//we are omitting a check here to see if client is connected... don't be
 	//stupid stupid
-	return send(client->cSocket, buffer, size, MSG_WAITALL) == size;
+	return send(client->cSocket, buffer, size, 0) == size;
 }
 
 bool Receive_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {

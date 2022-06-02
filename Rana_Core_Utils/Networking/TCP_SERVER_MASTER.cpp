@@ -1,6 +1,6 @@
 #include "TCP_SERVER_MASTER.h"
 
-bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
+bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	int port) {
 
 	int o;
@@ -10,7 +10,7 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 	server->ctx = ctx;
 	Set_Name_TCP_SERVER_MASTER(server, "master");
 
-	signal(SIGPIPE, SIG_IGN);
+	//signal(SIGPIPE, SIG_IGN);
 
         #ifdef linux
 
@@ -47,6 +47,8 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 		return false;
 	}
 
+	#ifndef _WIN64
+
 	o = 1;
 	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEPORT, (char*)&o,
 		sizeof o) != 0) {
@@ -57,6 +59,8 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#endif
 
 	destination.sin_family = AF_INET;
 	destination.sin_port = htons(port);
@@ -72,6 +76,8 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#ifndef _WIN64
 
 	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
@@ -89,6 +95,13 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#else
+
+	u_long mode = 1;  // 1 to enable non-blocking socket
+	ioctlsocket(server->lSocket, FIONBIO, &mode);
+
+	#endif
 
 	if (listen(server->lSocket, 50) < 0) {
 		LOG_ERROR_CTX((server->ctx)) {

@@ -1,24 +1,24 @@
 #ifndef TCP_CLIENT_H_
 #define TCP_CLIENT_H_
 
-#include <netdb.h>
+//#include <netdb.h>
 #include <signal.h>
 #include <string>
 #include <string.h>
 #include "NETWORK.h"
 #include "TCP_CLIENT_MASTER.h"
 #include "../Utilities/TIMER.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "DNS_WRAPPER.h"
 
 struct TCP_CLIENT {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
-	int cSocket;
+	SOCKET cSocket;
 	TCP_CLIENT_MASTER *tcp_master;
 };
 
-bool Initialize_TCP_CLIENT(TCP_CLIENT*, CONTEXT*, TCP_CLIENT_MASTER*, int);
+bool Initialize_TCP_CLIENT(TCP_CLIENT*, KCONTEXT*, TCP_CLIENT_MASTER*, int);
 void Set_Name_TCP_CLIENT(TCP_CLIENT*, char*);
 bool Set_Recv_Timeout_TCP_CLIENT(TCP_CLIENT*, int, int);
 bool Set_High_Priority_TCP_CLIENT(TCP_CLIENT*);

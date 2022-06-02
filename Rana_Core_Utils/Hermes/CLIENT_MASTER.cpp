@@ -1,6 +1,6 @@
 #include "CLIENT_MASTER.h"
 
-bool Initialize_CLIENT_MASTER(CLIENT_MASTER *client, CONTEXT *ctx, int type,
+bool Initialize_CLIENT_MASTER(CLIENT_MASTER *client, KCONTEXT *ctx, int type,
 	int port, char *ip) {
 
 	client->ctx = ctx;

@@ -3,10 +3,16 @@
 #ifndef NETWORKING_H_
 #define NETWORKING_H_
 
+/*
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
+*/
+
+#include <Winsock2.h>
+
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>

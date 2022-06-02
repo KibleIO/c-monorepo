@@ -1,6 +1,6 @@
 #include "SERVER.h"
 
-bool Initialize_SERVER(SERVER *server, CONTEXT *ctx, SERVER_MASTER *master,
+bool Initialize_SERVER(SERVER *server, KCONTEXT *ctx, SERVER_MASTER *master,
 	int id) {
 
 	server->ctx = ctx;

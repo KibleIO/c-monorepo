@@ -78,10 +78,21 @@ uint8_t file_exists(string file) {
 }
 
 void generate_uuid(char *str) {
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
+	#ifndef _WIN64
 
-    uuid_unparse(binuuid, str);
+	unsigned char binuuid[16];
+	uuid_generate_random(binuuid);
+
+	uuid_unparse(binuuid, str);
+
+	#endif
+
+	UUID uuid;
+    UuidCreate(&uuid);
+    char *str1;
+    UuidToStringA(&uuid, (RPC_CSTR*)&str1);
+    strcpy(str, str1);
+    RpcStringFreeA((RPC_CSTR*)&str1);
 }
 
 void get_mac_address(char *str) {
@@ -152,14 +163,29 @@ error_lbl:
     strcpy(str, "FATAL");
 }
 
+int gettimeofday(struct timeval* tp, struct timezone* tzp) {
+  namespace sc = std::chrono;
+  sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
+  sc::seconds s = sc::duration_cast<sc::seconds>(d);
+  tp->tv_sec = s.count();
+  tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+
+  return 0;
+}
+
 void get_current_time(char *str) {
 	struct timespec ts;
+	struct timeval tp;
 
 	#ifdef __linux__
 
 	timespec_get(&ts, TIME_UTC);
 
-	#else
+	char buff[100];
+	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
+	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
+
+	#elif __APPLE__
 
 	clock_serv_t cclock;
 	mach_timespec_t mts;
@@ -169,11 +195,24 @@ void get_current_time(char *str) {
 	ts.tv_sec = mts.tv_sec;
 	ts.tv_nsec = mts.tv_nsec;
 
-	#endif
-
 	char buff[100];
 	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
 	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
+
+	#elif _WIN64
+	
+	struct timeval tv;
+	time_t nowtime;
+	struct tm *nowtm;
+	char tmbuf[64], buf[64];
+
+	gettimeofday(&tv, NULL);
+	nowtime = tv.tv_sec;
+	nowtm = gmtime(&nowtime);
+	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%dT%H:%M:%S", nowtm);
+	snprintf(str, 64, "%s.%09ldZ", tmbuf, tv.tv_usec);
+ 
+	#endif
 }
 
 void Sleep_Milli(unsigned int milli) {

@@ -34,11 +34,11 @@ struct HERMES_CLIENT {
 
 	CLIENT_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 };
 
 //Run this first on an allocated hc pointer
-bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx, char *ip,
+bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, KCONTEXT *ctx, char *ip,
 	int port);
 //Then this, but not in a thread
 bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE* types);

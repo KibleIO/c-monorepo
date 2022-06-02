@@ -1,6 +1,6 @@
 #include "UDP_SERVER_MASTER.h"
 
-bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
+bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 	int port) {
 
 	uint32_t input_var;
@@ -43,7 +43,7 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
         #endif
 
 	input_var = 1;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,
+	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*) &input_var,
 		sizeof(uint32_t)) == -1) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -52,6 +52,8 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#ifndef _WIN64
 
 	input_var = 1;
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
@@ -64,8 +66,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, CONTEXT *ctx,
 		return false;
 	}
 
+	#endif
+
 	input_var = 1000000;
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_SNDBUF, &input_var,
+	if (setsockopt(server->sockfd, SOL_SOCKET, SO_SNDBUF, (const char*) &input_var,
 		sizeof(uint32_t)) == -1) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -137,7 +141,7 @@ void Recv_Loop_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 
 bool Set_Recv_Timeout_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, int sec, int usec) {
 	timeval o_to = { sec, usec };
-	if (setsockopt(server->sockfd, SOL_SOCKET, SO_RCVTIMEO, &o_to,
+	if (setsockopt(server->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &o_to,
 		sizeof(timeval)) == -1) {
 
 		LOG_ERROR_CTX((server->ctx)) {

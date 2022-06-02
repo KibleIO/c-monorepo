@@ -1,6 +1,6 @@
 #include "UDP_SERVER.h"
 
-bool Initialize_UDP_SERVER(UDP_SERVER *server, CONTEXT *ctx,
+bool Initialize_UDP_SERVER(UDP_SERVER *server, KCONTEXT *ctx,
 	UDP_SERVER_MASTER *udp_master, int id) {
 
 	server->ctx = ctx;

@@ -1,11 +1,11 @@
-#ifndef _WIN64
+//#ifndef _WIN64
 
 #include "DNS_WRAPPER.h"
 
 uint32_t ip_ret_DNS_WRAPPER;
 std::mutex mutex_DNS_WRAPPER;
 
-void state_cb(void* data, int32_t s, int32_t read, int32_t write) {
+void state_cb(void* data, long long unsigned int s, int32_t read, int32_t write) {
 	(void) data;
 	(void) s;
 	(void) read;
@@ -27,7 +27,7 @@ void callback(void* arg, int32_t status, int32_t timeouts, hostent* host) {
 	}
 }
 
-uint8_t getaddrinfo_k(uint32_t* ip_addr, const char* dns_address,
+uint8_t getaddrinfo_k(long unsigned int* ip_addr, const char* dns_address,
 	uint32_t timeout_val) {
 
 	ares_channel	channel;
@@ -108,4 +108,4 @@ uint8_t getaddrinfo_k(uint32_t* ip_addr, const char* dns_address,
 	return true;
 }
 
-#endif
+//#endif

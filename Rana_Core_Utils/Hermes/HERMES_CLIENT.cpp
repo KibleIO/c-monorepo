@@ -254,7 +254,7 @@ uint8_t Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	return HERMES_STATUS_NORMAL;
 }
 
-bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, CONTEXT *ctx,
+bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, KCONTEXT *ctx,
 	char *ip, int port) {
 
 	hc->connected = false;

@@ -1,6 +1,6 @@
 #include "CLIENT.h"
 
-bool Initialize_CLIENT(CLIENT *client, CONTEXT *ctx, CLIENT_MASTER *master,
+bool Initialize_CLIENT(CLIENT *client, KCONTEXT *ctx, CLIENT_MASTER *master,
 	int id) {
 
 	client->ctx = ctx;

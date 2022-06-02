@@ -5,7 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
-#include <sys/syscall.h>
+//#include <sys/syscall.h>
 #include <unistd.h>
 #include <curl/curl.h>
 #include <cstring>

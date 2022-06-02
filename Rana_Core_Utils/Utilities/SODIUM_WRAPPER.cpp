@@ -1,6 +1,6 @@
 #include "SODIUM_WRAPPER.h"
 
-bool Initialize_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium, CONTEXT *ctx, int type) {
+bool Initialize_SODIUM_WRAPPER(SODIUM_WRAPPER *sodium, KCONTEXT *ctx, int type) {
 	char buffer[LOCAL_KEY_SIZE];
 	char *temp_buffer_ptr;
 

@@ -5,7 +5,7 @@
 #define SODIUM_STATIC
 #include <sodium.h>
 #include <iostream>
-#include <Utilities/CONTEXT.h>
+#include <Utilities/KCONTEXT.h>
 #include <Utilities/UTILS.h>
 
 using namespace std;
@@ -27,7 +27,7 @@ https://pastebin.com/zpy4g8QW
 */
 
 struct SODIUM_WRAPPER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	bool initialized;
 	bool partner_ephemeral_pub_key_initialized;
 	bool session_key_generated;
@@ -56,7 +56,7 @@ struct SODIUM_WRAPPER {
 	unsigned char nonce_tx[crypto_secretbox_NONCEBYTES];
 };
 
-bool Initialize_SODIUM_WRAPPER(SODIUM_WRAPPER*, CONTEXT*, int);
+bool Initialize_SODIUM_WRAPPER(SODIUM_WRAPPER*, KCONTEXT*, int);
 bool Check_Partner_Ephemeral_Pub_Key_SODIUM_WRAPPER(SODIUM_WRAPPER*, char*,
 	long long);
 bool Sign_Local_Pub_Key_SODIUM_WRAPPER(SODIUM_WRAPPER*);
