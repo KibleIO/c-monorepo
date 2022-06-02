@@ -73,7 +73,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 
 		lon = sizeof(int);
 		getsockopt(server->tcp_master->lSocket, SOL_SOCKET, SO_ERROR,
-			(char*)(&valopt), (int*)&lon);
+			(char*)(&valopt), (socklen_t*)&lon);
 
 		if (valopt) {
 			LOG_ERROR_CTX((server->ctx)) {
@@ -88,7 +88,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 
 		if ((server->cSocket = accept(server->tcp_master->lSocket,
 			(sockaddr*)&cAddress,
-			(int*)&cSize)) < 0) {
+			(socklen_t*)&cSize)) < 0) {
 
 			LOG_ERROR_CTX((server->ctx)) {
 				ADD_STR_LOG("message",
