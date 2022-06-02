@@ -14,7 +14,15 @@
 struct TCP_CLIENT {
 	KCONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
+	#ifdef _WIN64
+
 	SOCKET cSocket;
+
+	#else
+
+	int cSocket;
+
+	#endif
 	TCP_CLIENT_MASTER *tcp_master;
 };
 
