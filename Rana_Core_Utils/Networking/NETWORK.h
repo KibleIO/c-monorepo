@@ -3,15 +3,14 @@
 #ifndef NETWORKING_H_
 #define NETWORKING_H_
 
-/*
+#ifdef _WIN64
+#include <Winsock2.h>
+#else
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
-*/
-
-#include <Winsock2.h>
-
+#endif
 
 #include <sys/types.h>
 #include <unistd.h>

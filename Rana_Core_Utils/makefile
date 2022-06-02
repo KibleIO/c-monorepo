@@ -6,10 +6,20 @@ USER=`whoami`
 
 #-mmacosx-version-min=10.13
 
-CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I$(HOME)/github/Rana_Core_Utils/Rana_Core_Utils -I$(HOME)/.local/include -I/mingw64/include -I/usr/include -std=c++11 \
+ifeq ($(OS),Windows_NT)
+	CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I$(HOME)/github/Rana_Core_Utils/Rana_Core_Utils -I$(HOME)/.local/include -I/mingw64/include -I/usr/include -std=c++11 \
 	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable
 
-CXXFLAGS = -L/mingw64/lib -lgrpc++ -lgrpc -laddress_sorting -lre2 -lupb -lcares -lz -lgpr -lssl -lcrypto -labsl_raw_hash_set -labsl_hashtablez_sampler -labsl_hash -labsl_city -labsl_low_level_hash -labsl_random_distributions -labsl_random_seed_sequences -labsl_random_internal_pool_urbg -labsl_random_internal_randen -labsl_random_internal_randen_hwaes -labsl_random_internal_randen_hwaes_impl -labsl_random_internal_randen_slow -labsl_random_internal_platform -lbcrypt -labsl_random_internal_seed_material -labsl_random_seed_gen_exception -labsl_statusor -labsl_status -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_exponential_biased -labsl_cordz_handle -labsl_bad_optional_access -labsl_str_format_internal -labsl_synchronization -labsl_graphcycles_internal -labsl_stacktrace -ldbghelp -labsl_symbolize -labsl_debugging_internal -labsl_demangle_internal -labsl_malloc_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -ladvapi32 -labsl_base -labsl_spinlock_wait -labsl_int128 -labsl_throw_delegate -labsl_time_zone -labsl_bad_variant_access -labsl_raw_logging_internal -labsl_log_severity -lprotobuf -lpthread
+	CXXFLAGS = -L/mingw64/lib -lgrpc++ -lgrpc -laddress_sorting -lre2 -lupb -lcares -lz -lgpr -lssl -lcrypto -labsl_raw_hash_set -labsl_hashtablez_sampler -labsl_hash -labsl_city -labsl_low_level_hash -labsl_random_distributions -labsl_random_seed_sequences -labsl_random_internal_pool_urbg -labsl_random_internal_randen -labsl_random_internal_randen_hwaes -labsl_random_internal_randen_hwaes_impl -labsl_random_internal_randen_slow -labsl_random_internal_platform -lbcrypt -labsl_random_internal_seed_material -labsl_random_seed_gen_exception -labsl_statusor -labsl_status -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_exponential_biased -labsl_cordz_handle -labsl_bad_optional_access -labsl_str_format_internal -labsl_synchronization -labsl_graphcycles_internal -labsl_stacktrace -ldbghelp -labsl_symbolize -labsl_debugging_internal -labsl_demangle_internal -labsl_malloc_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -ladvapi32 -labsl_base -labsl_spinlock_wait -labsl_int128 -labsl_throw_delegate -labsl_time_zone -labsl_bad_variant_access -labsl_raw_logging_internal -labsl_log_severity -lprotobuf -lpthread
+
+else
+	CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I./ -I$(HOME)/.local/include -std=c++11 \
+	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable
+
+	CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/:/usr/local/opt/openssl@3/lib/pkgconfig pkg-config --libs grpc grpc++ protobuf)
+
+endif
+
 
 ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
@@ -43,11 +53,10 @@ mac: $(OBJECTS)
 	$(CC) -dynamiclib -undefined suppress -flat_namespace $(OBJECTS) -o $(EXEC_MAC) $(CXXFLAGS) -framework Cocoa -L/usr/local/Cellar/libsodium/1.0.18_1/lib -L/usr/local/Cellar/ffmpeg/5.0/lib -lsodium -lswscale -lcurl -ljson-c
 
 local: $(OBJECTS)
-	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS) -ljson-c -lsodium -lavcodec -lswscale -lcurl -lws2_32
+	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
 win: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC_WIN) -o $(EXEC_WIN) $(CXXFLAGS) -ljson-c -lsodium -lavcodec -lswscale -lcurl -lws2_32 -lrpcrt4
-
 
 docker-build-proto:
 	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto

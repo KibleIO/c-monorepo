@@ -1,12 +1,15 @@
 #ifndef UDP_SERVER_H
 #define UDP_SERVER_H
 
+#ifndef _WIN64
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-//#include <sys/socket.h>
-//#include <arpa/inet.h>
 #include <unistd.h>
 #include "NETWORK.h"
 #include "../Utilities/KCONTEXT.h"

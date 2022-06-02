@@ -1,11 +1,14 @@
 #ifndef _ELASTIC_SEARCH_CLIENT_H_
 #define _ELASTIC_SEARCH_CLIENT_H_
 
+#ifndef _WIN64
+#include <sys/syscall.h>
+#endif
+
 #include <mutex>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
-//#include <sys/syscall.h>
 #include <unistd.h>
 #include <curl/curl.h>
 #include <cstring>

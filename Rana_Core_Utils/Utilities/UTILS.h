@@ -11,32 +11,33 @@
 #include <linux/if.h>
 #include <sys/sysinfo.h>
 
-#else
+#endif
 
-/*
-#include <net/if.h>
-#include <mach/clock.h>
-#include <mach/mach.h>
-*/
+#ifdef _WIN64
 
 #include <Winsock2.h>
 #include <chrono>
 
+#else
+
+#include <uuid/uuid.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <ifaddrs.h>
+
 #endif
 
-//#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
-//#include <sys/ioctl.h>
-//#include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <algorithm>
 #include <iostream>
 #include <vector>
-//#include <arpa/inet.h>
-//#include <sys/socket.h>
-//#include <ifaddrs.h>
+
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6

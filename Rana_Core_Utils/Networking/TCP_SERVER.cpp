@@ -8,8 +8,6 @@ bool Initialize_TCP_SERVER(TCP_SERVER *server, KCONTEXT *ctx,
 	server->cSocket = NULL;
 	Set_Name_TCP_SERVER(server, "unknown");
 
-	//signal(SIGPIPE, SIG_IGN); //wtf is this
-
 	return true;
 }
 

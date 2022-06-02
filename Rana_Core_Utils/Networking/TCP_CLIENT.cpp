@@ -9,8 +9,6 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	client->tcp_master = master;
 	Set_Name_TCP_CLIENT(client, "unknown");
 
-	//signal(SIGPIPE, SIG_IGN);
-
         #ifdef linux
 
 	//https://stackoverflow.com/questions/38191726/c-how-to-prevent-child-process-binding-port-after-fork-on-linux
@@ -23,7 +21,7 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 		return false;
 	}
 
-        #else
+	#elif _WIN64
 
 	WSADATA wsaData;
 	int ret;
@@ -36,7 +34,83 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 		return false;
 	}
 
+        #else
+
+	client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (client->cSocket < 0) {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Client socket failed to open");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
         #endif
+
+	#ifndef _WIN64
+
+	o = 1;
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+	o = 1;
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_NODELAY, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: nodelay");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+        #ifdef linux
+
+	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_QUICKACK, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: quickack");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+        o = 70000000;
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVBUF, &o,
+		sizeof o) != 0) {
+
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "bad setsockopt: rcvbuf");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+        #endif
+
+	if (!Set_Recv_Timeout_TCP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
+		return false;
+	}
+
+	#endif
 
 	return true;
 }
@@ -89,7 +163,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	int32_t res;
 	int err;
 
-	/*
+	#ifndef _WIN64
 	// Set up server destination
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
@@ -113,8 +187,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		}
 	}
 
-	#ifndef _WIN64
-
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
@@ -132,13 +204,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
-	#else
-
-	u_long mode = 1;  // 1 to enable non-blocking socket
-	ioctlsocket(client->cSocket, FIONBIO, &mode);
-
-	#endif
-
 	res = connect(client->cSocket, (sockaddr*)&destination,
 		sizeof(destination));
 	err = errno;
@@ -154,8 +219,8 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 
 				lon = sizeof(int);
 				if (getsockopt(client->cSocket, SOL_SOCKET,
-					SO_ERROR, (char*)(&valopt),
-					(int*)&lon) < 0) {
+					SO_ERROR, (void*)(&valopt),
+					(unsigned int*)&lon) < 0) {
 
 					LOG_ERROR_CTX((client->ctx)) {
 						ADD_STR_LOG("message",
@@ -206,8 +271,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
-	#ifndef _WIN64
-
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
@@ -215,7 +278,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		}
 		return false;
 	}
-
 	arg &= (~O_NONBLOCK);
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
@@ -226,12 +288,6 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	}
 
 	#else
-
-	mode = 0;  // 1 to enable non-blocking socket
-	ioctlsocket(client->cSocket, FIONBIO, &mode);
-
-	#endif
-	*/
 
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 	ZeroMemory(&hints, sizeof(hints));
@@ -293,6 +349,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	if (client->cSocket == INVALID_SOCKET) {
 		return false;
 	}
+	#endif
 
 	return true;
 }
@@ -300,7 +357,12 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 bool Send_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {
 	//we are omitting a check here to see if client is connected... don't be
 	//stupid stupid
+
+	#ifdef _WIN64
 	return send(client->cSocket, buffer, size, 0) == size;
+	#else
+	return send(client->cSocket, buffer, size, MSG_WAITALL) == size;
+	#endif
 }
 
 bool Receive_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {

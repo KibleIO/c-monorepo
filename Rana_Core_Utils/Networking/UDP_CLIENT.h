@@ -1,11 +1,14 @@
 #ifndef UDP_CLIENT_H
 #define UDP_CLIENT_H
 
-//#include <arpa/inet.h>
-//#include <netdb.h>
+#ifndef _WIN64
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#endif
+
 #include <stdint.h>
 #include <string.h>
-//#include <sys/socket.h>
 #include <sys/types.h>
 #include <string>
 #include "NETWORK.h"

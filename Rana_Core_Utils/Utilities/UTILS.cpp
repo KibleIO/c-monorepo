@@ -85,14 +85,18 @@ void generate_uuid(char *str) {
 
 	uuid_unparse(binuuid, str);
 
-	#endif
+	#else
 
 	UUID uuid;
-    UuidCreate(&uuid);
-    char *str1;
-    UuidToStringA(&uuid, (RPC_CSTR*)&str1);
-    strcpy(str, str1);
-    RpcStringFreeA((RPC_CSTR*)&str1);
+	UuidCreate(&uuid);
+	char *str1;
+	UuidToStringA(&uuid, (RPC_CSTR*)&str1);
+	strcpy(str, str1);
+	RpcStringFreeA((RPC_CSTR*)&str1);
+	
+	#endif
+
+	
 }
 
 void get_mac_address(char *str) {
@@ -163,19 +167,22 @@ error_lbl:
     strcpy(str, "FATAL");
 }
 
-int gettimeofday(struct timeval* tp, struct timezone* tzp) {
-  namespace sc = std::chrono;
-  sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
-  sc::seconds s = sc::duration_cast<sc::seconds>(d);
-  tp->tv_sec = s.count();
-  tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+#ifdef _WIN64
 
-  return 0;
+int gettimeofday(struct timeval* tp, struct timezone* tzp) {
+	namespace sc = std::chrono;
+	sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
+	sc::seconds s = sc::duration_cast<sc::seconds>(d);
+	tp->tv_sec = s.count();
+	tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+
+	return 0;
 }
+
+#endif
 
 void get_current_time(char *str) {
 	struct timespec ts;
-	struct timeval tp;
 
 	#ifdef __linux__
 
