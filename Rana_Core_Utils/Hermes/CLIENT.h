@@ -2,13 +2,13 @@
 #define CLIENT_H_
 
 #include "../Networking/NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "../Networking/TCP_CLIENT.h"
 #include "../Networking/UDP_CLIENT.h"
 #include "CLIENT_MASTER.h"
 
 struct CLIENT {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	int type;
 	CLIENT_MASTER *master;
 	union {
@@ -31,7 +31,7 @@ arent that much slower than switch trees right? Probably... idk maybe we
 redesign this sometime down the line.
 */
 
-bool Initialize_CLIENT(CLIENT*, CONTEXT*, CLIENT_MASTER*, int);
+bool Initialize_CLIENT(CLIENT*, KCONTEXT*, CLIENT_MASTER*, int);
 void Set_Name_CLIENT(CLIENT*, char*);
 bool Set_Recv_Timeout_CLIENT(CLIENT*, int, int);
 bool Set_High_Priority_CLIENT(CLIENT*);

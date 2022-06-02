@@ -1,6 +1,6 @@
 #include "UDP_CLIENT_MASTER.h"
 
-bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
+bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 	int port, char *ip) {
 
 	uint32_t input_var;
@@ -50,7 +50,7 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
         #endif
 
 	input_var = 1;
-	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,
+	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*) &input_var,
 		sizeof input_var) != 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {
@@ -59,6 +59,8 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#ifndef _WIN64
 
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
 		sizeof input_var) != 0) {
@@ -69,6 +71,8 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, CONTEXT *ctx,
 		}
 		return false;
 	}
+
+	#endif
 
 	client->server_address.sin_family = AF_INET;
 	client->server_address.sin_addr.s_addr = INADDR_ANY;
@@ -139,7 +143,7 @@ bool Set_Recv_Timeout_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, int s,
 	timeval tv;
 	tv.tv_sec = s;
 	tv.tv_usec = u;
-	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv,
+	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
 		sizeof(tv)) != 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {

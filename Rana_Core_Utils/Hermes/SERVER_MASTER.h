@@ -2,12 +2,12 @@
 #define SERVER_MASTER_H_
 
 #include "../Networking/NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "../Networking/TCP_SERVER_MASTER.h"
 #include "../Networking/UDP_SERVER_MASTER.h"
 
 struct SERVER_MASTER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	int type;
 	//just tryin to be fancy here, this is totally not needed
 	union {
@@ -16,7 +16,7 @@ struct SERVER_MASTER {
 	};
 };
 
-bool Initialize_SERVER_MASTER(SERVER_MASTER*, CONTEXT*, int, int);
+bool Initialize_SERVER_MASTER(SERVER_MASTER*, KCONTEXT*, int, int);
 void Set_Name_SERVER_MASTER(SERVER_MASTER*, char*);
 bool Set_Recv_Timeout_SERVER_MASTER(SERVER_MASTER*, int, int);
 bool Set_High_Priority_SERVER_MASTER(SERVER_MASTER*);

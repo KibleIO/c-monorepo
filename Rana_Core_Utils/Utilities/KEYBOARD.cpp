@@ -328,6 +328,7 @@ void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64
+/*
 void Handle_Key(int key, int32_t value, bool shift = false) {
 	INPUT ip;
 	DWORD code;
@@ -557,6 +558,7 @@ void Handle_Keyboard_WINAPI(KEYBOARD_EVENT_T* k_event) {
 	}
 	delete k_event;
 }
+*/
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__

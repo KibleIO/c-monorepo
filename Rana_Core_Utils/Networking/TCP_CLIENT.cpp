@@ -1,6 +1,6 @@
 #include "TCP_CLIENT.h"
 
-bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
+bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	TCP_CLIENT_MASTER *master, int id) {
 
 	int o; //yes! best variable name evar
@@ -8,8 +8,6 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 	client->ctx = ctx;
 	client->tcp_master = master;
 	Set_Name_TCP_CLIENT(client, "unknown");
-
-	signal(SIGPIPE, SIG_IGN);
 
         #ifdef linux
 
@@ -23,9 +21,22 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 		return false;
 	}
 
+	#elif _WIN64
+
+	WSADATA wsaData;
+	int ret;
+
+	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "WSAStartup failed");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
         #else
 
-        client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (client->cSocket < 0) {
 		LOG_ERROR_CTX((client->ctx)) {
 			ADD_STR_LOG("message", "Client socket failed to open");
@@ -35,6 +46,8 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 	}
 
         #endif
+
+	#ifndef _WIN64
 
 	o = 1;
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
@@ -97,6 +110,8 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, CONTEXT *ctx,
 		return false;
 	}
 
+	#endif
+
 	return true;
 }
 
@@ -108,7 +123,7 @@ bool Set_Recv_Timeout_TCP_CLIENT(TCP_CLIENT *client, int sec, int usec) {
 	struct timeval tv;
 	tv.tv_sec = sec;
 	tv.tv_usec = usec;
-	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVTIMEO, &tv,
+	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv,
 		sizeof tv) != 0) {
 
 		LOG_ERROR_CTX((client->ctx)) {
@@ -148,6 +163,7 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	int32_t res;
 	int err;
 
+	#ifndef _WIN64
 	// Set up server destination
 	sockaddr_in destination;
 	destination.sin_family = AF_INET;
@@ -271,13 +287,82 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		return false;
 	}
 
+	#else
+
+	struct addrinfo *result = NULL, *ptr = NULL, hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	int ret = getaddrinfo(client->tcp_master->ip, to_string(client->tcp_master->port).c_str(), &hints, &result);
+	if (ret != 0) {
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "getaddrinfo failed");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+	client->cSocket = INVALID_SOCKET;
+
+	// Connect to server
+	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+		client->cSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+		if (client->cSocket == INVALID_SOCKET) {
+			LOG_ERROR_CTX((client->ctx)) {
+				ADD_STR_LOG("message", "socket failed withd");
+				ADD_STR_LOG("name", to_string(WSAGetLastError()).c_str());
+			}
+			return false;
+		}
+
+		ret = connect(client->cSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+
+		if (ret == SOCKET_ERROR) {
+			closesocket(client->cSocket);
+			client->cSocket = INVALID_SOCKET;
+		} else {
+			break;
+		}
+	}
+
+	bool o_b = true;
+	if (setsockopt(
+	client->cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&o_b, sizeof o_b) != 0 ) {
+		log_err("bad setsockopt: reuseaddr");
+	}
+
+	if (setsockopt(
+	client->cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&o_b, sizeof o_b) != 0) {
+		log_err("bad setsockopt: nodelay");
+	}
+
+	int o_d = 700000;
+	if (setsockopt(
+	client->cSocket, SOL_SOCKET, SO_RCVBUF, (const char*)&o_d, sizeof o_d) != 0) {
+		log_err("bad setsockopt: rcvbuf");
+	}
+
+	freeaddrinfo(result);
+
+	if (client->cSocket == INVALID_SOCKET) {
+		return false;
+	}
+	#endif
+
 	return true;
 }
 
 bool Send_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {
 	//we are omitting a check here to see if client is connected... don't be
 	//stupid stupid
+
+	#ifdef _WIN64
+	return send(client->cSocket, buffer, size, 0) == size;
+	#else
 	return send(client->cSocket, buffer, size, MSG_WAITALL) == size;
+	#endif
 }
 
 bool Receive_TCP_CLIENT(TCP_CLIENT *client, char *buffer, int size) {

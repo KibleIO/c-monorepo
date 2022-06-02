@@ -1,5 +1,5 @@
-#ifndef _CONTEXT_H_
-#define _CONTEXT_H_
+#ifndef _KCONTEXT_H_
+#define _KCONTEXT_H_
 
 #include <json-c/json.h>
 #include "ELASTIC_SEARCH_CLIENT.h"
@@ -41,7 +41,7 @@ typedef int Status;
 		json_object_to_json_string_ext(loop.json_obj,\
 		JSON_C_TO_STRING_PLAIN)),\
 		json_object_put(loop.json_obj),\
-		Log_CONTEXT(ctx, loop.str))
+		Log_KCONTEXT(ctx, loop.str))
 #define LOG_CTX(ctx, level)\
 	for (struct {char str[MAX_LOG_LEN]; int _break; json_object *json_obj;}\
 	loop = {"", 1, NULL}, dummy = {"", (SET_UP_LOG(ctx, level), 1), NULL}; \
@@ -58,7 +58,7 @@ typedef int Status;
 //in seconds
 #define DEFAULT_GRPC_TIMEOUT 2
 
-struct CONTEXT {
+struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
         string uuid;
 	char core_system[CORE_SYSTEM_STR_SIZE];
@@ -69,13 +69,13 @@ struct CONTEXT {
         project::Connection connection;
 };
 
-bool Initialize_CONTEXT(CONTEXT*, char*);
-SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT*);
-void Set_Screen_Dim_CONTEXT(CONTEXT*, SCREEN_DIM);
-void Set_System_Resource_Dir_CONTEXT(CONTEXT*, char*);
-bool Initialize_Connection_CONTEXT(CONTEXT*, string, string);
-bool Check_For_Update_CONTEXT(CONTEXT*, char*);
-void Log_CONTEXT(CONTEXT*, char*);
-void Delete_CONTEXT(CONTEXT*);
+bool Initialize_KCONTEXT(KCONTEXT*, char*);
+SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT*);
+void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
+void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);
+bool Initialize_Connection_KCONTEXT(KCONTEXT*, string, string);
+bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
+void Log_KCONTEXT(KCONTEXT*, char*);
+void Delete_KCONTEXT(KCONTEXT*);
 
 #endif

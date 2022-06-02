@@ -1,6 +1,6 @@
 #include "TCP_CLIENT_MASTER.h"
 
-bool Initialize_TCP_CLIENT_MASTER(TCP_CLIENT_MASTER *client, CONTEXT *ctx,
+bool Initialize_TCP_CLIENT_MASTER(TCP_CLIENT_MASTER *client, KCONTEXT *ctx,
 	int port, char *ip) {
 
 	client->port = port;

@@ -1,6 +1,6 @@
 #include "UDP_CLIENT.h"
 
-bool Initialize_UDP_CLIENT(UDP_CLIENT *client, CONTEXT *ctx,
+bool Initialize_UDP_CLIENT(UDP_CLIENT *client, KCONTEXT *ctx,
 	UDP_CLIENT_MASTER *udp_master, int id) {
 
 	client->ctx = ctx;

@@ -34,11 +34,11 @@ struct HERMES_SERVER {
 
 	SERVER_CONNECTION connections[HERMES_CONNECTIONS_MAX];
 
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 };
 
 //Run this first on an allocated hs pointer
-bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, CONTEXT *ctx, int port);
+bool Initialize_HERMES_SERVER(HERMES_SERVER* hs, KCONTEXT *ctx, int port);
 //Then this
 bool Connect_HERMES_SERVER(HERMES_SERVER* hs, HERMES_TYPE* types);
 //Then this to get servers

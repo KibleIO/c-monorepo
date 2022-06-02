@@ -1,6 +1,6 @@
 #include "SERVER_MASTER.h"
 
-bool Initialize_SERVER_MASTER(SERVER_MASTER *server, CONTEXT *ctx, int type,
+bool Initialize_SERVER_MASTER(SERVER_MASTER *server, KCONTEXT *ctx, int type,
 	int port) {
 
 	server->ctx = ctx;

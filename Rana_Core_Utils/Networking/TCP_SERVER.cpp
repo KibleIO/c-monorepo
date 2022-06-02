@@ -1,14 +1,12 @@
 #include "TCP_SERVER.h"
 
-bool Initialize_TCP_SERVER(TCP_SERVER *server, CONTEXT *ctx,
+bool Initialize_TCP_SERVER(TCP_SERVER *server, KCONTEXT *ctx,
 	TCP_SERVER_MASTER *tcp_master, int id) {
 
 	server->ctx = ctx;
 	server->tcp_master = tcp_master;
 	server->cSocket = NULL;
 	Set_Name_TCP_SERVER(server, "unknown");
-
-	signal(SIGPIPE, SIG_IGN); //wtf is this
 
 	return true;
 }
@@ -22,7 +20,7 @@ bool Set_Recv_Timeout_TCP_SERVER(TCP_SERVER *server, int sec, int usec) {
 	tv.tv_sec = sec;
 	tv.tv_usec = usec;
 
-	if (setsockopt(server->cSocket, SOL_SOCKET, SO_RCVTIMEO, &tv,
+	if (setsockopt(server->cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
 		sizeof tv) != 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -75,7 +73,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 
 		lon = sizeof(int);
 		getsockopt(server->tcp_master->lSocket, SOL_SOCKET, SO_ERROR,
-			(void*)(&valopt), (unsigned int*)&lon);
+			(char*)(&valopt), (socklen_t*)&lon);
 
 		if (valopt) {
 			LOG_ERROR_CTX((server->ctx)) {
@@ -90,7 +88,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 
 		if ((server->cSocket = accept(server->tcp_master->lSocket,
 			(sockaddr*)&cAddress,
-			(unsigned int*)&cSize)) < 0) {
+			(socklen_t*)&cSize)) < 0) {
 
 			LOG_ERROR_CTX((server->ctx)) {
 				ADD_STR_LOG("message",
@@ -110,6 +108,8 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		return false;
 	}
 
+	#ifndef _WIN64
+
 	if ((arg = fcntl(server->cSocket, F_GETFL, NULL)) < 0) {
 		LOG_ERROR_CTX((server->ctx)) {
 			ADD_STR_LOG("message", "Failed to accept: Error fcntl(..., F_GETFL)");
@@ -126,8 +126,15 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		return false;
 	}
 
+	#else
+
+	u_long mode = 0;  // 1 to enable non-blocking socket
+	ioctlsocket(server->cSocket, FIONBIO, &mode);
+
+	#endif
+
 	o = 1;
-	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
+	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &o,
 		sizeof o) != 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -136,6 +143,8 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		}
 		return false;
 	}
+
+	#ifndef _WIN64
 
 	o = 1;
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
@@ -148,7 +157,9 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 		return false;
 	}
 
-	if (setsockopt(server->cSocket, IPPROTO_TCP, TCP_NODELAY, &o,
+	#endif
+
+	if (setsockopt(server->cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*) &o,
 		sizeof o) != 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {
@@ -159,7 +170,7 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	}
 
 	o = 70000000;
-	if (setsockopt(server->cSocket, SOL_SOCKET, SO_SNDBUF, &o,
+	if (setsockopt(server->cSocket, SOL_SOCKET, SO_SNDBUF, (const char*) &o,
 		sizeof o) != 0) {
 
 		LOG_ERROR_CTX((server->ctx)) {

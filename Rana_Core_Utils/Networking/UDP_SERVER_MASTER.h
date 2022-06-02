@@ -1,22 +1,25 @@
 #ifndef UDP_SERVER_MASTER_H
 #define UDP_SERVER_MASTER_H
 
+#ifndef _WIN64
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
 #include <thread>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include "NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
 
 using namespace std;
 
 struct UDP_SERVER_MASTER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
 	int32_t	sockfd;
 
@@ -32,7 +35,7 @@ struct UDP_SERVER_MASTER {
 	Queue<UDP_PACKET*> *recv_queues[MAX_UDP_CONNECTIONS];
 };
 
-bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER*, CONTEXT*, int);
+bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER*, KCONTEXT*, int);
 void Set_Name_UDP_SERVER_MASTER(UDP_SERVER_MASTER*, char*);
 bool Set_Recv_Timeout_UDP_SERVER_MASTER(UDP_SERVER_MASTER*, int, int);
 bool Set_High_Priority_UDP_SERVER_MASTER(UDP_SERVER_MASTER*);

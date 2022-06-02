@@ -26,3 +26,7 @@ SWITCH BETWEEM x86 and ARM
 
 arch -x86_64 zsh
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+export PATH=$PATH:/mingw64/bin
+export PATH=$PATH:/usr/local/lib
+export PATH=$PATH:/mingw64/bin/

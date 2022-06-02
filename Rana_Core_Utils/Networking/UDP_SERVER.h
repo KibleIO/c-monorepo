@@ -1,19 +1,22 @@
 #ifndef UDP_SERVER_H
 #define UDP_SERVER_H
 
+#ifndef _WIN64
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include "NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "UDP_SERVER_MASTER.h"
 
 struct UDP_SERVER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
 	char buffer[MAX_UDP_PACKET_SIZE + 1]; //plus 1 for the type
 
@@ -22,7 +25,7 @@ struct UDP_SERVER {
 	volatile int id;
 };
 
-bool Initialize_UDP_SERVER(UDP_SERVER*, CONTEXT*, UDP_SERVER_MASTER*, int);
+bool Initialize_UDP_SERVER(UDP_SERVER*, KCONTEXT*, UDP_SERVER_MASTER*, int);
 void Set_Name_UDP_SERVER(UDP_SERVER*, char*);
 bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER*, int, int);
 bool Set_High_Priority_UDP_SERVER(UDP_SERVER*);

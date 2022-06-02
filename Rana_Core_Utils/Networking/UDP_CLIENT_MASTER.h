@@ -4,7 +4,7 @@
 #include <thread>
 #include "NETWORK.h"
 #include "../Utilities/CONCURRENT_QUEUE.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "DNS_WRAPPER.h"
 
 using namespace std;
@@ -12,7 +12,7 @@ using namespace std;
 struct UDP_CLIENT_MASTER {
 	int32_t sockfd;
 	char name[MAX_NAME_SIZE];
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 
 	volatile bool running;
 	bool connected;
@@ -26,7 +26,7 @@ struct UDP_CLIENT_MASTER {
 	Queue<UDP_PACKET*> *recv_queues[MAX_UDP_CONNECTIONS];
 };
 
-bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER*, CONTEXT*, int, char*);
+bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER*, KCONTEXT*, int, char*);
 void Set_Name_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER*, char*);
 bool Set_Recv_Timeout_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER*, int, int);
 bool Set_High_Priority_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER*);

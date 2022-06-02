@@ -3,16 +3,16 @@
 
 #include <signal.h>
 #include "NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 
 struct TCP_SERVER_MASTER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	char name[MAX_NAME_SIZE];
 
 	int lSocket;
 };
 
-bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER*, CONTEXT*, int);
+bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER*, KCONTEXT*, int);
 void Set_Name_TCP_SERVER_MASTER(TCP_SERVER_MASTER*, char*);
 bool Set_Recv_Timeout_TCP_SERVER_MASTER(TCP_SERVER_MASTER*, int, int);
 bool Set_High_Priority_TCP_SERVER_MASTER(TCP_SERVER_MASTER*);

@@ -3,12 +3,12 @@
 
 #include "SERVER_MASTER.h"
 #include "../Networking/NETWORK.h"
-#include "../Utilities/CONTEXT.h"
+#include "../Utilities/KCONTEXT.h"
 #include "../Networking/TCP_SERVER.h"
 #include "../Networking/UDP_SERVER.h"
 
 struct SERVER {
-	CONTEXT *ctx;
+	KCONTEXT *ctx;
 	int type;
 	SERVER_MASTER *master;
 	//just tryin to be fancy here, this is totally not needed
@@ -18,7 +18,7 @@ struct SERVER {
 	};
 };
 
-bool Initialize_SERVER(SERVER*, CONTEXT*, SERVER_MASTER*, int);
+bool Initialize_SERVER(SERVER*, KCONTEXT*, SERVER_MASTER*, int);
 void Set_Name_SERVER(SERVER*, char*);
 bool Set_Recv_Timeout_SERVER(SERVER*, int, int);
 bool Set_High_Priority_SERVER(SERVER*);

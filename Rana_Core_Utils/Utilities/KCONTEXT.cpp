@@ -1,6 +1,6 @@
-#include "CONTEXT.h"
+#include "KCONTEXT.h"
 
-bool Initialize_CONTEXT(CONTEXT *ctx, char *core_system) {
+bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system) {
         ctx->uuid = "ERROR";
 	generate_uuid(ctx->trace_uuid);
 	strcpy(ctx->core_system, core_system);
@@ -17,7 +17,7 @@ bool Initialize_CONTEXT(CONTEXT *ctx, char *core_system) {
 }
 
 //email and uuid are optional for Themis
-bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
+bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
         std::unique_ptr<project::GAIA::Stub> stub;
 
         stub = project::GAIA::NewStub(grpc::CreateChannel("45.57.227.210:50052",
@@ -386,7 +386,7 @@ bool Initialize_Connection_CONTEXT(CONTEXT *ctx, string email_, string uuid_) {
         }
 }
 
-bool Check_For_Update_CONTEXT(CONTEXT *ctx, char *verion) {
+bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	std::unique_ptr<project::GAIA::Stub> stub;
 
         stub = project::GAIA::NewStub(grpc::CreateChannel("45.57.227.210:50052",
@@ -413,22 +413,22 @@ bool Check_For_Update_CONTEXT(CONTEXT *ctx, char *verion) {
 	return strcmp(response.versionstore().version().value().c_str(), verion) != 0;
 }
 
-SCREEN_DIM Get_Screen_Dim_CONTEXT(CONTEXT *ctx) {
+SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
 	return ctx->screen_dim;
 }
 
-void Set_Screen_Dim_CONTEXT(CONTEXT *ctx, SCREEN_DIM screen_dim) {
+void Set_Screen_Dim_KCONTEXT(KCONTEXT *ctx, SCREEN_DIM screen_dim) {
 	ctx->screen_dim = screen_dim;
 }
 
-void Set_System_Resource_Dir_CONTEXT(CONTEXT *ctx, char *str) {
+void Set_System_Resource_Dir_KCONTEXT(KCONTEXT *ctx, char *str) {
         strcpy(ctx->system_resource_dir, str);
 }
 
-void Log_CONTEXT(CONTEXT *ctx, char *str) {
+void Log_KCONTEXT(KCONTEXT *ctx, char *str) {
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
 }
 
-void Delete_CONTEXT(CONTEXT *ctx) {
+void Delete_KCONTEXT(KCONTEXT *ctx) {
 	Delete_ELASTIC_SEARCH_CLIENT(&ctx->client);
 }

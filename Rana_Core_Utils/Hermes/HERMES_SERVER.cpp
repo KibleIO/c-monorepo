@@ -282,7 +282,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	return true;
 }
 
-bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, CONTEXT *ctx, int port) {
+bool Initialize_HERMES_SERVER(HERMES_SERVER *hs, KCONTEXT *ctx, int port) {
 	hs->connected = false;
 	hs->status = HERMES_STATUS_DISCONNECTED;
 	hs->ctx = ctx;
