@@ -352,6 +352,7 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
 		project::GetRanaFromConnectionRequest getRana;
 		project::GetRanaFromConnectionResponse gotRana;
 		project::Rana rana;
+		bool rana_exists;
 
 		containerID.mutable_id()->set_value(containerID_);
 
@@ -378,12 +379,14 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
 			context.set_deadline(deadline);
 			
 			status = stub->GetRanaFromConnection(&context, getRana, &gotRana);
-			ASSERT_E_R(status.ok(),
-			"Could not look up connection UUID.",
-			ctx);
+			rana_exists = status.ok();
 		}
 
-		ctx->uuid = gotRana.ranaid().uuid().value();
+		if (rana_exists) {
+			ctx->uuid = gotRana.ranaid().uuid().value();
+		} else {
+			ctx->uuid = ctx->connection.connectionid().uuid().value();
+		}
 
 		ctx->connection_initialized = true;
 

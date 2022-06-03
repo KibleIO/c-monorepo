@@ -9,6 +9,12 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	client->tcp_master = master;
 	Set_Name_TCP_CLIENT(client, "unknown");
 
+	#ifndef _WIN64
+
+	signal(SIGPIPE, SIG_IGN);
+
+	#endif
+
         #ifdef linux
 
 	//https://stackoverflow.com/questions/38191726/c-how-to-prevent-child-process-binding-port-after-fork-on-linux

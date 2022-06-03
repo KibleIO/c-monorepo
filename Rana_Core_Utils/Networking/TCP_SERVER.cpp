@@ -8,6 +8,12 @@ bool Initialize_TCP_SERVER(TCP_SERVER *server, KCONTEXT *ctx,
 	server->cSocket = NULL;
 	Set_Name_TCP_SERVER(server, "unknown");
 
+	#ifndef _WIN64
+
+	signal(SIGPIPE, SIG_IGN);
+
+	#endif
+
 	return true;
 }
 

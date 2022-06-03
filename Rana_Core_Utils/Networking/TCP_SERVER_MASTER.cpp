@@ -10,6 +10,12 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	server->ctx = ctx;
 	Set_Name_TCP_SERVER_MASTER(server, "master");
 
+	#ifndef _WIN64
+
+	signal(SIGPIPE, SIG_IGN);
+
+	#endif
+
         #ifdef linux
 
 	server->lSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
