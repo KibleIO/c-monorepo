@@ -53,6 +53,7 @@
 #define CORE_SYSTEM_STR_SIZE 37
 #define MAC_ADDRESS_RETRY 5
 #define MAC_ADDRESS_RETRY_SLEEP 1000
+#define VERSION_STRING_LENGTH 30
 
 using namespace std;
 

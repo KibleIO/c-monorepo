@@ -26,10 +26,13 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
         ASSERT_E_R(strcmp(ctx->system_resource_dir, "ERROR") != 0,
 		"System resource directory has not been initialized.",
 		ctx);
-        
-         ASSERT_E_R(!ctx->connection_initialized,
-		"Ports have already been initialized.",
-		ctx);
+	
+	if (ctx->connection_initialized) {
+		LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Ports have already been initialized.");
+		}
+		return true;
+	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
                 ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -38,10 +41,11 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                         file.close();
                         
                         project::Rana rana;
-                        project::Themis themis;
                         project::RanaUUID ranaID;
 			project::CreateInstanceRequest createRequest;
 			project::CreateInstanceResponse createResponse;
+			project::RecreateInstanceRequest recreateRequest;
+			project::RecreateInstanceResponse recreateResponse;
 			project::Email email;
 			bool dont_create_rana;
 
@@ -131,6 +135,44 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                                 ctx);
                         }
 
+			if (!rana.has_connectionid()) {
+				LOG_WARN_CTX(ctx) {
+					ADD_STR_LOG("message", "Recreating the account");
+				}
+
+				recreateRequest.mutable_ranaid()->mutable_uuid()->set_value(ranaID.uuid().value());
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->RecreateInstance(&context, recreateRequest, &recreateResponse);
+					ASSERT_E_R(status.ok(),
+					"Could not recreate instance.",
+					ctx);
+				}
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->LoginRana(&context, ranaID, &rana);
+					ASSERT_E_R(status.ok(),
+					"Could not validate rana UUID.",
+					ctx);
+
+					ASSERT_E_R(rana.has_connectionid(),
+					"Connection ID is still null.",
+					ctx);
+				}
+			}
+
                         {
                                 grpc::Status status;
                                 grpc::ClientContext context;
@@ -138,20 +180,7 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                                 chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
                                 context.set_deadline(deadline);
 
-                                status = stub->GetThemis(&context, rana.themisid(), &themis);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up themis UUID.",
-                                ctx);
-                        }
-
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
-
-                                status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
+                                status = stub->GetConnection(&context, rana.connectionid(), &ctx->connection);
                                 ASSERT_E_R(status.ok(),
                                 "Could not look up connection UUID.",
                                 ctx);
@@ -171,11 +200,12 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                         return true;
                 } else {
                         project::Rana rana;
-                        project::Themis themis;
                         project::RanaUUID ranaID;
                         project::Email email;
 			project::CreateInstanceRequest createRequest;
 			project::CreateInstanceResponse createResponse;
+			project::RecreateInstanceRequest recreateRequest;
+			project::RecreateInstanceResponse recreateResponse;
 			bool dont_create_rana;
 
                         email.set_value(email_);
@@ -242,17 +272,43 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                                 ctx);
                         }
 
-			{
-				grpc::Status status;
-				grpc::ClientContext context;
-				chrono::system_clock::time_point deadline =
-				chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-				context.set_deadline(deadline);
+			if (!rana.has_connectionid()) {
+				LOG_WARN_CTX(ctx) {
+					ADD_STR_LOG("message", "Recreating the account");
+				}
 
-				status = stub->GetThemis(&context, rana.themisid(), &themis);
-				ASSERT_E_R(status.ok(),
-				"Could not look up themis UUID.",
-				ctx);
+
+				recreateRequest.mutable_ranaid()->mutable_uuid()->set_value(ranaID.uuid().value());
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->RecreateInstance(&context, recreateRequest, &recreateResponse);
+					ASSERT_E_R(status.ok(),
+					"Could not recreate instance.",
+					ctx);
+				}
+
+				{
+					grpc::Status status;
+					grpc::ClientContext context;
+					chrono::system_clock::time_point deadline =
+					chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+					context.set_deadline(deadline);
+
+					status = stub->LoginRana(&context, ranaID, &rana);
+					ASSERT_E_R(status.ok(),
+					"Could not validate rana UUID.",
+					ctx);
+
+					ASSERT_E_R(rana.has_connectionid(),
+					"Connection ID is still null.",
+					ctx);
+				}
 			}
 
 			{
@@ -262,7 +318,7 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
 				chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
 				context.set_deadline(deadline);
 
-				status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
+				status = stub->GetConnection(&context, rana.connectionid(), &ctx->connection);
 				ASSERT_E_R(status.ok(),
 				"Could not look up connection UUID.",
 				ctx);
@@ -282,100 +338,56 @@ bool Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) 
                         return true;
                 }
         } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
-                ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                if (file) {
-                        getline(file, ctx->uuid);
-                        file.close();
+		string containerID_;
 
-                        project::Themis themis;
-                        project::ThemisUUID themisID;
+		ifstream containerid(CONTAINER_ID_LOC);
+		ASSERT_E_R(containerid,
+			"Could not open container id location.",
+			ctx);
+		
+		getline(containerid, containerID_);
+		containerid.close();
 
-                        themisID.mutable_uuid()->set_value(ctx->uuid);
+		project::ContainerID containerID;
+		project::GetRanaFromConnectionRequest getRana;
+		project::GetRanaFromConnectionResponse gotRana;
+		project::Rana rana;
 
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
+		containerID.mutable_id()->set_value(containerID_);
 
-                                status = stub->GetThemis(&context, themisID, &themis);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up themis UUID.",
-                                ctx);
-                        }
+		{
+			grpc::Status status;
+			grpc::ClientContext context;
+			chrono::system_clock::time_point deadline =
+			chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+			context.set_deadline(deadline);
 
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
+			status = stub->SearchConnection(&context, containerID, &ctx->connection);
+			ASSERT_E_R(status.ok(),
+			"Could not look up container ID.",
+			ctx);
+		}
 
-                                status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up connection UUID.",
-                                ctx);
-                        }
+		getRana.mutable_connectionid()->mutable_uuid()->set_value(ctx->connection.connectionid().uuid().value());
 
-                        ctx->connection_initialized = true;
+		{
+			grpc::Status status;
+			grpc::ClientContext context;
+			chrono::system_clock::time_point deadline =
+			chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+			context.set_deadline(deadline);
+			
+			status = stub->GetRanaFromConnection(&context, getRana, &gotRana);
+			ASSERT_E_R(status.ok(),
+			"Could not look up connection UUID.",
+			ctx);
+		}
 
-                        return true;
-                } else {
-                        string containerID_;
+		ctx->uuid = gotRana.ranaid().uuid().value();
 
-                        ifstream containerid(CONTAINER_ID_LOC);
-                        ASSERT_E_R(containerid,
-                                "Could not open container id location.",
-                                ctx);
-                        
-                        getline(containerid, containerID_);
-                        containerid.close();
+		ctx->connection_initialized = true;
 
-                        project::Themis themis;
-                        project::ContainerID containerID;
-
-                        containerID.mutable_id()->set_value(containerID_);
-
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
-
-                                status = stub->SearchThemis(&context, containerID, &themis);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up container ID.",
-                                ctx);
-                        }
-
-                        {
-                                grpc::Status status;
-                                grpc::ClientContext context;
-                                chrono::system_clock::time_point deadline =
-                                chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-                                context.set_deadline(deadline);
-                                
-                                status = stub->GetConnection(&context, themis.connectionid(), &ctx->connection);
-                                ASSERT_E_R(status.ok(),
-                                "Could not look up connection UUID.",
-                                ctx);
-                        }
-
-                        ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                        ASSERT_E_R(output,
-                                "Could not open info location.",
-                                ctx);
-                        output << themis.themisid().uuid().value() << endl;
-                        output.close();
-
-                        ctx->uuid = themis.themisid().uuid().value();
-
-                        ctx->connection_initialized = true;
-
-                        return true;
-                }
+		return true;
         } else {
                 LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
@@ -410,7 +422,9 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 		ctx);
 	}
 
-	return strcmp(response.versionstore().version().value().c_str(), verion) != 0;
+	strcpy(verion, response.versionstore().version().value().c_str());
+
+	return true;
 }
 
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {

@@ -11,7 +11,7 @@
 
 using namespace std;
 
-#define UPDATE_IP string("updates.Kible.io")
+#define UPDATE_IP string("http://45.57.226.9")
 
 // Directly modified by function pointer to get a string from a website
 extern string str_ret;

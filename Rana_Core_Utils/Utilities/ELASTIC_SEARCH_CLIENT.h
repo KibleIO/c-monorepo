@@ -14,7 +14,7 @@
 #include <cstring>
 #include "UTILS.h"
 
-#define ELASTIC_SEARCH_URL "http://elk.kible.io:9200/kible/_doc/?pretty"
+#define ELASTIC_SEARCH_URL "http://45.57.226.3:9200/kible/_doc/?pretty"
 
 struct ELASTIC_SEARCH_CLIENT {
 	CURL *curl;
