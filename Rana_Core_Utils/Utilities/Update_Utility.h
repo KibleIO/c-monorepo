@@ -52,7 +52,7 @@ bool Up_To_Date(string currVersion, Update_UTILITY* info);
 void Update_System(Update_UTILITY* info, bool concurrent = true);
 // Pointed to by curl function - sets global string based on data
 // recieved from website
-void Set_String_From_Data(void* ptr, size_t size, size_t nneb, void* stream);
+size_t Set_String_From_Data(void* ptr, size_t size, size_t nneb, void* stream);
 // Pointed to by curl function - writes data from website into
 // given file stream
 size_t Save_Date_From_Website(void* ptr, size_t size, size_t nmemb, FILE*);

@@ -78,11 +78,12 @@ void Update_System(Update_UTILITY* info, bool concurrent) {
 	//    }
 }
 
-void Set_String_From_Data(void* ptr, size_t size, size_t nneb, void* stream) {
+size_t Set_String_From_Data(void* ptr, size_t size, size_t nneb, void* stream) {
 	// Bypass compiler warnings
 	(void)size;
 	(void)stream;
-	str_ret = string((char*)ptr, nneb);
+	str_ret += string((char*)ptr, nneb);
+	return size * nneb;
 }
 
 size_t Save_Date_From_Website(void* ptr, size_t size, size_t nmemb,
