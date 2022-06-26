@@ -30,3 +30,7 @@ export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 export PATH=$PATH:/mingw64/bin
 export PATH=$PATH:/usr/local/lib
 export PATH=$PATH:/mingw64/bin/
+
+https://community.letsencrypt.org/t/certbot-command-you-use-to-renew-or-generate-cert-by-passing-my-own-csr/124666
+
+curl -X POST "https://elk.kible.com:9200/_security/user/poster?pretty" -H 'Content-Type: application/json' -u elastic -d'{ "password" : "l0ng-r4nd0m-p@ssw0rd", "roles" : [ "create_doc" ] }'

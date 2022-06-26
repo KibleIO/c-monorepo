@@ -69,6 +69,10 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 
 	curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
 
+	curl_easy_setopt(client->curl, CURLOPT_USERNAME, ELK_USERNAME);
+
+	curl_easy_setopt(client->curl, CURLOPT_PASSWORD, ELK_PASSWORD);
+
 	/* Now run off and do what you've been told! */
 	res = curl_easy_perform(client->curl);
 

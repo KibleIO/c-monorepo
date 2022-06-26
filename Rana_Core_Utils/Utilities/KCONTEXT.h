@@ -20,7 +20,7 @@ typedef int Status;
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include "../idl/cpp/gen/gaia.grpc.pb.h"
+#include "../idl/cpp/gen/gateway.grpc.pb.h"
 //end grpc
 
 //WARNING: This will eventually cause an issue
@@ -58,6 +58,12 @@ typedef int Status;
 //in seconds
 #define DEFAULT_GRPC_TIMEOUT 2
 
+#define INIT_CONN_KCONTEXT_SUCCESS 0
+#define INIT_CONN_KCONTEXT_ABORT 1
+#define INIT_CONN_KCONTEXT_KEY 2
+#define INIT_CONN_KCONTEXT_EMAIL 3
+#define INIT_CONN_KCONTEXT_LOCATION 4
+
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
         string uuid;
@@ -66,15 +72,19 @@ struct KCONTEXT {
 	ELASTIC_SEARCH_CLIENT client;
 	SCREEN_DIM screen_dim;
         bool connection_initialized;
-        project::Connection connection;
+        gaia::Connection connection;
+	gaia::LocationUUID locationID;
+	gaia::GetLocationsResponse locations;
+	string recent_error;
 };
 
 bool Initialize_KCONTEXT(KCONTEXT*, char*);
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT*);
 void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);
-bool Initialize_Connection_KCONTEXT(KCONTEXT*, string, string);
+int Initialize_Connection_KCONTEXT(KCONTEXT*, string, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
+bool Get_Location_KCONTEXT(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
 
