@@ -139,6 +139,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 		if (!status.ok()) {
 			LOG_ERROR_CTX(ctx) {
 				ADD_STR_LOG("message", "Failed to register themis.");
+				ADD_STR_LOG("error", status.error_message().c_str());
 			}
 			return INIT_CONN_KCONTEXT_ABORT;
 		}
