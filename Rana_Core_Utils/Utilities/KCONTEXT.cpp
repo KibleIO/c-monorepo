@@ -16,13 +16,70 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system) {
 	return true;
 }
 
+#ifdef _WIN64
+
+string utf8Encode(const wstring& wstr)
+{
+	if (wstr.empty())
+		return string();
+
+	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+	string strTo(sizeNeeded, 0);
+	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], sizeNeeded, NULL, NULL);
+	return strTo;
+}
+
+grpc::SslCredentialsOptions getSslOptions() {
+	// Fetch root certificate as required on Windows (s. issue 25533).
+	grpc::SslCredentialsOptions result;
+
+	// Open root certificate store.
+	HANDLE hRootCertStore = CertOpenSystemStoreW(NULL, L"ROOT");
+	if (!hRootCertStore)
+		return result;
+
+	// Get all root certificates.
+	PCCERT_CONTEXT pCert = NULL;
+	while ((pCert = CertEnumCertificatesInStore(hRootCertStore, pCert)) != NULL)
+	{
+		// Append this certificate in PEM formatted data.
+		DWORD size = 0;
+		CryptBinaryToStringW(pCert->pbCertEncoded, pCert->cbCertEncoded, CRYPT_STRING_BASE64HEADER, NULL, &size);
+		vector<WCHAR> pem(size);
+		CryptBinaryToStringW(pCert->pbCertEncoded, pCert->cbCertEncoded, CRYPT_STRING_BASE64HEADER, pem.data(), &size);
+
+		result.pem_root_certs += utf8Encode(pem.data());
+	}
+	CertCloseStore(hRootCertStore, 0);
+
+	return result;
+}
+
+#endif
+
 //email and uuid are optional for Themis
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
         std::unique_ptr<gaia::GATEWAY::Stub> stub;
 
-        stub = gaia::GATEWAY::NewStub(grpc::CreateChannel("45.57.227.210:41942",
-		grpc::InsecureChannelCredentials()));
-	
+	#ifdef _WIN64
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(getSslOptions())));
+
+	#elif __APPLE__
+
+	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", APPLE_DEFAULT_ROOT_CERT_LOCATION, 1);
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#else
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#endif
+
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "System resource directory has "
@@ -85,7 +142,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
                         ASSERT_E_R(output,
                                 "Could not open info location.",
                                 ctx);
-                        output << ranaID.uuid().value() << endl;
+                        output << registerResponse.ranaid().uuid().value() << endl;
                         output.close();
 
                         ctx->connection_initialized = true;
@@ -162,8 +219,24 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	std::unique_ptr<gaia::GATEWAY::Stub> stub;
 
-        stub = gaia::GATEWAY::NewStub(grpc::CreateChannel("45.57.227.210:41942",
-		grpc::InsecureChannelCredentials()));
+        #ifdef _WIN64
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(getSslOptions())));
+
+	#elif __APPLE__
+
+	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", APPLE_DEFAULT_ROOT_CERT_LOCATION, 1);
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#else
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#endif
 
 	gaia::GetVersionStoreRequest request;
 	gaia::GetVersionStoreResponse response;
@@ -189,8 +262,24 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	std::unique_ptr<gaia::GATEWAY::Stub> stub;
 
-        stub = gaia::GATEWAY::NewStub(grpc::CreateChannel("45.57.227.210:41942",
-		grpc::InsecureChannelCredentials()));
+	#ifdef _WIN64
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(getSslOptions())));
+
+	#elif __APPLE__
+
+	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", APPLE_DEFAULT_ROOT_CERT_LOCATION, 1);
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#else
+
+	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+	#endif
 
 	gaia::GetLocationsRequest request;
 

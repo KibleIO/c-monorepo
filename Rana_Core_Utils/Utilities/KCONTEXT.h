@@ -23,6 +23,13 @@ typedef int Status;
 #include "../idl/cpp/gen/gateway.grpc.pb.h"
 //end grpc
 
+#ifdef _WIN64
+
+#include <wincrypt.h>
+#include <Windows.h>
+
+#endif
+
 //WARNING: This will eventually cause an issue
 #define MAX_LOG_LEN 8192
 #define ADD_STR_LOG(key, obj)  json_object_object_add(loop.json_obj, key, json_object_new_string(obj))
@@ -63,6 +70,11 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_KEY 2
 #define INIT_CONN_KCONTEXT_EMAIL 3
 #define INIT_CONN_KCONTEXT_LOCATION 4
+#define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
+
+#define GRPC_ADDRESS "api.kible.com:41942"
+
+#define APPLE_DEFAULT_ROOT_CERT_LOCATION "/etc/ssl/cert.pem"
 
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
