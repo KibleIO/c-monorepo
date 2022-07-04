@@ -72,7 +72,7 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_LOCATION 4
 #define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
 
-#define GRPC_ADDRESS "api.kible.com:41942"
+#define GRPC_ADDRESS "api.kible.com:51942"
 
 #define APPLE_DEFAULT_ROOT_CERT_LOCATION "/etc/ssl/cert.pem"
 
@@ -84,6 +84,7 @@ struct KCONTEXT {
 	ELASTIC_SEARCH_CLIENT client;
 	SCREEN_DIM screen_dim;
         bool connection_initialized;
+	bool rana_initialized;
         gaia::Connection connection;
 	gaia::LocationUUID locationID;
 	gaia::GetLocationsResponse locations;
@@ -94,7 +95,8 @@ bool Initialize_KCONTEXT(KCONTEXT*, char*);
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT*);
 void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);
-int Initialize_Connection_KCONTEXT(KCONTEXT*, string, string);
+int Initialize_Connection_KCONTEXT(KCONTEXT*, string);
+int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
