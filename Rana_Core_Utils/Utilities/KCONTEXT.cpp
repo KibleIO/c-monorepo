@@ -161,12 +161,19 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
-		gaia::RanaUUID ranaID;
+		gaia::ContainerID containerID;
 
-		if (!uuid_.empty()) {
-			ranaID.mutable_uuid()->set_value(uuid_);
-			registerRequest.mutable_ranaid()->CopyFrom(ranaID);
-		}
+		string containerID_;
+
+		ifstream containerid(CONTAINER_ID_LOC);
+		ASSERT_E_R(containerid,
+			"Could not open container id location.",
+			ctx);
+		getline(containerid, containerID_);
+		containerid.close();
+
+		containerID.mutable_id()->set_value(containerID_);
+		registerRequest.mutable_containerid()->CopyFrom(containerID);
 		
 		status = stub->RegisterThemis(&context, registerRequest, &registerResponse);
 		if (!status.ok()) {
@@ -177,6 +184,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 			return INIT_CONN_KCONTEXT_ABORT;
 		}
 
+		ctx->uuid = containerID_;
 		ctx->connection = registerResponse.connection();
 		ctx->connection_initialized = true;
 
