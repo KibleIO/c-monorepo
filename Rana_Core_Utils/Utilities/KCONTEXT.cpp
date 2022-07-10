@@ -361,9 +361,17 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	request.mutable_name()->set_value(string(ctx->core_system));
 
 	status = stub->GetVersionStore(&context, request, &response);
-	ASSERT_E_R(status.ok(),
-	"Could not find version store.",
-	ctx);
+
+	if (!status.ok()) {
+		ctx->recent_error = status.error_message();
+
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Could not find version store.");
+			ADD_STR_LOG("error", ctx->recent_error.c_str());
+		}
+
+		return false;
+	}
 
 	strcpy(verion, response.versionstore().version().value().c_str());
 
