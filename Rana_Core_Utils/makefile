@@ -65,6 +65,9 @@ win: $(OBJECTS)
 docker-build-proto:
 	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
 
+docker-build-clip:
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make build_clip
+
 build_proto:
 	mkdir -p idl/cpp/gen
 	PATH=$(PATH):$(HOME)/.local/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=$(HOME)/.local/bin/grpc_cpp_plugin idl/idl/*.proto
