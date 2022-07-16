@@ -1,3 +1,6 @@
 [submodule "Rana_Core_Utils/idl"]
 	path = Rana_Core_Utils/idl
 	url = https://github.com/KibleIO/Gaia/
+[submodule "Rana_Core_Utils/clip"]
+	path = Rana_Core_Utils/clip
+	url = https://github.com/dacap/clip.git

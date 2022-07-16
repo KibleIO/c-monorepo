@@ -44,6 +44,7 @@
 #include <iostream>
 #include <vector>
 
+#include "clip/clip.h"
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6
@@ -90,5 +91,9 @@ bool Check_If_White_Space(char *);
 const char *itoa(const char *, int);
 
 bool Is_Connected_To_Internet();
+
+//These are here because of a hack... ignore :(
+void Get_Clipboard();
+void Set_Clipboard();
 
 #endif

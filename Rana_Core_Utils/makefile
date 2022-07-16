@@ -20,6 +20,7 @@ else
 
 endif
 
+CXXFLAGS += clip/build/libclip.a
 
 ifeq ($(UNAME_M),armv7l)
 	CC_BUILD_FLAGS +=-D_FILE_OFFSET_BITS=64 -I/opt/vc/include\
@@ -31,7 +32,7 @@ endif
 EXEC = librana.so
 EXEC_MAC = librana.dylib
 EXEC_WIN = rana.dll
-SOURCES = $(wildcard */*.cpp) $(wildcard idl/cpp/gen/*.cpp)
+SOURCES = $(filter-out $(wildcard clip/*.cpp), $(wildcard */*.cpp)) $(wildcard idl/cpp/gen/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
@@ -74,19 +75,27 @@ build_proto_win:
 	PATH=$(PATH):/mingw64/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=/mingw64/bin/grpc_cpp_plugin idl/idl/*.proto
 	rename .cc .cpp ./idl/cpp/gen/*.cc
 
+build_clip:
+	mkdir clip/build
+	cmake -Hclip -Bclip/build
+	make -C clip/build
+
 install_mac: $(EXEC_MAC)
 	sudo cp ./$(EXEC_MAC) /usr/local/lib
 	sudo mkdir -p /usr/local/include/rana/Networking/
 	sudo mkdir -p /usr/local/include/rana/Utilities/
 	sudo mkdir -p /usr/local/include/rana/Hermes/
+	sudo mkdir -p /usr/local/include/rana/clip/
 	sudo mkdir -p /usr/local/include/rana/idl/cpp/gen/
 	sudo rm -rf /usr/local/include/rana/Networking/*
 	sudo rm -rf /usr/local/include/rana/Utilities/*
 	sudo rm -rf /usr/local/include/rana/Hermes/*
+	sudo rm -rf /usr/local/include/rana/clip/*
 	sudo rm -rf /usr/local/include/rana/idl/cpp/gen/*
 	sudo cp -R ./Networking/*.h /usr/local/include/rana/Networking
 	sudo cp -R ./Utilities/*.h /usr/local/include/rana/Utilities
 	sudo cp -R ./Hermes/*.h /usr/local/include/rana/Hermes
+	sudo cp -R ./clip/*.h /usr/local/include/rana/clip
 	sudo cp -R ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen
 
 install: $(EXEC)
@@ -94,14 +103,17 @@ install: $(EXEC)
 	sudo mkdir -p /usr/local/include/rana/Networking/
 	sudo mkdir -p /usr/local/include/rana/Utilities/
 	sudo mkdir -p /usr/local/include/rana/Hermes/
+	sudo mkdir -p /usr/local/include/rana/clip/
 	sudo mkdir -p /usr/local/include/rana/idl/cpp/gen/
 	sudo rm -rf /usr/local/include/rana/Networking/*
 	sudo rm -rf /usr/local/include/rana/Utilities/*
 	sudo rm -rf /usr/local/include/rana/Hermes/*
+	sudo rm -rf /usr/local/include/rana/clip/*
 	sudo rm -rf /usr/local/include/rana/idl/cpp/gen/*
 	sudo cp -R ./Networking/*.h /usr/local/include/rana/Networking
 	sudo cp -R ./Utilities/*.h /usr/local/include/rana/Utilities
 	sudo cp -R ./Hermes/*.h /usr/local/include/rana/Hermes
+	sudo cp -R ./clip/*.h /usr/local/include/rana/clip
 	sudo cp -R ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen
 
 install_win: $(EXEC_WIN)
@@ -109,14 +121,17 @@ install_win: $(EXEC_WIN)
 	mkdir -p /usr/local/include/rana/Networking/
 	mkdir -p /usr/local/include/rana/Utilities/
 	mkdir -p /usr/local/include/rana/Hermes/
+	mkdir -p /usr/local/include/rana/clip/
 	mkdir -p /usr/local/include/rana/idl/cpp/gen/
 	rm -rf /usr/local/include/rana/Networking/*
 	rm -rf /usr/local/include/rana/Utilities/*
 	rm -rf /usr/local/include/rana/Hermes/*
+	rm -rf /usr/local/include/rana/clip/*
 	rm -rf /usr/local/include/rana/idl/cpp/gen/*
 	cp -R ./Networking/*.h /usr/local/include/rana/Networking
 	cp -R ./Utilities/*.h /usr/local/include/rana/Utilities
 	cp -R ./Hermes/*.h /usr/local/include/rana/Hermes
+	cp -R ./clip/*.h /usr/local/include/rana/clip
 	cp -R ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen
 
 dockerimage-publish: $(EXEC)
@@ -159,4 +174,5 @@ $(EXEC_MAC): $(OBJECTS)
 # To remove generated files
 clean:
 	rm -rf idl/cpp/gen
+	rm -rf clip/build
 	rm -f $(EXEC) $(OBJECTS) $(EXEC_MAC)

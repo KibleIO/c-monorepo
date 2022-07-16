@@ -23,6 +23,7 @@ COPY ./librana.so /usr/local/lib
 COPY ./Networking/*.h /usr/local/include/rana/Networking/
 COPY ./Utilities/*.h /usr/local/include/rana/Utilities/
 COPY ./Hermes/*.h /usr/local/include/rana/Hermes/
+COPY ./clip/*.h /usr/local/include/rana/clip/
 COPY ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen/
 RUN mkdir -p /root/code
 WORKDIR /root/code

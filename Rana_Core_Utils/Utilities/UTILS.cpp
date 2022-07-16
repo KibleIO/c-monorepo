@@ -290,3 +290,13 @@ int Get_Number_Of_Cores() {
 
         #endif
 }
+
+//These are here because of a hack... ignore :(
+void Get_Clipboard() {
+	string value;
+	clip::get_text(value);
+}
+
+void Set_Clipboard() {
+	clip::set_text("hello2.data()");
+}
