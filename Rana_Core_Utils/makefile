@@ -80,7 +80,7 @@ build_proto_win:
 
 build_clip:
 	mkdir clip/build
-	cmake -Hclip -Bclip/build
+	cmake -Hclip -Bclip/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 	make -C clip/build
 
 install_mac: $(EXEC_MAC)
