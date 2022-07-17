@@ -60,7 +60,7 @@ local: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
 win: $(OBJECTS)
-	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC_WIN) -o $(EXEC_WIN) $(CXXFLAGS) -ljson-c -lsodium -lavcodec -lswscale -lcurl -lws2_32 -lrpcrt4 -lcrypt32
+	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC_WIN) -o $(EXEC_WIN) $(CXXFLAGS) -ljson-c -lsodium -lavcodec -lswscale -lcurl -lws2_32 -lrpcrt4 -lcrypt32 -lole32 -lshlwapi -lwindowscodecs
 
 docker-build-proto:
 	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
@@ -82,6 +82,11 @@ build_clip:
 	mkdir clip/build
 	cmake -Hclip -Bclip/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 	make -C clip/build
+
+build_clip_win:
+	mkdir clip/build
+	cmake -Hclip -Bclip/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+	ninja -C clip/build
 
 install_mac: $(EXEC_MAC)
 	sudo cp ./$(EXEC_MAC) /usr/local/lib
