@@ -184,7 +184,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 			return INIT_CONN_KCONTEXT_ABORT;
 		}
 
-		ctx->uuid = containerID_;
+		ctx->uuid = registerResponse.ranaid().uuid().value();
 		ctx->connection = registerResponse.connection();
 		ctx->connection_initialized = true;
 
