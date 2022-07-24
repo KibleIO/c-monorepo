@@ -288,7 +288,7 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 
 			ctx->rana_initialized = true;
 
-			return INIT_CONN_KCONTEXT_SUCCESS;
+			return INIT_CONN_KCONTEXT_REGISTER;
 		}
 
 		ctx->recent_error = status.error_message();

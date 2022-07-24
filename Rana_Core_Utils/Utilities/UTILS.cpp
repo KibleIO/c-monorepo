@@ -223,9 +223,11 @@ void get_current_time(char *str) {
 }
 
 void Sleep_Milli(unsigned int milli) {
-        usleep(milli * 1000);
 #ifdef __linux__
     usleep(milli * 1000);
+#endif
+#ifdef __APPLE__
+usleep(milli * 1000);
 #endif
 #ifdef _WIN64
     Sleep(milli);

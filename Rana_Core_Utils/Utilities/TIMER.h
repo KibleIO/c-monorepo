@@ -14,6 +14,13 @@
 #ifdef _WIN64
 #include <windows.h>
 #endif
+#ifdef __APPLE__
+#include <time.h>
+
+#include <net/if.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 struct TIMER {
 #ifdef __linux__
@@ -23,6 +30,10 @@ struct TIMER {
 #ifdef _WIN64
 	double PCFreq;
 	__int64 CounterStart;
+#endif
+#ifdef __APPLE__
+	struct timespec start, end;
+	long seconds, useconds;
 #endif
 };
 

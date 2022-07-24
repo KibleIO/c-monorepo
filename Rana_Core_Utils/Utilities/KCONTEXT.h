@@ -71,6 +71,7 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_EMAIL 3
 #define INIT_CONN_KCONTEXT_LOCATION 4
 #define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
+#define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
 #define GRPC_ADDRESS "api.kible.com:51942"
 
