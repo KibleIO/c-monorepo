@@ -130,14 +130,19 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
                         ctx->connection_initialized = true;
 
+			LOG_INFO_CTX(ctx) {
+				ADD_STR_LOG("message", "Successfully lets go.");
+			}
+
 			return INIT_CONN_KCONTEXT_SUCCESS;
 		}
 
 		ctx->recent_error = status.error_message();
 
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Failed to register rana.");
+			ADD_STR_LOG("message", "Lets go failed.");
 			ADD_STR_LOG("error", ctx->recent_error.c_str());
+			ADD_STR_LOG("type", "register");
 		}
 
 		switch (status.error_code()) {
@@ -294,8 +299,9 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 		ctx->recent_error = status.error_message();
 
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Failed to register rana.");
+			ADD_STR_LOG("message", "Lets go failed.");
 			ADD_STR_LOG("error", ctx->recent_error.c_str());
+			ADD_STR_LOG("type", "create");
 		}
 
 		switch (status.error_code()) {

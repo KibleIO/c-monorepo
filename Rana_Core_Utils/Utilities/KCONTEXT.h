@@ -63,7 +63,7 @@ typedef int Status;
 #define INFO_FILE_NAME "info"
 #define CONTAINER_ID_LOC "/etc/hostname"
 //in seconds
-#define DEFAULT_GRPC_TIMEOUT 10
+#define DEFAULT_GRPC_TIMEOUT 60
 
 #define INIT_CONN_KCONTEXT_SUCCESS 0
 #define INIT_CONN_KCONTEXT_ABORT 1
