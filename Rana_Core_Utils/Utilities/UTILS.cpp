@@ -275,11 +275,6 @@ bool Check_If_White_Space(char *str) {
 	return true;
 }
 
-bool Is_Connected_To_Internet() {
-	return strcmp(Get_Str_From_Website(UPDATE_IP).c_str(),
-		"nothing here... move along\n") == 0;
-}
-
 int Get_Number_Of_Cores() {
         #ifdef __linux__
 	
@@ -301,4 +296,30 @@ void Get_Clipboard() {
 
 void Set_Clipboard() {
 	clip::set_text("hello2.data()");
+}
+
+int kible_setenv(const char *name, const char *value, int overwrite) {
+	#ifdef _WIN64
+	//https://stackoverflow.com/questions/17258029/c-setenv-undefined-identifier-in-visual-studio
+	int errcode = 0;
+	if(!overwrite) {
+		size_t envsize = 0;
+		errcode = getenv_s(&envsize, NULL, 0, name);
+		if(errcode || envsize) return errcode;
+	}
+	return _putenv_s(name, value);
+	#else
+	return setenv(name, value, overwrite);
+	#endif
+}
+
+void Get_Desktop_Dir(char *directory) {
+	#ifdef _WIN64
+	SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY | CSIDL_FLAG_CREATE, 
+		NULL, SHGFP_TYPE_CURRENT, directory);
+	#else
+	strcpy(directory, getenv("HOME"));
+	strcat(directory, "/Desktop");
+	#endif
+
 }

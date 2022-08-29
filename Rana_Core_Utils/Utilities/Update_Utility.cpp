@@ -103,6 +103,11 @@ string Get_Str_From_Website(string address) {
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Set_String_From_Data);
 		res = curl_easy_perform(curl);
+
+		if(res != CURLE_OK) {
+			str_ret = string(curl_easy_strerror(res));
+		}
+
 		curl_easy_cleanup(curl);
 	}
 	return str_ret;

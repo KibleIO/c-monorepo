@@ -55,6 +55,7 @@
 #define MAC_ADDRESS_RETRY 5
 #define MAC_ADDRESS_RETRY_SLEEP 1000
 #define VERSION_STRING_LENGTH 30
+#define MAX_DIRECTORY_LEN 100
 
 using namespace std;
 
@@ -90,7 +91,9 @@ bool Check_If_White_Space(char *);
 
 const char *itoa(const char *, int);
 
-bool Is_Connected_To_Internet();
+int kible_setenv(const char*, const char*, int);
+
+void Get_Desktop_Dir(char*);
 
 //These are here because of a hack... ignore :(
 void Get_Clipboard();

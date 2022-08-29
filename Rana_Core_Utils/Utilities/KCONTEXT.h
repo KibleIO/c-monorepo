@@ -84,8 +84,8 @@ struct KCONTEXT {
         char system_resource_dir[RESOURCE_DIR_MAX_LEN];
 	ELASTIC_SEARCH_CLIENT client;
 	SCREEN_DIM screen_dim;
-        bool connection_initialized;
-	bool rana_initialized;
+        volatile bool connection_initialized;
+	volatile bool rana_initialized;
         gaia::Connection connection;
 	gaia::LocationUUID locationID;
 	gaia::GetLocationsResponse locations;
