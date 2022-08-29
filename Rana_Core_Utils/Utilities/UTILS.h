@@ -24,6 +24,7 @@
 #include <net/if.h>
 #include <mach/clock.h>
 #include <mach/mach.h>
+#include <corefoundation/CFBundle.h>
 
 #endif
 
@@ -97,6 +98,8 @@ const char *itoa(const char *, int);
 int kible_setenv(const char*, const char*, int);
 
 void Get_Desktop_Dir(char*);
+
+void Get_CACERT_Dir(char*);
 
 //These are here because of a hack... ignore :(
 void Get_Clipboard();

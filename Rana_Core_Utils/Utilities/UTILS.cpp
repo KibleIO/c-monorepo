@@ -321,5 +321,30 @@ void Get_Desktop_Dir(char *directory) {
 	strcpy(directory, getenv("HOME"));
 	strcat(directory, "/Desktop");
 	#endif
+}
 
+void Get_CACERT_Dir(char *dir) {
+	#ifdef __linux__
+	//honestly not sure
+	#endif
+	#ifdef __APPLE__
+
+	CFURLRef appUrlRef;
+	appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("res"), NULL, NULL);
+
+	CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef, kCFURLPOSIXPathStyle);
+	strcpy(dir, (char*)CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding()));
+
+	// must release core foundation objects
+	CFRelease(appUrlRef);
+	CFRelease(macPath);
+	//wow... so hacky
+	strcat(dir, "/");
+
+	#endif
+	#ifdef _WIN64
+	strcpy(dir, "./res/");
+	#endif
+
+	strcat(dir, "resources/cacert.pem");
 }

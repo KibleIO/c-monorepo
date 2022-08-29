@@ -75,8 +75,6 @@ typedef int Status;
 
 #define GRPC_ADDRESS "api.kible.com:51942"
 
-#define APPLE_DEFAULT_ROOT_CERT_LOCATION "/etc/ssl/cert.pem"
-
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
         string uuid;
