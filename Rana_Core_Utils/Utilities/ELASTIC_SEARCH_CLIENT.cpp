@@ -41,7 +41,18 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
 bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	CURLcode res;
 
+	char cacert_dir[MAX_DIRECTORY_LEN];
+
+	Get_CACERT_Dir(cacert_dir);
+
 	client->mutex_.lock();
+
+	//PLEASE for the love that is good and pure remove this
+	struct curl_slist *host = NULL;
+	host = curl_slist_append(NULL, "elk.kible.com:9200:45.57.226.10");
+
+	curl_easy_setopt(client->curl, CURLOPT_RESOLVE, host);
+	// END remove section
 
 	client->payload_ptr = str;
 	client->payload_size = strlen(client->payload_ptr);
@@ -49,6 +60,8 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	/* specify target URL, and note that this URL should include a
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, ELASTIC_SEARCH_URL);
+
+	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
 	/* enable uploading (implies PUT over HTTP) */
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
@@ -93,6 +106,10 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str, char *url) {
 	CURLcode res;
 
+	char cacert_dir[MAX_DIRECTORY_LEN];
+
+	Get_CACERT_Dir(cacert_dir);
+
 	client->mutex_.lock();
 
 	client->payload_ptr = str;
@@ -101,6 +118,8 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 	/* specify target URL, and note that this URL should include a
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
+
+	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
 	/* Set the default value: strict certificate check please */
   	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -149,10 +168,14 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str, char *url) {
 	CURLcode res;
 
+	char cacert_dir[MAX_DIRECTORY_LEN];
+
+	Get_CACERT_Dir(cacert_dir);
+
 	client->mutex_.lock();
 
 	struct curl_slist *host = NULL;
-	host = curl_slist_append(NULL, "api2.kible.com:443:45.57.227.210");
+	host = curl_slist_append(NULL, "api2.kible.com:9200:45.57.227.210");
 
 	client->payload_ptr = str;
 	client->payload_size = strlen(client->payload_ptr);
@@ -162,6 +185,8 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str
 	/* specify target URL, and note that this URL should include a
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
+
+	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
 	/* Set the default value: strict certificate check please */
   	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
