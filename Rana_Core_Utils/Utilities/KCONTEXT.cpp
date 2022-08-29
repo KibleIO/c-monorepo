@@ -30,7 +30,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 	#else
 
-	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
 	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
 		grpc::SslCredentials(grpc::SslCredentialsOptions())));
@@ -175,7 +175,7 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 
 	#else
 
-	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
 	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
 		grpc::SslCredentials(grpc::SslCredentialsOptions())));
@@ -301,7 +301,7 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 
 	#else
 
-	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
 	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
 		grpc::SslCredentials(grpc::SslCredentialsOptions())));
@@ -350,7 +350,7 @@ bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 
 	#else
 
-	setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
 	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
 		grpc::SslCredentials(grpc::SslCredentialsOptions())));
