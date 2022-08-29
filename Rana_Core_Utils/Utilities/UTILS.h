@@ -15,6 +15,9 @@
 
 #include <Winsock2.h>
 #include <chrono>
+#include <windows.h>
+#include <direct.h>
+#include <shlobj.h>
 
 #elif __APPLE__
 
