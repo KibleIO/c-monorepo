@@ -74,6 +74,7 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
 #define GRPC_ADDRESS "api.kible.com:51942"
+#define INSECURE_GRPC_ADDRESS "45.57.227.210:52942"
 
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
@@ -88,9 +89,10 @@ struct KCONTEXT {
 	gaia::LocationUUID locationID;
 	gaia::GetLocationsResponse locations;
 	string recent_error;
+	bool insecure_mode;
 };
 
-bool Initialize_KCONTEXT(KCONTEXT*, char*);
+bool Initialize_KCONTEXT(KCONTEXT*, char*, bool);
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT*);
 void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);

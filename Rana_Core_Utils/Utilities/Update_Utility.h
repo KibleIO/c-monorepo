@@ -3,11 +3,12 @@
 #define UPDATE_UTILITY_H_
 
 #include <curl/curl.h>
-
+#include <string.h>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <tuple>
+#include "UTILS.h"
 
 using namespace std;
 
@@ -59,7 +60,7 @@ size_t Save_Date_From_Website(void* ptr, size_t size, size_t nmemb, FILE*);
 // Get a string from the specified ip address
 string Get_Str_From_Website(string address);
 // Download file from given IP and save it to given directory
-void Download_From_Website(string address, string place, uint32_t* runner);
+bool Download_From_Website(string address, string place, uint32_t* runner, char* error);
 
 void Delete_UPDATE_UTILITY(Update_UTILITY* info);
 

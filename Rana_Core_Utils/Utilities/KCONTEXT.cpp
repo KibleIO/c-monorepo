@@ -1,7 +1,9 @@
 #include "KCONTEXT.h"
 
-bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system) {
+bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
         ctx->uuid = "ERROR";
+	ctx->insecure_mode = !insecure;
+
 	generate_uuid(ctx->trace_uuid);
 	strcpy(ctx->core_system, core_system);
         strcpy(ctx->system_resource_dir, "ERROR");
@@ -19,23 +21,32 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system) {
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
         std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	char cacert_dir[MAX_DIRECTORY_LEN];
+	
+	if (ctx->insecure_mode) {
 
-	Get_CACERT_Dir(cacert_dir);
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
 
-	#ifdef __linux__
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
 
-	#else
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
 
-	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+		#else
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
-	#endif
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
@@ -164,23 +175,31 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 //email and uuid are optional for Themis
 int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
         std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	char cacert_dir[MAX_DIRECTORY_LEN];
+	if (ctx->insecure_mode) {
 
-	Get_CACERT_Dir(cacert_dir);
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
 
-	#ifdef __linux__
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
 
-	#else
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
 
-	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+		#else
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
-	#endif
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
@@ -290,23 +309,32 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string uuid_) {
 
 bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	char cacert_dir[MAX_DIRECTORY_LEN];
 
-	Get_CACERT_Dir(cacert_dir);
+	if (ctx->insecure_mode) {
 
-	#ifdef __linux__
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
 
-	#else
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
 
-	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		#else
 
-	#endif
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
 
 	gaia::GetVersionStoreRequest request;
 	gaia::GetVersionStoreResponse response;
@@ -339,23 +367,32 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 
 bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	char cacert_dir[MAX_DIRECTORY_LEN];
+	
+	if (ctx->insecure_mode) {
 
-	Get_CACERT_Dir(cacert_dir);
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
 
-	#ifdef __linux__
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
 
-	#else
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
 
-	kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+		#else
 
-	stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-		grpc::SslCredentials(grpc::SslCredentialsOptions())));
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
 
-	#endif
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
 
 	gaia::GetLocationsRequest request;
 
