@@ -59,7 +59,7 @@
 #define MAC_ADDRESS_RETRY 5
 #define MAC_ADDRESS_RETRY_SLEEP 1000
 #define VERSION_STRING_LENGTH 30
-#define MAX_DIRECTORY_LEN 100
+#define MAX_DIRECTORY_LEN 512
 
 using namespace std;
 
