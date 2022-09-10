@@ -67,7 +67,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
 
 	/* complete within 20 seconds */
-  	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, 20L);
+  	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
 
 	curl_easy_setopt(client->curl, CURLOPT_HTTPHEADER, client->hs);
 
