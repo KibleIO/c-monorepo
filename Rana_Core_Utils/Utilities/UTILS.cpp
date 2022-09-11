@@ -348,3 +348,19 @@ void Get_CACERT_Dir(char *dir) {
 
 	strcat(dir, "resources/cacert.pem");
 }
+
+void Open_Url(char *url) {
+	#ifdef __linux__
+	//honestly not sure
+	#endif
+	#ifdef __APPLE__
+
+	system(string(string("open ") + url).c_str());
+
+	#endif
+	#ifdef _WIN64
+
+	system(string(string("start ") + url).c_str());
+
+	#endif
+}

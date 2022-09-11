@@ -101,6 +101,8 @@ void Get_Desktop_Dir(char*);
 
 void Get_CACERT_Dir(char*);
 
+void Open_Url(char*);
+
 //These are here because of a hack... ignore :(
 void Get_Clipboard();
 void Set_Clipboard();
