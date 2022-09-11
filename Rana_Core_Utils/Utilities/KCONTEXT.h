@@ -73,8 +73,8 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
 #define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
-#define GRPC_ADDRESS "api.kible.com:51942"
-#define INSECURE_GRPC_ADDRESS "45.57.227.210:52942"
+#define GRPC_ADDRESS "api.kible.com:53942"
+#define INSECURE_GRPC_ADDRESS "45.57.227.210:54942"
 
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
