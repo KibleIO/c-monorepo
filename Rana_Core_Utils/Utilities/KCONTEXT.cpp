@@ -410,6 +410,68 @@ bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
+bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
+	if (!ctx->rana_initialized) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Rana has not already been "
+				"initialized.");
+		}
+		return false;
+	}
+
+	std::unique_ptr<gaia::GATEWAY::Stub> stub;
+	
+	if (ctx->insecure_mode) {
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
+
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
+
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#else
+
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
+
+	gaia::GetProductsRequest request;
+	gaia::RanaUUID ranaID;
+
+	grpc::Status status;
+	grpc::ClientContext context;
+	chrono::system_clock::time_point deadline =
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+	context.set_deadline(deadline);
+
+	ranaID.mutable_uuid()->set_value(ctx->uuid);
+	request.mutable_ranaid()->CopyFrom(ranaID);
+
+	status = stub->GetProducts(&context, request, &ctx->products);
+
+	if (!status.ok()) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Could not get products.");
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
 	return ctx->screen_dim;
 }

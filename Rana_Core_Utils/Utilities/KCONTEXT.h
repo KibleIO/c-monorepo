@@ -73,8 +73,11 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
 #define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
-#define GRPC_ADDRESS "api.kible.com:53942"
-#define INSECURE_GRPC_ADDRESS "45.57.227.210:54942"
+#define GRPC_ADDRESS "api.kible.com:51942"
+#define INSECURE_GRPC_ADDRESS "45.57.227.210:52942"
+
+#define KIBLE_PREMIUM_UUID "313319a8-7045-479e-90f1-1f31ea099eaa"
+#define KIBLE_TRIAL_ENDED_UUID "1b3300ed-140b-4fd8-9cef-4420b9b2a289"
 
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
@@ -87,7 +90,9 @@ struct KCONTEXT {
 	volatile bool rana_initialized;
         gaia::Connection connection;
 	gaia::LocationUUID locationID;
+	//LOL this is so bad, please fix these
 	gaia::GetLocationsResponse locations;
+	gaia::GetProductsResponse products;
 	string recent_error;
 	bool insecure_mode;
 };
@@ -100,6 +105,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT*, string);
 int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Get_Location_KCONTEXT(KCONTEXT*);
+bool Get_Products_KCONTEXT(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
 
