@@ -140,7 +140,11 @@ bool Download_From_Website(string address, string place, uint32_t* runner, char 
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
+		#ifndef __linux__
+
 		curl_easy_setopt(curl, CURLOPT_CAINFO, cacert_dir);
+
+		#endif
 
 		curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 

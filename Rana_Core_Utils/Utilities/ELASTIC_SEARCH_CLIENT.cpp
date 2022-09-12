@@ -61,7 +61,11 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, ELASTIC_SEARCH_URL);
 
+	#ifndef __linux__
+
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
+
+	#endif
 
 	/* enable uploading (implies PUT over HTTP) */
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
@@ -119,7 +123,11 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
 
+	#ifndef __linux__
+
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
+
+	#endif
 
 	/* Set the default value: strict certificate check please */
   	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -186,7 +194,11 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
 
+	#ifndef __linux__
+
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
+
+	#endif
 
 	/* Set the default value: strict certificate check please */
   	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
