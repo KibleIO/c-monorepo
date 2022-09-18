@@ -472,6 +472,134 @@ bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
+bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
+	if (!ctx->rana_initialized) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Rana has not already been "
+				"initialized.");
+		}
+		return false;
+	}
+
+	std::unique_ptr<gaia::GATEWAY::Stub> stub;
+	
+	if (ctx->insecure_mode) {
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
+
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
+
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#else
+
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
+
+	gaia::CreatePaymentUrlRequest request;
+	gaia::CreatePaymentUrlResponse response;
+	gaia::RanaUUID ranaID;
+
+	grpc::Status status;
+	grpc::ClientContext context;
+	chrono::system_clock::time_point deadline =
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+	context.set_deadline(deadline);
+
+	ranaID.mutable_uuid()->set_value(ctx->uuid);
+	request.mutable_ranaid()->CopyFrom(ranaID);
+
+	status = stub->CreatePaymentUrl(&context, request, &response);
+
+	if (!status.ok()) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Could not get GetCheckoutUrl.");
+		}
+
+		return false;
+	}
+
+	strcpy(str, response.checkoutsession().c_str());
+
+	return true;
+}
+
+bool GetCheckPayment(KCONTEXT *ctx) {
+	if (!ctx->rana_initialized) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Rana has not already been "
+				"initialized.");
+		}
+		return false;
+	}
+
+	std::unique_ptr<gaia::GATEWAY::Stub> stub;
+	
+	if (ctx->insecure_mode) {
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
+
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
+
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#else
+
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
+
+	gaia::CheckPaymentRequest request;
+	gaia::CheckPaymentResponse response;
+	gaia::RanaUUID ranaID;
+
+	grpc::Status status;
+	grpc::ClientContext context;
+	chrono::system_clock::time_point deadline =
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+	context.set_deadline(deadline);
+
+	ranaID.mutable_uuid()->set_value(ctx->uuid);
+	request.mutable_ranaid()->CopyFrom(ranaID);
+
+	status = stub->CheckPayment(&context, request, &response);
+
+	if (!status.ok()) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Could not get GetCheckPayment.");
+		}
+
+		return false;
+	}
+
+	return response.paid();
+}
+
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
 	return ctx->screen_dim;
 }

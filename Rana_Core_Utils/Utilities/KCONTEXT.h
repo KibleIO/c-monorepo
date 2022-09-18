@@ -79,6 +79,8 @@ typedef int Status;
 #define KIBLE_PREMIUM_UUID "313319a8-7045-479e-90f1-1f31ea099eaa"
 #define KIBLE_TRIAL_ENDED_UUID "1b3300ed-140b-4fd8-9cef-4420b9b2a289"
 
+#define CHECKOUT_URL_SIZE 512
+
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
         string uuid;
@@ -106,6 +108,8 @@ int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
+bool GetCheckoutUrl(KCONTEXT*, char*);
+bool GetCheckPayment(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
 
