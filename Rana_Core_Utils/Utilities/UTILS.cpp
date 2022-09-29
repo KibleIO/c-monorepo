@@ -1,5 +1,5 @@
 // PLATFORMS: Linux, Windows, OSX (TODO)
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "UTILS.h"
 
 string system_output(string cmd) {
@@ -351,7 +351,9 @@ void Get_CACERT_Dir(char *dir) {
 
 void Open_Url(char *url) {
 	#ifdef __linux__
-	//honestly not sure
+
+	system(string(string("xdg-open ") + url).c_str());
+
 	#endif
 	#ifdef __APPLE__
 

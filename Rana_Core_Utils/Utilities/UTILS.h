@@ -6,6 +6,8 @@
 #include <fstream>
 #include <time.h>
 
+#include "stb_image.h"
+
 #ifdef __linux__
 
 #include <linux/if.h>
