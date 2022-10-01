@@ -3,6 +3,8 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <thread>
+
 #include "LOGGING.h"
 #include "UTILS.h"
 
