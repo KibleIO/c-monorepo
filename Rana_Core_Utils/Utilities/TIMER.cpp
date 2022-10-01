@@ -63,13 +63,12 @@ void set_interval_helper(void (*func)(void*), unsigned int interval,
 						 void* data) {
 	while (true) {
 		func(data);
-		std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+		Sleep_Milli(interval);
 	}
 }
 
-void set_delay_helper(void (*func)(void*), unsigned int interval,
-						 void* data) {
-	std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+void set_delay_helper(void (*func)(void*), unsigned int interval, void* data) {
+	Sleep_Milli(interval);
 	func(data);
 }
 
