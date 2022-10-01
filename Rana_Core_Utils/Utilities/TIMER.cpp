@@ -57,6 +57,26 @@ long Stop_TIMER(TIMER* timer) {
 #endif
 }
 
-void Delete_TIMER(TIMER* timer) {
-	(void)timer;
+void Delete_TIMER(TIMER* timer) { (void)timer; }
+
+void set_interval_helper(void (*func)(void*), unsigned int interval,
+						 void* data) {
+	while (true) {
+		func(data);
+		std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+	}
+}
+
+void set_delay_helper(void (*func)(void*), unsigned int interval,
+						 void* data) {
+	std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+	func(data);
+}
+
+void Set_Interval(void (*func)(void*), unsigned int interval, void* data) {
+	std::thread(set_interval_helper, func, interval, data).detach();
+}
+
+void Set_Delay(void (*func)(void*), unsigned int interval, void* data) {
+	std::thread(set_delay_helper, func, interval, data).detach();
 }

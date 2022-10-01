@@ -42,4 +42,6 @@ void Start_TIMER(TIMER*);
 long Stop_TIMER(TIMER*);
 void Delete_TIMER(TIMER*);
 
+void Set_Interval(void(*func)(void*), unsigned int, void*);
+void Set_Delay(void(*func)(void*), unsigned int, void*);
 #endif /* TIMER_H_ */
