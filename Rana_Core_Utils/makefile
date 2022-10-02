@@ -73,6 +73,11 @@ build_proto:
 	PATH=$(PATH):$(HOME)/.local/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=$(HOME)/.local/bin/grpc_cpp_plugin idl/idl/*.proto
 	rename 's/\.cc$$/.cpp/' ./idl/cpp/gen/*.cc
 
+build_proto_mac:
+	mkdir -p idl/cpp/gen
+	PATH=$(PATH):/usr/local/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin idl/idl/*.proto
+	rename 's/\.cc$$/.cpp/' ./idl/cpp/gen/*.cc
+
 build_proto_win:
 	mkdir -p idl/cpp/gen
 	PATH=$(PATH):/mingw64/bin protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=/mingw64/bin/grpc_cpp_plugin idl/idl/*.proto

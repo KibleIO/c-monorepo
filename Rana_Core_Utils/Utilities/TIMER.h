@@ -1,25 +1,28 @@
-//PLATFORMS: Linux, Windows, OSX (TODO)
+// PLATFORMS: Linux, Windows, OSX (TODO)
 
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <thread>
+
 #include "LOGGING.h"
+#include "UTILS.h"
 
 #ifdef __linux__
-#include <unistd.h>
-#include <sys/time.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <cstdlib>
 #endif
 #ifdef _WIN64
 #include <windows.h>
 #endif
 #ifdef __APPLE__
-#include <time.h>
-
-#include <net/if.h>
 #include <mach/clock.h>
 #include <mach/mach.h>
+#include <net/if.h>
+#include <time.h>
 #endif
 
 struct TIMER {
@@ -42,4 +45,6 @@ void Start_TIMER(TIMER*);
 long Stop_TIMER(TIMER*);
 void Delete_TIMER(TIMER*);
 
+void Set_Interval(void (*func)(void*), unsigned int, void*);
+void Set_Delay(void (*func)(void*), unsigned int, void*);
 #endif /* TIMER_H_ */
