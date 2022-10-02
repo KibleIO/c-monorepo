@@ -173,7 +173,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 }
 
 //email and uuid are optional for Themis
-int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_) {
+int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
         #ifdef __linux__
 	INIT_GRPC_STUB_linux
 	#else
@@ -207,9 +207,8 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_) {
 		gaia::CreateRanaAccountResponse registerResponse;
 		gaia::LocationUUID locationID;
 
-		if (!email_.empty()) {
-			registerRequest.mutable_email()->set_value(email_);
-		}
+		registerRequest.mutable_email()->set_value(email_);
+		registerRequest.set_password(password);
 
 		if (ctx->locationID.has_uuid()) {
 			locationID.mutable_uuid()->set_value(ctx->locationID.uuid().value());
@@ -624,6 +623,7 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 			ctx->connection = response.connection();
 
 			ctx->rana_initialized = true;
+			ctx->connection_initialized = true;
 
 			return INIT_CONN_KCONTEXT_SUCCESS;
 		}
@@ -711,6 +711,7 @@ bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 	status = stub->ResetPassword(&context, request, &response);
 
 	if (status.ok()) {
+		ctx->recent_error = "Successfully Sent password reset email.";
 		return true;
 	}
 

@@ -131,7 +131,7 @@ SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT*);
 void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);
 int Initialize_Connection_KCONTEXT(KCONTEXT*, string);
-int Create_Rana_KCONTEXT(KCONTEXT*, string);
+int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
 int Check_Existing_Token_KCONTEXT(KCONTEXT*);
 bool Check_Password_Strength_KCONTEXT(KCONTEXT*, string);
 bool Reset_Password_KCONTEXT(KCONTEXT*, string);
