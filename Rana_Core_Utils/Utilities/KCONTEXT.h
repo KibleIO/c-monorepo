@@ -95,6 +95,11 @@ std::unique_ptr<gaia::GATEWAY::Stub> stub;\
 		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
 			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
 	}\
+	grpc::Status status;\
+	grpc::ClientContext context;\
+	chrono::system_clock::time_point deadline =\
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);\
+	context.set_deadline(deadline);\
 
 #define INIT_GRPC_STUB_LINUX \
 std::unique_ptr<gaia::GATEWAY::Stub> stub;\
@@ -106,6 +111,11 @@ std::unique_ptr<gaia::GATEWAY::Stub> stub;\
 		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
 			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
 	}\
+	grpc::Status status;\
+	grpc::ClientContext context;\
+	chrono::system_clock::time_point deadline =\
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);\
+	context.set_deadline(deadline);\
 
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];

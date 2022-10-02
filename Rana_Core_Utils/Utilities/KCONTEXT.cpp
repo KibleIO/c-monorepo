@@ -20,33 +20,11 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 }
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
-        std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	
-	if (ctx->insecure_mode) {
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
-			INSECURE_GRPC_ADDRESS,
-			grpc::InsecureChannelCredentials()));
-
-	} else {
-		char cacert_dir[MAX_DIRECTORY_LEN];
-
-		Get_CACERT_Dir(cacert_dir);
-		
-		#ifdef __linux__
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#else
-
-		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#endif
-	}
+        #ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
@@ -65,12 +43,6 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
-		grpc::Status status;
-		grpc::ClientContext context;
-		chrono::system_clock::time_point deadline =
-		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-		context.set_deadline(deadline);
-
 		gaia::RegisterRanaRequest registerRequest;
 		gaia::RegisterRanaResponse registerResponse;
 		gaia::RanaUUID ranaID;
@@ -126,12 +98,6 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 				return INIT_CONN_KCONTEXT_ABORT;
 		}
         } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
-		grpc::Status status;
-		grpc::ClientContext context;
-		chrono::system_clock::time_point deadline =
-		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-		context.set_deadline(deadline);
-
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
 		gaia::ContainerID containerID;
@@ -197,12 +163,6 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
-		grpc::Status status;
-		grpc::ClientContext context;
-		chrono::system_clock::time_point deadline =
-		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-		context.set_deadline(deadline);
-
 		gaia::CreateRanaAccountRequest registerRequest;
 		gaia::CreateRanaAccountResponse registerResponse;
 		gaia::LocationUUID locationID;
@@ -266,42 +226,14 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 }
 
 bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
-	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-
-	if (ctx->insecure_mode) {
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
-			INSECURE_GRPC_ADDRESS,
-			grpc::InsecureChannelCredentials()));
-
-	} else {
-		char cacert_dir[MAX_DIRECTORY_LEN];
-
-		Get_CACERT_Dir(cacert_dir);
-		
-		#ifdef __linux__
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#else
-
-		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#endif
-	}
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
 
 	gaia::GetVersionStoreRequest request;
 	gaia::GetVersionStoreResponse response;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	request.mutable_name()->set_value(string(ctx->core_system));
 
@@ -324,41 +256,13 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 }
 
 bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
-	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	
-	if (ctx->insecure_mode) {
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
-			INSECURE_GRPC_ADDRESS,
-			grpc::InsecureChannelCredentials()));
-
-	} else {
-		char cacert_dir[MAX_DIRECTORY_LEN];
-
-		Get_CACERT_Dir(cacert_dir);
-		
-		#ifdef __linux__
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#else
-
-		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#endif
-	}
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
 
 	gaia::GetLocationsRequest request;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	status = stub->GetLocations(&context, request, &ctx->locations);
 	ASSERT_E_R(status.ok(),
@@ -377,42 +281,14 @@ bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
 		return false;
 	}
 
-	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	
-	if (ctx->insecure_mode) {
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
-			INSECURE_GRPC_ADDRESS,
-			grpc::InsecureChannelCredentials()));
-
-	} else {
-		char cacert_dir[MAX_DIRECTORY_LEN];
-
-		Get_CACERT_Dir(cacert_dir);
-		
-		#ifdef __linux__
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#else
-
-		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#endif
-	}
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
 
 	gaia::GetProductsRequest request;
 	gaia::RanaUUID ranaID;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	ranaID.mutable_uuid()->set_value(ctx->uuid);
 	request.mutable_ranaid()->CopyFrom(ranaID);
@@ -431,41 +307,13 @@ bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
 }
 
 bool Get_Ads_KCONTEXT(KCONTEXT *ctx) {
-	std::unique_ptr<gaia::GATEWAY::Stub> stub;
-	
-	if (ctx->insecure_mode) {
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
-			INSECURE_GRPC_ADDRESS,
-			grpc::InsecureChannelCredentials()));
-
-	} else {
-		char cacert_dir[MAX_DIRECTORY_LEN];
-
-		Get_CACERT_Dir(cacert_dir);
-		
-		#ifdef __linux__
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#else
-
-		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
-
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
-			grpc::SslCredentials(grpc::SslCredentialsOptions())));
-
-		#endif
-	}
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
 
 	gaia::ListAdsRequest request;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	status = stub->ListAds(&context, request, &ctx->ads);
 
@@ -497,12 +345,6 @@ bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 
 	gaia::CreatePaymentUrlAuthRequest request;
 	gaia::CreatePaymentUrlAuthResponse response;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -529,7 +371,7 @@ bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 }
 
 bool GetCheckPayment(KCONTEXT *ctx) {
-	if (!ctx->rana_initialized) {
+        if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Rana has not already been "
 				"initialized.");
@@ -545,12 +387,6 @@ bool GetCheckPayment(KCONTEXT *ctx) {
 
 	gaia::CheckPaymentAuthRequest request;
 	gaia::CheckPaymentAuthResponse response;
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -598,12 +434,6 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
-		grpc::Status status;
-		grpc::ClientContext context;
-		chrono::system_clock::time_point deadline =
-		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-		context.set_deadline(deadline);
-
 		gaia::CheckSessionTokenRequest request;
 		gaia::CheckSessionTokenResponse response;
 		string token;
@@ -668,12 +498,6 @@ bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
 	INIT_GRPC_STUB
 	#endif
 
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
-
 	gaia::CheckPasswordStrengthRequest request;
 	gaia::CheckPasswordStrengthResponse response;
 
@@ -696,12 +520,6 @@ bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 	#else
 	INIT_GRPC_STUB
 	#endif
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	gaia::ResetPasswordRequest request;
 	gaia::ResetPasswordResponse response;
@@ -733,12 +551,6 @@ bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 		}
 		return false;
 	}
-
-	grpc::Status status;
-	grpc::ClientContext context;
-	chrono::system_clock::time_point deadline =
-	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
-	context.set_deadline(deadline);
 
 	gaia::LoginRanaRequest request;
 	gaia::LoginRanaResponse response;
