@@ -763,6 +763,15 @@ bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 	return false;
 }
 
+void Sign_Out_Of_Session_KCONTEXT(KCONTEXT *ctx) {
+	ctx->connection_initialized = false;
+	ctx->rana_initialized = false;
+	
+	ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+	output << "nil" << endl;
+	output.close();
+}
+
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
 	return ctx->screen_dim;
 }

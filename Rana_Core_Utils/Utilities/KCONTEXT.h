@@ -140,6 +140,7 @@ bool Login_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
 bool Get_Ads_KCONTEXT(KCONTEXT*);
+void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
 bool GetCheckoutUrl(KCONTEXT*, char*);
 bool GetCheckPayment(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
