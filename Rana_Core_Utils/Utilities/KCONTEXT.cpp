@@ -472,6 +472,56 @@ bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
+bool Get_Ads_KCONTEXT(KCONTEXT *ctx) {
+	std::unique_ptr<gaia::GATEWAY::Stub> stub;
+	
+	if (ctx->insecure_mode) {
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(
+			INSECURE_GRPC_ADDRESS,
+			grpc::InsecureChannelCredentials()));
+
+	} else {
+		char cacert_dir[MAX_DIRECTORY_LEN];
+
+		Get_CACERT_Dir(cacert_dir);
+		
+		#ifdef __linux__
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#else
+
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);
+
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));
+
+		#endif
+	}
+
+	gaia::ListAdsRequest request;
+
+	grpc::Status status;
+	grpc::ClientContext context;
+	chrono::system_clock::time_point deadline =
+		chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);
+	context.set_deadline(deadline);
+
+	status = stub->ListAds(&context, request, &ctx->ads);
+
+	if (!status.ok()) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Could not get ads.");
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
 bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {

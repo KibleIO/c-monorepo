@@ -96,6 +96,7 @@ struct KCONTEXT {
 	//LOL this is so bad, please fix these
 	gaia::GetLocationsResponse locations;
 	gaia::GetProductsResponse products;
+	gaia::ListAdsResponse ads;
 	string recent_error;
 	bool insecure_mode;
 };
@@ -109,6 +110,7 @@ int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
+bool Get_Ads_KCONTEXT(KCONTEXT*);
 bool GetCheckoutUrl(KCONTEXT*, char*);
 bool GetCheckPayment(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
