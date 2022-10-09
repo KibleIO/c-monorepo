@@ -35,65 +35,12 @@ https://community.letsencrypt.org/t/certbot-command-you-use-to-renew-or-generate
 
 curl -X POST "https://elk.kible.com:9200/_security/user/poster?pretty" -H 'Content-Type: application/json' -u elastic -d'{ "password" : "l0ng-r4nd0m-p@ssw0rd", "roles" : [ "create_doc" ] }'
 
+Hey, How do I address merge conflicts?
 
-package main
-
-import (
-	"log"
-	"net"
-
-	"google.golang.org/grpc"
-
-	"golang.org/x/net/context"
-	pb "kible.io/gaia"
-)
-
-// the most dull service in existence
-type aergiaServer struct {
-	pb.UnimplementedAERGIAServer
-}
-
-const (
-	//grpcListen = "api.kible.com:61942"
-	grpcListen = "45.57.227.210:62942"
-)
-
-func main() {
-	server := &aergiaServer{}
-
-	//finish setting up grpc
-	lis, err := net.Listen("tcp", grpcListen)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-		return
-	}
-
-	grpcServer := grpc.NewServer()
-	pb.RegisterAERGIAServer(grpcServer, server)
-	grpcServer.Serve(lis)
-}
-
-func (s *aergiaServer) Ping(ctx context.Context, ping *pb.Empty) (*pb.Empty, error) {
-	return &pb.Empty{}, nil
-}
-
-build_aergia_docker_10:
-	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/golang:deb10 make build_aergia
-
-build_aergia:
-	PATH=$(PATH):/usr/local/go/bin go build -o aergia/aergia ./aergia/...
-
-src/kible.io/aergia/aergia
-
-syntax = "proto3";
-
-package gaia;
-
-option go_package = "kible.io/gaia";
-
-import "universal.proto";
-
-// the most dull service in existence
-service AERGIA {
-	rpc Ping (Empty) returns (Empty) {}
-}
+1. git pull -r origin master (or the branch you are merging with)
+2. <fix merge conflicts in code and save>
+3. git add .
+4. git rebase --continue
+5. <go back to number 2 and rinse and repeat till complete>
+6. git push -f (the -f is very important here)
+7. profit

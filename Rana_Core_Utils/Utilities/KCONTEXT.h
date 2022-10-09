@@ -82,6 +82,41 @@ typedef int Status;
 
 #define CHECKOUT_URL_SIZE 512
 
+#define INIT_GRPC_STUB \
+std::unique_ptr<gaia::GATEWAY::Stub> stub;\
+	if (ctx->insecure_mode) {\
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(\
+			INSECURE_GRPC_ADDRESS,\
+			grpc::InsecureChannelCredentials()));\
+	} else {\
+		char cacert_dir[MAX_DIRECTORY_LEN];\
+		Get_CACERT_Dir(cacert_dir);\
+		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);\
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
+	}\
+	grpc::Status status;\
+	grpc::ClientContext context;\
+	chrono::system_clock::time_point deadline =\
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);\
+	context.set_deadline(deadline);\
+
+#define INIT_GRPC_STUB_LINUX \
+std::unique_ptr<gaia::GATEWAY::Stub> stub;\
+	if (ctx->insecure_mode) {\
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(\
+			INSECURE_GRPC_ADDRESS,\
+			grpc::InsecureChannelCredentials()));\
+	} else {\
+		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
+			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
+	}\
+	grpc::Status status;\
+	grpc::ClientContext context;\
+	chrono::system_clock::time_point deadline =\
+	chrono::system_clock::now() + chrono::seconds(DEFAULT_GRPC_TIMEOUT);\
+	context.set_deadline(deadline);\
+
 struct KCONTEXT {
 	char trace_uuid[UUID_STR_SIZE];
         string uuid;
@@ -107,10 +142,15 @@ void Set_Screen_Dim_KCONTEXT(KCONTEXT*, SCREEN_DIM);
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT*, char*);
 int Initialize_Connection_KCONTEXT(KCONTEXT*, string);
 int Create_Rana_KCONTEXT(KCONTEXT*, string, string);
+int Check_Existing_Token_KCONTEXT(KCONTEXT*);
+bool Check_Password_Strength_KCONTEXT(KCONTEXT*, string);
+bool Reset_Password_KCONTEXT(KCONTEXT*, string);
 bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
+bool Login_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
 bool Get_Ads_KCONTEXT(KCONTEXT*);
+void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
 bool GetCheckoutUrl(KCONTEXT*, char*);
 bool GetCheckPayment(KCONTEXT*);
 void Log_KCONTEXT(KCONTEXT*, char*);
