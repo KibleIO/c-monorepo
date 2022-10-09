@@ -28,7 +28,7 @@ struct KEYBOARD_EVENT_T {
 	uint32_t code;
 	int32_t value;
 	uint32_t event_index; //this will eventually have a wrap around problem
-};
+} __attribute__((packed));
 
 struct KEYBOARD {
 	static bool    Shift;

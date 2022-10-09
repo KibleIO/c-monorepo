@@ -2,12 +2,14 @@
 
 #include "FPS_LIMITER.h"
 
-void Initialize_FPS_LIMITER(
+bool Initialize_FPS_LIMITER(
 FPS_LIMITER* fps_limiter, uint32_t fps, uint8_t verbose) {
 	fps_limiter->frame_count = 0;
 	fps_limiter->frame_rate = 0;
 	fps_limiter->fps = fps;
 	fps_limiter->verbose = verbose;
+
+	return true;
 }
 
 void Start_FPS_LIMITER(FPS_LIMITER* fps_limiter) {

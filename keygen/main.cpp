@@ -1,6 +1,7 @@
 #include <Utilities/SODIUM_WRAPPER.h>
-#include <Networking/Server.h>
-#include <Networking/Client.h>
+#include <Hermes/SERVER.h>
+#include <Hermes/CLIENT.h>
+#include <Utilities/CONTEXT.h>
 
 //little program to generate some keys
 
@@ -54,53 +55,63 @@ int main(int argc, char** argv) {
 	}
 
 	if (is_server) {
-		Server server;
+		SERVER server;
 
-		if (!server.Listen(PORT)) {
+		if (!Initialize_SERVER(&server, &ctx, NETWORK_TYPE_TCP)) {
+			cout << "Couldn't initialize server." << endl;
+			return false;
+		}
+
+		if (!Accept_SERVER(&server, PORT)) {
 			cout << "Couldn't find a connection on port " <<
 				PORT << endl;
 			return false;
 		}
 
-		if (!server.Receive((char*)sodium.partner_pub_key,
+		if (!Receive_SERVER(&server, (char*)sodium.partner_pub_key,
 			crypto_sign_PUBLICKEYBYTES)) {
 
 			cout << "Couldn't receive partner public key." << endl;
 			return false;
 		}
 
-		if (!server.Send((char*)sodium.local_pub_key,
+		if (!Send_SERVER(&server, (char*)sodium.local_pub_key,
 			crypto_sign_PUBLICKEYBYTES)) {
 
 			cout << "Couldn't send local public key." << endl;
 			return false;
 		}
 
-		server.CloseConnection();
+		Delete_SERVER(&server);
 	} else {
-		Client client;
+		CLIENT client;
 
-		if (!client.OpenConnection(PORT, argv[2])) {
+		if (!Initialize_CLIENT(&client, &ctx, NETWORK_TYPE_TCP)) {
+			cout << "Couldn't initialize server." << endl;
+			return false;
+		}
+
+		if (!Connect_CLIENT(&client, PORT, argv[2])) {
 			cout << "Couldn't open connection to " << argv[2] <<
 				" on port " << PORT << endl;
 			return false;
 		}
 
-		if (!client.Send((char*)sodium.local_pub_key,
+		if (!Send_CLIENT(&client, (char*)sodium.local_pub_key,
 			crypto_sign_PUBLICKEYBYTES)) {
 
 			cout << "Couldn't send local public key." << endl;
 			return false;
 		}
 
-		if (!client.Receive((char*)sodium.partner_pub_key,
+		if (!Receive_CLIENT(&client, (char*)sodium.partner_pub_key,
 			crypto_sign_PUBLICKEYBYTES)) {
 
 			cout << "Couldn't receive partner public key." << endl;
 			return false;
 		}
 
-		client.CloseConnection();
+		Delete_CLIENT(&client);
 	}
 
 	if (!Interactive_Create_Key_Step_2_SODIUM_WRAPPER(&sodium)) {

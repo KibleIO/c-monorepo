@@ -1,76 +1,39 @@
 #ifndef UDP_CLIENT_H
 #define UDP_CLIENT_H
 
-#ifdef __linux__
-
-#include <Utilities/LOGGING.h>
+#ifndef _WIN64
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <stdint.h>
-#include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-
-#include <string>
-
-#define SOCKET_ERROR -1
-
-#else
-
-#include <Networking/Networking.h>
-#include <Utilities/LOGGING.h>
-#include <stdint.h>
-#include <string.h>
-
-#include <string>
-
 #endif
 
-#include <Utilities/TIMER.h>
-#include <iostream>
-
-//// Linux specific includes {{{
-//#ifdef __linux__
-//#define socklen_t int
-//#include <sys/socket.h>
-//#include <arpa/inet.h>
-//#include <sys/types.h>
-//
-//#endif
-//// }}} Windows specific includes {{{
-//#ifdef _WIN64
-//#include <WinSock2.h>
-//#include <Windows.h>
-//#include <WS2tcpip.h>
-//#endif
-
-#define TEST_BUFF_SIZE 4
-#define CONNECT_ATTEMPTS 50
-
-//#define BUFLEN 1500
-
-using namespace std;
+#include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
+#include <string>
+#include "NETWORK.h"
+#include "UDP_CLIENT_MASTER.h"
+#include "../Utilities/KCONTEXT.h"
+#include "DNS_WRAPPER.h"
 
 struct UDP_CLIENT {
-	int32_t sockfd;
-	sockaddr_in server_address;
-	uint32_t server_address_size;
+	char name[MAX_NAME_SIZE];
+	KCONTEXT *ctx;
+	char buffer[MAX_UDP_PACKET_SIZE + 1]; //plus 1 for the type
 
-// struct sockaddr_in si_other;
-// int s, slen = sizeof(si_other);
-// char buf[BUFLEN];
-// char message[BUFLEN];
-#ifdef _W64
-	WSADATA wsa;
-#endif
+	UDP_CLIENT_MASTER *udp_master;
+	timeval timeout;
+	volatile int id;
 };
 
-uint8_t Initialize_UDP_CLIENT(UDP_CLIENT*);
-uint8_t Connect_UDP_CLIENT(UDP_CLIENT*, string, uint32_t);
-void Set_Timeout_UDP_CLIENT(UDP_CLIENT*, int, int);
-uint8_t Send_UDP_CLIENT(UDP_CLIENT*, uint8_t*, int32_t);
-int32_t Receive_UDP_CLIENT(UDP_CLIENT*, uint8_t*, int32_t);
-uint8_t Receive_Peek_UDP_CLIENT(UDP_CLIENT*, int32_t&);
+bool Initialize_UDP_CLIENT(UDP_CLIENT*, KCONTEXT*, UDP_CLIENT_MASTER*, int);
+void Set_Name_UDP_CLIENT(UDP_CLIENT*, char*);
+bool Set_Recv_Timeout_UDP_CLIENT(UDP_CLIENT*, int, int);
+bool Set_High_Priority_UDP_CLIENT(UDP_CLIENT*);
+bool Connect_UDP_CLIENT(UDP_CLIENT*);
+bool Send_UDP_CLIENT(UDP_CLIENT*, char*, int);
+bool Receive_UDP_CLIENT(UDP_CLIENT*, char*, int);
+int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT*, char*);
 void Delete_UDP_CLIENT(UDP_CLIENT*);
 
 #endif

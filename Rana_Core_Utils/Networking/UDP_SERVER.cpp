@@ -1,150 +1,184 @@
 #include "UDP_SERVER.h"
 
-bool Initialize_UDP_SERVER(UDP_SERVER* udp_server, uint32_t port) {
-	uint32_t input_var;
+bool Initialize_UDP_SERVER(UDP_SERVER *server, KCONTEXT *ctx,
+	UDP_SERVER_MASTER *udp_master, int id) {
 
-	log_dbg(((const JSON_TYPE){
-		{"message", "initializing udp server on port"},
-		JSON_TYPE_END}));
+	server->ctx = ctx;
+	server->udp_master = udp_master;
+	server->id = id;
+	server->buffer[0] = id;
+	Set_Name_UDP_SERVER(server, "unknown");
 
-	udp_server->server_address_size = sizeof(
-		udp_server->server_address);
-	udp_server->client_address_size = sizeof(
-		udp_server->client_address);
-
-	memset(&udp_server->server_address, 0, udp_server->server_address_size);
-	memset(&udp_server->client_address, 0, udp_server->client_address_size);
-
-	udp_server->sockfd = socket(
-		AF_INET, SOCK_DGRAM, 0);
-
-	udp_server->server_address.sin_family = AF_INET;
-	udp_server->server_address.sin_addr.s_addr = INADDR_ANY;
-	udp_server->server_address.sin_port = htons(port);
-
-	if (udp_server->sockfd < 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to initialize UDP server socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
-
-	if (bind(udp_server->sockfd,
-		(const struct sockaddr*) &udp_server->server_address,
-		udp_server->server_address_size) < 0) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to bind UDP server socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
-
-	input_var = 1;
-	if (setsockopt(udp_server->sockfd, SOL_SOCKET, SO_REUSEADDR, &input_var,
-		sizeof(uint32_t)) == -1) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_REUSEADDR on UDP server socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
-
-	input_var = 1000000;
-	if (setsockopt(udp_server->sockfd, SOL_SOCKET, SO_SNDBUF, &input_var,
-		sizeof(uint32_t)) == -1) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_SNDBUF on UDP server socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
-
-	timeval o_to = { 5, 0 };
-	if (setsockopt(udp_server->sockfd, SOL_SOCKET, SO_RCVTIMEO, &o_to,
-		sizeof(timeval)) == -1) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_RCVTIMEO on UDP server socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
+	Set_Recv_Timeout_UDP_SERVER(server, DEFAULT_RECV_TIMEOUT, 0);
 
 	return true;
 }
 
-void Set_Timeout_UDP_SERVER(UDP_SERVER* udp_server, int s, int u) {
-	timeval o_to = { s, u };
-	if (setsockopt(udp_server->sockfd, SOL_SOCKET, SO_RCVTIMEO, &o_to,
-		sizeof(timeval)) == -1) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_RCVTIMEO on UDP server socket"},
-			JSON_TYPE_END}));
-	}
+void Set_Name_UDP_SERVER(UDP_SERVER *server, char *name) {
+	strcpy(server->name, name);
 }
 
-bool Accept_UDP_SERVER(UDP_SERVER* udp_server) {
+bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER *server, int sec, int usec) {
+	server->timeout.tv_sec = sec;
+	server->timeout.tv_usec = usec;
+	return true;
+}
+
+bool Set_High_Priority_UDP_SERVER(UDP_SERVER *server) {
+	return Set_High_Priority_UDP_SERVER_MASTER(server->udp_master);
+}
+
+bool Accept_UDP_SERVER(UDP_SERVER *server) {
 	int32_t size;
-	uint8_t* test_buff;
+	uint8_t test_buff[TEST_BUFF_SIZE];
 
-	test_buff = new uint8_t[TEST_BUFF_SIZE];
+	if (server->udp_master->accepted) {
+		//already accepted brother
+		return true;
+	}
 
-	size = recvfrom(
-		udp_server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-		(sockaddr*)&udp_server->client_address,
-		(socklen_t*)&udp_server->client_address_size);
+	if (!Set_Recv_Timeout_UDP_SERVER_MASTER(server->udp_master,
+		DEFAULT_ACCEPT_TIMEOUT, 0)) {
 
-	if (size != TEST_BUFF_SIZE) {
-		log_err(((const JSON_TYPE){
-			{"message", "There was an error receiving test buffer from client"},
-			JSON_TYPE_END}));
-		delete[] test_buff;
 		return false;
 	}
 
-	size = sendto(
-		udp_server->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-		(sockaddr*)&udp_server->client_address, udp_server->client_address_size);
+	size = recvfrom(server->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL,
+		(sockaddr*) &server->udp_master->client_address,
+		(socklen_t*) &server->udp_master->client_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
-		log_err(((const JSON_TYPE){
-			{"message", "There was an error sending test buffer to client"},
-			JSON_TYPE_END}));
-		delete[] test_buff;
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Failed to accept: There was an "
+				"error receiving test buffer from client");
+			ADD_STR_LOG("name", server->name);
+		}
 		return false;
 	}
 
-	delete[] test_buff;
+	size = sendto(server->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL,
+		(sockaddr*) &server->udp_master->client_address,
+		server->udp_master->client_address_size);
+
+	if (size != TEST_BUFF_SIZE) {
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Failed to accept: There was an "
+				"error sending test buffer to client");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+	if (!Set_Recv_Timeout_UDP_SERVER_MASTER(server->udp_master,
+		DEFAULT_RECV_TIMEOUT, 0)) {
+
+		return false;
+	}
+
+	if (server->udp_master->recv_thread != NULL) {
+		//whoa... what a weird scenario
+		LOG_ERROR_CTX((server->ctx)) {
+			ADD_STR_LOG("message", "Failed to accept: Weird, "
+				"unresolvable error occured");
+			ADD_STR_LOG("name", server->name);
+		}
+		return false;
+	}
+
+	server->udp_master->running = true;
+	server->udp_master->recv_thread = new thread(
+		Recv_Loop_UDP_SERVER_MASTER, server->udp_master);
+
+	server->udp_master->accepted = true;
+
 	return true;
 }
 
-bool Send_UDP_SERVER(UDP_SERVER* udp_server, uint8_t* buffer, int32_t size) {
-	return size == sendto(
-		udp_server->sockfd, (char*)buffer, size, 0,
-		(sockaddr*)&udp_server->client_address, udp_server->client_address_size);
+bool Send_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
+	if (server->id < 0) return false;
+
+	memcpy(server->buffer + 1, buffer, size);
+
+	return sendto(server->udp_master->sockfd, (char*) server->buffer,
+		size + 1, MSG_WAITALL,
+		(sockaddr*)&server->udp_master->client_address,
+		server->udp_master->client_address_size) == size;
 }
 
-int32_t Receive_UDP_SERVER(
-	UDP_SERVER* udp_server, uint8_t* buffer, int32_t size) {
-	return recvfrom(
-		udp_server->sockfd, (char*)buffer, size, 0,
-		(sockaddr*)&udp_server->client_address,
-		(socklen_t*)&udp_server->client_address_size);
+bool Receive_UDP_SERVER(UDP_SERVER *server, char *buffer, int size) {
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
+
+	while (server->id >= 0 && --attempts >= 0 &&
+		server->udp_master->recv_queues[server->id]->empty()) {
+		//OKAY THERE IS A MASSIVE ERROR HERE
+		//please eventually also take into account usec pls
+		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
+	}
+
+	if (attempts < 0 || server->id < 0) {
+		return false;
+	}
+
+	temp_buff = server->udp_master->recv_queues[server->id]->pop();
+
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	server->udp_master->recv_pool->push(temp_buff);
+
+	return (temp_buff->size - 1) == size;
 }
 
-uint8_t Receive_Peek_UDP_SERVER(UDP_SERVER* udp_server, int32_t& size
-/*, uint8_t* buffer, int32_t size*/) {
-	return recvfrom(
-		udp_server->sockfd, (char*)&size, sizeof(int32_t), MSG_PEEK,
-		(sockaddr*)&udp_server->server_address,
-		(socklen_t*)&udp_server->server_address_size);
+int Receive_Unsafe_UDP_SERVER(UDP_SERVER *server, char *buffer) {
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
+
+	while (server->id >= 0 && --attempts >= 0 &&
+		server->udp_master->recv_queues[server->id]->empty()) {
+
+		Sleep_Milli((server->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
+	}
+
+	if (attempts < 0 || server->id < 0) {
+		return 0;
+	}
+
+	temp_buff = server->udp_master->recv_queues[server->id]->pop();
+
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	server->udp_master->recv_pool->push(temp_buff);
+
+	return temp_buff->size - 1;
 }
 
+void Delete_UDP_SERVER(UDP_SERVER *server) {
+        int temp_id = server->id;
 
-void Delete_UDP_SERVER(UDP_SERVER* udp_server) {
-	if (udp_server->sockfd < 0) {
-		shutdown(udp_server->sockfd, 2);
-		close(udp_server->sockfd);
-		udp_server->sockfd = NULL;
+        server->id = -1;
+
+	if (temp_id >= 0) {
+                if (server->udp_master->recv_thread != NULL) {
+			server->udp_master->running = false;
+			server->udp_master->recv_thread->join();
+			delete server->udp_master->recv_thread;
+			server->udp_master->recv_thread = NULL;
+		}
+
+		while (!server->udp_master->recv_queues[temp_id]->empty()) {
+                        server->udp_master->recv_pool->push(
+				server->udp_master->recv_queues[temp_id]->
+				pop());
+		}
+
+		server->udp_master->accepted = false;
+	}
+
+	LOG_WARN_CTX((server->ctx)) {
+		ADD_STR_LOG("message",
+			"Client connection has already been closed");
+		ADD_STR_LOG("name", server->name);
 	}
 }

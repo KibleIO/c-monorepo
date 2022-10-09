@@ -1,31 +1,38 @@
 #ifndef UDP_SERVER_H
 #define UDP_SERVER_H
 
+#ifndef _WIN64
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
 #include <iostream>
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
-#include <Utilities/LOGGING.h>
-
-#define TEST_BUFF_SIZE 4
+#include "NETWORK.h"
+#include "../Utilities/KCONTEXT.h"
+#include "UDP_SERVER_MASTER.h"
 
 struct UDP_SERVER {
-	int32_t		sockfd;
-	sockaddr_in	server_address;
-	sockaddr_in	client_address;
-	uint32_t	server_address_size;
-	uint32_t	client_address_size;
+	KCONTEXT *ctx;
+	char name[MAX_NAME_SIZE];
+	char buffer[MAX_UDP_PACKET_SIZE + 1]; //plus 1 for the type
+
+	UDP_SERVER_MASTER *udp_master;
+	timeval timeout;
+	volatile int id;
 };
 
-bool Initialize_UDP_SERVER(UDP_SERVER*, uint32_t);
-void Set_Timeout_UDP_SERVER(UDP_SERVER* udp_server, int s, int u = 0);
+bool Initialize_UDP_SERVER(UDP_SERVER*, KCONTEXT*, UDP_SERVER_MASTER*, int);
+void Set_Name_UDP_SERVER(UDP_SERVER*, char*);
+bool Set_Recv_Timeout_UDP_SERVER(UDP_SERVER*, int, int);
+bool Set_High_Priority_UDP_SERVER(UDP_SERVER*);
 bool Accept_UDP_SERVER(UDP_SERVER*);
-bool Send_UDP_SERVER(UDP_SERVER*, uint8_t*, int32_t);
-int32_t Receive_UDP_SERVER(UDP_SERVER*, uint8_t*, int32_t);
-uint8_t Receive_Peek_UDP_SERVER(UDP_SERVER*, int32_t&);
+bool Send_UDP_SERVER(UDP_SERVER*, char*, int);
+bool Receive_UDP_SERVER(UDP_SERVER*, char*, int);
+int Receive_Unsafe_UDP_SERVER(UDP_SERVER*, char*);
 void Delete_UDP_SERVER(UDP_SERVER*);
 
 #endif

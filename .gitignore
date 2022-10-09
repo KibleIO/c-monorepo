@@ -1,5 +1,6 @@
 *.o
 *.so
+*.dylib
 Rana
 keygen/keygen
 local.key
@@ -8,3 +9,5 @@ x64/
 .packages/
 /packages/FFmpeg.Nightly.20190805.0.0
 .vscode
+*.dll
+clip

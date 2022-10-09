@@ -44,7 +44,7 @@ uint8_t padding) {
 	for (uint32_t i = 0; i < trans->threads; i++) {
 		trans->sws[i] = sws_getContext(
 		width, height, in, width, height, out,
-		YUV2RGB_ALGO, 0, 0, 0);
+		SWS_POINT, 0, 0, 0);
 
 		if (!trans->sws[i]) {
 			log_err(((const JSON_TYPE){
@@ -100,12 +100,11 @@ void Convert_YUV2RGB(YUV2RGB* trans, uint8_t* in, uint8_t* out) {
 
 void Convert_YUV2RGB(YUV2RGB* trans, uint8_t** in, uint8_t* out) {
 	thread* slice_threads[YUV2RGB_MAX_THREADS];
-	uint8_t* rgb_planes[1];
+	uint8_t* rgb_planes[YUV2RGB_MAX_THREADS][1];
 	uint8_t* yuv_planes[YUV2RGB_MAX_THREADS][3];
 
-	rgb_planes[0] = out;
-
 	for (uint32_t i = 0; i < trans->threads; i++) {
+		rgb_planes[i][0] = out + (trans->slice_height * trans->rgb_strides[0] * i);
 		yuv_planes[i][0] = in[0] + trans->yuv_slice_i[i][0];
 		//swapped for some reason
 		yuv_planes[i][1] = in[1] + trans->yuv_slice_i[i][1];
@@ -114,9 +113,9 @@ void Convert_YUV2RGB(YUV2RGB* trans, uint8_t** in, uint8_t* out) {
 		trans->sws[i],
 		yuv_planes[i],
 		trans->yuv_strides,
-		trans->slice_y[i],
+		0,
 		trans->slice_height,
-		rgb_planes,
+		rgb_planes[i],
 		trans->rgb_strides);
 	}
 

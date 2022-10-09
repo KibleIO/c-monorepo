@@ -1,318 +1,185 @@
 #include "UDP_CLIENT.h"
 
-#ifdef _W64
-uint8_t Initialize_UDP_CLIENT(UDP_CLIENT* udp_client) {
-	if (WSAStartup(MAKEWORD(2, 2), &udp_client->wsa) != 0) {
-		log_err("could not initialize wsa");
-		return false;
-	}
+bool Initialize_UDP_CLIENT(UDP_CLIENT *client, KCONTEXT *ctx,
+	UDP_CLIENT_MASTER *udp_master, int id) {
 
-	udp_client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (udp_client->sockfd == SOCKET_ERROR) {
-		log_err("could not set up socket");
-		return false;
-	}
+	client->ctx = ctx;
+	client->udp_master = udp_master;
+	client->id = id;
+	client->buffer[0] = id;
+	Set_Name_UDP_CLIENT(client, "unknown");
 
-	udp_client->server_address_size = sizeof(udp_client->server_address);
-	memset(&udp_client->server_address, 0, udp_client->server_address_size);
-
-	// Recieve buffer option
-	int ret;
-	uint32_t o_buf = 1000000;
-	ret = setsockopt(udp_client->sockfd, SOL_SOCKET, SO_RCVBUF, (char*)&o_buf,
-					 sizeof(uint32_t));
-	if (ret < 0) {
-		log_err("Failed to set SO_RCVBUF on UDP client socket");
-		return false;
-	}
-
-	// Timeout option
-	timeval tv;
-	tv.tv_sec = 5;
-	tv.tv_usec = 0;
-	ret = setsockopt(udp_client->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv,
-					 sizeof(tv));
-	if (ret < 0) {
-		log_err("Failed to set SO_RCVTIMEO on UDP client socket");
-		return false;
-	}
-
-	// Access
-	// char o_acc = '1';
-	// ret = setsockopt(
-	// udp_client->sockfd, SOL_SOCKET, SO_BROADCAST, (char*)&o_acc,
-	// sizeof(o_acc)); if (ret < 0) { 	log_err("Failed to set SO_BROADCAST on UDP
-	//client socket"); 	return false;
-	//}
+	Set_Recv_Timeout_UDP_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0);
 
 	return true;
 }
 
-uint8_t Connect_UDP_CLIENT(UDP_CLIENT* udp_client, string ip_address,
-						   uint32_t port) {
-	Sleep_Milli(2000);
+void Set_Name_UDP_CLIENT(UDP_CLIENT *client, char *name) {
+	strcpy(client->name, name);
+}
+
+bool Set_Recv_Timeout_UDP_CLIENT(UDP_CLIENT *client, int sec, int usec) {
+	client->timeout.tv_sec = sec;
+	client->timeout.tv_usec = usec;
+	return true;
+}
+
+bool Set_High_Priority_UDP_CLIENT(UDP_CLIENT *client) {
+	return Set_High_Priority_UDP_CLIENT_MASTER(client->udp_master);
+}
+
+bool Connect_UDP_CLIENT(UDP_CLIENT *client) {
 	int32_t size;
-	uint8_t* test_buff;
-	test_buff = new uint8_t[TEST_BUFF_SIZE];
+	uint8_t test_buff[TEST_BUFF_SIZE];
+	sockaddr_in server_address;
+	uint32_t server_address_size;
 
-	log_dbg("connecting to " + ip_address + ":" + to_string(port));
+	if (client->udp_master->connected) {
+		//already accepted brother
+		return true;
+	}
 
-	udp_client->server_address.sin_family = AF_INET;
-	udp_client->server_address.sin_port = htons(port);
-
-	// memset(
-	//(char*)&udp_client->server_address, 0,
-	//sizeof(udp_client->server_address)); udp_client->server_address.sin_family
-	// = AF_INET; udp_client->server_address.sin_port			= htons(port);
-	// udp_client->server_address.sin_addr.s_addr	=
-	// inet_addr(ip_address.c_str());
-
-	if (inet_pton(AF_INET, ip_address.c_str(),
-				  &(udp_client->server_address.sin_addr.s_addr)) < 1) {
-		struct addrinfo hints, *res;
-		struct addrinfo* itr;
-
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = PF_UNSPEC;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_flags |= AI_CANONNAME;
-
-		if (getaddrinfo(ip_address.c_str(), NULL, &hints, &res) != 0) {
-			return false;
-		}
-
-		itr = res;
-
-		while (itr) {
-			if (itr->ai_family == AF_INET) {
-				log_tmp("got address");
-				udp_client->server_address.sin_addr.s_addr =
-					((struct sockaddr_in*)itr->ai_addr)->sin_addr.s_addr;
-
-				freeaddrinfo(res);
-
-				goto success;
-			}
-			itr = itr->ai_next;
-		}
-
-		freeaddrinfo(res);
+	if (!Set_Recv_Timeout_UDP_CLIENT_MASTER(client->udp_master, 0,
+		DEFAULT_CONNECT_TIMEOUT)) {
 		return false;
 	}
-success:
 
-	// Bind handshake
-	size = sendto(udp_client->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-				  (sockaddr*)&udp_client->server_address,
-				  (socklen_t)udp_client->server_address_size);
+	size = sendto(client->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL,
+		(sockaddr*) &client->udp_master->server_address,
+		client->udp_master->server_address_size);
+
 	if (size != TEST_BUFF_SIZE) {
-		log_err("There was an error sending test buffer to server");
-		delete[] test_buff;
+		LOG_WARN_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Failed to connect: Error sending test "
+				"buff");
+			ADD_STR_LOG("name", client->name);
+		}
 		return false;
 	}
-	size = recvfrom(udp_client->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-					(sockaddr*)&udp_client->server_address,
-					(socklen_t*)&udp_client->server_address_size);
+
+	size = recvfrom(client->udp_master->sockfd, (char*)test_buff,
+		TEST_BUFF_SIZE, MSG_WAITALL, (sockaddr*) &server_address,
+		(socklen_t*) &server_address_size);
+
 	if (size != TEST_BUFF_SIZE) {
-		log_err("There was an error receiving test buffer from server");
-		delete[] test_buff;
+		LOG_WARN_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Failed to connect: Error receiving test "
+				"buff... trying again");
+			ADD_STR_LOG("name", client->name);
+		}
 		return false;
 	}
-	delete[] test_buff;
+
+	if (!Set_Recv_Timeout_UDP_CLIENT_MASTER(client->udp_master,
+		DEFAULT_RECV_TIMEOUT, 0)) {
+
+		return false;
+	}
+
+	if (client->udp_master->recv_thread != NULL) {
+		//whoa... what a weird scenario
+		LOG_ERROR_CTX((client->ctx)) {
+			ADD_STR_LOG("message", "Failed to accept: Weird, "
+				"unresolvable error occured");
+			ADD_STR_LOG("name", client->name);
+		}
+		return false;
+	}
+
+	client->udp_master->running = true;
+	client->udp_master->recv_thread = new thread(
+		Recv_Loop_UDP_CLIENT_MASTER, client->udp_master);
+
+	client->udp_master->connected = true;
 
 	return true;
 }
 
-uint8_t Send_UDP_CLIENT(UDP_CLIENT* udp_client, uint8_t* buffer, int32_t size) {
-	return size == sendto(udp_client->sockfd, (char*)buffer, size, 0,
-						  (sockaddr*)&udp_client->server_address,
-						  udp_client->server_address_size);
+bool Send_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
+	if (client->id < 0) return false;
+
+	memcpy(client->buffer + 1, buffer, size);
+
+	return sendto(client->udp_master->sockfd, (char*) client->buffer,
+		size + 1, MSG_WAITALL,
+		(sockaddr*) &client->udp_master->server_address,
+		client->udp_master->server_address_size) == size;
 }
 
-int32_t Receive_UDP_CLIENT(UDP_CLIENT* udp_client, uint8_t* buffer,
-						   int32_t size) {
-	return recvfrom(udp_client->sockfd, (char*)buffer, size, 0,
-					(sockaddr*)&udp_client->server_address,
-					(socklen_t*)&udp_client->server_address_size);
-}
+bool Receive_UDP_CLIENT(UDP_CLIENT *client, char *buffer, int size) {
+	//FOR THE LOVE OF GOD DO NOT USE THIS FUNCTION
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
 
-uint8_t Receive_Peek_UDP_CLIENT(UDP_CLIENT* udp_client, int32_t& size) {
-	u_long bytes_available;
-	if (ioctlsocket(udp_client->sockfd, FIONREAD, &bytes_available) != 0) {
-		log_err("failed to read input buffer size with error code " +
-				to_string(WSAGetLastError()));
+	if (client->id < 0) return false;
+
+	while (--attempts >= 0 &&
+		client->udp_master->recv_queues[client->id]->empty()) {
+
+		Sleep_Milli((client->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
+	}
+
+	if (attempts < 0) {
 		return false;
 	}
 
-	size = bytes_available;
+	temp_buff = client->udp_master->recv_queues[client->id]->pop();
 
-	return true;
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	client->udp_master->recv_pool->push(temp_buff);
+
+	return (temp_buff->size - 1) == size;
 }
 
-void Delete_UDP_CLIENT(UDP_CLIENT* udp_client) {
-	if (udp_client->sockfd < 0) {
-		WSACleanup();
-	}
-}
-#endif
-#ifdef __linux__
-uint8_t Initialize_UDP_CLIENT(UDP_CLIENT* udp_client) {
-	*udp_client = {};
-	uint32_t input_var;
+int Receive_Unsafe_UDP_CLIENT(UDP_CLIENT *client, char *buffer) {
+	UDP_PACKET *temp_buff;
+	int attempts = RECV_ATTEMPTS;
 
-	udp_client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	udp_client->server_address_size = sizeof(udp_client->server_address);
+	if (client->id < 0) return false;
 
-	if (udp_client->sockfd < 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to initialize UDP client socket"},
-			JSON_TYPE_END}));
-		return false;
+	while (--attempts >= 0 &&
+		client->udp_master->recv_queues[client->id]->empty()) {
+
+		Sleep_Milli((client->timeout.tv_sec * 1000) / RECV_ATTEMPTS);
 	}
 
-	memset(&udp_client->server_address, 0, udp_client->server_address_size);
-
-	input_var = 1000000;
-	if (setsockopt(udp_client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
-				   sizeof(uint32_t)) == -1) {
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_RCVBUF on UDP client socket"},
-			JSON_TYPE_END}));
-		return false;
+	if (attempts < 0) {
+		return 0;
 	}
 
-	timeval tv;
-	tv.tv_sec = 5;
-	tv.tv_usec = 0;
-	if (setsockopt(udp_client->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv,
-				   sizeof(tv)) < 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_RCVTIMEO on UDP client socket"},
-			JSON_TYPE_END}));
-		return false;
-	}
+	temp_buff = client->udp_master->recv_queues[client->id]->pop();
 
-	return true;
+	memcpy(buffer, temp_buff->buffer + 1, temp_buff->size - 1);
+
+	client->udp_master->recv_pool->push(temp_buff);
+
+	return temp_buff->size - 1;
 }
 
-void Set_Timeout_UDP_CLIENT(UDP_CLIENT* udp_client, int s, int u) {
-	timeval o_to = { s, u };
-	if (setsockopt(udp_client->sockfd, SOL_SOCKET, SO_RCVTIMEO, &o_to,
-		sizeof(timeval)) == -1) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "Failed to set SO_RCVTIMEO on UDP server socket"},
-			JSON_TYPE_END}));
-	}
-}
-
-uint8_t Connect_UDP_CLIENT(UDP_CLIENT* udp_client, string ip_address,
-						   uint32_t port) {
-	int32_t size;
-	int connect_attempts = CONNECT_ATTEMPTS;
-	uint8_t* test_buff;
-
-	log_dbg(((const JSON_TYPE){{"message", "connecting to"}, JSON_TYPE_END}));
-
-	test_buff = new uint8_t[TEST_BUFF_SIZE];
-
-	udp_client->server_address.sin_family = AF_INET;
-	udp_client->server_address.sin_port = htons(port);
-
-	if (inet_pton(AF_INET, ip_address.c_str(),
-				  &(udp_client->server_address.sin_addr.s_addr)) < 1) {
-		struct addrinfo hints, *res;
-		struct addrinfo* itr;
-
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = PF_UNSPEC;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_flags |= AI_CANONNAME;
-
-		if (getaddrinfo(ip_address.c_str(), NULL, &hints, &res) != 0) {
-			return false;
+void Delete_UDP_CLIENT(UDP_CLIENT *client) {
+	if (client->id >= 0) {
+		while (!client->udp_master->recv_queues[client->id]->empty()) {
+			client->udp_master->recv_pool->push(
+				client->udp_master->recv_queues[client->id]->
+				pop());
 		}
 
-		itr = res;
+		client->id = -1;
 
-		while (itr) {
-			if (itr->ai_family == AF_INET) {
-				udp_client->server_address.sin_addr.s_addr =
-					((struct sockaddr_in*)itr->ai_addr)->sin_addr.s_addr;
-
-				freeaddrinfo(res);
-
-				goto success;
-			}
-			itr = itr->ai_next;
+		if (client->udp_master->recv_thread != NULL) {
+			client->udp_master->running = false;
+			client->udp_master->recv_thread->join();
+			delete client->udp_master->recv_thread;
+			client->udp_master->recv_thread = NULL;
 		}
-
-		freeaddrinfo(res);
-		return false;
-	}
-success:
-
-	Set_Timeout_UDP_CLIENT(udp_client, 0, 100000);
-
-	while (connect_attempts-- > 0) {
-		errno = 0;
-		size = sendto(udp_client->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-					  (sockaddr*)&udp_client->server_address,
-					  udp_client->server_address_size);
-
-		if (size != TEST_BUFF_SIZE) {
-			log_err(((const JSON_TYPE){
-				{"message", "There was an error sending test buffer to server"},
-				JSON_TYPE_END}));
-			continue;
-		}
-
-		errno = 0;
-		size = recvfrom(udp_client->sockfd, (char*)test_buff, TEST_BUFF_SIZE, 0,
-						(sockaddr*)&udp_client->server_address,
-						&udp_client->server_address_size);
-
-		if (size != TEST_BUFF_SIZE) {
-			log_err(((const JSON_TYPE){
-				{"message", "There was an error receiving test buffer from server"},
-				JSON_TYPE_END}));
-			continue;
-		}
-		break;
+		client->udp_master->connected = false;
 	}
 
-	delete[] test_buff;
-
-	Set_Timeout_UDP_CLIENT(udp_client, 5, 0);
-
-	return (connect_attempts > 0);
-}
-
-uint8_t Send_UDP_CLIENT(UDP_CLIENT* udp_client, uint8_t* buffer, int32_t size) {
-	return size == sendto(udp_client->sockfd, (char*)buffer, size, 0,
-						  (sockaddr*)&udp_client->server_address,
-						  udp_client->server_address_size);
-}
-
-int32_t Receive_UDP_CLIENT(UDP_CLIENT* udp_client, uint8_t* buffer,
-						   int32_t size) {
-	return recvfrom(udp_client->sockfd, (char*)buffer, size, 0,
-					(sockaddr*)&udp_client->server_address,
-					(socklen_t*)&udp_client->server_address_size);
-}
-
-uint8_t Receive_Peek_UDP_CLIENT(UDP_CLIENT* udp_client, int32_t& size
-								/*, uint8_t* buffer, int32_t size*/) {
-	return recvfrom(udp_client->sockfd, (char*)&size, sizeof(int32_t), MSG_PEEK,
-					(sockaddr*)&udp_client->server_address,
-					(socklen_t*)&udp_client->server_address_size);
-}
-
-void Delete_UDP_CLIENT(UDP_CLIENT* udp_client) {
-	if (udp_client->sockfd > 0) {
-		shutdown(udp_client->sockfd, 2);
-		close(udp_client->sockfd);
-		udp_client->sockfd = NULL;
+	LOG_WARN_CTX((client->ctx)) {
+		ADD_STR_LOG("message",
+			"Client connection has already been closed");
+		ADD_STR_LOG("name", client->name);
 	}
 }
-#endif

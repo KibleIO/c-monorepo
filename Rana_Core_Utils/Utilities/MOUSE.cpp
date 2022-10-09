@@ -68,6 +68,7 @@ void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 #endif
 // }}} Windows specific code {{{
 #ifdef _WIN64
+/*
 void Handle_Mouse_WINAPI(MOUSE_EVENT_T* m_event) {
 	INPUT ip;
 	ip.type = INPUT_MOUSE;
@@ -183,6 +184,7 @@ void Handle_Mouse_WINAPI(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 		delete m_event;
 	}
 }
+*/
 #endif
 // }}} OSX specific code {{{
 #ifdef __APPLE__

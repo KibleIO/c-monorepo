@@ -18,7 +18,7 @@ struct INDEX_QUEUE {
 	mutex		mtx;
 };
 
-void		Initialize_INDEX_QUEUE(INDEX_QUEUE*, uint32_t, uint32_t);
+bool		Initialize_INDEX_QUEUE(INDEX_QUEUE*, uint32_t, uint32_t);
 void		Release_All_INDEX_QUEUE(INDEX_QUEUE*);
 uint32_t	Capture_INDEX_QUEUE(INDEX_QUEUE*);
 uint8_t		Capture_INDEX_QUEUE(INDEX_QUEUE*, uint32_t);

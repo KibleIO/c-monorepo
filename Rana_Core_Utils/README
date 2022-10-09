@@ -1,0 +1,46 @@
+Some things here:
+
+the idl directory is a sub module of KibleIO/Gaia
+in order to make everything please first generate the protobuf files
+- make build_proto
+
+also install rename
+
+apt install rename
+
+git submodule update --init --recursive
+git submodule foreach git pull origin master
+
+mac osx:
+
+https://brew.sh/
+
+https://stackoverflow.com/questions/64951024/how-can-i-run-two-isolated-installations-of-homebrew
+
+https://github.com/json-c/json-c
+https://grpc.io/docs/languages/cpp/quickstart/
+brew install rename
+brew install ffmpeg
+
+SWITCH BETWEEM x86 and ARM
+
+arch -x86_64 zsh
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+export PATH=$PATH:/mingw64/bin
+export PATH=$PATH:/usr/local/lib
+export PATH=$PATH:/mingw64/bin/
+
+https://community.letsencrypt.org/t/certbot-command-you-use-to-renew-or-generate-cert-by-passing-my-own-csr/124666
+
+curl -X POST "https://elk.kible.com:9200/_security/user/poster?pretty" -H 'Content-Type: application/json' -u elastic -d'{ "password" : "l0ng-r4nd0m-p@ssw0rd", "roles" : [ "create_doc" ] }'
+
+Hey, How do I address merge conflicts?
+
+1. git pull -r origin master (or the branch you are merging with)
+2. <fix merge conflicts in code and save>
+3. git add .
+4. git rebase --continue
+5. <go back to number 2 and rinse and repeat till complete>
+6. git push -f (the -f is very important here)
+7. profit

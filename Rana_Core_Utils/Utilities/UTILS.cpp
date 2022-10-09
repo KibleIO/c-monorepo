@@ -1,5 +1,5 @@
 // PLATFORMS: Linux, Windows, OSX (TODO)
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "UTILS.h"
 
 string system_output(string cmd) {
@@ -78,13 +78,29 @@ uint8_t file_exists(string file) {
 }
 
 void generate_uuid(char *str) {
-    uuid_t binuuid;
-    uuid_generate_random(binuuid);
+	#ifndef _WIN64
 
-    uuid_unparse(binuuid, str);
+	unsigned char binuuid[16];
+	uuid_generate_random(binuuid);
+
+	uuid_unparse(binuuid, str);
+
+	#else
+
+	UUID uuid;
+	UuidCreate(&uuid);
+	char *str1;
+	UuidToStringA(&uuid, (RPC_CSTR*)&str1);
+	strcpy(str, str1);
+	RpcStringFreeA((RPC_CSTR*)&str1);
+	
+	#endif
+
+	
 }
 
 void get_mac_address(char *str) {
+        #ifdef linux
     struct ifreq ifr;
     struct ifaddrs *ifap, *ifa;
     int success = 0;
@@ -146,24 +162,72 @@ void get_mac_address(char *str) {
 
 error_lbl:
     close(sock);
+    
+    #endif
     strcpy(str, "FATAL");
 }
 
+#ifdef _WIN64
+
+int gettimeofday(struct timeval* tp, struct timezone* tzp) {
+	namespace sc = std::chrono;
+	sc::system_clock::duration d = sc::system_clock::now().time_since_epoch();
+	sc::seconds s = sc::duration_cast<sc::seconds>(d);
+	tp->tv_sec = s.count();
+	tp->tv_usec = sc::duration_cast<sc::microseconds>(d - s).count();
+
+	return 0;
+}
+
+#endif
+
 void get_current_time(char *str) {
-	time_t rawtime;
-	struct tm *timeinfo;
+	struct timespec ts;
 
-	time ( &rawtime );
-	timeinfo = gmtime ( &rawtime );
+	#ifdef __linux__
 
-	sprintf(str, "%d-%02d-%02dT%02d:%02d:%02dZ", timeinfo->tm_year + 1900,
-		timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour,
-		timeinfo->tm_min, timeinfo->tm_sec);
+	timespec_get(&ts, TIME_UTC);
+
+	char buff[100];
+	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
+	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
+
+	#elif __APPLE__
+
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	ts.tv_sec = mts.tv_sec;
+	ts.tv_nsec = mts.tv_nsec;
+
+	char buff[100];
+	strftime(buff, sizeof buff, "%Y-%m-%dT%T", gmtime(&ts.tv_sec));
+	sprintf(str, "%s.%09ldZ", buff, ts.tv_nsec);
+
+	#elif _WIN64
+	
+	struct timeval tv;
+	time_t nowtime;
+	struct tm *nowtm;
+	char tmbuf[64], buf[64];
+
+	gettimeofday(&tv, NULL);
+	nowtime = tv.tv_sec;
+	nowtm = gmtime(&nowtime);
+	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%dT%H:%M:%S", nowtm);
+	snprintf(str, 64, "%s.%09ldZ", tmbuf, tv.tv_usec);
+ 
+	#endif
 }
 
 void Sleep_Milli(unsigned int milli) {
 #ifdef __linux__
     usleep(milli * 1000);
+#endif
+#ifdef __APPLE__
+usleep(milli * 1000);
 #endif
 #ifdef _WIN64
     Sleep(milli);
@@ -199,4 +263,106 @@ bool Read_Bin_From_File(char *file_name, char *buffer, int size) {
 	file.close();
 
 	return true;
+}
+
+bool Check_If_White_Space(char *str) {
+	while (str[0] != '\0') {
+		if (!isspace(str[0])) {
+			return false;
+		}
+		str++;
+	}
+	return true;
+}
+
+int Get_Number_Of_Cores() {
+        #ifdef __linux__
+	
+        return get_nprocs();
+
+        #else
+
+        //god help us
+        return 8;
+
+        #endif
+}
+
+//These are here because of a hack... ignore :(
+void Get_Clipboard() {
+	string value;
+	clip::get_text(value);
+}
+
+void Set_Clipboard() {
+	clip::set_text("hello2.data()");
+}
+
+int kible_setenv(const char *name, const char *value, int overwrite) {
+	#ifdef _WIN64
+	//https://stackoverflow.com/questions/17258029/c-setenv-undefined-identifier-in-visual-studio
+	int errcode = 0;
+	if(!overwrite) {
+		size_t envsize = 0;
+		errcode = getenv_s(&envsize, NULL, 0, name);
+		if(errcode || envsize) return errcode;
+	}
+	return _putenv_s(name, value);
+	#else
+	return setenv(name, value, overwrite);
+	#endif
+}
+
+void Get_Desktop_Dir(char *directory) {
+	#ifdef _WIN64
+	SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY | CSIDL_FLAG_CREATE, 
+		NULL, SHGFP_TYPE_CURRENT, directory);
+	#else
+	strcpy(directory, getenv("HOME"));
+	strcat(directory, "/Desktop");
+	#endif
+}
+
+void Get_CACERT_Dir(char *dir) {
+	#ifdef __linux__
+	//honestly not sure
+	#endif
+	#ifdef __APPLE__
+
+	CFURLRef appUrlRef;
+	appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("res"), NULL, NULL);
+
+	CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef, kCFURLPOSIXPathStyle);
+	strcpy(dir, (char*)CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding()));
+
+	// must release core foundation objects
+	CFRelease(appUrlRef);
+	CFRelease(macPath);
+	//wow... so hacky
+	strcat(dir, "/");
+
+	#endif
+	#ifdef _WIN64
+	strcpy(dir, "./res/");
+	#endif
+
+	strcat(dir, "resources/cacert.pem");
+}
+
+void Open_Url(char *url) {
+	#ifdef __linux__
+
+	system(string(string("xdg-open ") + url).c_str());
+
+	#endif
+	#ifdef __APPLE__
+
+	system(string(string("open ") + url).c_str());
+
+	#endif
+	#ifdef _WIN64
+
+	system(string(string("start ") + url).c_str());
+
+	#endif
 }

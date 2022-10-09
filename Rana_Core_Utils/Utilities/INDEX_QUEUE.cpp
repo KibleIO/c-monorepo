@@ -2,7 +2,7 @@
 
 #include "INDEX_QUEUE.h"
 
-void Initialize_INDEX_QUEUE(
+bool Initialize_INDEX_QUEUE(
 INDEX_QUEUE* queue, uint32_t minimum, uint32_t maximum) {
 	queue->mtx.lock();
 	queue->index	= 0;
@@ -15,6 +15,7 @@ INDEX_QUEUE* queue, uint32_t minimum, uint32_t maximum) {
 	}
 	queue->mtx.unlock();
 	Release_All_INDEX_QUEUE(queue);
+	return true;
 }
 
 void Release_All_INDEX_QUEUE(INDEX_QUEUE* queue) {
