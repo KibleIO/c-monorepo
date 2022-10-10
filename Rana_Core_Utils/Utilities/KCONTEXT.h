@@ -130,8 +130,10 @@ struct KCONTEXT {
 	gaia::LocationUUID locationID;
 	//LOL this is so bad, please fix these
 	gaia::GetLocationsResponse locations;
-	gaia::GetProductsResponse products;
+	gaia::GetAppsResponse apps;
 	gaia::ListAdsResponse ads;
+	gaia::GetProductResponse product;
+	gaia::GetAvailableProductsResponse products;
 	string recent_error;
 	bool insecure_mode;
 };
@@ -150,6 +152,9 @@ bool Login_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
 bool Get_Ads_KCONTEXT(KCONTEXT*);
+bool Wake_Up_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
+bool Get_Product_KCONTEXT(KCONTEXT*, gaia::ProductUUID);
+bool Get_Available_Products_KCONTEXT(KCONTEXT*);
 void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
 bool GetCheckoutUrl(KCONTEXT*, char*);
 bool GetCheckPayment(KCONTEXT*);
