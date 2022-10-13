@@ -272,7 +272,7 @@ bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
-bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
+bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Rana has not already been "
@@ -287,18 +287,25 @@ bool Get_Products_KCONTEXT(KCONTEXT *ctx) {
 	INIT_GRPC_STUB
 	#endif
 
-	gaia::GetProductsRequest request;
-	gaia::RanaUUID ranaID;
+	gaia::GetAppsRequest request;
+	string token;
 
-	ranaID.mutable_uuid()->set_value(ctx->uuid);
-	request.mutable_ranaid()->CopyFrom(ranaID);
+	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+	if (file) {
+		getline(file, token);
+		file.close();
 
-	status = stub->GetProducts(&context, request, &ctx->products);
+		request.set_sessiontoken(token);
+	}
+
+	status = stub->GetApps(&context, request, &ctx->apps);
 
 	if (!status.ok()) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Could not get products.");
+			ADD_STR_LOG("message", "Could not get apps.");
 		}
+
+		ctx->recent_error = status.error_message();
 
 		return false;
 	}
@@ -321,6 +328,8 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Could not get ads.");
 		}
+
+		ctx->recent_error = status.error_message();
 
 		return false;
 	}
@@ -361,6 +370,8 @@ bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Could not get GetCheckoutUrl.");
 		}
+
+		ctx->recent_error = status.error_message();
 
 		return false;
 	}
@@ -403,6 +414,8 @@ bool GetCheckPayment(KCONTEXT *ctx) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Could not get GetCheckPayment.");
 		}
+
+		ctx->recent_error = status.error_message();
 
 		return false;
 	}
@@ -450,10 +463,8 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 
 		if (status.ok()) {
 			ctx->uuid = response.ranaid().uuid().value();
-			ctx->connection = response.connection();
 
 			ctx->rana_initialized = true;
-			ctx->connection_initialized = true;
 
 			return INIT_CONN_KCONTEXT_SUCCESS;
 		}
@@ -582,6 +593,87 @@ void Sign_Out_Of_Session_KCONTEXT(KCONTEXT *ctx) {
 	ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
 	output << "nil" << endl;
 	output.close();
+}
+
+bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "System resource directory has "
+				"not been initialized.");
+		}
+		return false;
+	}
+
+	gaia::WakeUpAppRequest request;
+	gaia::WakeUpAppResponse response;
+	string token;
+
+	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+	if (file) {
+		getline(file, token);
+		file.close();
+
+		request.set_sessiontoken(token);
+	}
+	
+	request.mutable_appid()->CopyFrom(appID);
+
+	status = stub->WakeUpApp(&context, request, &response);
+
+	if (status.ok()) {
+		ctx->connection = response.connection();
+		ctx->connection_initialized = true;
+
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
+}
+
+bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	gaia::GetProductRequest request;
+	request.mutable_productid()->CopyFrom(productID);
+
+	status = stub->GetProduct(&context, request, &ctx->product);
+
+	if (status.ok()) {
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
+}
+
+bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	gaia::GetAvailableProductsRequest request;
+
+	status = stub->GetAvailableProducts(&context, request, &ctx->products);
+
+	if (status.ok()) {
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
 }
 
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
