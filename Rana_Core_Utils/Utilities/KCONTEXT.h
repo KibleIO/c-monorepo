@@ -151,7 +151,7 @@ bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Login_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Products_KCONTEXT(KCONTEXT*);
-bool Get_Ads_KCONTEXT(KCONTEXT*);
+bool Get_Ads_KCONTEXT(KCONTEXT*, gaia::AdType ad_type);
 bool Wake_Up_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
 bool Get_Product_KCONTEXT(KCONTEXT*, gaia::ProductUUID);
 bool Get_Available_Products_KCONTEXT(KCONTEXT*);
