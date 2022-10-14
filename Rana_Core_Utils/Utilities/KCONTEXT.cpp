@@ -313,7 +313,7 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
-bool Get_Ads_KCONTEXT(KCONTEXT *ctx) {
+bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 	#ifdef __linux__
 	INIT_GRPC_STUB_linux
 	#else
@@ -321,6 +321,8 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx) {
 	#endif
 
 	gaia::ListAdsRequest request;
+
+	request.set_adtype(ad_type);
 
 	status = stub->ListAds(&context, request, &ctx->ads);
 
