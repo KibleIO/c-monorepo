@@ -339,7 +339,7 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 	return true;
 }
 
-bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
+bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Rana has not already been "
@@ -365,6 +365,8 @@ bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 
 		request.set_sessiontoken(token);
 	}
+	request.mutable_productid()->CopyFrom(productID);
+
 
 	status = stub->CreatePaymentUrlAuth(&context, request, &response);
 
@@ -383,7 +385,7 @@ bool GetCheckoutUrl(KCONTEXT *ctx, char *str) {
 	return true;
 }
 
-bool GetCheckPayment(KCONTEXT *ctx) {
+bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
         if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message", "Rana has not already been "
@@ -409,6 +411,8 @@ bool GetCheckPayment(KCONTEXT *ctx) {
 
 		request.set_sessiontoken(token);
 	}
+
+	request.mutable_productid()->CopyFrom(productID);
 
 	status = stub->CheckPaymentAuth(&context, request, &response);
 
