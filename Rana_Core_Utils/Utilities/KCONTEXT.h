@@ -156,8 +156,8 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
 bool Get_Product_KCONTEXT(KCONTEXT*, gaia::ProductUUID);
 bool Get_Available_Products_KCONTEXT(KCONTEXT*);
 void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
-bool GetCheckoutUrl(KCONTEXT*, char*);
-bool GetCheckPayment(KCONTEXT*);
+bool GetCheckoutUrl(KCONTEXT*, gaia::ProductUUID, char*);
+bool GetCheckPayment(KCONTEXT*, gaia::ProductUUID);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
 
