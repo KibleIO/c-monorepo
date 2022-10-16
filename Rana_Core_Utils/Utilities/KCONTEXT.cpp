@@ -643,6 +643,44 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 	return false;
 }
 
+bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "System resource directory has "
+				"not been initialized.");
+		}
+		return false;
+	}
+
+	gaia::GetAppRequest request;
+	string token;
+
+	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+	if (file) {
+		getline(file, token);
+		file.close();
+
+		request.set_sessiontoken(token);
+	}
+	
+	request.mutable_appid()->CopyFrom(appID);
+
+	status = stub->GetApp(&context, request, &ctx->app);
+
+	if (status.ok()) {
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
+}
+
 bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	#ifdef __linux__
 	INIT_GRPC_STUB_linux

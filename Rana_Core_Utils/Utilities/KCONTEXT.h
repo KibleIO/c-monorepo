@@ -134,6 +134,7 @@ struct KCONTEXT {
 	gaia::ListAdsResponse ads;
 	gaia::GetProductResponse product;
 	gaia::GetAvailableProductsResponse products;
+	gaia::GetAppResponse app;
 	string recent_error;
 	bool insecure_mode;
 };
@@ -156,6 +157,7 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
 bool Get_Product_KCONTEXT(KCONTEXT*, gaia::ProductUUID);
 bool Get_Available_Products_KCONTEXT(KCONTEXT*);
 void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
+bool Get_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
 bool GetCheckoutUrl(KCONTEXT*, gaia::ProductUUID, char*);
 bool GetCheckPayment(KCONTEXT*, gaia::ProductUUID);
 void Log_KCONTEXT(KCONTEXT*, char*);
