@@ -633,6 +633,29 @@ bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 	return false;
 }
 
+bool Get_Product_From_Connection_KCONTEXT(KCONTEXT *ctx,
+	gaia::ConnectionUUID connectionID) {
+	
+	#ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	gaia::GetProductFromConnectionRequest request;
+	request.mutable_connectionid()->CopyFrom(connectionID);
+
+	status = stub->GetProductFromConnection(&context, request,
+		&ctx->productFromConnection);
+
+	if (status.ok()) {
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
+}
+
 SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
 	return ctx->screen_dim;
 }
