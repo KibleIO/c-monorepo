@@ -43,60 +43,12 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
-		gaia::RegisterRanaRequest registerRequest;
-		gaia::RegisterRanaResponse registerResponse;
-		gaia::RanaUUID ranaID;
-		gaia::LocationUUID locationID;
-		string uuid;
-
-		ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                if (file) {
-                        getline(file, uuid);
-                        file.close();
-
-			ranaID.mutable_uuid()->set_value(uuid);
-			registerRequest.mutable_ranaid()->CopyFrom(ranaID);
+		LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Do not attempt to initialize connection in Rana.");
+			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-		if (!uuid_.empty()) {
-			ranaID.mutable_uuid()->set_value(uuid_);
-			registerRequest.mutable_ranaid()->CopyFrom(ranaID);
-		}
-
-		status = stub->RegisterRana(&context, registerRequest, &registerResponse);
-
-		if (status.ok()) {
-			ctx->connection = registerResponse.connection();
-
-                        ctx->connection_initialized = true;
-
-			LOG_INFO_CTX(ctx) {
-				ADD_STR_LOG("message", "Successfully lets go.");
-			}
-
-			return INIT_CONN_KCONTEXT_SUCCESS;
-		}
-
-		ctx->recent_error = status.error_message();
-
-		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Lets go failed.");
-			ADD_STR_LOG("error", ctx->recent_error.c_str());
-			ADD_STR_LOG("type", "register");
-		}
-
-		switch (status.error_code()) {
-			case grpc::StatusCode::PERMISSION_DENIED:
-				return INIT_CONN_KCONTEXT_KEY;
-			case grpc::StatusCode::ABORTED:
-				return INIT_CONN_KCONTEXT_ABORT;
-			case grpc::StatusCode::NOT_FOUND:
-				return INIT_CONN_KCONTEXT_EMAIL;
-			case grpc::StatusCode::INVALID_ARGUMENT:
-				return INIT_CONN_KCONTEXT_LOCATION;
-			default:
-				return INIT_CONN_KCONTEXT_ABORT;
-		}
+                return false;
         } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
