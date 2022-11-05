@@ -43,60 +43,12 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	}
 
         if (strcmp(ctx->core_system, "RANA") == 0) {
-		gaia::RegisterRanaRequest registerRequest;
-		gaia::RegisterRanaResponse registerResponse;
-		gaia::RanaUUID ranaID;
-		gaia::LocationUUID locationID;
-		string uuid;
-
-		ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                if (file) {
-                        getline(file, uuid);
-                        file.close();
-
-			ranaID.mutable_uuid()->set_value(uuid);
-			registerRequest.mutable_ranaid()->CopyFrom(ranaID);
+		LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Do not attempt to initialize connection in Rana.");
+			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-		if (!uuid_.empty()) {
-			ranaID.mutable_uuid()->set_value(uuid_);
-			registerRequest.mutable_ranaid()->CopyFrom(ranaID);
-		}
-
-		status = stub->RegisterRana(&context, registerRequest, &registerResponse);
-
-		if (status.ok()) {
-			ctx->connection = registerResponse.connection();
-
-                        ctx->connection_initialized = true;
-
-			LOG_INFO_CTX(ctx) {
-				ADD_STR_LOG("message", "Successfully lets go.");
-			}
-
-			return INIT_CONN_KCONTEXT_SUCCESS;
-		}
-
-		ctx->recent_error = status.error_message();
-
-		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Lets go failed.");
-			ADD_STR_LOG("error", ctx->recent_error.c_str());
-			ADD_STR_LOG("type", "register");
-		}
-
-		switch (status.error_code()) {
-			case grpc::StatusCode::PERMISSION_DENIED:
-				return INIT_CONN_KCONTEXT_KEY;
-			case grpc::StatusCode::ABORTED:
-				return INIT_CONN_KCONTEXT_ABORT;
-			case grpc::StatusCode::NOT_FOUND:
-				return INIT_CONN_KCONTEXT_EMAIL;
-			case grpc::StatusCode::INVALID_ARGUMENT:
-				return INIT_CONN_KCONTEXT_LOCATION;
-			default:
-				return INIT_CONN_KCONTEXT_ABORT;
-		}
+                return false;
         } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
@@ -128,6 +80,93 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		ctx->connection_initialized = true;
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
+        } else {
+                LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Unknown core system");
+			ADD_STR_LOG("sys", ctx->core_system);
+		}
+
+                return false;
+        }
+}
+
+//email and uuid are optional for Themis
+int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
+        #ifdef __linux__
+	INIT_GRPC_STUB_linux
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "System resource directory has "
+				"not been initialized.");
+		}
+		return INIT_CONN_KCONTEXT_ABORT;
+	}
+
+	if (ctx->rana_initialized) {
+		LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Rana have already been "
+				"initialized.");
+		}
+		return INIT_CONN_KCONTEXT_SUCCESS;
+	}
+
+        if (strcmp(ctx->core_system, "RANA") == 0) {
+		gaia::CreateRanaAccountRequest registerRequest;
+		gaia::CreateRanaAccountResponse registerResponse;
+		gaia::LocationUUID locationID;
+
+		registerRequest.mutable_email()->set_value(email_);
+		registerRequest.set_password(password);
+
+		if (ctx->locationID.has_uuid()) {
+			locationID.mutable_uuid()->set_value(ctx->locationID.uuid().value());
+			registerRequest.mutable_locationid()->CopyFrom(locationID);
+		}
+
+		status = stub->CreateRanaAccount(&context, registerRequest, &registerResponse);
+
+		if (status.ok()) {
+			ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
+                        ASSERT_E_R(output,
+                                "Could not open info location.",
+                                ctx);
+                        output << registerResponse.sessiontoken() << endl;
+                        output.close();
+
+			return INIT_CONN_KCONTEXT_REGISTER;
+		}
+
+		ctx->recent_error = status.error_message();
+
+		LOG_ERROR_CTX(ctx) {
+			ADD_STR_LOG("message", "Lets go failed.");
+			ADD_STR_LOG("error", ctx->recent_error.c_str());
+			ADD_STR_LOG("type", "create");
+		}
+
+		switch (status.error_code()) {
+			case grpc::StatusCode::PERMISSION_DENIED:
+				return INIT_CONN_KCONTEXT_KEY;
+			case grpc::StatusCode::ABORTED:
+				return INIT_CONN_KCONTEXT_ABORT;
+			case grpc::StatusCode::NOT_FOUND:
+				return INIT_CONN_KCONTEXT_EMAIL;
+			case grpc::StatusCode::INVALID_ARGUMENT:
+				return INIT_CONN_KCONTEXT_LOCATION;
+			default:
+				return INIT_CONN_KCONTEXT_ABORT;
+		}
+        } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+		LOG_WARN_CTX(ctx) {
+			ADD_STR_LOG("message", "Do not call create for Themis");
+			ADD_STR_LOG("sys", ctx->core_system);
+		}
+
+                return false;
         } else {
                 LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
