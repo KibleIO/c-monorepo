@@ -714,3 +714,25 @@ void Log_KCONTEXT(KCONTEXT *ctx, char *str) {
 void Delete_KCONTEXT(KCONTEXT *ctx) {
 	Delete_ELASTIC_SEARCH_CLIENT(&ctx->client);
 }
+
+bool Does_User_Have_Premium(KCONTEXT *ctx) {
+	if (Get_Apps_KCONTEXT(ctx)) {
+		for (const gaia::App apps : ctx->apps.apps()) {
+			if (Does_App_Have_Feature(ctx, apps, gaia::FEATURE_PREMIUM)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Does_App_Have_Feature(KCONTEXT *ctx, gaia::App app, gaia::Feature feature) {
+	if (Get_Product_KCONTEXT(ctx, app.productid())) {
+		for (int features : ctx->product.product().features()) {
+			if (features == feature) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

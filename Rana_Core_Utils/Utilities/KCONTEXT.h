@@ -73,8 +73,8 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_WELCOME 5 //this is only used in RANA
 #define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
-#define GRPC_ADDRESS "api.kible.com:51942"
-#define INSECURE_GRPC_ADDRESS "146.190.60.102:52942"
+#define GRPC_ADDRESS "api.kible.com:53942"
+#define INSECURE_GRPC_ADDRESS "146.190.60.102:54942"
 
 #define KIBLE_PREMIUM_UUID "313319a8-7045-479e-90f1-1f31ea099eaa"
 #define KIBLE_TRIAL_ENDED_UUID "1b3300ed-140b-4fd8-9cef-4420b9b2a289"
@@ -164,5 +164,8 @@ bool GetCheckoutUrl(KCONTEXT*, gaia::ProductUUID, char*);
 bool GetCheckPayment(KCONTEXT*, gaia::ProductUUID);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
+
+bool Does_User_Have_Premium(KCONTEXT*);
+bool Does_App_Have_Feature(KCONTEXT*, gaia::App app, gaia::Feature);
 
 #endif
