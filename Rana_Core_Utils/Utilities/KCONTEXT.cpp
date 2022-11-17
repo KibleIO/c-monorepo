@@ -21,7 +21,7 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
         #ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -93,7 +93,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 //email and uuid are optional for Themis
 int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
         #ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -179,7 +179,7 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 
 bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -209,7 +209,7 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 
 bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -234,7 +234,7 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	}
 
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -267,7 +267,7 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 
 bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -301,7 +301,7 @@ bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 	}
 
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -347,7 +347,7 @@ bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	}
 
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -383,7 +383,7 @@ bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
 
 int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
         #ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -462,7 +462,7 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 
 bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -485,7 +485,7 @@ bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
 
 bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -508,7 +508,7 @@ bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 
 bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -555,7 +555,7 @@ void Sign_Out_Of_Session_KCONTEXT(KCONTEXT *ctx) {
 
 bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -597,7 +597,7 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 
 bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -635,7 +635,7 @@ bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 
 bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -655,7 +655,7 @@ bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 
 bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
@@ -676,7 +676,7 @@ bool Get_Product_From_Connection_KCONTEXT(KCONTEXT *ctx,
 	gaia::ConnectionUUID connectionID) {
 	
 	#ifdef __linux__
-	INIT_GRPC_STUB_linux
+	INIT_GRPC_STUB_LINUX
 	#else
 	INIT_GRPC_STUB
 	#endif
