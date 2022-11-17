@@ -14,9 +14,9 @@
 #include <cstring>
 #include "UTILS.h"
 
-#define ELASTIC_SEARCH_URL "https://elk.kible.com:9200/kible/_doc/?pretty"
+#define ELASTIC_SEARCH_URL "https://elastic.kible.com:9200/kible/_doc/?pretty"
 #define ELK_USERNAME "kible"
-#define ELK_PASSWORD "l0ng-r4nd0m-p@ssw0rd"
+#define ELK_PASSWORD "x2JSh2&297VY"
 #define ELK_TIMEOUT 100L
 
 struct ELASTIC_SEARCH_CLIENT {

@@ -74,7 +74,7 @@ typedef int Status;
 #define INIT_CONN_KCONTEXT_REGISTER 6 //this is only used in RANA
 
 #define GRPC_ADDRESS "api.kible.com:51942"
-#define INSECURE_GRPC_ADDRESS "45.57.227.210:52942"
+#define INSECURE_GRPC_ADDRESS "146.190.60.102:52942"
 
 #define KIBLE_PREMIUM_UUID "313319a8-7045-479e-90f1-1f31ea099eaa"
 #define KIBLE_TRIAL_ENDED_UUID "1b3300ed-140b-4fd8-9cef-4420b9b2a289"
