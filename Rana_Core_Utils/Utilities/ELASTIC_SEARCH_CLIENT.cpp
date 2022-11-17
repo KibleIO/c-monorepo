@@ -49,7 +49,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 
 	//PLEASE for the love that is good and pure remove this
 	struct curl_slist *host = NULL;
-	host = curl_slist_append(NULL, "elk.kible.com:9200:45.57.226.10");
+	host = curl_slist_append(NULL, "elastic.kible.com:9200:128.199.5.136");
 
 	curl_easy_setopt(client->curl, CURLOPT_RESOLVE, host);
 	// END remove section
