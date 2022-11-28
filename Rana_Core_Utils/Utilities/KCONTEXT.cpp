@@ -653,6 +653,26 @@ bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	return false;
 }
 
+bool Get_Ad_KCONTEXT(KCONTEXT *ctx, gaia::AdUUID adID) {
+	#ifdef __linux__
+	INIT_GRPC_STUB_LINUX
+	#else
+	INIT_GRPC_STUB
+	#endif
+
+	gaia::GetAdRequest request;
+	request.mutable_adid()->CopyFrom(adID);
+
+	status = stub->GetAd(&context, request, &ctx->ad);
+
+	if (status.ok()) {
+		return true;
+	}
+
+	ctx->recent_error = status.error_message();
+	return false;
+}
+
 bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 	#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
