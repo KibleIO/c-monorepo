@@ -3,8 +3,8 @@
 
 #include "../Networking/NETWORK.h"
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_SERVER_MASTER.h"
-#include "../Networking/UDP_SERVER_MASTER.h"
+#include "../Networking/TCP/TCP_SERVER_MASTER.h"
+#include "../Networking/UDP/UDP_SERVER_MASTER.h"
 
 struct SERVER_MASTER {
 	KCONTEXT *ctx;

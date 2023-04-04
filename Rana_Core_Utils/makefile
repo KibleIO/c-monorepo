@@ -32,7 +32,7 @@ endif
 EXEC = librana.so
 EXEC_MAC = librana.dylib
 EXEC_WIN = rana.dll
-SOURCES = $(filter-out $(wildcard clip/*.cpp), $(wildcard */*.cpp)) $(wildcard idl/cpp/gen/*.cpp)
+SOURCES = $(filter-out $(wildcard clip/*.cpp) $(wildcard clip/*/*.cpp), $(wildcard */*.cpp) $(wildcard */*/*.cpp)) $(wildcard idl/cpp/gen/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:

@@ -2,8 +2,8 @@
 #define CLIENT_MASTER_H_
 
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_CLIENT_MASTER.h"
-#include "../Networking/UDP_CLIENT_MASTER.h"
+#include "../Networking/TCP/TCP_CLIENT_MASTER.h"
+#include "../Networking/UDP/UDP_CLIENT_MASTER.h"
 
 struct CLIENT_MASTER {
 	KCONTEXT *ctx;

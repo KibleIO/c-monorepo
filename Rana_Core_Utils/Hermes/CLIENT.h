@@ -3,8 +3,8 @@
 
 #include "../Networking/NETWORK.h"
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_CLIENT.h"
-#include "../Networking/UDP_CLIENT.h"
+#include "../Networking/TCP/TCP_CLIENT.h"
+#include "../Networking/UDP/UDP_CLIENT.h"
 #include "CLIENT_MASTER.h"
 
 struct CLIENT {
