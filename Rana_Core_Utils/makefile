@@ -14,7 +14,7 @@ ifeq ($(OS),Windows_NT)
 
 else
 	CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I./ -I$(HOME)/.local/include -std=c++11 \
-	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable
+	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable -Wno-switch
 
 	CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/:/usr/local/opt/openssl@3/lib/pkgconfig pkg-config --libs grpc grpc++ protobuf)
 

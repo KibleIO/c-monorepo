@@ -42,7 +42,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			break;
 		case LWS_CALLBACK_RECEIVE:
 			if (int(((uint8_t*) in)[0]) < 0 || int(((uint8_t*) in)[0]) >= MAX_HOSTS) {
-				log_err("invalid host id.");
+				//log_err("invalid host id.");
 				break;
 			}
 
@@ -50,7 +50,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 				MAX_ACCUMULATED_FRAMES) {
 
 				//a reader is getting lazy... drop this packet
-				log_err("a reader got lazy, dropping this packet.");
+				//log_err("a reader got lazy, dropping this packet.");
 				break;
 			}
 
@@ -67,7 +67,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			server->pool->pop(temp);
 
 			if (len > MAX_WEBSOCKET_PACKET_SIZE) {
-				log_err("received large packet. truncated.");
+				//log_err("received large packet. truncated.");
 				len = MAX_WEBSOCKET_PACKET_SIZE;
 			}
 
@@ -135,7 +135,7 @@ void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 
 	server->context = lws_create_context(&context_info);
 	if (server->context == NULL) {
-		log_err("failed to init master websocket context");
+		//log_err("failed to init master websocket context");
 		return;
 	}
 
@@ -152,7 +152,7 @@ void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 	server->vhost = lws_create_vhost(server->context, &context_info);
 
 	if (server->vhost == NULL) {
-		log_err("failed to initialize web socket server");
+		//log_err("failed to initialize web socket server");
 		return;
 	}
 
@@ -181,7 +181,7 @@ bool Send_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 	}
 
 	if (size > (MAX_WEBSOCKET_PACKET_SIZE - 1)) {
-		log_err("sending large packet. truncated.");
+		//log_err("sending large packet. truncated.");
 		size = MAX_WEBSOCKET_PACKET_SIZE - 1;
 	}
 
@@ -263,7 +263,7 @@ int Receive_Unsafe_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 
 uint8_t Register_Vhost_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 	if (server->host_count >= MAX_HOSTS) {
-		log_err("Too many hosts.");
+		//log_err("Too many hosts.");
 		return -1;
 	}
 	return server->host_count++;

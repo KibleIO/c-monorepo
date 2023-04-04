@@ -1,6 +1,7 @@
 #ifndef WS_SERVER_H_
 #define WS_SERVER_H_
 
+#include "../../Utilities/KCONTEXT.h"
 #include "WS_SERVER_MASTER.h"
 
 #define TEST_BUFF_SIZE 4

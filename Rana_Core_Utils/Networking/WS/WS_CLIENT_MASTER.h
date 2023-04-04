@@ -8,7 +8,10 @@
 
 #endif
 
+#include <cstring>
+#include "../../Utilities/KCONTEXT.h"
 #include "../../Utilities/CONCURRENT_QUEUE.h"
+#include "../../Utilities/UTILS.h"
 
 #define WEB_SOCKET_POOL_SIZE 80
 #define MAX_WEBSOCKET_PACKET_SIZE 100000

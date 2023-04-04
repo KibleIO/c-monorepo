@@ -1,6 +1,8 @@
 #ifndef WS_CLIENT_H_
 #define WS_CLIENT_H_
 
+#include <cstring>
+#include "../../Utilities/KCONTEXT.h"
 #include "WS_CLIENT_MASTER.h"
 
 #define TEST_BUFF_SIZE 4

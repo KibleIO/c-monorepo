@@ -39,7 +39,7 @@ EM_BOOL On_Message_WS_CLIENT_MASTER(int eventType,
 
 	if (int(websocketEvent->data[0]) < 0 ||
 		int(websocketEvent->data[0]) >= MAX_HOSTS) {
-		log_err("invalid host id.");
+		//log_err("invalid host id.");
 		return EM_FALSE;
 	}
 
@@ -47,7 +47,7 @@ EM_BOOL On_Message_WS_CLIENT_MASTER(int eventType,
 		MAX_ACCUMULATED_FRAMES) {
 
 		//a reader is getting lazy... drop this packet
-		log_err("a reader got lazy, dropping this packet.");
+		//log_err("a reader got lazy, dropping this packet.");
 		return EM_FALSE;
 	}
 
@@ -64,7 +64,7 @@ EM_BOOL On_Message_WS_CLIENT_MASTER(int eventType,
 	client->pool->pop(temp);
 
 	if (len > MAX_WEBSOCKET_PACKET_SIZE) {
-		log_err("received large packet. truncated.");
+		//log_err("received large packet. truncated.");
 		len = MAX_WEBSOCKET_PACKET_SIZE;
 	}
 
@@ -227,7 +227,7 @@ int Receive_Unsafe_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 
 uint8_t Register_Vhost_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client) {
 	if (client->host_count >= MAX_HOSTS) {
-		log_err("Too many hosts.");
+		//log_err("Too many hosts.");
 		return -1;
 	}
 	return client->host_count++;
