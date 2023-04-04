@@ -92,9 +92,10 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 	return 0;
 }
 
-bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, int port) {
+bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int port) {
 	WEBSOCKET_ELEMENT *temp;
 
+	server->ctx = ctx;
 	server->pool		= new Queue<WEBSOCKET_ELEMENT*>;
 	server->active_write	= new Queue<WEBSOCKET_ELEMENT*>;
 

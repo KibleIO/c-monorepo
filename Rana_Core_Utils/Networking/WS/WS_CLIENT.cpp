@@ -1,7 +1,8 @@
 #include "WS_CLIENT.h"
 
-bool Initialize_WS_CLIENT(WS_CLIENT *client, WS_CLIENT_MASTER *master, int id) {
+bool Initialize_WS_CLIENT(WS_CLIENT *client, KCONTEXT *ctx, WS_CLIENT_MASTER *master, int id) {
 	client->ws_master = master;
+	client->ctx = ctx;
 	client->recv_timeout = 100;
 	Set_Name_WS_CLIENT(client, "unknown");
 

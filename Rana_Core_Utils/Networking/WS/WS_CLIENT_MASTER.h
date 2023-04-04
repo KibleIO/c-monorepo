@@ -26,6 +26,7 @@ struct WS_CLIENT_MASTER {
 	char name[100];
 	volatile uint8_t	accept;
 	uint8_t host_count;
+	KCONTEXT *ctx;
 
 	Queue<WEBSOCKET_ELEMENT*>	*pool;
 	Queue<WEBSOCKET_ELEMENT*>	*active_read[MAX_HOSTS];
@@ -37,7 +38,7 @@ struct WS_CLIENT_MASTER {
 	#endif
 };
 
-bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER*, int, char*);
+bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER*, KCONTEXT *ctx, int, char*);
 void Set_Name_WS_CLIENT_MASTER(WS_CLIENT_MASTER*, char*);
 bool Set_Recv_Timeout_WS_CLIENT_MASTER(WS_CLIENT_MASTER*, int, int);
 bool Set_High_Priority_WS_CLIENT_MASTER(WS_CLIENT_MASTER*);

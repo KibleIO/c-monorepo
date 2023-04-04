@@ -79,11 +79,12 @@ EM_BOOL On_Message_WS_CLIENT_MASTER(int eventType,
 
 #endif
 
-bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
+bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client, KCONTEXT *ctx,
 	int port, char *ip) {
 
 	WEBSOCKET_ELEMENT *temp;
 	
+	client->ctx = ctx;
 	client->host_count = 0;
 	client->accept = false;
 	client->pool = new Queue<WEBSOCKET_ELEMENT*>;

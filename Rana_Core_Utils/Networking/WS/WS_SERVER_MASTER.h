@@ -39,13 +39,14 @@ struct WS_SERVER_MASTER {
 	uint8_t	running;
 	uint8_t	accept;
 	uint8_t host_count;
+	KCONTEXT *ctx;
 
 	Queue<WEBSOCKET_ELEMENT*>	*pool;
 	Queue<WEBSOCKET_ELEMENT*>	*active_write;
 	Queue<WEBSOCKET_ELEMENT*>	*active_read[MAX_HOSTS];
 };
 
-bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER*, int);
+bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER*, KCONTEXT*, int);
 void Set_Name_WS_SERVER_MASTER(WS_SERVER_MASTER*, char*);
 bool Set_Recv_Timeout_WS_SERVER_MASTER(WS_SERVER_MASTER*, int, int);
 bool Set_High_Priority_WS_SERVER_MASTER(WS_SERVER_MASTER*);
