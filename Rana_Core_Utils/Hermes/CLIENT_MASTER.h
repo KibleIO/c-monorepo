@@ -4,6 +4,7 @@
 #include "../Utilities/KCONTEXT.h"
 #include "../Networking/TCP/TCP_CLIENT_MASTER.h"
 #include "../Networking/UDP/UDP_CLIENT_MASTER.h"
+#include "../Networking/WS/WS_CLIENT_MASTER.h"
 
 struct CLIENT_MASTER {
 	KCONTEXT *ctx;
@@ -12,6 +13,7 @@ struct CLIENT_MASTER {
 	union {
 		TCP_CLIENT_MASTER tcp_client_master;
 		UDP_CLIENT_MASTER udp_client_master;
+		WS_CLIENT_MASTER ws_client_master;
 	};
 };
 

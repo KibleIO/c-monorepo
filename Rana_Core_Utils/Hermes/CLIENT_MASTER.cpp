@@ -13,6 +13,9 @@ bool Initialize_CLIENT_MASTER(CLIENT_MASTER *client, KCONTEXT *ctx, int type,
 		case NETWORK_TYPE_UDP:
 			return Initialize_UDP_CLIENT_MASTER(
 				&client->udp_client_master, ctx, port, ip);
+		case NETWORK_TYPE_WS:
+			return Initialize_WS_CLIENT_MASTER(
+				&client->ws_client_master, ctx, port, ip);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -29,6 +32,9 @@ void Set_Name_CLIENT_MASTER(CLIENT_MASTER *client, char *name) {
 		case NETWORK_TYPE_UDP:
 			Set_Name_UDP_CLIENT_MASTER(&client->udp_client_master,
 				name);
+		case NETWORK_TYPE_WS:
+			Set_Name_WS_CLIENT_MASTER(&client->ws_client_master,
+				name);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -44,6 +50,9 @@ bool Set_Recv_Timeout_CLIENT_MASTER(CLIENT_MASTER *client, int sec, int usec) {
 		case NETWORK_TYPE_UDP:
 			return Set_Recv_Timeout_UDP_CLIENT_MASTER(
 				&client->udp_client_master, sec, usec);
+		case NETWORK_TYPE_WS:
+			return Set_Recv_Timeout_WS_CLIENT_MASTER(
+				&client->ws_client_master, sec, usec);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -60,6 +69,9 @@ bool Set_High_Priority_CLIENT_MASTER(CLIENT_MASTER *client) {
 		case NETWORK_TYPE_UDP:
 			return Set_High_Priority_UDP_CLIENT_MASTER(
 				&client->udp_client_master);
+		case NETWORK_TYPE_WS:
+			return Set_High_Priority_WS_CLIENT_MASTER(
+				&client->ws_client_master);
 	}
 	LOG_ERROR_CTX((client->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -75,6 +87,9 @@ void Delete_CLIENT_MASTER(CLIENT_MASTER *client) {
 			return;
 		case NETWORK_TYPE_UDP:
 			Delete_UDP_CLIENT_MASTER(&client->udp_client_master);
+			return;
+		case NETWORK_TYPE_WS:
+			Delete_WS_CLIENT_MASTER(&client->ws_client_master);
 			return;
 	}
 	LOG_ERROR_CTX((client->ctx)) {
