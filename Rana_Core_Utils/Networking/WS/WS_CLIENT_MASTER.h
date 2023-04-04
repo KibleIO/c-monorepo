@@ -1,10 +1,14 @@
 #ifndef WS_CLIENT_MASTER_H_
 #define WS_CLIENT_MASTER_H_
 
+#ifdef __EMSCRIPTEN__
+
 #include <emscripten/emscripten.h>
 #include <emscripten/websocket.h>
-#include "utils.h"
-#include "CONCURRENT_QUEUE.h"
+
+#endif
+
+#include "../../Utilities/CONCURRENT_QUEUE.h"
 
 #define WEB_SOCKET_POOL_SIZE 80
 #define MAX_WEBSOCKET_PACKET_SIZE 100000
@@ -22,10 +26,15 @@ struct WS_CLIENT_MASTER {
 	char name[100];
 	volatile uint8_t	accept;
 	uint8_t host_count;
-	EMSCRIPTEN_WEBSOCKET_T socket;
 
 	Queue<WEBSOCKET_ELEMENT*>	*pool;
 	Queue<WEBSOCKET_ELEMENT*>	*active_read[MAX_HOSTS];
+	
+	#ifdef __EMSCRIPTEN__
+
+	EMSCRIPTEN_WEBSOCKET_T socket;
+
+	#endif
 };
 
 bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER*, int, char*);

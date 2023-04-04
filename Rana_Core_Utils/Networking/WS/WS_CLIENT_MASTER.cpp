@@ -1,5 +1,7 @@
 #include "WS_CLIENT_MASTER.h"
 
+#ifdef __EMSCRIPTEN__
+
 EM_BOOL On_Open_WS_CLIENT_MASTER(int eventType,
 	const EmscriptenWebSocketOpenEvent *websocketEvent, void *userData) {
 
@@ -75,6 +77,8 @@ EM_BOOL On_Message_WS_CLIENT_MASTER(int eventType,
 	return EM_TRUE;
 }
 
+#endif
+
 bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 	int port, char *ip) {
 
@@ -97,6 +101,8 @@ bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 	}
 
 	Set_Name_WS_CLIENT_MASTER(client, "unknown");
+
+	#ifdef __EMSCRIPTEN__
 
 	if (!emscripten_websocket_is_supported()) {
 		return false;
@@ -125,6 +131,8 @@ bool Initialize_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 		Sleep_Milli(WEB_SOCKET_SLEEP_TIME);
 	}
 
+	#endif
+
 	return true;
 }
 
@@ -132,7 +140,7 @@ bool Send_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 	uint8_t* bytes, uint32_t size, uint8_t client_index) {
 
 	if (size > (MAX_WEBSOCKET_PACKET_SIZE - 1)) {
-		log_err("sending large packet. truncated.");
+		//log_err("sending large packet. truncated.");
 		size = MAX_WEBSOCKET_PACKET_SIZE - 1;
 	}
 
@@ -141,7 +149,11 @@ bool Send_WS_CLIENT_MASTER(WS_CLIENT_MASTER *client,
 	send_bytes[0] = client_index;
 	copy(bytes, bytes + size, &send_bytes[1]);
 
+	#ifdef __EMSCRIPTEN__
+
 	emscripten_websocket_send_binary(client->socket, send_bytes, size + 1);
+
+	#endif
 
 	return true;
 }
