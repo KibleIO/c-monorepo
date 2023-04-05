@@ -2,10 +2,10 @@
 #define _UDP_CLIENT_MASTER_H_
 
 #include <thread>
-#include "NETWORK.h"
-#include "../Utilities/CONCURRENT_QUEUE.h"
-#include "../Utilities/KCONTEXT.h"
-#include "DNS_WRAPPER.h"
+#include "../NETWORK.h"
+#include "../../Utilities/CONCURRENT_QUEUE.h"
+#include "../../Utilities/KCONTEXT.h"
+#include "../DNS_WRAPPER.h"
 
 using namespace std;
 

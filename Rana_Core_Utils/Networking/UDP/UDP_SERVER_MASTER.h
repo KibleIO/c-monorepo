@@ -12,9 +12,9 @@
 #include <thread>
 #include <sys/types.h>
 #include <unistd.h>
-#include "NETWORK.h"
-#include "../Utilities/KCONTEXT.h"
-#include "../Utilities/CONCURRENT_QUEUE.h"
+#include "../NETWORK.h"
+#include "../../Utilities/KCONTEXT.h"
+#include "../../Utilities/CONCURRENT_QUEUE.h"
 
 using namespace std;
 

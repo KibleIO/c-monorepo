@@ -11,10 +11,10 @@
 #include <string.h>
 #include <sys/types.h>
 #include <string>
-#include "NETWORK.h"
+#include "../NETWORK.h"
 #include "UDP_CLIENT_MASTER.h"
-#include "../Utilities/KCONTEXT.h"
-#include "DNS_WRAPPER.h"
+#include "../../Utilities/KCONTEXT.h"
+#include "../DNS_WRAPPER.h"
 
 struct UDP_CLIENT {
 	char name[MAX_NAME_SIZE];

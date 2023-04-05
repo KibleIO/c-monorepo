@@ -1,8 +1,8 @@
 #ifndef TCP_CLIENT_MASTER_H_
 #define TCP_CLIENT_MASTER_H_
 
-#include "../Utilities/KCONTEXT.h"
-#include "NETWORK.h"
+#include "../../Utilities/KCONTEXT.h"
+#include "../NETWORK.h"
 
 struct TCP_CLIENT_MASTER {
 	char name[MAX_NAME_SIZE];

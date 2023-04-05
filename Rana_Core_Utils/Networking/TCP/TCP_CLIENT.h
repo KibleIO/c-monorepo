@@ -5,11 +5,11 @@
 #include <signal.h>
 #include <string>
 #include <string.h>
-#include "NETWORK.h"
+#include "../NETWORK.h"
 #include "TCP_CLIENT_MASTER.h"
-#include "../Utilities/TIMER.h"
-#include "../Utilities/KCONTEXT.h"
-#include "DNS_WRAPPER.h"
+#include "../../Utilities/TIMER.h"
+#include "../../Utilities/KCONTEXT.h"
+#include "../DNS_WRAPPER.h"
 
 struct TCP_CLIENT {
 	KCONTEXT *ctx;

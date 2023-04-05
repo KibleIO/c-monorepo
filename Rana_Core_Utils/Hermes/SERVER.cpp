@@ -14,6 +14,9 @@ bool Initialize_SERVER(SERVER *server, KCONTEXT *ctx, SERVER_MASTER *master,
 		case NETWORK_TYPE_UDP:
 			return Initialize_UDP_SERVER(&server->udp_server, ctx,
 				&master->udp_server_master, id);
+		case NETWORK_TYPE_WS:
+			return Initialize_WS_SERVER(&server->ws_server, ctx,
+				&master->ws_server_master, id);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -30,6 +33,9 @@ void Set_Name_SERVER(SERVER *server, char *name) {
 		case NETWORK_TYPE_UDP:
 			Set_Name_UDP_SERVER(&server->udp_server, name);
 			return;
+		case NETWORK_TYPE_WS:
+			Set_Name_WS_SERVER(&server->ws_server, name);
+			return;
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -44,6 +50,9 @@ bool Set_Recv_Timeout_SERVER(SERVER *server, int sec, int usec) {
 				sec, usec);
 		case NETWORK_TYPE_UDP:
 			return Set_Recv_Timeout_UDP_SERVER(&server->udp_server,
+				sec, usec);
+		case NETWORK_TYPE_WS:
+			return Set_Recv_Timeout_WS_SERVER(&server->ws_server,
 				sec, usec);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
@@ -61,6 +70,9 @@ bool Set_High_Priority_SERVER(SERVER *server) {
 		case NETWORK_TYPE_UDP:
 			return Set_High_Priority_UDP_SERVER(
 				&server->udp_server);
+		case NETWORK_TYPE_WS:
+			return Set_High_Priority_WS_SERVER(
+				&server->ws_server);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -75,6 +87,8 @@ bool Accept_SERVER(SERVER *server) {
 			return Accept_TCP_SERVER(&server->tcp_server);
 		case NETWORK_TYPE_UDP:
 			return Accept_UDP_SERVER(&server->udp_server);
+		case NETWORK_TYPE_WS:
+			return Accept_WS_SERVER(&server->ws_server);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -90,6 +104,9 @@ bool Send_SERVER(SERVER *server, char *buffer, int size) {
 				size);
 		case NETWORK_TYPE_UDP:
 			return Send_UDP_SERVER(&server->udp_server, buffer,
+				size);
+		case NETWORK_TYPE_WS:
+			return Send_WS_SERVER(&server->ws_server, buffer,
 				size);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
@@ -107,6 +124,9 @@ bool Receive_SERVER(SERVER *server, char *buffer, int size) {
 		case NETWORK_TYPE_UDP:
 			return Receive_UDP_SERVER(&server->udp_server, buffer,
 				size);
+		case NETWORK_TYPE_WS:
+			return Receive_WS_SERVER(&server->ws_server, buffer,
+				size);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -123,6 +143,9 @@ int Receive_Unsafe_SERVER(SERVER *server, char *buffer) {
 		case NETWORK_TYPE_UDP:
 			return Receive_Unsafe_UDP_SERVER(&server->udp_server,
 				buffer);
+		case NETWORK_TYPE_WS:
+			return Receive_Unsafe_WS_SERVER(&server->ws_server,
+				buffer);
 	}
 	LOG_ERROR_CTX((server->ctx)) {
 		ADD_STR_LOG("message", "Unknown type");
@@ -138,6 +161,9 @@ void Delete_SERVER(SERVER *server) {
 			return;
 		case NETWORK_TYPE_UDP:
 			Delete_UDP_SERVER(&server->udp_server);
+			return;
+		case NETWORK_TYPE_WS:
+			Delete_WS_SERVER(&server->ws_server);
 			return;
 	}
 	LOG_ERROR_CTX((server->ctx)) {

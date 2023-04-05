@@ -232,6 +232,9 @@ usleep(milli * 1000);
 #ifdef _WIN64
     Sleep(milli);
 #endif
+#ifdef __EMSCRIPTEN__
+emscripten_sleep(milli);
+#endif
 }
 
 const char *itoa(const char *str, int input) {

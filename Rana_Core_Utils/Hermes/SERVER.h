@@ -4,8 +4,9 @@
 #include "SERVER_MASTER.h"
 #include "../Networking/NETWORK.h"
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_SERVER.h"
-#include "../Networking/UDP_SERVER.h"
+#include "../Networking/TCP/TCP_SERVER.h"
+#include "../Networking/UDP/UDP_SERVER.h"
+#include "../Networking/WS/WS_SERVER.h"
 
 struct SERVER {
 	KCONTEXT *ctx;
@@ -15,6 +16,7 @@ struct SERVER {
 	union {
 		TCP_SERVER tcp_server;
 		UDP_SERVER udp_server;
+		WS_SERVER ws_server;
 	};
 };
 

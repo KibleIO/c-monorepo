@@ -2,8 +2,8 @@
 #define TCP_SERVER_H_
 
 #include <signal.h>
-#include "NETWORK.h"
-#include "../Utilities/KCONTEXT.h"
+#include "../NETWORK.h"
+#include "../../Utilities/KCONTEXT.h"
 #include "TCP_SERVER_MASTER.h"
 
 struct TCP_SERVER {

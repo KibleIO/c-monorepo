@@ -2,8 +2,8 @@
 #define TCP_SERVER_MASTER_H_
 
 #include <signal.h>
-#include "NETWORK.h"
-#include "../Utilities/KCONTEXT.h"
+#include "../NETWORK.h"
+#include "../../Utilities/KCONTEXT.h"
 
 struct TCP_SERVER_MASTER {
 	KCONTEXT *ctx;

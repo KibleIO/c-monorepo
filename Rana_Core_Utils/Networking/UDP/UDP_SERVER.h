@@ -11,8 +11,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "NETWORK.h"
-#include "../Utilities/KCONTEXT.h"
+#include "../NETWORK.h"
+#include "../../Utilities/KCONTEXT.h"
 #include "UDP_SERVER_MASTER.h"
 
 struct UDP_SERVER {

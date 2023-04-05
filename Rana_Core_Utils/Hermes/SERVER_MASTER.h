@@ -3,8 +3,9 @@
 
 #include "../Networking/NETWORK.h"
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_SERVER_MASTER.h"
-#include "../Networking/UDP_SERVER_MASTER.h"
+#include "../Networking/TCP/TCP_SERVER_MASTER.h"
+#include "../Networking/UDP/UDP_SERVER_MASTER.h"
+#include "../Networking/WS/WS_SERVER_MASTER.h"
 
 struct SERVER_MASTER {
 	KCONTEXT *ctx;
@@ -13,6 +14,7 @@ struct SERVER_MASTER {
 	union {
 		TCP_SERVER_MASTER tcp_server_master;
 		UDP_SERVER_MASTER udp_server_master;
+		WS_SERVER_MASTER ws_server_master;
 	};
 };
 

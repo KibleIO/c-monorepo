@@ -3,8 +3,9 @@
 
 #include "../Networking/NETWORK.h"
 #include "../Utilities/KCONTEXT.h"
-#include "../Networking/TCP_CLIENT.h"
-#include "../Networking/UDP_CLIENT.h"
+#include "../Networking/TCP/TCP_CLIENT.h"
+#include "../Networking/UDP/UDP_CLIENT.h"
+#include "../Networking/WS/WS_CLIENT.h"
 #include "CLIENT_MASTER.h"
 
 struct CLIENT {
@@ -14,6 +15,7 @@ struct CLIENT {
 	union {
 		TCP_CLIENT tcp_client;
 		UDP_CLIENT udp_client;
+		WS_CLIENT ws_client;
 	};
 };
 
