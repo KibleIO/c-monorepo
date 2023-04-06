@@ -20,10 +20,12 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 }
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
+#if EXTERNAL_LOGS_APIS
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
 	INIT_GRPC_STUB
+#endif
 #endif
 	cout << "top" << endl;
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
@@ -103,8 +105,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		return false;
 	}
-		cout << "6" << endl;
-
+	cout << "6" << endl;
 }
 
 // email and uuid are optional for Themis
