@@ -20,6 +20,7 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 }
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
+	cout << "top" << endl;
 #if EXTERNAL_LOGS_APIS
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
@@ -27,7 +28,6 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	INIT_GRPC_STUB
 #endif
 #endif
-	cout << "top" << endl;
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		cout << "1" << endl;
 		LOG_ERROR_CTX(ctx) {
