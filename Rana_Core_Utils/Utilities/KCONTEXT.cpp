@@ -84,6 +84,9 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		ctx->uuid = registerResponse.ranaid().uuid().value();
 		ctx->connection = registerResponse.connection();
 		ctx->connection_initialized = true;
+#else
+	generate_uuid(ctx.trace_uuid);
+	ctx.uuid = ctx.trace_uuid;
 #endif
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
