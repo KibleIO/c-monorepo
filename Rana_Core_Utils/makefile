@@ -45,7 +45,7 @@ xubuntu:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker
 
 xubuntux86:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make docker -j8
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux862 make docker -j8
 
 debianx86:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:debianx86 make docker
