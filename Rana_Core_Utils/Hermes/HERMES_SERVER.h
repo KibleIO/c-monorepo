@@ -21,9 +21,8 @@ struct SERVER_CONNECTION {
 };
 
 struct HERMES_SERVER {
-	SERVER_MASTER udp_master;
-	SERVER_MASTER tcp_master;
-	SERVER server;
+	SERVER_MASTER master;
+	SERVER hermes_server;
 	mutex cmutx;
 	thread *loop_thread;
 	int port;

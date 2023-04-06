@@ -21,9 +21,8 @@ struct CLIENT_CONNECTION {
 };
 
 struct HERMES_CLIENT {
-	CLIENT_MASTER udp_master;
-	CLIENT_MASTER tcp_master;
-	CLIENT client;
+	CLIENT_MASTER master;
+	CLIENT hermes_client;
 	mutex cmutx;
 	int port;
         bool use_tcp;
