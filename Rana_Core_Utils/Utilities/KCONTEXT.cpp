@@ -16,7 +16,7 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 		cout << "failed to initialize elastic search client" << endl;
 		return false;
 	}
-
+	cout << "hello2" << endl;
 	return true;
 }
 
