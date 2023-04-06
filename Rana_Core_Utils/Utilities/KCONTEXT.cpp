@@ -1,6 +1,7 @@
 #include "KCONTEXT.h"
 
 bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
+	cout << "hello" << endl;
 	ctx->uuid = "ERROR";
 	ctx->insecure_mode = !insecure;
 
@@ -21,7 +22,7 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	cout << "top" << endl;
-#if EXTERNAL_LOGS_APIS
+#if EXTERNAL_LOGS_APIS_UTILS
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
@@ -62,7 +63,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 		cout << "4" << endl;
 
-#if EXTERNAL_LOGS_APIS
+#if EXTERNAL_LOGS_APIS_UTILS
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
 		gaia::ContainerID containerID;
@@ -75,7 +76,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		getline(containerid, containerID_);
 		containerid.close();
 
-#if EXTERNAL_LOGS_APIS
+#if EXTERNAL_LOGS_APIS_UTILS
 		containerID.mutable_id()->set_value(containerID_);
 		registerRequest.mutable_containerid()->CopyFrom(containerID);
 
@@ -744,7 +745,7 @@ void Set_System_Resource_Dir_KCONTEXT(KCONTEXT *ctx, char *str) {
 }
 
 void Log_KCONTEXT(KCONTEXT *ctx, char *str) {
-#if EXTERNAL_LOGS_APIS
+#if EXTERNAL_LOGS_APIS_UTILS
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
 #else
 	cout << str << endl;
