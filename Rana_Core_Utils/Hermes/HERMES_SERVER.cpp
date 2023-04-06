@@ -261,7 +261,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	}
 
 	Initialize_SERVER(&hs->server, hs->ctx, &hs->master, types[0].id);
-	Set_Name_SERVER(&hs->server, types[0].name);
+	Set_Name_SERVER(&hs->server, (uint8_t*) types[0].name);
 	Set_Recv_Timeout_SERVER(&hs->server, HERMES_CORE_TIMEOUT, 0);
 
 	if (!Accept_SERVER(&hs->server)) {
