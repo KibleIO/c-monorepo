@@ -85,8 +85,9 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		ctx->connection = registerResponse.connection();
 		ctx->connection_initialized = true;
 #else
-	generate_uuid(ctx.trace_uuid);
-	ctx.uuid = ctx.trace_uuid;
+	char tmp[33];
+	generate_uuid(tmp);
+	ctx.uuid = tmp;
 #endif
 
 		return INIT_CONN_KCONTEXT_SUCCESS;

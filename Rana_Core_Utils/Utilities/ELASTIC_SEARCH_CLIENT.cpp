@@ -5,8 +5,8 @@ bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	client->hs = NULL;
-	client->hs =
-		curl_slist_append(client->hs, "Content-Type: application/json");
+	client->hs = curl_slist_append(client->hs,
+		"Content-Type: application/json");
 
 	client->curl = curl_easy_init();
 
@@ -14,30 +14,35 @@ bool Initialize_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client) {
 }
 
 size_t Read_Callback_ELASTIC_SEARCH_CLIENT(char *ptr, size_t size, size_t nmemb,
-										   void *stream) {
-	ELASTIC_SEARCH_CLIENT *client = (ELASTIC_SEARCH_CLIENT *)stream;
+	void *stream) {
+
+	ELASTIC_SEARCH_CLIENT *client = (ELASTIC_SEARCH_CLIENT*) stream;
 	int bytes_to_read;
 
-	bytes_to_read = (size * nmemb > client->payload_size) ? client->payload_size
-														  : size * nmemb;
+	bytes_to_read = (size * nmemb > client->payload_size) ?
+		client->payload_size : size * nmemb;
 
 	memcpy(ptr, client->payload_ptr, bytes_to_read);
 
 	client->payload_size -= bytes_to_read;
 	client->payload_ptr += bytes_to_read;
 
-	return (curl_off_t)bytes_to_read / size;
+	return (curl_off_t) bytes_to_read / size;
 }
 
-// throw away function
+//throw away function
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
-	(void)buffer;
-	(void)userp;
-	// cout << (char*) buffer << endl;
+	(void) buffer;
+	(void) userp;
+	//cout << (char*) buffer << endl;
 	return size * nmemb;
 }
 
 bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
+	#ifdef LOG_TO_CONSOLE
+	cout << str << endl;
+	return true;
+	#else
 	CURLcode res;
 
 	char cacert_dir[MAX_DIRECTORY_LEN];
@@ -46,7 +51,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 
 	client->mutex_.lock();
 
-	// PLEASE for the love that is good and pure remove this
+	//PLEASE for the love that is good and pure remove this
 	struct curl_slist *host = NULL;
 	host = curl_slist_append(NULL, "elastic.kible.com:9200:128.199.5.136");
 
@@ -60,23 +65,23 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, ELASTIC_SEARCH_URL);
 
-#ifndef __linux__
+	#ifndef __linux__
 
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
-#endif
+	#endif
 
 	/* enable uploading (implies PUT over HTTP) */
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
 
 	/* complete within 20 seconds */
-	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
+  	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
 
 	curl_easy_setopt(client->curl, CURLOPT_HTTPHEADER, client->hs);
 
 	/* we want to use our own read function */
 	curl_easy_setopt(client->curl, CURLOPT_READFUNCTION,
-					 Read_Callback_ELASTIC_SEARCH_CLIENT);
+		Read_Callback_ELASTIC_SEARCH_CLIENT);
 
 	/* now specify which file to upload */
 	curl_easy_setopt(client->curl, CURLOPT_READDATA, client);
@@ -85,7 +90,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 	value to curl_off_t since we must be sure to use the correct
 	data size */
 	curl_easy_setopt(client->curl, CURLOPT_POSTFIELDSIZE,
-					 (long)client->payload_size);
+	     (long)client->payload_size);
 
 	curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
 
@@ -104,10 +109,10 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 
 	/* Check for errors */
 	return (res == CURLE_OK);
+	#endif
 }
 
-bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
-									   char *url) {
+bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str, char *url) {
 	CURLcode res;
 
 	char cacert_dir[MAX_DIRECTORY_LEN];
@@ -123,18 +128,18 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
 
-#ifndef __linux__
+	#ifndef __linux__
 
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
-#endif
+	#endif
 
 	/* Set the default value: strict certificate check please */
-	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
+  	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
 	/* complete within X seconds */
-	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
+  	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
 
 	/* enable uploading (implies PUT over HTTP) */
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
@@ -143,7 +148,7 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 
 	/* we want to use our own read function */
 	curl_easy_setopt(client->curl, CURLOPT_READFUNCTION,
-					 Read_Callback_ELASTIC_SEARCH_CLIENT);
+		Read_Callback_ELASTIC_SEARCH_CLIENT);
 
 	/* now specify which file to upload */
 	curl_easy_setopt(client->curl, CURLOPT_READDATA, client);
@@ -152,7 +157,7 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 	value to curl_off_t since we must be sure to use the correct
 	data size */
 	curl_easy_setopt(client->curl, CURLOPT_POSTFIELDSIZE,
-					 (long)client->payload_size);
+	     (long)client->payload_size);
 
 	curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
 
@@ -165,7 +170,7 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 
 	client->mutex_.unlock();
 
-	if (res != CURLE_OK) {
+	if(res != CURLE_OK) {
 		client->recent_error = string(curl_easy_strerror(res));
 	}
 
@@ -173,8 +178,7 @@ bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str,
 	return (res == CURLE_OK);
 }
 
-bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
-										char *str, char *url) {
+bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str, char *url) {
 	CURLcode res;
 
 	char cacert_dir[MAX_DIRECTORY_LEN];
@@ -195,18 +199,18 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 	file name, not only a directory */
 	curl_easy_setopt(client->curl, CURLOPT_URL, url);
 
-#ifndef __linux__
+	#ifndef __linux__
 
 	curl_easy_setopt(client->curl, CURLOPT_CAINFO, cacert_dir);
 
-#endif
+	#endif
 
 	/* Set the default value: strict certificate check please */
-	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
+  	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(client->curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
 	/* complete within X seconds */
-	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
+  	curl_easy_setopt(client->curl, CURLOPT_TIMEOUT, ELK_TIMEOUT);
 
 	/* enable uploading (implies PUT over HTTP) */
 	curl_easy_setopt(client->curl, CURLOPT_POST, 1L);
@@ -215,7 +219,7 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 
 	/* we want to use our own read function */
 	curl_easy_setopt(client->curl, CURLOPT_READFUNCTION,
-					 Read_Callback_ELASTIC_SEARCH_CLIENT);
+		Read_Callback_ELASTIC_SEARCH_CLIENT);
 
 	/* now specify which file to upload */
 	curl_easy_setopt(client->curl, CURLOPT_READDATA, client);
@@ -224,7 +228,7 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 	value to curl_off_t since we must be sure to use the correct
 	data size */
 	curl_easy_setopt(client->curl, CURLOPT_POSTFIELDSIZE,
-					 (long)client->payload_size);
+	     (long)client->payload_size);
 
 	curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, write_data);
 
@@ -237,7 +241,7 @@ bool Custom2_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client,
 
 	client->mutex_.unlock();
 
-	if (res != CURLE_OK) {
+	if(res != CURLE_OK) {
 		client->recent_error = string(curl_easy_strerror(res));
 	}
 
