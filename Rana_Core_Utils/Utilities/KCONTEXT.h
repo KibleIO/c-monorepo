@@ -6,7 +6,6 @@
 #include "UTILS.h"
 #include "SCREEN_DIM.h"
 #include "ASSERT.h"
-#include "../KEVINS_A_PIECE_OF_SHIT.h"
 
 //oh god... check here for explanation: https://stackoverflow.com/questions/57008541/how-to-avoid-a-globally-defined-c-macro-of-status-from-xlib-h
 
@@ -31,6 +30,7 @@ typedef int Status;
 
 #endif
 
+#define EXTERNAL_LOGS_APIS_UTILS 0
 //WARNING: This will eventually cause an issue
 #define MAX_LOG_LEN 8192
 #define ADD_STR_LOG(key, obj)  json_object_object_add(loop.json_obj, key, json_object_new_string(obj))
