@@ -2,22 +2,22 @@
 
 bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 	cout << "hello" << endl;
-	// ctx->uuid = "ERROR";
-	// ctx->insecure_mode = !insecure;
+	ctx->uuid = "ERROR";
+	ctx->insecure_mode = !insecure;
 
-	// generate_uuid(ctx->trace_uuid);
-	// strcpy(ctx->core_system, core_system);
-	// strcpy(ctx->system_resource_dir, "ERROR");
+	generate_uuid(ctx->trace_uuid);
+	strcpy(ctx->core_system, core_system);
+	strcpy(ctx->system_resource_dir, "ERROR");
 
-	// ctx->connection_initialized = false;
-	// ctx->rana_initialized = false;
+	ctx->connection_initialized = false;
+	ctx->rana_initialized = false;
 
-	// if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
-	// 	cout << "failed to initialize elastic search client" << endl;
-	// 	return false;
-	// }
+	if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
+		cout << "failed to initialize elastic search client" << endl;
+		return false;
+	}
 
-	return false;
+	return true;
 }
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
