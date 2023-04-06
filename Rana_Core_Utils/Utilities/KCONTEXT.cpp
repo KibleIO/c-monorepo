@@ -1,7 +1,7 @@
 #include "KCONTEXT.h"
 
 bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
-	cout << "hello" << endl;
+	cout << "hello1" << endl;
 	ctx->uuid = "ERROR";
 	ctx->insecure_mode = !insecure;
 cout << "hello3" << endl;
