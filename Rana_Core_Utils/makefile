@@ -4,7 +4,8 @@ CC = g++ -O3 -Wall -Wextra -Wpedantic
 UNAME_M = $(shell uname -m)
 USER=`whoami`
 SODIUM_LIB_PATH = /usr/local/Cellar/libsodium/1.0.18_1/lib
-FFMPEG_LIB_PATH = /usr/local/Cellar/ffmpeg/5.1.2_4/lib
+FFMPEG_LIB_PATH = /usr/local/Cellar/ffmpeg/5.0/lib
+# /usr/local/Cellar/ffmpeg/5.1.2_4/lib
 
 #-mmacosx-version-min=10.13
 
