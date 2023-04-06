@@ -165,7 +165,7 @@ dockerimage-xubuntu-publish: $(EXEC)
 dockerimage-xubuntu-x86-publish: $(EXEC)
 	docker build --platform linux/amd64 --file Dockerfile.Xubuntu -t kible/coreutils:xubuntux86 .
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
-	docker push kible/coreutils:xubuntux862
+	docker push kible/coreutils:xubuntux86
 
 dockerimage-debian-x86-publish: $(EXEC)
 	docker build --platform linux/amd64 --file Dockerfile.debian -t kible/coreutils:debianx86 .
