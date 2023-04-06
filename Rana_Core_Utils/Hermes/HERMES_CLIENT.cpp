@@ -160,7 +160,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 
 		Initialize_CLIENT(&hc->client, hc->ctx, &hc->master,
 			types[0].id);
-		Set_Name_CLIENT(&hc->client, (uint8_t*) types[0].name);
+		Set_Name_CLIENT(&hc->client, (char*) types[0].name);
 		Set_Recv_Timeout_CLIENT(&hc->client, HERMES_CORE_TIMEOUT, 0);
 
 		if (Connect_CLIENT(&hc->client)) {
