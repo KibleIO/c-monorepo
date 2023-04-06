@@ -25,8 +25,9 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 #else
 	INIT_GRPC_STUB
 #endif
-
+	cout << "top" << endl;
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
+		cout << "1" << endl;
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message",
 						"System resource directory has "
@@ -36,6 +37,8 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	}
 
 	if (ctx->connection_initialized) {
+		cout << "2" << endl;
+
 		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message",
 						"Ports have already been "
@@ -45,6 +48,8 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 	}
 
 	if (strcmp(ctx->core_system, "RANA") == 0) {
+		cout << "3" << endl;
+
 		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message",
 						"Do not attempt to initialize connection in Rana.");
@@ -53,6 +58,8 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		return false;
 	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+		cout << "4" << endl;
+
 #if EXTERNAL_LOGS_APIS
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
@@ -87,6 +94,8 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
 	} else {
+		cout << "5" << endl;
+
 		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
 			ADD_STR_LOG("sys", ctx->core_system);
@@ -94,6 +103,8 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		return false;
 	}
+		cout << "6" << endl;
+
 }
 
 // email and uuid are optional for Themis
