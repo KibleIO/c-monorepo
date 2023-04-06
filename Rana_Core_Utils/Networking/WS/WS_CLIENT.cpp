@@ -3,8 +3,11 @@
 bool Initialize_WS_CLIENT(WS_CLIENT *client, KCONTEXT *ctx, WS_CLIENT_MASTER *master, int id) {
 	client->ws_master = master;
 	client->ctx = ctx;
-	client->recv_timeout = 100;
 	Set_Name_WS_CLIENT(client, "unknown");
+
+	if (!Set_Recv_Timeout_WS_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
+		return false;
+	}
 
 	return true;
 }

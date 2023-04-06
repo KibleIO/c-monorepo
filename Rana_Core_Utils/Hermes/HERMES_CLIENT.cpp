@@ -96,8 +96,7 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 		Start_FPS_LIMITER(&hc->fps_limiter);
 
 		Initialize_CLIENT(&hc->connections[index].client, hc->ctx,
-			((type.type == NETWORK_TYPE_TCP) ? &hc->tcp_master :
-			&hc->udp_master), type.id);
+			&hc->master, type.id); //yes this is dubious
 		Set_Name_CLIENT(&hc->connections[index].client, (char*) type.name);
 
 		if (Connect_CLIENT(&hc->connections[index].client)) {
@@ -141,23 +140,27 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
-	if (!Initialize_CLIENT_MASTER(&hc->tcp_master, hc->ctx, NETWORK_TYPE_TCP,
+	if (types[0].id != HERMES_CLIENT_TCP.id &&
+		types[0].id != HERMES_CLIENT_WS.id) {
+
+		LOG_ERROR_CTX((hc->ctx)) {
+			ADD_STR_LOG("message",
+				"Invalid first HERMES_TYPE.");
+		}
+		return false;
+	}
+
+	if (!Initialize_CLIENT_MASTER(&hc->master, hc->ctx, types[0].type,
 		hc->port, hc->ip)) {
 		return false;
 	}
-	/*
-	if (!Initialize_CLIENT_MASTER(&hc->udp_master, hc->ctx, NETWORK_TYPE_UDP,
-		hc->port, hc->ip)) {
-		return false;
-	}
-	*/
 
 	while (--attempts >= 0) {
 		Start_FPS_LIMITER(&hc->fps_limiter);
 
-		Initialize_CLIENT(&hc->client, hc->ctx, &hc->tcp_master,
-			HERMES_CLIENT_T.id);
-		Set_Name_CLIENT(&hc->client, "hermes client");
+		Initialize_CLIENT(&hc->client, hc->ctx, &hc->master,
+			types[0].id);
+		Set_Name_CLIENT(&hc->client, (char*) types[0].name);
 		Set_Recv_Timeout_CLIENT(&hc->client, HERMES_CORE_TIMEOUT, 0);
 
 		if (Connect_CLIENT(&hc->client)) {
@@ -175,6 +178,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 
 	hc->connected = true;
 
+	types++;
 	while ((*types).id != 0) {
 		if (!Create_CLIENT_CONNECTION(hc, *types)) {
 			Disconnect_HERMES_CLIENT(hc);
@@ -229,7 +233,7 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 		}
 	}
 
-	Delete_CLIENT_MASTER(&hc->tcp_master);
+	Delete_CLIENT_MASTER(&hc->master);
 	//Delete_CLIENT_MASTER(&hc->udp_master);
 
 	hc->connected = false;

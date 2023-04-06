@@ -21,6 +21,9 @@ RUN make
 RUN make install
 COPY ./librana.so /usr/local/lib
 COPY ./Networking/*.h /usr/local/include/rana/Networking/
+COPY ./Networking/TCP/*.h /usr/local/include/rana/Networking/TCP/
+COPY ./Networking/UDP/*.h /usr/local/include/rana/Networking/UDP/
+COPY ./Networking/WS/*.h /usr/local/include/rana/Networking/WS/
 COPY ./Utilities/*.h /usr/local/include/rana/Utilities/
 COPY ./Hermes/*.h /usr/local/include/rana/Hermes/
 COPY ./clip/*.h /usr/local/include/rana/clip/

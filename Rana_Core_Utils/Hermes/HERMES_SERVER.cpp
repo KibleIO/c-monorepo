@@ -59,7 +59,7 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 		}
 	}
 
-	Delete_SERVER_MASTER(&hs->tcp_master);
+	Delete_SERVER_MASTER(&hs->master);
 	//Delete_SERVER_MASTER(&hs->udp_master);
 
 	hs->connected = false;
@@ -139,8 +139,7 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
         connect:
 
 	Initialize_SERVER(&hs->connections[index].server, hs->ctx,
-		((type.type == NETWORK_TYPE_TCP) ? &hs->tcp_master :
-		&hs->udp_master), type.id);
+		&hs->master, type.id); //yup, dubious logic
 	Set_Name_SERVER(&hs->connections[index].server, (char*) type.name);
 
 	if (Accept_SERVER(&hs->connections[index].server)) {
@@ -246,20 +245,23 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		hs->connections[i].active = false;
 	}
 
-	if (!Initialize_SERVER_MASTER(&hs->tcp_master, hs->ctx, NETWORK_TYPE_TCP,
-		hs->port)) {
-		return false;
-	}
-	/* god help us all... enable this for UDP
-	if (!Initialize_SERVER_MASTER(&hs->udp_master, hs->ctx, NETWORK_TYPE_UDP,
-		hs->port)) {
-		return false;
-	}
-	*/
+	if (types[0].id != HERMES_SERVER_TCP.id &&
+		types[0].id != HERMES_SERVER_WS.id) {
 
-	Initialize_SERVER(&hs->server, hs->ctx, &hs->tcp_master,
-		HERMES_SERVER_T.id);
-	Set_Name_SERVER(&hs->server, "hermes server");
+		LOG_ERROR_CTX((hs->ctx)) {
+			ADD_STR_LOG("message",
+				"Invalid first HERMES_TYPE.");
+		}
+		return false;
+	}
+
+	if (!Initialize_SERVER_MASTER(&hs->master, hs->ctx, types[0].type,
+		hs->port)) {
+		return false;
+	}
+
+	Initialize_SERVER(&hs->server, hs->ctx, &hs->master, types[0].id);
+	Set_Name_SERVER(&hs->server, (char*) types[0].name);
 	Set_Recv_Timeout_SERVER(&hs->server, HERMES_CORE_TIMEOUT, 0);
 
 	if (!Accept_SERVER(&hs->server)) {
@@ -269,6 +271,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 
 	hs->connected = true;
 
+	types++;
 	while ((*types).id != 0) {
 		if (!Create_SERVER_CONNECTION(hs, *types)) {
 			Disconnect_HERMES_SERVER(hs);

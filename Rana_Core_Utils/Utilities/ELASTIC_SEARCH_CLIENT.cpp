@@ -39,6 +39,10 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
 }
 
 bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
+	#ifdef LOG_TO_CONSOLE
+	cout << str << endl;
+	return true;
+	#else
 	CURLcode res;
 
 	char cacert_dir[MAX_DIRECTORY_LEN];
@@ -105,6 +109,7 @@ bool Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str) {
 
 	/* Check for errors */
 	return (res == CURLE_OK);
+	#endif
 }
 
 bool Custom_Post_ELASTIC_SEARCH_CLIENT(ELASTIC_SEARCH_CLIENT *client, char *str, char *url) {

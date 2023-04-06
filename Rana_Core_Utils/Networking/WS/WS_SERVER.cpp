@@ -5,9 +5,12 @@ bool Initialize_WS_SERVER(WS_SERVER *server, KCONTEXT *ctx, WS_SERVER_MASTER *ws
 
 	server->ctx = ctx;
 	server->ws_master = ws_master;
-	server->recv_timeout = 100;
 	Set_Name_WS_SERVER(server, "unknown");
 	
+	if (!Set_Recv_Timeout_WS_CLIENT(client, DEFAULT_RECV_TIMEOUT, 0)) {
+		return false;
+	}
+
 	return true;
 }
 
