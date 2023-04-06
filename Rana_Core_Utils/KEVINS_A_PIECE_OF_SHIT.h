@@ -1,0 +1,6 @@
+#ifndef KEVINS_A_PIECE_OF_SHIT_H_
+#define KEVINS_A_PIECE_OF_SHIT_H_
+
+#define EXTERNAL_LOGS_APIS_UTILS 0
+
+#endif
