@@ -45,7 +45,7 @@ xubuntu:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker
 
 xubuntux86:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux862 make docker -j8
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make docker -j8
 
 debianx86:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:debianx86 make docker
@@ -163,7 +163,7 @@ dockerimage-xubuntu-publish: $(EXEC)
 	docker push kible/coreutils:xubuntu
 
 dockerimage-xubuntu-x86-publish: $(EXEC)
-	docker build --platform linux/amd64 --file Dockerfile.Xubuntu -t kible/coreutils:xubuntux862 .
+	docker build --platform linux/amd64 --file Dockerfile.Xubuntu -t kible/coreutils:xubuntux86 .
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils:xubuntux862
 
