@@ -140,7 +140,7 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 
 	int attempts = HERMES_TIMEOUT_TRIES;
 
-	if (types[0].id != HERMES_CLIENT_TCP.id ||
+	if (types[0].id != HERMES_CLIENT_TCP.id &&
 		types[0].id != HERMES_CLIENT_WS.id) {
 
 		LOG_ERROR_CTX((hc->ctx)) {

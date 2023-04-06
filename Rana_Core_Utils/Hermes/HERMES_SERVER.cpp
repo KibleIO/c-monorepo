@@ -245,7 +245,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		hs->connections[i].active = false;
 	}
 
-	if (types[0].id != HERMES_SERVER_TCP.id ||
+	if (types[0].id != HERMES_SERVER_TCP.id &&
 		types[0].id != HERMES_SERVER_WS.id) {
 
 		LOG_ERROR_CTX((hs->ctx)) {
