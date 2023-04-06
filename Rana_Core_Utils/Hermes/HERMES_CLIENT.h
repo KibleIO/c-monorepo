@@ -22,7 +22,7 @@ struct CLIENT_CONNECTION {
 
 struct HERMES_CLIENT {
 	CLIENT_MASTER master;
-	CLIENT hermes_client;
+	CLIENT client;
 	mutex cmutx;
 	int port;
         bool use_tcp;

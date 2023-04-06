@@ -59,7 +59,7 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 		}
 	}
 
-	Delete_SERVER_MASTER(&hs->tcp_master);
+	Delete_SERVER_MASTER(&hs->master);
 	//Delete_SERVER_MASTER(&hs->udp_master);
 
 	hs->connected = false;
@@ -139,8 +139,7 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
         connect:
 
 	Initialize_SERVER(&hs->connections[index].server, hs->ctx,
-		((type.type == NETWORK_TYPE_TCP) ? &hs->tcp_master :
-		&hs->udp_master), type.id);
+		&hs->master, type.id); //yup, dubious logic
 	Set_Name_SERVER(&hs->connections[index].server, (char*) type.name);
 
 	if (Accept_SERVER(&hs->connections[index].server)) {
@@ -261,12 +260,12 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 		return false;
 	}
 
-	Initialize_SERVER(&hs->hermes_server, hs->ctx, &hs->master, types[0].id);
-	Set_Name_SERVER(&hs->hermes_server, types[0].name);
-	Set_Recv_Timeout_SERVER(&hs->hermes_server, HERMES_CORE_TIMEOUT, 0);
+	Initialize_SERVER(&hs->server, hs->ctx, &hs->master, types[0].id);
+	Set_Name_SERVER(&hs->server, types[0].name);
+	Set_Recv_Timeout_SERVER(&hs->server, HERMES_CORE_TIMEOUT, 0);
 
-	if (!Accept_SERVER(&hs->hermes_server)) {
-		Delete_SERVER(&hs->hermes_server);
+	if (!Accept_SERVER(&hs->server)) {
+		Delete_SERVER(&hs->server);
 		return false;
 	}
 

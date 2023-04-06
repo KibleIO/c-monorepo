@@ -22,7 +22,7 @@ struct SERVER_CONNECTION {
 
 struct HERMES_SERVER {
 	SERVER_MASTER master;
-	SERVER hermes_server;
+	SERVER server;
 	mutex cmutx;
 	thread *loop_thread;
 	int port;
