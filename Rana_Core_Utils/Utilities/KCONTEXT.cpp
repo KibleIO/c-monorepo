@@ -11,10 +11,10 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 	ctx->connection_initialized = false;
 	ctx->rana_initialized = false;
 
-	// if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
-	// 	cout << "failed to initialize elastic search client" << endl;
-	// 	return false;
-	// }
+	if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
+		cout << "failed to initialize elastic search client" << endl;
+		return false;
+	}
 
 	return true;
 }
@@ -53,9 +53,11 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 
 		return false;
 	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
-		// gaia::RegisterThemisRequest registerRequest;
-		// gaia::RegisterThemisResponse registerResponse;
-		// gaia::ContainerID containerID;
+#if EXTERNAL_LOGS_APIS
+		gaia::RegisterThemisRequest registerRequest;
+		gaia::RegisterThemisResponse registerResponse;
+		gaia::ContainerID containerID;
+#endif
 
 		string containerID_;
 
@@ -64,22 +66,24 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		getline(containerid, containerID_);
 		containerid.close();
 
-		// containerID.mutable_id()->set_value(containerID_);
-		// registerRequest.mutable_containerid()->CopyFrom(containerID);
+#if EXTERNAL_LOGS_APIS
+		containerID.mutable_id()->set_value(containerID_);
+		registerRequest.mutable_containerid()->CopyFrom(containerID);
 
-		// status =
-		// 	stub->RegisterThemis(&context, registerRequest, &registerResponse);
-		// if (!status.ok()) {
-		// 	LOG_ERROR_CTX(ctx) {
-		// 		ADD_STR_LOG("message", "Failed to register themis.");
-		// 		ADD_STR_LOG("error", status.error_message().c_str());
-		// 	}
-		// 	return INIT_CONN_KCONTEXT_ABORT;
-		// }
+		status =
+			stub->RegisterThemis(&context, registerRequest, &registerResponse);
+		if (!status.ok()) {
+			LOG_ERROR_CTX(ctx) {
+				ADD_STR_LOG("message", "Failed to register themis.");
+				ADD_STR_LOG("error", status.error_message().c_str());
+			}
+			return INIT_CONN_KCONTEXT_ABORT;
+		}
 
-		// ctx->uuid = registerResponse.ranaid().uuid().value();
-		// ctx->connection = registerResponse.connection();
-		// ctx->connection_initialized = true;
+		ctx->uuid = registerResponse.ranaid().uuid().value();
+		ctx->connection = registerResponse.connection();
+		ctx->connection_initialized = true;
+#endif
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
 	} else {
@@ -728,7 +732,11 @@ void Set_System_Resource_Dir_KCONTEXT(KCONTEXT *ctx, char *str) {
 }
 
 void Log_KCONTEXT(KCONTEXT *ctx, char *str) {
+#if EXTERNAL_LOGS_APIS
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
+#else
+	cout << str << endl;
+#endif
 }
 
 void Delete_KCONTEXT(KCONTEXT *ctx) {
