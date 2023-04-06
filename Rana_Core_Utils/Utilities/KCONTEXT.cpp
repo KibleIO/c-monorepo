@@ -4,19 +4,19 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 	cout << "hello" << endl;
 	ctx->uuid = "ERROR";
 	ctx->insecure_mode = !insecure;
-
+cout << "hello3" << endl;
 	generate_uuid(ctx->trace_uuid);
 	strcpy(ctx->core_system, core_system);
 	strcpy(ctx->system_resource_dir, "ERROR");
-
+cout << "hello4" << endl;
 	ctx->connection_initialized = false;
 	ctx->rana_initialized = false;
-
+cout << "hello5" << endl;
 	if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
 		cout << "failed to initialize elastic search client" << endl;
 		return false;
 	}
-	cout << "hello2" << endl;
+	cout << "hello6" << endl;
 	return true;
 }
 
