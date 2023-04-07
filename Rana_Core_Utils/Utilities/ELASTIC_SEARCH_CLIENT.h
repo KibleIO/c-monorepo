@@ -14,8 +14,6 @@
 #include <cstring>
 #include "UTILS.h"
 
-#define LOG_TO_CONSOLE
-
 #define ELASTIC_SEARCH_URL "https://elastic.kible.com:9200/kible/_doc/?pretty"
 #define ELK_USERNAME "kible"
 #define ELK_PASSWORD "x2JSh2&297VY"
