@@ -3,6 +3,9 @@ CC = g++ -O3 -Wall -Wextra -Wpedantic
 
 UNAME_M = $(shell uname -m)
 USER=`whoami`
+SODIUM_LIB_PATH = /usr/local/Cellar/libsodium/1.0.18_1/lib
+FFMPEG_LIB_PATH = /usr/local/Cellar/ffmpeg/5.0/lib
+# /usr/local/Cellar/ffmpeg/5.1.2_4/lib
 
 #-mmacosx-version-min=10.13
 
@@ -54,7 +57,7 @@ docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 
 mac: $(OBJECTS)
-	$(CC) -dynamiclib -undefined suppress -flat_namespace $(OBJECTS) -o $(EXEC_MAC) $(CXXFLAGS) -framework Cocoa -L/usr/local/Cellar/libsodium/1.0.18_1/lib -L/usr/local/Cellar/ffmpeg/5.0/lib -lsodium -lswscale -lcurl -ljson-c
+	$(CC) -dynamiclib -undefined suppress -flat_namespace $(OBJECTS) -o $(EXEC_MAC) $(CXXFLAGS) -framework Cocoa -L$(SODIUM_LIB_PATH) -L$(FFMPEG_LIB_PATH) -lsodium -lswscale -lcurl -ljson-c
 
 local: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)

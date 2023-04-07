@@ -1,14 +1,14 @@
 #include "KCONTEXT.h"
 
 bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
-        ctx->uuid = "ERROR";
+	ctx->uuid = "ERROR";
 	ctx->insecure_mode = !insecure;
 
 	generate_uuid(ctx->trace_uuid);
 	strcpy(ctx->core_system, core_system);
-        strcpy(ctx->system_resource_dir, "ERROR");
+	strcpy(ctx->system_resource_dir, "ERROR");
 
-        ctx->connection_initialized = false;
+	ctx->connection_initialized = false;
 	ctx->rana_initialized = false;
 
 	if (!Initialize_ELASTIC_SEARCH_CLIENT(&ctx->client)) {
@@ -20,53 +20,59 @@ bool Initialize_KCONTEXT(KCONTEXT *ctx, char *core_system, bool insecure) {
 }
 
 int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
-        #ifdef __linux__
+#ifdef EXTERNAL_LOGS_APIS_UTILS
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
-
+#endif
+#endif
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return INIT_CONN_KCONTEXT_ABORT;
 	}
-	
+
 	if (ctx->connection_initialized) {
 		LOG_WARN_CTX(ctx) {
-			ADD_STR_LOG("message", "Ports have already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Ports have already been "
+						"initialized.");
 		}
 		return INIT_CONN_KCONTEXT_SUCCESS;
 	}
 
-        if (strcmp(ctx->core_system, "RANA") == 0) {
+	if (strcmp(ctx->core_system, "RANA") == 0) {
 		LOG_WARN_CTX(ctx) {
-			ADD_STR_LOG("message", "Do not attempt to initialize connection in Rana.");
+			ADD_STR_LOG("message",
+						"Do not attempt to initialize connection in Rana.");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+		return false;
+	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+#ifdef EXTERNAL_LOGS_APIS_UTILS
 		gaia::RegisterThemisRequest registerRequest;
 		gaia::RegisterThemisResponse registerResponse;
 		gaia::ContainerID containerID;
+#endif
 
 		string containerID_;
 
 		ifstream containerid(CONTAINER_ID_LOC);
-		ASSERT_E_R(containerid,
-			"Could not open container id location.",
-			ctx);
+		ASSERT_E_R(containerid, "Could not open container id location.", ctx);
 		getline(containerid, containerID_);
 		containerid.close();
 
+#ifdef EXTERNAL_LOGS_APIS_UTILS
 		containerID.mutable_id()->set_value(containerID_);
 		registerRequest.mutable_containerid()->CopyFrom(containerID);
-		
-		status = stub->RegisterThemis(&context, registerRequest, &registerResponse);
+
+		status =
+			stub->RegisterThemis(&context, registerRequest, &registerResponse);
 		if (!status.ok()) {
 			LOG_ERROR_CTX(ctx) {
 				ADD_STR_LOG("message", "Failed to register themis.");
@@ -78,43 +84,51 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		ctx->uuid = registerResponse.ranaid().uuid().value();
 		ctx->connection = registerResponse.connection();
 		ctx->connection_initialized = true;
+#else
+	char tmp[UUID_STR_SIZE];
+	generate_uuid(tmp);
+	ctx.uuid = tmp;
+#endif
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
-        } else {
-                LOG_WARN_CTX(ctx) {
+	} else {
+		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        }
+		return false;
+	}
+
 }
 
-//email and uuid are optional for Themis
+// email and uuid are optional for Themis
 int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
-        #ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return INIT_CONN_KCONTEXT_ABORT;
 	}
 
 	if (ctx->rana_initialized) {
 		LOG_WARN_CTX(ctx) {
-			ADD_STR_LOG("message", "Rana have already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Rana have already been "
+						"initialized.");
 		}
 		return INIT_CONN_KCONTEXT_SUCCESS;
 	}
 
-        if (strcmp(ctx->core_system, "RANA") == 0) {
+	if (strcmp(ctx->core_system, "RANA") == 0) {
 		gaia::CreateRanaAccountRequest registerRequest;
 		gaia::CreateRanaAccountResponse registerResponse;
 		gaia::LocationUUID locationID;
@@ -123,19 +137,19 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 		registerRequest.set_password(password);
 
 		if (ctx->locationID.has_uuid()) {
-			locationID.mutable_uuid()->set_value(ctx->locationID.uuid().value());
+			locationID.mutable_uuid()->set_value(
+				ctx->locationID.uuid().value());
 			registerRequest.mutable_locationid()->CopyFrom(locationID);
 		}
 
-		status = stub->CreateRanaAccount(&context, registerRequest, &registerResponse);
+		status = stub->CreateRanaAccount(&context, registerRequest,
+										 &registerResponse);
 
 		if (status.ok()) {
 			ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                        ASSERT_E_R(output,
-                                "Could not open info location.",
-                                ctx);
-                        output << registerResponse.sessiontoken() << endl;
-                        output.close();
+			ASSERT_E_R(output, "Could not open info location.", ctx);
+			output << registerResponse.sessiontoken() << endl;
+			output.close();
 
 			return INIT_CONN_KCONTEXT_REGISTER;
 		}
@@ -149,40 +163,40 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 		}
 
 		switch (status.error_code()) {
-			case grpc::StatusCode::PERMISSION_DENIED:
-				return INIT_CONN_KCONTEXT_KEY;
-			case grpc::StatusCode::ABORTED:
-				return INIT_CONN_KCONTEXT_ABORT;
-			case grpc::StatusCode::NOT_FOUND:
-				return INIT_CONN_KCONTEXT_EMAIL;
-			case grpc::StatusCode::INVALID_ARGUMENT:
-				return INIT_CONN_KCONTEXT_LOCATION;
-			default:
-				return INIT_CONN_KCONTEXT_ABORT;
+		case grpc::StatusCode::PERMISSION_DENIED:
+			return INIT_CONN_KCONTEXT_KEY;
+		case grpc::StatusCode::ABORTED:
+			return INIT_CONN_KCONTEXT_ABORT;
+		case grpc::StatusCode::NOT_FOUND:
+			return INIT_CONN_KCONTEXT_EMAIL;
+		case grpc::StatusCode::INVALID_ARGUMENT:
+			return INIT_CONN_KCONTEXT_LOCATION;
+		default:
+			return INIT_CONN_KCONTEXT_ABORT;
 		}
-        } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Do not call create for Themis");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        } else {
-                LOG_WARN_CTX(ctx) {
+		return false;
+	} else {
+		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        }
+		return false;
+	}
 }
 
 bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetVersionStoreRequest request;
 	gaia::GetVersionStoreResponse response;
@@ -208,18 +222,16 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 }
 
 bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetLocationsRequest request;
 
 	status = stub->GetLocations(&context, request, &ctx->locations);
-	ASSERT_E_R(status.ok(),
-	"Could not get locations.",
-	ctx);
+	ASSERT_E_R(status.ok(), "Could not get locations.", ctx);
 
 	return true;
 }
@@ -227,17 +239,18 @@ bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Rana has not already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Rana has not already been "
+						"initialized.");
 		}
 		return false;
 	}
 
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetAppsRequest request;
 	string token;
@@ -253,9 +266,7 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	status = stub->GetApps(&context, request, &ctx->apps);
 
 	if (!status.ok()) {
-		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Could not get apps.");
-		}
+		LOG_ERROR_CTX(ctx) { ADD_STR_LOG("message", "Could not get apps."); }
 
 		ctx->recent_error = status.error_message();
 
@@ -266,11 +277,11 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 }
 
 bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::ListAdsRequest request;
 
@@ -279,9 +290,7 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 	status = stub->ListAds(&context, request, &ctx->ads);
 
 	if (!status.ok()) {
-		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Could not get ads.");
-		}
+		LOG_ERROR_CTX(ctx) { ADD_STR_LOG("message", "Could not get ads."); }
 
 		ctx->recent_error = status.error_message();
 
@@ -294,17 +303,18 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Rana has not already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Rana has not already been "
+						"initialized.");
 		}
 		return false;
 	}
 
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::CreatePaymentUrlAuthRequest request;
 	gaia::CreatePaymentUrlAuthResponse response;
@@ -318,7 +328,6 @@ bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 		request.set_sessiontoken(token);
 	}
 	request.mutable_productid()->CopyFrom(productID);
-
 
 	status = stub->CreatePaymentUrlAuth(&context, request, &response);
 
@@ -338,19 +347,20 @@ bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 }
 
 bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
-        if (!ctx->rana_initialized) {
+	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "Rana has not already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Rana has not already been "
+						"initialized.");
 		}
 		return false;
 	}
 
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::CheckPaymentAuthRequest request;
 	gaia::CheckPaymentAuthResponse response;
@@ -382,37 +392,39 @@ bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
 }
 
 int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
-        #ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return INIT_CONN_KCONTEXT_ABORT;
 	}
 
 	if (ctx->rana_initialized) {
 		LOG_WARN_CTX(ctx) {
-			ADD_STR_LOG("message", "Rana have already been "
-				"initialized.");
+			ADD_STR_LOG("message",
+						"Rana have already been "
+						"initialized.");
 		}
 		return INIT_CONN_KCONTEXT_SUCCESS;
 	}
 
-        if (strcmp(ctx->core_system, "RANA") == 0) {
+	if (strcmp(ctx->core_system, "RANA") == 0) {
 		gaia::CheckSessionTokenRequest request;
 		gaia::CheckSessionTokenResponse response;
 		string token;
 
 		ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-                if (file) {
-                        getline(file, token);
-                        file.close();
+		if (file) {
+			getline(file, token);
+			file.close();
 
 			request.set_sessiontoken(token);
 		}
@@ -436,36 +448,36 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 		}
 
 		switch (status.error_code()) {
-			case grpc::StatusCode::PERMISSION_DENIED:
-				return INIT_CONN_KCONTEXT_KEY;
-			case grpc::StatusCode::ABORTED:
-				return INIT_CONN_KCONTEXT_ABORT;
-			default:
-				return INIT_CONN_KCONTEXT_ABORT;
+		case grpc::StatusCode::PERMISSION_DENIED:
+			return INIT_CONN_KCONTEXT_KEY;
+		case grpc::StatusCode::ABORTED:
+			return INIT_CONN_KCONTEXT_ABORT;
+		default:
+			return INIT_CONN_KCONTEXT_ABORT;
 		}
-        } else if (strcmp(ctx->core_system, "THEMIS") == 0) {
+	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Do not call create for Themis");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        } else {
-                LOG_WARN_CTX(ctx) {
+		return false;
+	} else {
+		LOG_WARN_CTX(ctx) {
 			ADD_STR_LOG("message", "Unknown core system");
 			ADD_STR_LOG("sys", ctx->core_system);
 		}
 
-                return false;
-        }
+		return false;
+	}
 }
 
 bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::CheckPasswordStrengthRequest request;
 	gaia::CheckPasswordStrengthResponse response;
@@ -484,11 +496,11 @@ bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
 }
 
 bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::ResetPasswordRequest request;
 	gaia::ResetPasswordResponse response;
@@ -507,16 +519,17 @@ bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 }
 
 bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return false;
 	}
@@ -531,9 +544,7 @@ bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 
 	if (status.ok()) {
 		ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
-		ASSERT_E_R(output,
-			"Could not open info location.",
-			ctx);
+		ASSERT_E_R(output, "Could not open info location.", ctx);
 		output << response.sessiontoken() << endl;
 		output.close();
 
@@ -547,23 +558,24 @@ bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 void Sign_Out_Of_Session_KCONTEXT(KCONTEXT *ctx) {
 	ctx->connection_initialized = false;
 	ctx->rana_initialized = false;
-	
+
 	ofstream output(string(ctx->system_resource_dir) + INFO_FILE_NAME);
 	output << "nil" << endl;
 	output.close();
 }
 
 bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return false;
 	}
@@ -579,7 +591,7 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 
 		request.set_sessiontoken(token);
 	}
-	
+
 	request.mutable_appid()->CopyFrom(appID);
 
 	status = stub->WakeUpApp(&context, request, &response);
@@ -596,16 +608,17 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 }
 
 bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	if (strcmp(ctx->system_resource_dir, "ERROR") == 0) {
 		LOG_ERROR_CTX(ctx) {
-			ADD_STR_LOG("message", "System resource directory has "
-				"not been initialized.");
+			ADD_STR_LOG("message",
+						"System resource directory has "
+						"not been initialized.");
 		}
 		return false;
 	}
@@ -620,7 +633,7 @@ bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 
 		request.set_sessiontoken(token);
 	}
-	
+
 	request.mutable_appid()->CopyFrom(appID);
 
 	status = stub->GetApp(&context, request, &ctx->app);
@@ -634,11 +647,11 @@ bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 }
 
 bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetProductRequest request;
 	request.mutable_productid()->CopyFrom(productID);
@@ -654,11 +667,11 @@ bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 }
 
 bool Get_Ad_KCONTEXT(KCONTEXT *ctx, gaia::AdUUID adID) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetAdRequest request;
 	request.mutable_adid()->CopyFrom(adID);
@@ -674,11 +687,11 @@ bool Get_Ad_KCONTEXT(KCONTEXT *ctx, gaia::AdUUID adID) {
 }
 
 bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
-	#ifdef __linux__
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetAvailableProductsRequest request;
 
@@ -693,19 +706,18 @@ bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 }
 
 bool Get_Product_From_Connection_KCONTEXT(KCONTEXT *ctx,
-	gaia::ConnectionUUID connectionID) {
-	
-	#ifdef __linux__
+										  gaia::ConnectionUUID connectionID) {
+#ifdef __linux__
 	INIT_GRPC_STUB_LINUX
-	#else
+#else
 	INIT_GRPC_STUB
-	#endif
+#endif
 
 	gaia::GetProductFromConnectionRequest request;
 	request.mutable_connectionid()->CopyFrom(connectionID);
 
 	status = stub->GetProductFromConnection(&context, request,
-		&ctx->productFromConnection);
+											&ctx->productFromConnection);
 
 	if (status.ok()) {
 		return true;
@@ -715,20 +727,22 @@ bool Get_Product_From_Connection_KCONTEXT(KCONTEXT *ctx,
 	return false;
 }
 
-SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) {
-	return ctx->screen_dim;
-}
+SCREEN_DIM Get_Screen_Dim_KCONTEXT(KCONTEXT *ctx) { return ctx->screen_dim; }
 
 void Set_Screen_Dim_KCONTEXT(KCONTEXT *ctx, SCREEN_DIM screen_dim) {
 	ctx->screen_dim = screen_dim;
 }
 
 void Set_System_Resource_Dir_KCONTEXT(KCONTEXT *ctx, char *str) {
-        strcpy(ctx->system_resource_dir, str);
+	strcpy(ctx->system_resource_dir, str);
 }
 
 void Log_KCONTEXT(KCONTEXT *ctx, char *str) {
+#ifdef EXTERNAL_LOGS_APIS_UTILS
 	Post_ELASTIC_SEARCH_CLIENT(&ctx->client, str);
+#else
+	cout << str << endl;
+#endif
 }
 
 void Delete_KCONTEXT(KCONTEXT *ctx) {
@@ -746,7 +760,8 @@ bool Does_User_Have_Premium(KCONTEXT *ctx) {
 	return false;
 }
 
-bool Does_App_Have_Feature(KCONTEXT *ctx, gaia::App app, gaia::Feature feature) {
+bool Does_App_Have_Feature(KCONTEXT *ctx, gaia::App app,
+						   gaia::Feature feature) {
 	if (Get_Product_KCONTEXT(ctx, app.productid())) {
 		for (int features : ctx->product.product().features()) {
 			if (features == feature) {
