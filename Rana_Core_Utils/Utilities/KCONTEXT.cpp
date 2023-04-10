@@ -87,7 +87,7 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 #else
 	char tmp[UUID_STR_SIZE];
 	generate_uuid(tmp);
-	ctx.uuid = tmp;
+	ctx->uuid = tmp;
 #endif
 
 		return INIT_CONN_KCONTEXT_SUCCESS;
