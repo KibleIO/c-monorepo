@@ -209,7 +209,7 @@ bool Receive_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 		server->accept) {
 
 		time_out++;
-		Sleep_Milli(1);
+		Sleep_Milli(WS_SLEEP_TIME);
 	}
 	if (time_out >= recv_timeout ||
 		!server->accept) {
