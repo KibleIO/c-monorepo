@@ -202,16 +202,16 @@ bool Receive_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 	WEBSOCKET_ELEMENT *temp = NULL;
 	uint32_t time_out = 0;
 	uint8_t return_val;
-	int32_t sleep = recv_timeout / WEB_SOCKET_TIME_OUT;
+	//int32_t sleep = recv_timeout / WEB_SOCKET_TIME_OUT;
 
 	while (server->active_read[server_index]->size() <= 0 &&
-		time_out < WEB_SOCKET_TIME_OUT &&
+		time_out < recv_timeout &&
 		server->accept) {
 
 		time_out++;
-		Sleep_Milli(sleep);
+		Sleep_Milli(1);
 	}
-	if (time_out >= WEB_SOCKET_TIME_OUT ||
+	if (time_out >= recv_timeout ||
 		!server->accept) {
 
 		return false;
