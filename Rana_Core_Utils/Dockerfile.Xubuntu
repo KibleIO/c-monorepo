@@ -8,7 +8,7 @@ RUN apt -y install libopusfile-dev
 RUN apt -y install libavformat-dev libavcodec-dev
 RUN apt -y install libjson-c-dev libpulse-dev
 RUN apt -y install cmake git
-RUN apt -y install protobuf-compiler-grpc protobuf-compiler libgrpc-dev libgrpc++-dev
+RUN apt -y install protobuf-compiler-grpc protobuf-compiler libgrpc-dev libgrpc++-dev rename
 RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /root/.local
