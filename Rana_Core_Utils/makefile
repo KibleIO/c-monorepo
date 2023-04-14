@@ -45,7 +45,7 @@ zorin:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:zorin make docker
 
 xubuntu:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker
+	docker run --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker -j8
 
 xubuntux86:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make docker -j8
@@ -66,10 +66,18 @@ win: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC_WIN) -o $(EXEC_WIN) $(CXXFLAGS) -ljson-c -lsodium -lavcodec -lswscale -lcurl -lws2_32 -lrpcrt4 -lcrypt32 -lole32 -lshlwapi -lwindowscodecs
 
 docker-build-proto:
-	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make build_proto
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make build_proto_unix
 
 docker-build-clip:
 	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make build_clip
+
+docker-build-clip-arm:
+	docker run --platform linux/arm64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make build_clip
+
+build_proto_unix:
+	mkdir -p idl/cpp/gen
+	protoc -I idl/idl --cpp_out=./idl/cpp/gen --grpc_out=./idl/cpp/gen --plugin=protoc-gen-grpc=/usr/bin/grpc_cpp_plugin idl/idl/*.proto
+	rename 's/\.cc$$/.cpp/' ./idl/cpp/gen/*.cc
 
 build_proto:
 	mkdir -p idl/cpp/gen
@@ -160,8 +168,8 @@ dockerimage-zorin-publish: $(EXEC)
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils:zorin
 
-dockerimage-xubuntu-publish: $(EXEC)
-	docker build --file Dockerfile.Xubuntu -t kible/coreutils:xubuntu .
+dockerimage-xubuntu-arm-publish: $(EXEC)
+	docker build --platform linux/arm64 --file Dockerfile.Xubuntu -t kible/coreutils:xubuntu .
 	docker login -u "kible" -p "eehKgVR4QmoED8" docker.io
 	docker push kible/coreutils:xubuntu
 

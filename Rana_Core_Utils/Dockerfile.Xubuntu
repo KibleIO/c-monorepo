@@ -8,17 +8,10 @@ RUN apt -y install libopusfile-dev
 RUN apt -y install libavformat-dev libavcodec-dev
 RUN apt -y install libjson-c-dev libpulse-dev
 RUN apt -y install cmake git
+RUN apt -y install protobuf-compiler-grpc protobuf-compiler
 RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /root/.local
-WORKDIR /root
-RUN git clone --recurse-submodules -b v1.43.0 https://github.com/grpc/grpc
-WORKDIR /root/grpc
-RUN mkdir -p cmake/build
-WORKDIR /root/grpc/cmake/build
-RUN cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/root/.local ../..
-RUN make
-RUN make install
 COPY ./librana.so /usr/local/lib
 COPY ./Networking/*.h /usr/local/include/rana/Networking/
 COPY ./Networking/TCP/*.h /usr/local/include/rana/Networking/TCP/
