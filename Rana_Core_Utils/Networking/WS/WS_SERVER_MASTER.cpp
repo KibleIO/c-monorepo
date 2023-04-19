@@ -18,7 +18,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 	switch (reason) {
 		case LWS_CALLBACK_ESTABLISHED:
 			server->accept = true;
-			lws_set_timer_usecs(wsi, 1);
+			lws_set_timer_usecs(wsi, LWS_SLEEP_TIME);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
 			if (server->active_write->size() <= 0) {
@@ -75,7 +75,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			server->accept = false;
 			break;
 		case LWS_CALLBACK_TIMER:
-			lws_set_timer_usecs(wsi, 1);
+			lws_set_timer_usecs(wsi, LWS_SLEEP_TIME);
 			break;
 	}
 	return 0;
