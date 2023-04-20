@@ -18,7 +18,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 	switch (reason) {
 		case LWS_CALLBACK_ESTABLISHED:
 			server->accept = true;
-			lws_set_timer_usecs(wsi, 5000);
+			lws_set_timer_usecs(wsi, LWS_SLEEP_TIME);
 			break;
 		case LWS_CALLBACK_SERVER_WRITEABLE:
 			if (server->active_write->size() <= 0) {
@@ -32,12 +32,6 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			LWS_WRITE_BINARY);
 
 			temp->size = -1;
-
-			if (server->active_write->size() > 0) {
-				lws_callback_on_writable_all_protocol_vhost(
-				lws_get_vhost(wsi), lws_get_protocol(wsi));
-			}
-
 			server->pool->push(temp);
 			break;
 		case LWS_CALLBACK_RECEIVE:
@@ -81,12 +75,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			server->accept = false;
 			break;
 		case LWS_CALLBACK_TIMER:
-			lws_callback_on_writable_all_protocol_vhost(
-				lws_get_vhost(wsi),
-				lws_vhost_name_to_protocol(
-				lws_get_vhost(wsi),
-				"dumb-increment-protocol"));
-			lws_set_timer_usecs(wsi, 5000);
+			lws_set_timer_usecs(wsi, LWS_SLEEP_TIME);
 			break;
 	}
 	return 0;
@@ -158,6 +147,13 @@ void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 
 	while (server->running) {
 		lws_service(server->context, LWS_SLEEP_TIME);
+
+		if (server->active_write->size() > 0) {
+			lws_callback_on_writable_all_protocol_vhost(
+			server->vhost, lws_vhost_name_to_protocol(
+				server->vhost,
+				"dumb-increment-protocol"));
+		}
 	}
 }
 
