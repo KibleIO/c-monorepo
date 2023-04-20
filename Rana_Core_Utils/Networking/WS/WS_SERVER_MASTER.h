@@ -17,6 +17,7 @@
 #define MAX_ACCUMULATED_FRAMES 4
 #define WEB_SOCKET_TIME_OUT 10
 #define WS_SLEEP_TIME 1
+#define WS_RECV_TIMEOUT 5
 
 #define DEFAULT_PROTOCOLS(PROTO) PROTO[0] = {\
 	"dumb-increment-protocol",\
