@@ -7,7 +7,7 @@ bool Initialize_WS_SERVER(WS_SERVER *server, KCONTEXT *ctx, WS_SERVER_MASTER *ws
 	server->ws_master = ws_master;
 	Set_Name_WS_SERVER(server, "unknown");
 	
-	if (!Set_Recv_Timeout_WS_SERVER(server, DEFAULT_RECV_TIMEOUT, 0)) {
+	if (!Set_Recv_Timeout_WS_SERVER(server, WS_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 
@@ -32,7 +32,7 @@ bool Accept_WS_SERVER(WS_SERVER *server) {
 
 	server->server_id = Register_Vhost_WS_SERVER_MASTER(server->ws_master);
 
-	if (!Set_Recv_Timeout_WS_SERVER(server, 5 /*DEFAULT_RECV_TIMEOUT*/, 0)) {
+	if (!Set_Recv_Timeout_WS_SERVER(server, WS_RECV_TIMEOUT, 0)) {
 		return false;
 	}
 
