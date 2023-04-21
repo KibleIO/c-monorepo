@@ -30,8 +30,9 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			lws_write(wsi, (unsigned char*)
 			&temp->bytes[LWS_SEND_BUFFER_PRE_PADDING], temp->size,
 			LWS_WRITE_BINARY);
-
 			temp->size = -1;
+			delete [] temp->bytes;
+
 			server->pool->push(temp);
 			break;
 		case LWS_CALLBACK_RECEIVE:
@@ -60,11 +61,14 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 
 			server->pool->pop(temp);
 
+			/*
 			if (len > MAX_WEBSOCKET_PACKET_SIZE) {
 				//log_err("received large packet. truncated.");
 				len = MAX_WEBSOCKET_PACKET_SIZE;
 			}
+			*/
 
+			temp->bytes = new uint8_t[len - 1];
 			copy((uint8_t*)in + 1, ((uint8_t*)in + 1) + (len - 1),
 				temp->bytes);
 			temp->size = len - 1;
@@ -95,7 +99,7 @@ bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int po
 	for (int i = 0; i < WEB_SOCKET_POOL_SIZE; i++) {
 		temp		= new WEBSOCKET_ELEMENT;
 		temp->size	= -1;
-		temp->bytes	= new uint8_t[MAX_WEBSOCKET_PACKET_SIZE];
+		//temp->bytes	= new uint8_t[MAX_WEBSOCKET_PACKET_SIZE];
 
 		server->pool->push(temp);
 	}
@@ -176,13 +180,16 @@ bool Send_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 		return false;
 	}
 
+	/*
 	if (size > (MAX_WEBSOCKET_PACKET_SIZE - 1)) {
 		//log_err("sending large packet. truncated.");
 		size = MAX_WEBSOCKET_PACKET_SIZE - 1;
 	}
+	*/
 
 	server->pool->pop(temp);
 
+	temp->bytes = new uint8_t[LWS_SEND_BUFFER_PRE_PADDING + 1 + size];
 	temp->bytes[LWS_SEND_BUFFER_PRE_PADDING] = server_index;
 	copy(bytes, bytes + size, &temp->bytes[LWS_SEND_BUFFER_PRE_PADDING + 1]);
 	temp->size = size + 1;
@@ -218,6 +225,7 @@ bool Receive_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 	copy(temp->bytes, temp->bytes + size, bytes);
 	return_val = size == temp->size;
 	temp->size = -1;
+	delete [] temp->bytes;
 
 	server->pool->push(temp);
 
@@ -251,6 +259,7 @@ int Receive_Unsafe_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 	copy(temp->bytes, temp->bytes + temp->size, bytes);
 	return_val = temp->size;
 	temp->size = -1;
+	delete [] temp->bytes;
 
 	server->pool->push(temp);
 
