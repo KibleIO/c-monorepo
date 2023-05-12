@@ -1,2 +1,7 @@
 Hey, so this repo has submodules now lulz
 git pull --recurse-submodules
+git submodule foreach git pull origin master
+git submodule update --init --recursive
+
+brew install protobuf grpc
+brew install protobuf-c
