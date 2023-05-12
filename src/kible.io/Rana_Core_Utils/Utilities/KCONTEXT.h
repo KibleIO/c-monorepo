@@ -20,7 +20,7 @@ typedef int Status;
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include "../idl/cpp/gen/gateway.grpc.pb.h"
+#include "../gen/gaia/gateway.grpc.pb.h"
 //end grpc
 
 #ifdef _WIN64
@@ -84,16 +84,16 @@ typedef int Status;
 #define CHECKOUT_URL_SIZE 512
 
 #define INIT_GRPC_STUB \
-std::unique_ptr<gaia::GATEWAY::Stub> stub;\
+std::unique_ptr<kible::gaia::GATEWAY::Stub> stub;\
 	if (ctx->insecure_mode) {\
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(\
+		stub = kible::gaia::GATEWAY::NewStub(grpc::CreateChannel(\
 			INSECURE_GRPC_ADDRESS,\
 			grpc::InsecureChannelCredentials()));\
 	} else {\
 		char cacert_dir[MAX_DIRECTORY_LEN];\
 		Get_CACERT_Dir(cacert_dir);\
 		kible_setenv("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", cacert_dir, 1);\
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
+		stub = kible::gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
 			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
 	}\
 	grpc::Status status;\
@@ -103,13 +103,13 @@ std::unique_ptr<gaia::GATEWAY::Stub> stub;\
 	context.set_deadline(deadline);\
 
 #define INIT_GRPC_STUB_LINUX \
-std::unique_ptr<gaia::GATEWAY::Stub> stub;\
+std::unique_ptr<kible::gaia::GATEWAY::Stub> stub;\
 	if (ctx->insecure_mode) {\
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(\
+		stub = kible::gaia::GATEWAY::NewStub(grpc::CreateChannel(\
 			INSECURE_GRPC_ADDRESS,\
 			grpc::InsecureChannelCredentials()));\
 	} else {\
-		stub = gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
+		stub = kible::gaia::GATEWAY::NewStub(grpc::CreateChannel(GRPC_ADDRESS,\
 			grpc::SslCredentials(grpc::SslCredentialsOptions())));\
 	}\
 	grpc::Status status;\
@@ -127,17 +127,17 @@ struct KCONTEXT {
 	SCREEN_DIM screen_dim;
         volatile bool connection_initialized;
 	volatile bool rana_initialized;
-        gaia::Connection connection;
-	gaia::LocationUUID locationID;
+        kible::gaia::Connection connection;
+	kible::gaia::LocationUUID locationID;
 	//LOL this is so bad, please fix these
-	gaia::GetLocationsResponse locations;
-	gaia::GetAppsResponse apps;
-	gaia::ListAdsResponse ads;
-	gaia::GetProductResponse product;
-	gaia::GetAdResponse ad;
-	gaia::GetAvailableProductsResponse products;
-	gaia::GetAppResponse app;
-	gaia::GetProductFromConnectionResponse productFromConnection;
+	kible::gaia::GetLocationsResponse locations;
+	kible::gaia::GetAppsResponse apps;
+	kible::gaia::ListAdsResponse ads;
+	kible::gaia::GetProductResponse product;
+	kible::gaia::GetAdResponse ad;
+	kible::gaia::GetAvailableProductsResponse products;
+	kible::gaia::GetAppResponse app;
+	kible::gaia::GetProductFromConnectionResponse productFromConnection;
 	string recent_error;
 	bool insecure_mode;
 };
@@ -155,20 +155,20 @@ bool Check_For_Update_KCONTEXT(KCONTEXT*, char*);
 bool Login_Rana_KCONTEXT(KCONTEXT*, string, string);
 bool Get_Location_KCONTEXT(KCONTEXT*);
 bool Get_Apps_KCONTEXT(KCONTEXT*);
-bool Get_Ads_KCONTEXT(KCONTEXT*, gaia::AdType ad_type);
-bool Wake_Up_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
-bool Get_Product_KCONTEXT(KCONTEXT*, gaia::ProductUUID);
-bool Get_Ad_KCONTEXT(KCONTEXT*, gaia::AdUUID);
+bool Get_Ads_KCONTEXT(KCONTEXT*, kible::gaia::AdType ad_type);
+bool Wake_Up_App_KCONTEXT(KCONTEXT*, kible::gaia::AppUUID);
+bool Get_Product_KCONTEXT(KCONTEXT*, kible::gaia::ProductUUID);
+bool Get_Ad_KCONTEXT(KCONTEXT*, kible::gaia::AdUUID);
 bool Get_Available_Products_KCONTEXT(KCONTEXT*);
 void Sign_Out_Of_Session_KCONTEXT(KCONTEXT*);
-bool Get_App_KCONTEXT(KCONTEXT*, gaia::AppUUID);
-bool Get_Product_From_Connection_KCONTEXT(KCONTEXT*, gaia::ConnectionUUID);
-bool GetCheckoutUrl(KCONTEXT*, gaia::ProductUUID, char*);
-bool GetCheckPayment(KCONTEXT*, gaia::ProductUUID);
+bool Get_App_KCONTEXT(KCONTEXT*, kible::gaia::AppUUID);
+bool Get_Product_From_Connection_KCONTEXT(KCONTEXT*, kible::gaia::ConnectionUUID);
+bool GetCheckoutUrl(KCONTEXT*, kible::gaia::ProductUUID, char*);
+bool GetCheckPayment(KCONTEXT*, kible::gaia::ProductUUID);
 void Log_KCONTEXT(KCONTEXT*, char*);
 void Delete_KCONTEXT(KCONTEXT*);
 
 bool Does_User_Have_Premium(KCONTEXT*);
-bool Does_App_Have_Feature(KCONTEXT*, gaia::App app, gaia::Feature);
+bool Does_App_Have_Feature(KCONTEXT*, kible::gaia::App app, kible::gaia::Feature);
 
 #endif

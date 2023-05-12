@@ -7,20 +7,10 @@ RUN apt -y install libopus-dev libx264-dev
 RUN apt -y install libopusfile-dev
 RUN apt -y install libavformat-dev libavcodec-dev
 RUN apt -y install libjson-c-dev libpulse-dev
-RUN apt -y install cmake git
+RUN apt -y install cmake git wget
 RUN apt -y install protobuf-compiler-grpc protobuf-compiler libgrpc-dev libgrpc++-dev rename
 RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /root/.local
-COPY ./librana.so /usr/local/lib
-COPY ./Networking/*.h /usr/local/include/rana/Networking/
-COPY ./Networking/TCP/*.h /usr/local/include/rana/Networking/TCP/
-COPY ./Networking/UDP/*.h /usr/local/include/rana/Networking/UDP/
-COPY ./Networking/WS/*.h /usr/local/include/rana/Networking/WS/
-COPY ./Utilities/*.h /usr/local/include/rana/Utilities/
-COPY ./Hermes/*.h /usr/local/include/rana/Hermes/
-COPY ./clip/*.h /usr/local/include/rana/clip/
-COPY ./idl/cpp/gen/*.h /usr/local/include/rana/idl/cpp/gen/
 RUN mkdir -p /root/code
 WORKDIR /root/code
 ENTRYPOINT []
