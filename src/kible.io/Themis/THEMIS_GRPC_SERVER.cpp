@@ -14,8 +14,8 @@ void Update_Loop(Update_UTILITY *updateInfo) {
 	Update_System(updateInfo);
 }
 
-grpc::Status THEMIS_GRPC_SERVER::Resize(grpc::ServerContext* context,
-	const gaia::ResizeThemisRequest* request, gaia::Empty* response) {
+grpc::Status THEMIS_GRPC_SERVER::Dimensions(grpc::ServerContext* context,
+	const kible::themis::DimensionsRequest* request, kible::themis::DimensionsResponse* response) {
 
 	Set_Screen_Dim_KCONTEXT(themis_ext->ctx, (SCREEN_DIM) {
 		request->width(),
@@ -33,7 +33,7 @@ grpc::Status THEMIS_GRPC_SERVER::Resize(grpc::ServerContext* context,
 }
 
 grpc::Status THEMIS_GRPC_SERVER::Update(grpc::ServerContext* context,
-	const gaia::Empty* request, gaia::Empty* response) {
+	const kible::themis::UpdateRequest* request, kible::themis::UpdateResponse* response) {
 
 	/*
 	if (update_thread != NULL) {
@@ -66,7 +66,7 @@ void Launch_Loop(THEMIS_EXT *themis_ext) {
 }
 
 grpc::Status THEMIS_GRPC_SERVER::Launch(grpc::ServerContext* context,
-	const gaia::Empty* request, gaia::Empty* response) {
+	const kible::themis::LaunchRequest* request, kible::themis::LaunchResponse* response) {
 	
 	char version[VERSION_STRING_LENGTH];
 
@@ -107,8 +107,8 @@ grpc::Status THEMIS_GRPC_SERVER::Launch(grpc::ServerContext* context,
         }
 }
 
-grpc::Status THEMIS_GRPC_SERVER::Check(grpc::ServerContext* context, const gaia::Empty* request,
-	gaia::CheckResponse* response) {
+grpc::Status THEMIS_GRPC_SERVER::Check(grpc::ServerContext* context, const kible::themis::CheckRequest* request,
+	kible::themis::CheckResponse* response) {
 
 	//false -> rana is not connected
 	//true -> rana is connected

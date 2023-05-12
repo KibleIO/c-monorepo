@@ -13,21 +13,21 @@ SAN =
 
 CC = g++ -Wall -Wextra -Wno-pedantic -Wno-write-strings -Wno-missing-field-initializers -O3 $(SAN)
 
-CC_BUILD_FLAGS =	-I/usr/local/include/rana -I/usr/include/opus -I$(HOME)/.local/include
+CC_BUILD_FLAGS = -I/usr/include/opus -I./rana_core_utils -I./gen -I./clip
 
-CC_COMPILE_FLAGS = -lpthread -lrana -lcares -lcurl -lavutil\
+CC_COMPILE_FLAGS = -L./rana_core_utils -lpthread -lrana -lcares -lcurl -lavutil\
 		 -lasound -lopus -lsodium -lswscale\
 		-lXtst -lX11 -lXext -lopusfile -luuid -lx264 -ljson-c -lpulse-simple -lpulse -lwebsockets
 
 CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf)
 
 # File names
-EXEC = Themis
-SOURCES = $(wildcard *.cpp) $(wildcard */*.cpp)
+EXEC = themis/Themis
+SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard gen/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm make -f themis.mk docker -j8
 
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(EXEC) $(CC_COMPILE_FLAGS) $(CXXFLAGS)

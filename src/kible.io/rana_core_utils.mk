@@ -35,7 +35,7 @@ endif
 EXEC = ./rana_core_utils/librana.so
 EXEC_MAC = librana.dylib
 EXEC_WIN = rana.dll
-SOURCES = $(wildcard rana_core_utils/*.cpp) $(wildcard rana_core_utils/*/*.cpp) $(wildcard gen/*/*.cpp)
+SOURCES = $(wildcard rana_core_utils/*.cpp) $(wildcard rana_core_utils/*/*.cpp) $(wildcard rana_core_utils/*/*/*.cpp) $(wildcard gen/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:

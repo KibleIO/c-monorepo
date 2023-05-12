@@ -16,25 +16,25 @@ typedef int Status;
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
-#include "idl/cpp/gen/themis.grpc.pb.h"
+#include "../gen/themis/themis.grpc.pb.h"
 
 using namespace std;
 
-class THEMIS_GRPC_SERVER final : public gaia::THEMIS::Service {
+class THEMIS_GRPC_SERVER final : public kible::themis::THEMIS::Service {
 public:
 	explicit THEMIS_GRPC_SERVER(THEMIS_EXT *t);
 
-	grpc::Status Resize(grpc::ServerContext* context,
-		const gaia::ResizeThemisRequest* request, gaia::Empty* response);
+	grpc::Status Dimensions(grpc::ServerContext* context,
+		const kible::themis::DimensionsRequest* request, kible::themis::DimensionsResponse* response);
 
 	grpc::Status Update(grpc::ServerContext* context,
-		const gaia::Empty* request, gaia::Empty* response);
+		const kible::themis::UpdateRequest* request, kible::themis::UpdateResponse* response);
 
         grpc::Status Launch(grpc::ServerContext* context,
-		const gaia::Empty* request, gaia::Empty* response);
+		const kible::themis::LaunchRequest* request, kible::themis::LaunchResponse* response);
 	
 	grpc::Status Check(grpc::ServerContext* context,
-		const gaia::Empty* request, gaia::CheckResponse* response);
+		const kible::themis::CheckRequest* request, kible::themis::CheckResponse* response);
 
 	void Start(int port);
 	void Stop();

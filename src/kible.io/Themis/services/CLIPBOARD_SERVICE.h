@@ -4,7 +4,7 @@
 #include <Utilities/ASSERT.h>
 #include <Utilities/KCONTEXT.h>
 #include <Hermes/SERVER.h>
-#include <clip/clip.h>
+#include <clip.h>
 
 #define MAX_CLIPBOARD_SIZE 256
 
