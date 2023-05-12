@@ -55,9 +55,9 @@ int Initialize_Connection_KCONTEXT(KCONTEXT *ctx, string uuid_) {
 		return false;
 	} else if (strcmp(ctx->core_system, "THEMIS") == 0) {
 #ifdef EXTERNAL_LOGS_APIS_UTILS
-		gaia::RegisterThemisRequest registerRequest;
-		gaia::RegisterThemisResponse registerResponse;
-		gaia::ContainerID containerID;
+		kible::gaia::RegisterThemisRequest registerRequest;
+		kible::gaia::RegisterThemisResponse registerResponse;
+		kible::gaia::ContainerID containerID;
 #endif
 
 		string containerID_;
@@ -129,9 +129,9 @@ int Create_Rana_KCONTEXT(KCONTEXT *ctx, string email_, string password) {
 	}
 
 	if (strcmp(ctx->core_system, "RANA") == 0) {
-		gaia::CreateRanaAccountRequest registerRequest;
-		gaia::CreateRanaAccountResponse registerResponse;
-		gaia::LocationUUID locationID;
+		kible::gaia::CreateRanaAccountRequest registerRequest;
+		kible::gaia::CreateRanaAccountResponse registerResponse;
+		kible::gaia::LocationUUID locationID;
 
 		registerRequest.mutable_email()->set_value(email_);
 		registerRequest.set_password(password);
@@ -198,8 +198,8 @@ bool Check_For_Update_KCONTEXT(KCONTEXT *ctx, char *verion) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetVersionStoreRequest request;
-	gaia::GetVersionStoreResponse response;
+	kible::gaia::GetVersionStoreRequest request;
+	kible::gaia::GetVersionStoreResponse response;
 
 	request.mutable_name()->set_value(string(ctx->core_system));
 
@@ -228,7 +228,7 @@ bool Get_Location_KCONTEXT(KCONTEXT *ctx) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetLocationsRequest request;
+	kible::gaia::GetLocationsRequest request;
 
 	status = stub->GetLocations(&context, request, &ctx->locations);
 	ASSERT_E_R(status.ok(), "Could not get locations.", ctx);
@@ -252,7 +252,7 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetAppsRequest request;
+	kible::gaia::GetAppsRequest request;
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -276,14 +276,14 @@ bool Get_Apps_KCONTEXT(KCONTEXT *ctx) {
 	return true;
 }
 
-bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
+bool Get_Ads_KCONTEXT(KCONTEXT *ctx, kible::gaia::AdType ad_type) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
 	INIT_GRPC_STUB
 #endif
 
-	gaia::ListAdsRequest request;
+	kible::gaia::ListAdsRequest request;
 
 	request.set_adtype(ad_type);
 
@@ -300,7 +300,7 @@ bool Get_Ads_KCONTEXT(KCONTEXT *ctx, gaia::AdType ad_type) {
 	return true;
 }
 
-bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
+bool GetCheckoutUrl(KCONTEXT *ctx, kible::gaia::ProductUUID productID, char *str) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message",
@@ -316,8 +316,8 @@ bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::CreatePaymentUrlAuthRequest request;
-	gaia::CreatePaymentUrlAuthResponse response;
+	kible::gaia::CreatePaymentUrlAuthRequest request;
+	kible::gaia::CreatePaymentUrlAuthResponse response;
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -346,7 +346,7 @@ bool GetCheckoutUrl(KCONTEXT *ctx, gaia::ProductUUID productID, char *str) {
 	return true;
 }
 
-bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
+bool GetCheckPayment(KCONTEXT *ctx, kible::gaia::ProductUUID productID) {
 	if (!ctx->rana_initialized) {
 		LOG_ERROR_CTX(ctx) {
 			ADD_STR_LOG("message",
@@ -362,8 +362,8 @@ bool GetCheckPayment(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::CheckPaymentAuthRequest request;
-	gaia::CheckPaymentAuthResponse response;
+	kible::gaia::CheckPaymentAuthRequest request;
+	kible::gaia::CheckPaymentAuthResponse response;
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -417,8 +417,8 @@ int Check_Existing_Token_KCONTEXT(KCONTEXT *ctx) {
 	}
 
 	if (strcmp(ctx->core_system, "RANA") == 0) {
-		gaia::CheckSessionTokenRequest request;
-		gaia::CheckSessionTokenResponse response;
+		kible::gaia::CheckSessionTokenRequest request;
+		kible::gaia::CheckSessionTokenResponse response;
 		string token;
 
 		ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -479,8 +479,8 @@ bool Check_Password_Strength_KCONTEXT(KCONTEXT *ctx, string password) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::CheckPasswordStrengthRequest request;
-	gaia::CheckPasswordStrengthResponse response;
+	kible::gaia::CheckPasswordStrengthRequest request;
+	kible::gaia::CheckPasswordStrengthResponse response;
 
 	request.set_password(password);
 
@@ -502,8 +502,8 @@ bool Reset_Password_KCONTEXT(KCONTEXT *ctx, string email) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::ResetPasswordRequest request;
-	gaia::ResetPasswordResponse response;
+	kible::gaia::ResetPasswordRequest request;
+	kible::gaia::ResetPasswordResponse response;
 
 	request.set_email(email);
 
@@ -534,8 +534,8 @@ bool Login_Rana_KCONTEXT(KCONTEXT *ctx, string email, string password) {
 		return false;
 	}
 
-	gaia::LoginRanaRequest request;
-	gaia::LoginRanaResponse response;
+	kible::gaia::LoginRanaRequest request;
+	kible::gaia::LoginRanaResponse response;
 
 	request.mutable_email()->set_value(email);
 	request.set_password(password);
@@ -564,7 +564,7 @@ void Sign_Out_Of_Session_KCONTEXT(KCONTEXT *ctx) {
 	output.close();
 }
 
-bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
+bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, kible::gaia::AppUUID appID) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
@@ -580,8 +580,8 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 		return false;
 	}
 
-	gaia::WakeUpAppRequest request;
-	gaia::WakeUpAppResponse response;
+	kible::gaia::WakeUpAppRequest request;
+	kible::gaia::WakeUpAppResponse response;
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -607,7 +607,7 @@ bool Wake_Up_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 	return false;
 }
 
-bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
+bool Get_App_KCONTEXT(KCONTEXT *ctx, kible::gaia::AppUUID appID) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
@@ -623,7 +623,7 @@ bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 		return false;
 	}
 
-	gaia::GetAppRequest request;
+	kible::gaia::GetAppRequest request;
 	string token;
 
 	ifstream file(string(ctx->system_resource_dir) + INFO_FILE_NAME);
@@ -646,14 +646,14 @@ bool Get_App_KCONTEXT(KCONTEXT *ctx, gaia::AppUUID appID) {
 	return false;
 }
 
-bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
+bool Get_Product_KCONTEXT(KCONTEXT *ctx, kible::gaia::ProductUUID productID) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetProductRequest request;
+	kible::gaia::GetProductRequest request;
 	request.mutable_productid()->CopyFrom(productID);
 
 	status = stub->GetProduct(&context, request, &ctx->product);
@@ -666,14 +666,14 @@ bool Get_Product_KCONTEXT(KCONTEXT *ctx, gaia::ProductUUID productID) {
 	return false;
 }
 
-bool Get_Ad_KCONTEXT(KCONTEXT *ctx, gaia::AdUUID adID) {
+bool Get_Ad_KCONTEXT(KCONTEXT *ctx, kible::gaia::AdUUID adID) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetAdRequest request;
+	kible::gaia::GetAdRequest request;
 	request.mutable_adid()->CopyFrom(adID);
 
 	status = stub->GetAd(&context, request, &ctx->ad);
@@ -693,7 +693,7 @@ bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetAvailableProductsRequest request;
+	kible::gaia::GetAvailableProductsRequest request;
 
 	status = stub->GetAvailableProducts(&context, request, &ctx->products);
 
@@ -706,14 +706,14 @@ bool Get_Available_Products_KCONTEXT(KCONTEXT *ctx) {
 }
 
 bool Get_Product_From_Connection_KCONTEXT(KCONTEXT *ctx,
-										  gaia::ConnectionUUID connectionID) {
+										  kible::gaia::ConnectionUUID connectionID) {
 #ifdef __linux__
 	INIT_GRPC_STUB_LINUX
 #else
 	INIT_GRPC_STUB
 #endif
 
-	gaia::GetProductFromConnectionRequest request;
+	kible::gaia::GetProductFromConnectionRequest request;
 	request.mutable_connectionid()->CopyFrom(connectionID);
 
 	status = stub->GetProductFromConnection(&context, request,
@@ -751,8 +751,8 @@ void Delete_KCONTEXT(KCONTEXT *ctx) {
 
 bool Does_User_Have_Premium(KCONTEXT *ctx) {
 	if (Get_Apps_KCONTEXT(ctx)) {
-		for (const gaia::App apps : ctx->apps.apps()) {
-			if (Does_App_Have_Feature(ctx, apps, gaia::FEATURE_PREMIUM)) {
+		for (const kible::gaia::App apps : ctx->apps.apps()) {
+			if (Does_App_Have_Feature(ctx, apps, kible::gaia::FEATURE_PREMIUM)) {
 				return true;
 			}
 		}
@@ -760,8 +760,8 @@ bool Does_User_Have_Premium(KCONTEXT *ctx) {
 	return false;
 }
 
-bool Does_App_Have_Feature(KCONTEXT *ctx, gaia::App app,
-						   gaia::Feature feature) {
+bool Does_App_Have_Feature(KCONTEXT *ctx, kible::gaia::App app,
+						   kible::gaia::Feature feature) {
 	if (Get_Product_KCONTEXT(ctx, app.productid())) {
 		for (int features : ctx->product.product().features()) {
 			if (features == feature) {

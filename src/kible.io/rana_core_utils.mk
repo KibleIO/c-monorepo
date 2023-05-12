@@ -16,7 +16,7 @@ ifeq ($(OS),Windows_NT)
 	CXXFLAGS = -L/mingw64/lib -lgrpc++ -lgrpc -laddress_sorting -lre2 -lupb -lcares -lz -lgpr -lssl -lcrypto -labsl_raw_hash_set -labsl_hashtablez_sampler -labsl_hash -labsl_city -labsl_low_level_hash -labsl_random_distributions -labsl_random_seed_sequences -labsl_random_internal_pool_urbg -labsl_random_internal_randen -labsl_random_internal_randen_hwaes -labsl_random_internal_randen_hwaes_impl -labsl_random_internal_randen_slow -labsl_random_internal_platform -lbcrypt -labsl_random_internal_seed_material -labsl_random_seed_gen_exception -labsl_statusor -labsl_status -labsl_cord -labsl_cordz_info -labsl_cord_internal -labsl_cordz_functions -labsl_exponential_biased -labsl_cordz_handle -labsl_bad_optional_access -labsl_str_format_internal -labsl_synchronization -labsl_graphcycles_internal -labsl_stacktrace -ldbghelp -labsl_symbolize -labsl_debugging_internal -labsl_demangle_internal -labsl_malloc_internal -labsl_time -labsl_civil_time -labsl_strings -labsl_strings_internal -ladvapi32 -labsl_base -labsl_spinlock_wait -labsl_int128 -labsl_throw_delegate -labsl_time_zone -labsl_bad_variant_access -labsl_raw_logging_internal -labsl_log_severity -lprotobuf -lpthread
 
 else
-	CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I./ -I$(HOME)/.local/include -std=c++11 \
+	CC_BUILD_FLAGS = -fPIC -Wl,--as-needed -I./rana_core_utils -I./gen -I./clip -std=c++11 \
 	-Wno-write-strings -Wno-implicit-fallthrough -Wno-pedantic -Wno-unused-variable -Wno-switch
 
 	CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/:/usr/local/opt/openssl@3/lib/pkgconfig pkg-config --libs grpc grpc++ protobuf)
@@ -32,26 +32,14 @@ ifeq ($(UNAME_M),armv7l)
 endif
 
 # File names
-EXEC = librana.so
+EXEC = ./rana_core_utils/librana.so
 EXEC_MAC = librana.dylib
 EXEC_WIN = rana.dll
-SOURCES = $(filter-out $(wildcard clip/*.cpp) $(wildcard clip/*/*.cpp), $(wildcard */*.cpp) $(wildcard */*/*.cpp)) $(wildcard idl/cpp/gen/*.cpp)
+SOURCES = $(wildcard rana_core_utils/*.cpp) $(wildcard rana_core_utils/*/*.cpp) $(wildcard gen/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
-	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils make docker
-
-zorin:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:zorin make docker
-
-xubuntu:
-	docker run --rm -it -v `pwd`:/root/code kible/coreutils:xubuntu make docker -j8
-
-xubuntux86:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:xubuntux86 make docker -j8
-
-debianx86:
-	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:debianx86 make docker
+	docker run --rm -it -v `pwd`:/root/code kible/coreutils:arm make -f rana_core_utils.mk docker -j8
 
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
@@ -197,6 +185,4 @@ $(EXEC_MAC): $(OBJECTS)
 
 # To remove generated files
 clean:
-	rm -rf idl/cpp/gen
-	rm -rf clip/build
 	rm -f $(EXEC) $(OBJECTS) $(EXEC_MAC)

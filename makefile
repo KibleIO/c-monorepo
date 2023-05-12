@@ -13,3 +13,6 @@ build_proto:
 
 clean:
 	rm -rf src/kible.io/gen/*
+
+docker-build-clip-arm:
+	docker run --platform linux/arm64 --rm -it -v `pwd`:/root/code kible/coreutils:arm ./install_clip.sh

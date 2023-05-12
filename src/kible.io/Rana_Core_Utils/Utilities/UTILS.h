@@ -50,7 +50,7 @@
 #include <iostream>
 #include <vector>
 
-#include "clip/clip.h"
+#include "clip.h"
 #include "Update_Utility.h"
 
 #define OCTETS_IN_MAC_ADDRESS 6
