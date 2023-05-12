@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#scp Themis root@104.216.12.230:/root/THEMIS/Themis
+scp Themis root@162.211.122.171:/root/THEMIS/Themis

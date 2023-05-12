@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export LD_LIBRARY_PATH=/usr/local/lib
+export DISPLAY=:1
+
+cd ~
+
+sudo rm /tmp/.X1-lock
+sudo X :1 -config /root/dummy-1920x1080.conf &
+
+sleep 3
+
+startxfce4 &
+sleep 2
+#xset s off
+#xset q
+
+pulseaudio --start
+pulseaudio --check
+pulseaudio -D
+
+$STARTUPDIR/custom_startup.sh &
+
+./Themis
+
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+exit 1
