@@ -13,7 +13,7 @@ themis:
 	make -f themis.mk
 
 themis_x86:
-	make -f themis.mk
+	make -f themis.mk x86
 
 themis_clean:
 	make -f themis.mk clean
