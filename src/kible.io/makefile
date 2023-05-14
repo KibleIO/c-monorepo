@@ -12,6 +12,9 @@ protobuf_http_api_example_run:
 themis:
 	make -f themis.mk
 
+themis_x86:
+	make -f themis.mk
+
 themis_clean:
 	make -f themis.mk clean
 

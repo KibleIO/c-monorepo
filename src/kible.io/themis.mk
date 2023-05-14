@@ -29,6 +29,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 default:
 	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm make -f themis.mk docker -j8
 
+x86:
+	docker run --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:x86 make -f themis.mk docker -j8
+
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(EXEC) $(CC_COMPILE_FLAGS) $(CXXFLAGS)
 
