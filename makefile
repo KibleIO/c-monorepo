@@ -1,4 +1,7 @@
-docker-build-proto:
+docker-build-proto-x86:
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:x86 make build_proto_unix
+
+docker-build-proto-arm:
 	docker run --platform linux/arm64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm make build_proto_unix
 
 build_proto_unix:
@@ -16,3 +19,6 @@ clean:
 
 docker-build-clip-arm:
 	docker run --platform linux/arm64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm ./install_clip.sh
+
+docker-build-clip-x86:
+	docker run --platform linux/amd64 --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:x86 ./install_clip.sh
