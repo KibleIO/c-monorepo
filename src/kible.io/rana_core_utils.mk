@@ -41,6 +41,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 default:
 	docker run --rm -it -v `pwd`:/root/code kible/coreutils:arm make -f rana_core_utils.mk docker -j8
 
+x86:
+	docker run --rm -it -v `pwd`:/root/code kible/coreutils:x86 make -f rana_core_utils.mk docker -j8
+
 docker: $(OBJECTS)
 	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
 

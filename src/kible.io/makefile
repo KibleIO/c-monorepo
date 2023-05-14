@@ -21,6 +21,9 @@ themis_run:
 rana_core_utils:
 	make -f rana_core_utils.mk
 
+rana_core_utils_x86:
+	make -f rana_core_utils.mk x86
+
 rana_core_utils_clean:
 	make -f rana_core_utils.mk clean
 
