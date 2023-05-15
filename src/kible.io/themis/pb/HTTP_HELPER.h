@@ -13,9 +13,14 @@ struct service_actual_name##_SERVER {\
 	mg_mgr mgr;\
 	volatile bool running;\
 	void *user_ptr;\
+	std::string path;\
+	std::string package;\
+	std::string service_name;\
 };\
 bool Initialize_##service_actual_name##_SERVER(service_actual_name##_SERVER*, \
 char*, void*);\
+bool Initialize_##service_actual_name##_SERVER(service_actual_name##_SERVER*, \
+char*, void*, std::string);\
 void Run_##service_actual_name##_SERVER(service_actual_name##_SERVER*);\
 void Delete_##service_actual_name##_SERVER(service_actual_name##_SERVER*);\
 
@@ -44,10 +49,10 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 }\
 
 #define HTTP_Protobuf_Callback_Endpoint(service_actual_name, endpoint_name, \
-	path_actual, package_actual, request_obj, response_obj)\
+	request_obj, response_obj)\
 	std::string endpoint_name##_request_address = \
-			std::string(#path_actual) +  "/" + #package_actual + \
-			"." + #service_actual_name + "/" + #endpoint_name;\
+			server->path +  "/" + server->package + \
+			"." + server->service_name + "/" + #endpoint_name;\
 	if (mg_http_match_uri(hm, endpoint_name##_request_address.c_str())) {\
 		request_obj request;\
 		response_obj response;\
@@ -68,7 +73,8 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 		}\
 	}\
 
-#define HTTP_Protobuf_Init_Delete(service_actual_name)\
+#define HTTP_Protobuf_Init_Delete(service_actual_name, path_actual, \
+	package_actual)\
 bool pb::Initialize_##service_actual_name##_SERVER(\
 	pb::service_actual_name##_SERVER *server, char *address, \
 	void *user_ptr) {\
@@ -77,6 +83,22 @@ bool pb::Initialize_##service_actual_name##_SERVER(\
 	server);\
 	server->running = false;\
 	server->user_ptr = user_ptr;\
+	server->path = #path_actual;\
+	server->package = #package_actual;\
+	server->service_name = #service_actual_name;\
+	return true;\
+}\
+bool pb::Initialize_##service_actual_name##_SERVER(\
+	pb::service_actual_name##_SERVER *server, char *address, \
+	void *user_ptr, std::string path_override) {\
+	mg_mgr_init(&server->mgr);\
+	mg_http_listen(&server->mgr, address, callback_##service_actual_name,\
+	server);\
+	server->running = false;\
+	server->user_ptr = user_ptr;\
+	server->path = path_override;\
+	server->package = #package_actual;\
+	server->service_name = #service_actual_name;\
 	return true;\
 }\
 void pb::Run_##service_actual_name##_SERVER(\

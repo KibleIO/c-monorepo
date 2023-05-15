@@ -50,5 +50,5 @@ $(EXEC): $(OBJECTS)
 clean:
 	rm -f $(EXEC) $(OBJECTS)
 
-run-arm:
+run:
 	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it kible/firefox:arm bash

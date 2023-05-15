@@ -1,7 +1,7 @@
 #include "THEMIS_HTTP_SERVER.h"
 
 bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
-	THEMIS_EXT *themis, int port) {
+	THEMIS_EXT *themis, int port, std::string path) {
 
 	std::string listen_address;
 	listen_address += "http://0.0.0.0:";
@@ -9,7 +9,8 @@ bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
 
 	server->themis_ext = themis;
 	return pb::Initialize_THEMIS_SERVER(&server->server,
-		(char*) listen_address.c_str(), (void*) server->themis_ext);
+		(char*) listen_address.c_str(), (void*) server->themis_ext,
+		path);
 }
 void Run_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server) {
 	pb::Run_THEMIS_SERVER(&server->server);

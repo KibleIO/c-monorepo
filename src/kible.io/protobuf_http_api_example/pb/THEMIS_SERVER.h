@@ -13,8 +13,8 @@ HTTP_Protobuf_Endpoint(THEMIS, Launch, kible::themis::LaunchRequest,
 	kible::themis::LaunchResponse)
 HTTP_Protobuf_Endpoint(THEMIS, Check, kible::themis::CheckRequest,
 	kible::themis::CheckResponse)
-HTTP_Protobuf_Endpoint(THEMIS, Resize, kible::themis::ResizeRequest,
-	kible::themis::ResizeResponse)
+HTTP_Protobuf_Endpoint(THEMIS, Dimensions, kible::themis::DimensionsRequest,
+	kible::themis::DimensionsResponse)
 
 HTTP_Protobuf_End()
 
