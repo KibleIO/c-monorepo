@@ -5,6 +5,7 @@
 #include "LIMITS.h"
 #include "THEMIS_EXT.h"
 #include "THEMIS_GRPC_SERVER.h"
+#include "controller/THEMIS_HTTP_SERVER.h"
 
 #define CTOA(character) int(character - '0')
 void start_filebrowser(volatile bool *running, KCONTEXT *ctx) {
@@ -34,6 +35,17 @@ int main() {
 	THEMIS_EXT themis_ext;
 #ifdef EXTERNAL_LOGS_APIS
 	THEMIS_GRPC_SERVER grpc(&themis_ext);
+#else
+	THEMIS_HTTP_SERVER http;
+	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
+		THEMIS_HTTP_PORT)) {
+		
+		LOG_ERROR_CTX(&ctx) {
+			ADD_STR_LOG("message",
+				"failed to initialize themis http");
+		}
+		return 0;
+	}
 #endif
 	volatile bool running = true;
 
@@ -67,26 +79,7 @@ int main() {
 	ASSERT_E_R(Initialize_THEMIS_EXT(&themis_ext, &ctx, THEMIS_PORT),
 			   "failed to initialize themis_ext", &ctx);
 	
-	while (true) {
-		if (Connect_THEMIS_EXT(&themis_ext)) {
-			TIMER t;
-			Start_TIMER(&t);
-			LOG_INFO_CTX(&ctx) {
-				ADD_STR_LOG("message", "Started Themis Session.");
-			}
-			while (Running_THEMIS_EXT(&themis_ext)) {
-				Sleep_Milli(1000); //busy wait
-			}
-			LOG_INFO_CTX(&ctx) {
-				ADD_STR_LOG("message", "Ended Themis Session.");
-				ADD_INT_LOG("time", Stop_TIMER(&t));
-			}
-			break;
-		}
-		break;
-	}
-	Disconnect_THEMIS_EXT(&themis_ext);
-
+	Run_THEMIS_HTTP_SERVER(&http);
 #endif
 	running = false;
 	//filebrowser_thread.join();

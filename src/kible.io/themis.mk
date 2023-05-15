@@ -23,7 +23,7 @@ CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig
 
 # File names
 EXEC = themis/Themis
-SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard gen/*/*.cpp)
+SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
@@ -51,4 +51,4 @@ clean:
 	rm -f $(EXEC) $(OBJECTS)
 
 run-arm:
-	docker run -p 4460:4460 --platform linux/arm64 --pull=always --rm -it kible/firefox:arm bash
+	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it kible/firefox:arm bash
