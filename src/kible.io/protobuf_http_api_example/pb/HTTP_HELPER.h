@@ -102,7 +102,7 @@ bool pb::Initialize_##service_actual_name##_SERVER(\
 	server);\
 	server->running = false;\
 	server->user_ptr = user_ptr;\
-	server->path = path_override + #path_actual;\
+	server->path = std::string("/") + path_override + #path_actual;\
 	server->package = #package_actual;\
 	server->service_name = #service_actual_name;\
 	return true;\
