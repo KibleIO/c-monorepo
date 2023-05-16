@@ -39,7 +39,6 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 		pb::service_actual_name##_SERVER *server = \
 		(pb::service_actual_name##_SERVER*) fn_data;\
 		mg_http_message *hm = (mg_http_message *) ev_data;\
-		std::cout << "YOLOLO " << hm->method.ptr << std::endl;\
 		if (mg_vcmp(&hm->method, "OPTIONS") == 0) {\
 		mg_printf(c, "%s%s%s%s\r\n",\
               "HTTP/1.1 200 OK\r\n",\
@@ -60,7 +59,6 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 	std::string endpoint_name##_request_address = \
 			server->path +  "/" + server->package + \
 			"." + server->service_name + "/" + #endpoint_name;\
-	std::cout << "YOOOOSOSOS " << hm->uri.ptr << " " << endpoint_name##_request_address << std::endl;\
 	if (mg_http_match_uri(hm, endpoint_name##_request_address.c_str())) {\
 		request_obj request;\
 		response_obj response;\
