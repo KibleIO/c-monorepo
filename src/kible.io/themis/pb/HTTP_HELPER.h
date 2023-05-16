@@ -53,7 +53,6 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 	std::string endpoint_name##_request_address = \
 			server->path +  "/" + server->package + \
 			"." + server->service_name + "/" + #endpoint_name;\
-	std::cout << "PATHPATH " << hm->uri.ptr << " " << endpoint_name##_request_address << std::endl;\
 	if (mg_http_match_uri(hm, endpoint_name##_request_address.c_str())) {\
 		request_obj request;\
 		response_obj response;\
