@@ -6,6 +6,7 @@
 #include "THEMIS_EXT.h"
 #include "THEMIS_GRPC_SERVER.h"
 #include "controller/THEMIS_HTTP_SERVER.h"
+#include "client/EDGE_CLIENT.h"
 
 #define CTOA(character) int(character - '0')
 void start_filebrowser(volatile bool *running, KCONTEXT *ctx) {
@@ -36,6 +37,7 @@ int main() {
 #ifdef EXTERNAL_LOGS_APIS
 	THEMIS_GRPC_SERVER grpc(&themis_ext);
 #else
+	#ifdef TESTING_BUILD
 	THEMIS_HTTP_SERVER http;
 	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
 		THEMIS_HTTP_PORT)) {
@@ -46,6 +48,40 @@ int main() {
 		}
 		return 0;
 	}
+	#else
+	std::string container_id;
+	std::string path;
+
+	ifstream containerid(CONTAINER_ID_LOC);
+	if (!containerid) {
+		LOG_ERROR_CTX(&ctx) {
+			ADD_STR_LOG("message",
+				"Could not open container id location.");
+		}
+		return 0;
+	}
+	getline(containerid, container_id);
+	containerid.close();
+
+	if (!Path_EDGE_CLIENT(container_id, &path)) {
+		LOG_ERROR_CTX(&ctx) {
+			ADD_STR_LOG("message",
+				"failed to get Path");
+		}
+		return 0;
+	}
+
+	THEMIS_HTTP_SERVER http;
+	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
+		THEMIS_HTTP_PORT, path)) {
+		
+		LOG_ERROR_CTX(&ctx) {
+			ADD_STR_LOG("message",
+				"failed to initialize themis http");
+		}
+		return 0;
+	}
+	#endif
 #endif
 	volatile bool running = true;
 
