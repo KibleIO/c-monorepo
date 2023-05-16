@@ -32,7 +32,6 @@ void start_filebrowser(volatile bool *running, KCONTEXT *ctx) {
 }
 
 int main() {
-	std::cout << "ATTEMPTING TO CONNECT TO IT" << std::endl;
 	KCONTEXT ctx;
 	THEMIS_EXT themis_ext;
 #ifdef EXTERNAL_LOGS_APIS
@@ -41,7 +40,7 @@ int main() {
 	#ifdef TESTING_BUILD
 	THEMIS_HTTP_SERVER http;
 	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
-		THEMIS_HTTP_PORT, "ecab")) {
+		THEMIS_HTTP_PORT)) {
 		
 		LOG_ERROR_CTX(&ctx) {
 			ADD_STR_LOG("message",
@@ -49,7 +48,6 @@ int main() {
 		}
 		return 0;
 	}
-	std::cout << "SUCCESSFULLY DONE" << std::endl;
 	#else
 	std::string container_id;
 	std::string path;
