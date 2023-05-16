@@ -40,7 +40,7 @@ int main() {
 	#ifdef TESTING_BUILD
 	THEMIS_HTTP_SERVER http;
 	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
-		THEMIS_HTTP_PORT)) {
+		THEMIS_HTTP_PORT, "ecab")) {
 		
 		LOG_ERROR_CTX(&ctx) {
 			ADD_STR_LOG("message",

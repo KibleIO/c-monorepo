@@ -51,6 +51,6 @@ clean:
 	rm -f $(EXEC) $(OBJECTS)
 
 run:
-	mkdir ./themis/rana_core_utils
+	mkdir -p ./themis/rana_core_utils
 	cp ./rana_core_utils/librana.so ./themis/rana_core_utils
 	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it -v `pwd`/themis/:/home/kasm-user kible/firefox:arm bash
