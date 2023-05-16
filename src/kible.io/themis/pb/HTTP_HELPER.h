@@ -39,7 +39,13 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 		pb::service_actual_name##_SERVER *server = \
 		(pb::service_actual_name##_SERVER*) fn_data;\
 		mg_http_message *hm = (mg_http_message *) ev_data;\
-		if (mg_vcmp(&hm->method, "POST") == 0) {\
+		if (mg_vcmp(&hm->method, "OPTIONS") == 0) {\
+		mg_printf(c, "%s%s%s%s\r\n",\
+              "HTTP/1.1 200 OK\r\n",\
+              "Access-Control-Allow-Origin: *\r\n",\
+		"Access-Control-Allow-Methods: POST\r\n",\
+		"Access-Control-Allow-Headers: Content-Type\r\n");\
+		} else if (mg_vcmp(&hm->method, "POST") == 0) {\
 
 
 #define HTTP_Protobuf_Callback_End()\
@@ -67,7 +73,7 @@ void callback_##service_actual_name(mg_connection *c, int ev, void *ev_data, \
 			options2.always_print_primitive_fields = true;\
 			MessageToJsonString(response, &json_string, options2);\
 			mg_http_reply(c, 200, \
-				"Content-Type: application/json\r\n", \
+				"Access-Control-Allow-Origin: *\r\nContent-Type: application/json\r\n", \
 				"%s", json_string.c_str());\
 			return;\
 		}\
@@ -96,7 +102,7 @@ bool pb::Initialize_##service_actual_name##_SERVER(\
 	server);\
 	server->running = false;\
 	server->user_ptr = user_ptr;\
-	server->path = std::string("/") + path_override + #path_actual;\
+	server->path = path_override + #path_actual;\
 	server->package = #package_actual;\
 	server->service_name = #service_actual_name;\
 	return true;\

@@ -26,7 +26,7 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::LaunchRequest *request,
 	kible::themis::LaunchResponse *response) {
 	
-	return false; //unimplemented
+	return true; //unimplemented
 }
 
 bool pb::Check_THEMIS_SERVER(pb::THEMIS_SERVER *server,

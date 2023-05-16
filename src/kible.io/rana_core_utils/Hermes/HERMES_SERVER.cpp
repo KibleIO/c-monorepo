@@ -257,6 +257,7 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 
 	if (!Initialize_SERVER_MASTER(&hs->master, hs->ctx, types[0].type,
 		hs->port)) {
+		Delete_SERVER_MASTER(&hs->master);
 		return false;
 	}
 

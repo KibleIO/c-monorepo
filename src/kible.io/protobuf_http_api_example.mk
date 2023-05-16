@@ -35,4 +35,4 @@ clean:
 	rm -f $(EXEC) $(OBJECTS)
 
 run:
-	docker run -p 8000:8000/tcp --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm $(EXEC)
+	docker run -p 4461:4461/tcp --pull=always --rm -it -v `pwd`:/root/code kible/coreutils:arm $(EXEC)

@@ -9,7 +9,7 @@ bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
 
 	server->themis_ext = themis;
 	return pb::Initialize_THEMIS_SERVER(&server->server,
-		(char*) listen_address.c_str(), (void*) server->themis_ext);
+		(char*) listen_address.c_str(), (void*) server);
 }
 
 bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
@@ -21,8 +21,7 @@ bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
 
 	server->themis_ext = themis;
 	return pb::Initialize_THEMIS_SERVER(&server->server,
-		(char*) listen_address.c_str(), (void*) server->themis_ext,
-		path);
+		(char*) listen_address.c_str(), (void*) server, path);
 }
 
 void Run_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server) {
@@ -61,7 +60,7 @@ void Launch_Loop2(THEMIS_EXT *themis_ext) {
 bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::LaunchRequest *request,
 	kible::themis::LaunchResponse *response) {
-	
+
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
@@ -73,6 +72,9 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 
                 http_server->launch_thread = new thread(Launch_Loop2,
 			http_server->themis_ext);
+		
+		//for good measure... or for fun, who knows
+		Sleep_Milli(100);
 
                 return true;
         } else {

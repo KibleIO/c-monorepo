@@ -18,6 +18,7 @@
 #define WEB_SOCKET_TIME_OUT 10
 #define WS_SLEEP_TIME 1
 #define WS_RECV_TIMEOUT 5
+#define WS_CONNECT_TIMEOUT 5000
 
 #define DEFAULT_PROTOCOLS(PROTO) PROTO[0] = {\
 	"dumb-increment-protocol",\

@@ -87,6 +87,7 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 
 bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int port) {
 	WEBSOCKET_ELEMENT *temp;
+	int counter = WS_CONNECT_TIMEOUT;
 
 	server->ctx = ctx;
 	server->pool		= new Queue<WEBSOCKET_ELEMENT*>;
@@ -113,11 +114,11 @@ bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int po
 	server->main_thread = new thread(
 		Service_Thread_WS_SERVER_MASTER, server);
 	
-	while (!server->accept) {
+	while (!server->accept && counter-- > 0) {
 		Sleep_Milli(WEB_SOCKET_SLEEP_TIME);
 	}
 
-	return true;
+	return counter > 0;
 }
 
 void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
@@ -289,5 +290,41 @@ bool Set_High_Priority_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 }
 
 void Delete_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
-	//lord please have mercy on my soul
+	WEBSOCKET_ELEMENT *temp = NULL;
+	
+	server->accept = false;
+	server->running = false;
+	if (server->main_thread != NULL) {
+		server->main_thread->join();
+		delete server->main_thread;
+		server->main_thread = NULL;
+	}
+
+	lws_context_destroy(server->context);
+
+	//drain active_read
+	for (int i = 0; i < server->host_count; i++) {
+		while (server->active_read[i]->size() > 0) {
+			server->active_read[i]->pop(temp);
+			delete [] temp->bytes;
+			delete temp;
+		}
+		delete server->active_read[i];
+	}
+	server->host_count = 0;
+
+	//drain active_write
+	while (server->active_write->size() > 0) {
+		server->active_write->pop(temp);
+		delete [] temp->bytes;
+		delete temp;
+	}
+	delete server->active_write;
+
+	//drain pool
+	while (server->pool->size() > 0) {
+		server->pool->pop(temp);
+		delete temp;
+	}
+	delete server->pool;
 }
