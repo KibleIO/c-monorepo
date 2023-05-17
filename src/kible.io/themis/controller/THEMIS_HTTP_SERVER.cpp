@@ -74,7 +74,7 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 			http_server->themis_ext);
 		
 		//for good measure... or for fun, who knows
-		Sleep_Milli(100);
+		Sleep_Milli(500);
 
                 return true;
         } else {
