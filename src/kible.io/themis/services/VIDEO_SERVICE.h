@@ -19,6 +19,7 @@ struct VIDEO_SERVICE {
 	X264_ENCODER encoder;
 	SERVER *s;
 	FPS_LIMITER fps_limiter;
+	ENCODE_LEVEL encode_level;
 	thread *main_loop;
 	volatile bool main_loop_running;
 	volatile bool resize;
@@ -31,7 +32,7 @@ bool Initialize_VIDEO_SERVICE(VIDEO_SERVICE*, KCONTEXT*);
 bool Connect_VIDEO_SERVICE(VIDEO_SERVICE*, SERVER*, SERVER*);
 void Main_TCP_Loop_VIDEO_SERVICE(VIDEO_SERVICE*);
 void Main_UDP_Loop_VIDEO_SERVICE(VIDEO_SERVICE*);
-bool Resize_VIDEO_SERVICE(VIDEO_SERVICE*, int, int);
+bool Resize_VIDEO_SERVICE(VIDEO_SERVICE*, int, int, ENCODE_LEVEL);
 void Disconnect_VIDEO_SERVICE(VIDEO_SERVICE*);
 void Delete_VIDEO_SERVICE(VIDEO_SERVICE*);
 

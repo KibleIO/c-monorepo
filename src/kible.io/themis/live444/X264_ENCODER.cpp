@@ -16,7 +16,9 @@ void cb(x264_t * h, x264_nal_t * nal, void * opaque) {
 	// Removed: Process nal.
 }
 
-bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim, int fps) {
+bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
+	ENCODE_LEVEL level, int fps) {
+	
 	log_dbg(((const JSON_TYPE){
 		{"message", "initializing x264 encoder"},
 		JSON_TYPE_END}));
@@ -48,7 +50,6 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim, int fps)
 	x264->parameters.b_intra_refresh		= 1;
 
 	//Rate control:
-	int max_kbs = 7500;
 	//int fps = 60;
 	/*
 	x264->parameters.rc.i_rc_method = X264_RC_ABR;
@@ -69,12 +70,12 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim, int fps)
 	//x264->parameters.rc.i_rc_method			= X264_RC_ABR;
 
 	x264->parameters.rc.i_rc_method = X264_RC_CRF;
-	x264->parameters.rc.f_rf_constant		= 18;
-	x264->parameters.rc.f_rf_constant_max	= 18 + 1;
+	x264->parameters.rc.f_rf_constant		= level.rf_constant;
+	x264->parameters.rc.f_rf_constant_max	= level.rf_constant + 1;
 
-	x264->parameters.rc.i_vbv_buffer_size	= 500; //why 100? honestly no idea
-	x264->parameters.rc.i_vbv_max_bitrate 	= max_kbs;
-	x264->parameters.rc.i_bitrate		= max_kbs;
+	x264->parameters.rc.i_vbv_buffer_size	= level.vbv_buffer_size; //why 100? honestly no idea
+	x264->parameters.rc.i_vbv_max_bitrate 	= level.max_kbs;
+	x264->parameters.rc.i_bitrate		= level.max_kbs;
 
 	//x264->parameters.rc.i_vbv_buffer_size	= 100;
 	//x264->parameters.rc.i_vbv_max_bitrate 	= 2048;

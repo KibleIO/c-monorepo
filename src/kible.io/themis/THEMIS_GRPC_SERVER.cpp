@@ -23,7 +23,7 @@ grpc::Status THEMIS_GRPC_SERVER::Dimensions(grpc::ServerContext* context,
 		request->height()});
 
 	if (Resize_VIDEO_SERVICE(&themis_ext->video, request->width(),
-		request->height())) {
+		request->height(), themis_ext->video.encode_level)) {
 
 		return grpc::Status::OK;
 	} else {

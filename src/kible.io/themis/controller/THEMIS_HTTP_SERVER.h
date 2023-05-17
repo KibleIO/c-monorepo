@@ -5,6 +5,7 @@
 #include <Utilities/TIMER.h>
 #include "../THEMIS_EXT.h"
 #include "../pb/THEMIS_SERVER.h"
+#include "../services/VIDEO_SERVICE.h"
 
 struct THEMIS_HTTP_SERVER {
 	pb::THEMIS_SERVER server;

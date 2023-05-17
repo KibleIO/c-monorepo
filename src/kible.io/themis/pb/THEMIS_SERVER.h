@@ -15,6 +15,8 @@ HTTP_Protobuf_Endpoint(THEMIS, Check, kible::themis::CheckRequest,
 	kible::themis::CheckResponse)
 HTTP_Protobuf_Endpoint(THEMIS, Dimensions, kible::themis::DimensionsRequest,
 	kible::themis::DimensionsResponse)
+HTTP_Protobuf_Endpoint(THEMIS, Density, kible::themis::DensityRequest,
+	kible::themis::DensityResponse)
 
 HTTP_Protobuf_End()
 

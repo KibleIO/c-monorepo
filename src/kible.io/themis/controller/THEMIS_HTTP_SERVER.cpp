@@ -104,10 +104,60 @@ bool pb::Dimensions_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 		request->height()});
 
 	if (Resize_VIDEO_SERVICE(&http_server->themis_ext->video,
-		request->width(), request->height())) {
+		request->width(), request->height(),
+		http_server->themis_ext->video.encode_level)) {
 
 		return true;
 	} else {
 		return false;
 	}
+}
+
+bool pb::Density_THEMIS_SERVER(pb::THEMIS_SERVER *server,
+	kible::themis::DensityRequest *request,
+	kible::themis::DensityResponse *response) {
+	
+	THEMIS_HTTP_SERVER *http_server =
+		(THEMIS_HTTP_SERVER*) server->user_ptr;
+
+	switch (request->density()) {
+		case kible::themis::PixelDensity::PIXELDENSITY_HIGH:
+			if (*http_server->themis_ext->connected) {
+				Resize_VIDEO_SERVICE(
+					&http_server->themis_ext->video,
+					http_server->themis_ext->video.width,
+					http_server->themis_ext->video.height,
+					ENCODE_LEVEL_HIGH);
+			}
+			break;
+		case kible::themis::PixelDensity::PIXELDENSITY_MEDIUM:
+			if (*http_server->themis_ext->connected) {
+				Resize_VIDEO_SERVICE(
+					&http_server->themis_ext->video,
+					http_server->themis_ext->video.width,
+					http_server->themis_ext->video.height,
+					ENCODE_LEVEL_MEDIUM);
+			}
+			break;
+		case kible::themis::PixelDensity::PIXELDENSITY_LOW:
+			if (*http_server->themis_ext->connected) {
+				Resize_VIDEO_SERVICE(
+					&http_server->themis_ext->video,
+					http_server->themis_ext->video.width,
+					http_server->themis_ext->video.height,
+					ENCODE_LEVEL_LOW);
+			}
+			break;
+		case kible::themis::PixelDensity::PIXELDENSITY_PLACEBO:
+			if (*http_server->themis_ext->connected) {
+				Resize_VIDEO_SERVICE(
+					&http_server->themis_ext->video,
+					http_server->themis_ext->video.width,
+					http_server->themis_ext->video.height,
+					ENCODE_LEVEL_PLACEBO);
+			}
+			break;
+	}
+
+	return true;
 }
