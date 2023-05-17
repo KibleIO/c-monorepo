@@ -86,6 +86,9 @@ bool pb::Check_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::CheckRequest *request,
 	kible::themis::CheckResponse *response) {
 	
+	THEMIS_HTTP_SERVER *http_server =
+		(THEMIS_HTTP_SERVER*) server->user_ptr;
+
 	response->set_value(*http_server->themis_ext->connected);
 	return true;
 }
