@@ -86,8 +86,7 @@ bool pb::Check_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::CheckRequest *request,
 	kible::themis::CheckResponse *response) {
 	
-	std::cout << "called check " << request->text() << std::endl;
-	response->set_value(true);
+	response->set_value(*http_server->themis_ext->connected);
 	return true;
 }
 
