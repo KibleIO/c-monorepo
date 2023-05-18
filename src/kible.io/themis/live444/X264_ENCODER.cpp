@@ -46,7 +46,7 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 	x264->parameters.i_fps_den				= 1;
 	x264->parameters.i_nal_hrd = X264_NAL_HRD_NONE;
 
-	x264->parameters.i_keyint_max			= X264_KEYINT_MAX_INFINITE;//change this when UDP comes back; X264_KEYINT_MAX_INFINITE
+	x264->parameters.i_keyint_max			= fps;//change this when UDP comes back; X264_KEYINT_MAX_INFINITE
 	x264->parameters.b_intra_refresh		= 1;
 
 	//Rate control:
