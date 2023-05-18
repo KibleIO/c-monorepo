@@ -33,6 +33,7 @@ void Main_TCP_Loop_VIDEO_SERVICE(VIDEO_SERVICE *video) {
 			VIDEO_FPS)), "Couldn't initialize x264 encoder",
 			video->ctx);
 
+			/*
 			size = Encode_Headers_X264_ENCODER(&video->encoder);
 			ASSERT_E_B(size > 0, "Couldn't encode headers", 
 				video->ctx);
@@ -43,17 +44,20 @@ void Main_TCP_Loop_VIDEO_SERVICE(VIDEO_SERVICE *video) {
 			ASSERT_E_B((Send_SERVER(video->s,
 				(char*)video->encoder.nals[0].p_payload, size)),
 				"Couldn't send headers", video->ctx);
+			*/
 
 			video->resize = false;
-		}
-
-		size = Encode_Frame_X264_ENCODER(&video->encoder,
+		} else {
+			size = Encode_Frame_X264_ENCODER(&video->encoder,
 			(uint8_t*) Render_XVFB_Handler(&video->xvfb));
 
-                Send_SERVER(video->s, (char*) &size, sizeof(int));
-                Send_SERVER(video->s, (char*) video->encoder.nals[0].
-				p_payload,
-				size);
+			Send_SERVER(video->s, (char*) &size, sizeof(int));
+			Send_SERVER(video->s, (char*) video->encoder.nals[0].
+					p_payload,
+					size);
+		}
+
+		
 
 		Stop_FPS_LIMITER(&video->fps_limiter);
 	}
