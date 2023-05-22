@@ -17,10 +17,10 @@ bool Initialize_SERVER_MASTER(SERVER_MASTER *server, KCONTEXT *ctx, int type,
 			return Initialize_WS_SERVER_MASTER(
 				&server->ws_server_master, ctx, port);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -39,10 +39,10 @@ void Set_Name_SERVER_MASTER(SERVER_MASTER *server, char *name) {
 				name);
 			return;
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 }
 
 bool Set_Recv_Timeout_SERVER_MASTER(SERVER_MASTER *server, int sec, int usec) {
@@ -57,10 +57,10 @@ bool Set_Recv_Timeout_SERVER_MASTER(SERVER_MASTER *server, int sec, int usec) {
 			return Set_Recv_Timeout_WS_SERVER_MASTER(
 				&server->ws_server_master, sec, usec);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -76,10 +76,10 @@ bool Set_High_Priority_SERVER_MASTER(SERVER_MASTER *server) {
 			return Set_High_Priority_WS_SERVER_MASTER(
 				&server->ws_server_master);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -95,8 +95,8 @@ void Delete_SERVER_MASTER(SERVER_MASTER *server) {
 			Delete_WS_SERVER_MASTER(&server->ws_server_master);
 			return;
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 }

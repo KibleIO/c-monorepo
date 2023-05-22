@@ -1,17 +1,22 @@
-//PLATFORMS: Linux
-
 #ifndef  LOGGING_H_
 #define  LOGGING_H_
 
-//this is here purely for legacy purposes
-#define log_dbg(payload)
-#define log_err(payload)
-#define log_close(payload)
-#define log_info(...)
-#define log_error(...)
+#include <string>
+#include <iostream>
+#include "../../json/json.hpp"
+#include "../client/ELASTIC_SEARCH_CLIENT.h"
+#include "UTILS.h"
 
-#define JSON_TYPE_END {"\0", "\0"}
-typedef char* JSON_TYPE[][2];
+struct LOGGING {
+	ELASTIC_SEARCH_CLIENT client;
 
+	std::string core_system;
+	std::string trace_uuid;
+	std::string uuid;
+};
+
+bool Initialize_LOGGING(LOGGING*, std::string, std::string, std::string);
+void Log_LOGGING(LOGGING*, nlohmann::json, char*, char*, int, const char*);
+void Delete_LOGGING(LOGGING*);
 
 #endif

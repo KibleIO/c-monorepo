@@ -20,10 +20,10 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 
 	server->lSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
 	if (server->lSocket < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Server socket failed to open"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -31,10 +31,10 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 
         server->lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (server->lSocket < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Server socket failed to open"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -44,10 +44,10 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -57,10 +57,10 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (setsockopt(server->lSocket, SOL_SOCKET, SO_REUSEPORT, (char*)&o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -73,30 +73,30 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (::bind(server->lSocket, (sockaddr*)&destination,
 		sizeof(destination)) < 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Unable to bind socket on port");
-			ADD_STR_LOG("name", server->name);
-			ADD_INT_LOG("port", port);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Unable to bind socket on port"},
+			{"name", server->name},
+			{"port", port},
+		});
 		return false;
 	}
 
 	#ifndef _WIN64
 
 	if ((arg = fcntl(server->lSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Error fcntl(..., F_GETFL)"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
 	arg |= O_NONBLOCK;
 	if (fcntl(server->lSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Error fcntl(..., F_SETFL)"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -108,10 +108,10 @@ bool Initialize_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server, KCONTEXT *ctx,
 	#endif
 
 	if (listen(server->lSocket, 50) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-		       ADD_STR_LOG("message", "listen() threw an error");
-		       ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "listen() threw an error"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -140,9 +140,8 @@ void Delete_TCP_SERVER_MASTER(TCP_SERVER_MASTER *server) {
 		server->lSocket = NULL;
 		return;
 	}
-	LOG_WARN_CTX((server->ctx)) {
-		ADD_STR_LOG("message",
-			"Server connection has already been closed");
-		ADD_STR_LOG("name", server->name);
-	}
+	LOGGER_WARN(server->ctx, {
+		{"message", "Server connection has already been closed"},
+		{"name", server->name},
+	});
 }

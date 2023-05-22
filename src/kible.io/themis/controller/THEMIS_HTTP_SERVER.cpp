@@ -41,17 +41,8 @@ bool pb::Update_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 
 void Launch_Loop2(THEMIS_EXT *themis_ext) {
 	if (Connect_THEMIS_EXT(themis_ext)) {
-		TIMER t;
-		Start_TIMER(&t);
-		LOG_INFO_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Started Themis Session.");
-		}
 		while (Running_THEMIS_EXT(themis_ext)) {
 			Sleep_Milli(1000); //busy wait
-		}
-		LOG_INFO_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Ended Themis Session.");
-			ADD_INT_LOG("time", Stop_TIMER(&t));
 		}
 	}
 	Disconnect_THEMIS_EXT(themis_ext);

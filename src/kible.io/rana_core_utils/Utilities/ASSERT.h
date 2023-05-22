@@ -6,39 +6,39 @@
 //assert and print to console via cout
 #define ASSERT_P(boolean, message) \
 if (!(boolean)) {\
-	cout << message << endl;\
+	std::cout << message << std::endl;\
 }
 
 //assert and print to console via cout and return current function
 #define ASSERT_P_R(boolean, message) \
 if (!(boolean)) {\
-	cout << message << endl;\
+	std::cout << message << std::endl;\
 	return false;\
 }
 
 //assert and log to elk
 #define ASSERT_E(boolean, message, ctx) \
 if (!(boolean)) {\
-	LOG_ERROR_CTX((ctx)) {\
-		ADD_STR_LOG("message", message);\
-	}\
+	LOGGER_ERROR((ctx), {\
+		{"message", message},\
+	});\
 }
 
 //assert and log to elk and return current function
 #define ASSERT_E_R(boolean, message, ctx) \
 if (!(boolean)) {\
-	LOG_ERROR_CTX((ctx)) {\
-		ADD_STR_LOG("message", message);\
-	}\
+	LOGGER_ERROR((ctx), {\
+		{"message", message},\
+	});\
 	return false;\
 }
 
 //assert and log to elk and return current function
 #define ASSERT_E_B(boolean, message, ctx) \
 if (!(boolean)) {\
-	LOG_ERROR_CTX((ctx)) {\
-		ADD_STR_LOG("message", message);\
-	}\
+	LOGGER_ERROR((ctx), {\
+		{"message", message},\
+	});\
 	return;\
 }
 

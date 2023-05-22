@@ -18,10 +18,10 @@ bool Initialize_SERVER(SERVER *server, KCONTEXT *ctx, SERVER_MASTER *master,
 			return Initialize_WS_SERVER(&server->ws_server, ctx,
 				&master->ws_server_master, id);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -37,10 +37,10 @@ void Set_Name_SERVER(SERVER *server, char *name) {
 			Set_Name_WS_SERVER(&server->ws_server, name);
 			return;
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 }
 
 bool Set_Recv_Timeout_SERVER(SERVER *server, int sec, int usec) {
@@ -55,10 +55,10 @@ bool Set_Recv_Timeout_SERVER(SERVER *server, int sec, int usec) {
 			return Set_Recv_Timeout_WS_SERVER(&server->ws_server,
 				sec, usec);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -74,10 +74,10 @@ bool Set_High_Priority_SERVER(SERVER *server) {
 			return Set_High_Priority_WS_SERVER(
 				&server->ws_server);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -90,10 +90,10 @@ bool Accept_SERVER(SERVER *server) {
 		case NETWORK_TYPE_WS:
 			return Accept_WS_SERVER(&server->ws_server);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -109,10 +109,10 @@ bool Send_SERVER(SERVER *server, char *buffer, int size) {
 			return Send_WS_SERVER(&server->ws_server, buffer,
 				size);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -128,10 +128,10 @@ bool Receive_SERVER(SERVER *server, char *buffer, int size) {
 			return Receive_WS_SERVER(&server->ws_server, buffer,
 				size);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -147,10 +147,10 @@ int Receive_Unsafe_SERVER(SERVER *server, char *buffer) {
 			return Receive_Unsafe_WS_SERVER(&server->ws_server,
 				buffer);
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 	return false;
 }
 
@@ -166,8 +166,8 @@ void Delete_SERVER(SERVER *server) {
 			Delete_WS_SERVER(&server->ws_server);
 			return;
 	}
-	LOG_ERROR_CTX((server->ctx)) {
-		ADD_STR_LOG("message", "Unknown type");
-		ADD_INT_LOG("net_type", server->type);
-	}
+	LOGGER_ERROR(server->ctx, {
+		{"message", "Unknown type"},
+		{"net_type", server->type},
+	});
 }

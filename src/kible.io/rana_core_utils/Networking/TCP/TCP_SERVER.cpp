@@ -29,10 +29,10 @@ bool Set_Recv_Timeout_TCP_SERVER(TCP_SERVER *server, int sec, int usec) {
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
 		sizeof tv) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: timeout");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: timeout"},
+			{"name", server->name},
+		});
 		return false;
 	}
 	return true;
@@ -46,10 +46,10 @@ bool Set_High_Priority_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_PRIORITY,
 		(const char*)&o, sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: priority");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: priority"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -82,13 +82,11 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 			(char*)(&valopt), (socklen_t*)&lon);
 
 		if (valopt) {
-			LOG_ERROR_CTX((server->ctx)) {
-				ADD_STR_LOG("message",
-					"Failed to accept: Error in listen()");
-
-				ADD_STR_LOG("name", server->name);
-				ADD_INT_LOG("error_code", valopt);
-			}
+			LOGGER_ERROR(server->ctx, {
+				{"message", "Failed to accept: Error in listen()"},
+				{"error_code", valopt},
+				{"name", server->name},
+			});
 			return false;
 		}
 
@@ -96,39 +94,35 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 			(sockaddr*)&cAddress,
 			(socklen_t*)&cSize)) < 0) {
 
-			LOG_ERROR_CTX((server->ctx)) {
-				ADD_STR_LOG("message",
-					"Failed to accept: Error in accept()");
-
-				ADD_STR_LOG("name", server->name);
-			}
+			LOGGER_ERROR(server->ctx, {
+				{"message", "Failed to accept: Error in accept()"},
+				{"name", server->name},
+			});
 			return false;
 		}
 	} else {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message",
-				"Failed to accept: Timeout or Error select()");
-
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: Timeout or Error select()"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
 	#ifndef _WIN64
 
 	if ((arg = fcntl(server->cSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: Error fcntl(..., F_GETFL)"},
+			{"name", server->name},
+		});
 		return false;
 	}
 	arg &= (~O_NONBLOCK);
 	if (fcntl(server->cSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: Error fcntl(..., F_SETFL)"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -143,10 +137,10 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEADDR, (const char*) &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -156,10 +150,10 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -168,10 +162,10 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, IPPROTO_TCP, TCP_NODELAY, (const char*) &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: bad setsockopt: nodelay");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: bad setsockopt: nodelay"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -179,10 +173,10 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, SOL_SOCKET, SO_SNDBUF, (const char*) &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: bad setsockopt: sndbuf");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: bad setsockopt: sndbuf"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -192,10 +186,10 @@ bool Accept_TCP_SERVER(TCP_SERVER *server) {
 	if (setsockopt(server->cSocket, IPPROTO_TCP, TCP_QUICKACK, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: bad setsockopt: quickack");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: bad setsockopt: quickack"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -228,9 +222,8 @@ void Delete_TCP_SERVER(TCP_SERVER *server) {
 		server->cSocket = NULL;
 		return;
 	}
-	LOG_WARN_CTX((server->ctx)) {
-		ADD_STR_LOG("message",
-			"Client connection has already been closed");
-		ADD_STR_LOG("name", server->name);
-	}
+	LOGGER_WARN(server->ctx, {
+		{"message", "Client connection has already been closed"},
+		{"name", server->name},
+	});
 }

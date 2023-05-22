@@ -73,9 +73,6 @@ bool Init_XVFB_Handler(XVFB_HANDLER* xvfb_handler) {
 	//XCloseDisplay(xvfb_handler->_Display);
 
 	if (tries <= 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "Oops! Couldn't open display. Quitting."},
-			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -127,11 +124,9 @@ bool Init_XVFB_Handler(XVFB_HANDLER* xvfb_handler) {
 		xvfb_handler->Shm_Info.readOnly = false;
 
 		if (!XShmAttach(xvfb_handler->_Display, &xvfb_handler->Shm_Info)) {
-			log_err("couldn't attach shared memory extension!");
 			return false;
 		}
 	} else {
-		log_err("the shared memory extension doesn't exist!");
 		return false;
 	}
 
@@ -172,7 +167,6 @@ void Delete_XVFB_Handler(XVFB_HANDLER* xvfb_handler) {
 
 char* Render_XVFB_Handler(XVFB_HANDLER* xvfb_handler) {
 	if (XVFB_HANDLER::error) {
-		cout << "yoooo" << endl;
 		Delete_XVFB_Handler(xvfb_handler);
 		Init_XVFB_Handler(xvfb_handler);
 		XVFB_HANDLER::error = false;

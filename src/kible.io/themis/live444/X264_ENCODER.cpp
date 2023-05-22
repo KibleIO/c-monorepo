@@ -19,9 +19,6 @@ void cb(x264_t * h, x264_nal_t * nal, void * opaque) {
 bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 	ENCODE_LEVEL level, int fps) {
 	
-	log_dbg(((const JSON_TYPE){
-		{"message", "initializing x264 encoder"},
-		JSON_TYPE_END}));
 	x264->screen_dim	= screen_dim;
 	x264->encoder		= NULL;
 	x264->nals			= NULL;
@@ -88,7 +85,7 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 	//x264->parameters.rc.f_rf_constant_max	= 100;
 
 	// x264->parameters.i_sps_id			= 7;
-	x264->parameters.i_slice_max_size		= MAX_UDP_PACKET_SIZE - (crypto_secretbox_MACBYTES + crypto_secretbox_NONCEBYTES + 4); //add this back in when UDP is re-enabled
+	//x264->parameters.i_slice_max_size		= MAX_UDP_PACKET_SIZE - (crypto_secretbox_MACBYTES + crypto_secretbox_NONCEBYTES + 4); //add this back in when UDP is re-enabled
 	x264->parameters.b_repeat_headers		= 1;
 	//x264->parameters.b_annexb 			= 1;
 
@@ -98,9 +95,6 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 	// open encoder
 	x264->encoder = x264_encoder_open(&x264->parameters);
 	if (!x264->encoder) {
-		log_err(((const JSON_TYPE){
-			{"message", "failed to open x264 encoder"},
-			JSON_TYPE_END}));
 		return false;
 	}
 	x264->mtx.unlock();
@@ -157,10 +151,6 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 	Initialize_RGB2YUV(&x264->converter, screen_dim.bw, screen_dim.h, 8);
 
 	x264->pts = 0;
-
-	log_dbg(((const JSON_TYPE){
-		{"message", "done initializing x264 encoder"},
-		JSON_TYPE_END}));
 	return true;
 }
 
@@ -282,35 +272,20 @@ void Delete_X264_ENCODER(X264_ENCODER* x264) {
 		sws_freeContext(x264->resize);
 		x264->resize = NULL;
 	}
-	log_dbg(((const JSON_TYPE){
-		{"message", "deleting x264 encoder"},
-		JSON_TYPE_END}));
 	if (x264->encoder) {
 		// flush
-		log_dbg(((const JSON_TYPE){
-			{"message", "attempting to flush x264..."},
-			JSON_TYPE_END}));
 
 		// memset((char *)&x264->picture_in, 0, sizeof(x264->picture_in));
 		// memset((char *)&x264->picture_out, 0, sizeof(x264->picture_out));
 		// x264_encoder_encode(
 		// x264->encoder, &x264->nals, &x264->i_nals,
 		// NULL, &x264->picture_out);
-		log_dbg(((const JSON_TYPE){
-			{"message", "flushed x264"},
-			JSON_TYPE_END}));
 		// close
 		x264_encoder_close(x264->encoder);
 		x264->encoder = NULL;
 
-		log_dbg(((const JSON_TYPE){
-			{"message", "successfully closed x264"},
-			JSON_TYPE_END}));
 		Delete_RGB2YUV(&x264->converter); //ewww
 	}
 
 	x264->mtx.unlock();
-	log_dbg(((const JSON_TYPE){
-		{"message", "done deleting x264 encoder"},
-		JSON_TYPE_END}));
 }

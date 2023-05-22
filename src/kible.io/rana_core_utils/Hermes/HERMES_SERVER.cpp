@@ -4,9 +4,9 @@
 
 SERVER* Get_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE type) {
 	if (!hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "hermes server not connected");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "hermes server not connected"},
+		});
 		return NULL;
 	}
 	hs->cmutx.lock();
@@ -24,9 +24,9 @@ SERVER* Get_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE type) {
 
 int Get_Index_HERMES_SERVER(HERMES_SERVER* hs) {
 	if (!hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "hermes server not connected");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "hermes server not connected"},
+		});
 		return -1;
 	}
 	hs->cmutx.lock();
@@ -45,9 +45,9 @@ void Disconnect_HERMES_SERVER(HERMES_SERVER* hs) {
 	if (!hs->connected) {
 		//this is only a warning because disconnecting something that is
 		//already disconnected
-		LOG_WARN_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "hermes server not connected");
-		}
+		LOGGER_WARN(hs->ctx, {
+			{"message", "hermes server not connected"},
+		});
 		return;
 	}
 
@@ -88,38 +88,36 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
 	if (!Receive_SERVER(&hs->server, (char*)&type_in,
 		sizeof(HERMES_TYPE))) {
 
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message",
-				"failed to receive connection type");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "failed to receive connection type"},
+		});
 		return false;
 	}
 
 	if (type_in.id != type.id) {
 		ack = -1;
 
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "type mismatch");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "type mismatch"},
+		});
 	} else {
 		index = Get_Index_HERMES_SERVER(hs);
 
 		if (index < 0) {
 			ack = -1;
 
-			LOG_ERROR_CTX((hs->ctx)) {
-				ADD_STR_LOG("message",
-					"max connections reached");
-			}
+			LOGGER_ERROR(hs->ctx, {
+				{"message", "max connections reached"},
+			});
 		} else {
 			ack = 1;
 		}
 	}
 
 	if (!Send_SERVER(&hs->server, (char*)&ack, sizeof(int))) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message", "failed to send ack");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "failed to send ack"},
+		});
 		return false;
 	}
 
@@ -153,7 +151,7 @@ bool Create_SERVER_CONNECTION(HERMES_SERVER *hs, HERMES_TYPE type) {
                         type.type = NETWORK_TYPE_TCP;
                         hs->use_tcp = true;
 
-                        LOG_WARN_CTX((hs->ctx)) {
+                        LOGGER_WARN(hs->ctx, {
                                 ADD_STR_LOG("message", "UDP failed... reverting to TCP. Performance will be degraded");
                         }
 
@@ -171,20 +169,18 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 	uint8_t flag;
 
 	if (!hs->connected) {
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message",
-				"hermes server not connected");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "hermes server not connected"},
+		});
 		return;
 	}
 	while (hs->connected) {
 		if (!Receive_SERVER(&hs->server, (char*)&flag,
 			sizeof(uint8_t))) {
 
-			LOG_ERROR_CTX((hs->ctx)) {
-				ADD_STR_LOG("message",
-					"failed to receive flag");
-			}
+			LOGGER_ERROR(hs->ctx, {
+				{"message", "failed to receive flag"},
+			});
 			hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
 			break;
 		}
@@ -193,10 +189,9 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 			if (!Send_SERVER(&hs->server, (char*)&flag,
 				sizeof(uint8_t))) {
 
-				LOG_ERROR_CTX((hs->ctx)) {
-					ADD_STR_LOG("message",
-						"failed to send status");
-				}
+				LOGGER_ERROR(hs->ctx, {
+					{"message", "failed to send status"},
+				});
 				hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
 				break;
 			}
@@ -205,16 +200,16 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 				break;
 			}
 		} else if (flag == HERMES_EXIT) {
-			LOG_INFO_CTX((hs->ctx)) {
-				ADD_STR_LOG("message", "Exiting");
-			}
+			LOGGER_INFO(hs->ctx, {
+				{"message", "Exiting"},
+			});
 			if (!Send_SERVER(&hs->server, (char*)&flag,
 				sizeof(uint8_t))) {
 
-				LOG_ERROR_CTX((hs->ctx)) {
-					ADD_STR_LOG("message", "failed to "
-						"send exit confirmation");
-				}
+				LOGGER_ERROR(hs->ctx, {
+					{"message", "failed to "
+						"send exit confirmation"},
+				});
 				hs->status = HERMES_STATUS_UNEXPECTED_DISCONNECT;
 				break;
 			}
@@ -226,10 +221,9 @@ void Loop_HERMES_SERVER(HERMES_SERVER* hs) {
 
 bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	if (hs->connected) {
-		LOG_WARN_CTX((hs->ctx)) {
-			ADD_STR_LOG("message",
-				"hermes server already connected");
-		}
+		LOGGER_WARN(hs->ctx, {
+			{"message", "hermes server already connected"},
+		});
 		return false;
 	}
 
@@ -248,10 +242,9 @@ bool Connect_HERMES_SERVER(HERMES_SERVER *hs, HERMES_TYPE *types) {
 	if (types[0].id != HERMES_SERVER_TCP.id &&
 		types[0].id != HERMES_SERVER_WS.id) {
 
-		LOG_ERROR_CTX((hs->ctx)) {
-			ADD_STR_LOG("message",
-				"Invalid first HERMES_TYPE.");
-		}
+		LOGGER_ERROR(hs->ctx, {
+			{"message", "Invalid first HERMES_TYPE."},
+		});
 		return false;
 	}
 

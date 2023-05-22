@@ -60,10 +60,6 @@ bool Initialize_AUDIO_SERVER(AUDIO_SERVER* server) {
 	if (server->Raw || server->Compressed || server-> PCM_bytes ||
 		server->PCM_bytes_back || server->S || server->encoder ||
 		server->thr) {
-
-		log_err(((const JSON_TYPE){
-			{"message", "audio server struct not properly nullified"},
-			JSON_TYPE_END}));
 		return false;
 	}
 
@@ -74,9 +70,6 @@ bool Initialize_AUDIO_SERVER(AUDIO_SERVER* server) {
 	server->encoder = opus_encoder_create(
 	AS_SAMPLE_RATE, AS_CHANNELS, AS_APPLICATION, &rc);
 	if (rc < 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "failed to create opus encoder"},
-			JSON_TYPE_END}));
 		return false;
 	}
 	opus_encoder_ctl(server->encoder, OPUS_SET_BITRATE(AS_BITRATE));
@@ -91,7 +84,6 @@ bool Initialize_AUDIO_SERVER(AUDIO_SERVER* server) {
 
 	server->client = new UDP_CLIENT;
 	if (!Initialize_UDP_CLIENT(server->client)) {
-		log_err("Failed to initialize UDP client.");
 		Delete_AUDIO_SERVER(server);
 		return false;
 	}
@@ -249,9 +241,6 @@ void Send_Buffer(AUDIO_SERVER* server) {
 		AS_MAX_FRAME_SIZE);
 
 	if (send_size < 0) {
-		log_err(((const JSON_TYPE){
-			{"message", "encode failed"},
-			JSON_TYPE_END}));
 		return;
 	}
 
@@ -299,9 +288,6 @@ void Send_Buffer(AUDIO_SERVER* server) {
 }
 
 void Audio_Thread(AUDIO_SERVER* server) {
-	log_dbg(((const JSON_TYPE){
-		{"message", "beginning loop"},
-		JSON_TYPE_END}));
 
 	thread* opus_thread = NULL;
 	uint8_t* swapper;
@@ -396,10 +382,6 @@ void Audio_Thread(AUDIO_SERVER* server) {
 		server->PCM_bytes_back = swapper;
 		#endif
 	}
-
-	log_dbg(((const JSON_TYPE){
-		{"message", "going down"},
-		JSON_TYPE_END}));
 
 	#ifdef __linux__
 	//snd_pcm_drain(server->handle);

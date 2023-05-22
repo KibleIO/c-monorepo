@@ -4,9 +4,9 @@
 
 CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "hermes client not connected");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "hermes client not connected"},
+		});
 		return NULL;
 	}
 	hc->cmutx.lock();
@@ -24,9 +24,9 @@ CLIENT* Get_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 int Get_Index_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "hermes client not connected");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "hermes client not connected"},
+		});
 		return -1;
 	}
 	hc->cmutx.lock();
@@ -47,39 +47,39 @@ void Delete_HERMES_CLIENT(HERMES_CLIENT* hc) {
 
 bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 	if (!hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "hermes client not connected");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "hermes client not connected"},
+		});
 		return false;
 	}
 	int ack;
 
 	if (!Send_CLIENT(&hc->client, (char*)&type, sizeof(HERMES_TYPE))) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not send type");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "could not send type"},
+		});
 		return false;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&ack, sizeof(int))) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not receive port");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "could not receive port"},
+		});
 		return false;
 	}
 
 	if (ack < 0) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "Server side error");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "Server side error"},
+		});
 		return false;
 	}
 
 	//umm... I don't think this is thread safe
 	int index = Get_Index_HERMES_CLIENT(hc);
 	if (index < 0) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "max connections reached");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "max connections reached"},
+		});
 	}
 
         if (hc->use_tcp) {
@@ -118,10 +118,6 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
                 type.type = NETWORK_TYPE_TCP;
                 hc->use_tcp = true;
 
-                LOG_WARN_CTX((hc->ctx)) {
-                        ADD_STR_LOG("message", "UDP failed... reverting to TCP. Performance will be degraded");
-                }
-
                 goto connect;
         }
         */
@@ -131,10 +127,9 @@ bool Create_CLIENT_CONNECTION(HERMES_CLIENT* hc, HERMES_TYPE type) {
 
 bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 	if (hc->connected) {
-		LOG_WARN_CTX((hc->ctx)) {
-			ADD_STR_LOG("message",
-				"hermes client already connected");
-		}
+		LOGGER_WARN(hc->ctx, {
+			{"message", "hermes client already connected"},
+		});
 		return false;
 	}
 
@@ -143,10 +138,9 @@ bool Connect_HERMES_CLIENT(HERMES_CLIENT* hc, HERMES_TYPE *types) {
 	if (types[0].id != HERMES_CLIENT_TCP.id &&
 		types[0].id != HERMES_CLIENT_WS.id) {
 
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message",
-				"Invalid first HERMES_TYPE.");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "Invalid first HERMES_TYPE."},
+		});
 		return false;
 	}
 
@@ -194,31 +188,31 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
 		//this is only a warning because disconnecting something that is
 		//already disconnected
-		LOG_WARN_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "hermes client not connected");
-		}
+		LOGGER_WARN(hc->ctx, {
+			{"message", "hermes client not connected"},
+		});
 		return;
 	}
 
 	uint8_t flag = HERMES_EXIT;
 
 	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_WARN_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not send exit flag");
-		}
+		LOGGER_WARN(hc->ctx, {
+			{"message", "could not send exit flag"},
+		});
 		goto cleanup;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_WARN_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not receive exit flag");
-		}
+		LOGGER_WARN(hc->ctx, {
+			{"message", "could not receive exit flag"},
+		});
 		goto cleanup;
 	}
 	if (flag != HERMES_EXIT) {
-		LOG_WARN_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "flag received not exit");
-			ADD_INT_LOG("flag", flag);
-		}
+		LOGGER_WARN(hc->ctx, {
+			{"message", "flag received not exit"},
+			{"flag", flag},
+		});
 
 		goto cleanup;
 	}
@@ -242,24 +236,24 @@ void Disconnect_HERMES_CLIENT(HERMES_CLIENT* hc) {
 
 uint8_t Status_HERMES_CLIENT(HERMES_CLIENT* hc) {
 	if (!hc->connected) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "hermes client not connected");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "hermes client not connected"},
+		});
 		return HERMES_STATUS_DISCONNECTED;
 	}
 
 	uint8_t flag = HERMES_STATUS;
 	if (!Send_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not send status flag");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "could not send status flag"},
+		});
 		Disconnect_HERMES_CLIENT(hc);
 		return HERMES_STATUS_UNEXPECTED_DISCONNECT;
 	}
 	if (!Receive_CLIENT(&hc->client, (char*)&flag, sizeof(uint8_t))) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "could not receive status flag");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "could not receive status flag"},
+		});
 		Disconnect_HERMES_CLIENT(hc);
 		return HERMES_STATUS_UNEXPECTED_DISCONNECT;
 	}
@@ -284,9 +278,9 @@ bool Initialize_HERMES_CLIENT(HERMES_CLIENT* hc, KCONTEXT *ctx,
 	}
 
 	if (!Initialize_FPS_LIMITER(&hc->fps_limiter, 10, false)) {
-		LOG_ERROR_CTX((hc->ctx)) {
-			ADD_STR_LOG("message", "failed to init fps limiter");
-		}
+		LOGGER_ERROR(hc->ctx, {
+			{"message", "failed to init fps limiter"},
+		});
 		return false;
 	}
 

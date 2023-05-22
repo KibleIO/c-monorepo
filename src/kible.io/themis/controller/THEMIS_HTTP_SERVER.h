@@ -4,8 +4,15 @@
 #include <thread>
 #include <Utilities/TIMER.h>
 #include "../THEMIS_EXT.h"
-#include "../pb/THEMIS_SERVER.h"
 #include "../services/VIDEO_SERVICE.h"
+
+//oh god... check here for explanation: https://stackoverflow.com/questions/57008541/how-to-avoid-a-globally-defined-c-macro-of-status-from-xlib-h
+#if defined (Status)
+# undef Status
+typedef int Status;
+#endif
+
+#include "../pb/THEMIS_SERVER.h"
 
 struct THEMIS_HTTP_SERVER {
 	pb::THEMIS_SERVER server;

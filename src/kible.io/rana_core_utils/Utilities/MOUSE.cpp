@@ -39,9 +39,11 @@ void Handle_Mouse_X11_Single(MOUSE_EVENT_T *m_event) {
 
 void Handle_Mouse_X11(int display_ID, Queue<MOUSE_EVENT_T*>* events) {
 	if (!MOUSE::dpy) {
+		/*
 		log_err(((const JSON_TYPE){
 			{"message", "Unable to open display"},
 			JSON_TYPE_END}));
+		*/
 		return;
 	}
 

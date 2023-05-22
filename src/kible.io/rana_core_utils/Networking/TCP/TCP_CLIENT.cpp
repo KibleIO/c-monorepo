@@ -20,10 +20,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	//https://stackoverflow.com/questions/38191726/c-how-to-prevent-child-process-binding-port-after-fork-on-linux
 	client->cSocket = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, IPPROTO_TCP);
 	if (client->cSocket < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client socket failed to open");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Client socket failed to open"},
+			{"name", name},
+		});
 		return false;
 	}
 
@@ -33,10 +33,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	int ret;
 
 	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "WSAStartup failed");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "WSAStartup failed"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -44,10 +44,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 
 	client->cSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (client->cSocket < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client socket failed to open");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Client socket failed to open"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -59,10 +59,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEADDR, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -70,20 +70,20 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_REUSEPORT, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
 	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_NODELAY, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: nodelay");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: nodelay"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -92,10 +92,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	if (setsockopt(client->cSocket, IPPROTO_TCP, TCP_QUICKACK, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: quickack");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: quickack"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -103,10 +103,10 @@ bool Initialize_TCP_CLIENT(TCP_CLIENT *client, KCONTEXT *ctx,
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVBUF, &o,
 		sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: rcvbuf");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: rcvbuf"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -132,10 +132,10 @@ bool Set_Recv_Timeout_TCP_CLIENT(TCP_CLIENT *client, int sec, int usec) {
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv,
 		sizeof tv) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: rcvtimeo");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: rcvtimeo"},
+			{"name", client->name},
+		});
 		return false;
 	}
 	return true;
@@ -149,10 +149,10 @@ bool Set_High_Priority_TCP_CLIENT(TCP_CLIENT *client) {
 	if (setsockopt(client->cSocket, SOL_SOCKET, SO_PRIORITY,
 		(const char*)&o, sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: priority");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: priority"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -181,32 +181,30 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 		if (!getaddrinfo_k(&destination.sin_addr.s_addr,
 			client->tcp_master->ip, 2)) {
 
-			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message",
-					"Failed to connect: getaddrinfo_k() "
-					"failed");
-
-				ADD_STR_LOG("ip", client->tcp_master->ip);
-				ADD_STR_LOG("name", client->name);
-			}
+			LOGGER_ERROR(client->ctx, {
+				{"message","Failed to connect: getaddrinfo_k() "
+					"failed"},
+				{"ip", client->tcp_master->ip},
+				{"name", client->name},
+			});
 			return false;
 		}
 	}
 
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error fcntl(..., F_GETFL)"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
 	arg |= O_NONBLOCK;
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error fcntl(..., F_SETFL)"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -228,68 +226,63 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 					SO_ERROR, (void*)(&valopt),
 					(unsigned int*)&lon) < 0) {
 
-					LOG_ERROR_CTX((client->ctx)) {
-						ADD_STR_LOG("message",
-							"Failed to connect: Error in getsockopt");
-						ADD_STR_LOG("name",
-							client->name);
-					}
+					LOGGER_ERROR(client->ctx, {
+						{"message",
+							"Failed to connect: "
+							"Error in getsockopt"},
+						{"name", client->name},
+					});
 				}
 
 				if (valopt != 0) {
-					LOG_ERROR_CTX((client->ctx)) {
-						ADD_STR_LOG("message",
-							"Failed to connect: Error in "
-							"connection()");
-
-						ADD_STR_LOG("name",
-							client->name);
-
-						ADD_INT_LOG("error_code",
-							valopt);
-					}
+					LOGGER_ERROR(client->ctx, {
+						{"message", "Failed to "
+							"connect: Error in "
+							"connection()"},
+						{"name", client->name},
+						{"error_code", valopt},
+					});
 					return false;
 				}
 			} else {
-				LOG_ERROR_CTX((client->ctx)) {
-					ADD_STR_LOG("message",
-						"Failed to connect: Timeout or Error select()");
-
-					ADD_STR_LOG("name", client->name);
-				}
+				LOGGER_ERROR(client->ctx, {
+					{"message", "Failed to connect: "
+						"Timeout or Error select()"},
+					{"name", client->name},
+				});
 				return false;
 			}
 		} else {
-			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "Failed to connect: Error connecting");
-				ADD_STR_LOG("name", client->name);
-				ADD_INT_LOG("error_code", err);
-			}
+			LOGGER_ERROR(client->ctx, {
+				{"message", "Failed to connect: Error connecting"},
+				{"name", client->name},
+				{"error_code", err},
+			});
 			return false;
 		}
  	} else {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Connect() threw an error");
-			ADD_INT_LOG("err", err);
-			ADD_INT_LOG("res", res);
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Connect() threw an error"},
+			{"err", err},
+			{"res", res},
+			{"name", client->name},
+		});
 		return false;
 	}
 
 	if ((arg = fcntl(client->cSocket, F_GETFL, NULL)) < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_GETFL)");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error fcntl(..., F_GETFL)"},
+			{"name", client->name},
+		});
 		return false;
 	}
 	arg &= (~O_NONBLOCK);
 	if (fcntl(client->cSocket, F_SETFL, arg) < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error fcntl(..., F_SETFL)");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error fcntl(..., F_SETFL)"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -303,10 +296,11 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 
 	int ret = getaddrinfo(client->tcp_master->ip, to_string(client->tcp_master->port).c_str(), &hints, &result);
 	if (ret != 0) {
-		LOG_ERROR_CTX((client->ctx)) {
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Unknown type"},
 			ADD_STR_LOG("message", "getaddrinfo failed");
 			ADD_STR_LOG("name", client->name);
-		}
+		});
 		return false;
 	}
 
@@ -316,10 +310,11 @@ bool Connect_TCP_CLIENT(TCP_CLIENT *client) {
 	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 		client->cSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 		if (client->cSocket == INVALID_SOCKET) {
-			LOG_ERROR_CTX((client->ctx)) {
+			LOGGER_ERROR(client->ctx, {
+				{"message", "Unknown type"},
 				ADD_STR_LOG("message", "socket failed withd");
 				ADD_STR_LOG("name", to_string(WSAGetLastError()).c_str());
-			}
+			});
 			return false;
 		}
 

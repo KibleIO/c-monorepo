@@ -30,11 +30,6 @@ void Main_Loop_THEMIS_SERVICE(THEMIS_SERVICE *themis) {
 						screen_dim.sw,
 						screen_dim.h,
 						themis->video_service->encode_level)) {
-						
-						LOG_INFO_CTX((themis->ctx)) {
-							ADD_STR_LOG("message",
-							"Couldn't resize screen.");
-						}
 					}
 				}
 			}

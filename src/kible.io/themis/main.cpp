@@ -41,11 +41,6 @@ int main() {
 	THEMIS_HTTP_SERVER http;
 	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
 		THEMIS_HTTP_PORT)) {
-		
-		LOG_ERROR_CTX(&ctx) {
-			ADD_STR_LOG("message",
-				"failed to initialize themis http");
-		}
 		return 0;
 	}
 	#else
@@ -54,20 +49,12 @@ int main() {
 
 	ifstream containerid(CONTAINER_ID_LOC);
 	if (!containerid) {
-		LOG_ERROR_CTX(&ctx) {
-			ADD_STR_LOG("message",
-				"Could not open container id location.");
-		}
 		return 0;
 	}
 	getline(containerid, container_id);
 	containerid.close();
 
 	if (!Path_EDGE_CLIENT(container_id, &path)) {
-		LOG_ERROR_CTX(&ctx) {
-			ADD_STR_LOG("message",
-				"failed to get Path");
-		}
 		return 0;
 	}
 
@@ -75,10 +62,6 @@ int main() {
 	if (!Initialize_THEMIS_HTTP_SERVER(&http, &themis_ext,
 		THEMIS_HTTP_PORT, path)) {
 		
-		LOG_ERROR_CTX(&ctx) {
-			ADD_STR_LOG("message",
-				"failed to initialize themis http");
-		}
 		return 0;
 	}
 	#endif
@@ -88,18 +71,10 @@ int main() {
 	ASSERT_P_R(Initialize_KCONTEXT(&ctx, __CORE_SYSTEM__, true),
 			   "failed to initialize context");
 
-	LOG_INFO_CTX(&ctx) {
-		ADD_STR_LOG("message", "main begun");
-		ADD_STR_LOG("version", SOFTWARE_VERSION);
-	}
-
 	Set_System_Resource_Dir_KCONTEXT(&ctx, (char *)ROOT_DIR.c_str());
 
 	if (Initialize_Connection_KCONTEXT(&ctx, "") !=
 		INIT_CONN_KCONTEXT_SUCCESS) {
-		LOG_ERROR_CTX(&ctx) {
-			ADD_STR_LOG("message", "failed to initialize connection context");
-		}
 		return 0;
 	}
 
@@ -123,6 +98,5 @@ int main() {
 	Delete_THEMIS_EXT(&themis_ext);
 	Delete_KCONTEXT(&ctx);
 
-	LOG_INFO_CTX(&ctx) { ADD_STR_LOG("message", "clean exit"); }
 	return 0;
 }

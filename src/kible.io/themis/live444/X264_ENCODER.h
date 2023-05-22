@@ -10,7 +10,6 @@
 #include <Utilities/LOGGING.h>
 #include <Utilities/RGB2YUV.h>
 #include <Utilities/SCREEN_DIM.h>
-#include <Utilities/SODIUM_WRAPPER.h>
 #include <Utilities/TIMER.h>
 #include <Networking/NETWORK.h>
 

@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <curl/curl.h>
 #include <cstring>
-#include "UTILS.h"
+#include "../Utilities/UTILS.h"
 
 #define ELASTIC_SEARCH_URL "https://elastic.kible.com:9200/kible/_doc/?pretty"
 #define ELK_USERNAME "kible"

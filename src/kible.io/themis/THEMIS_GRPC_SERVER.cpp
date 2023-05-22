@@ -49,17 +49,8 @@ grpc::Status THEMIS_GRPC_SERVER::Update(grpc::ServerContext* context,
 
 void Launch_Loop(THEMIS_EXT *themis_ext) {
 	if (Connect_THEMIS_EXT(themis_ext)) {
-		TIMER t;
-		Start_TIMER(&t);
-		LOG_INFO_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Started Themis Session.");
-		}
 		while (Running_THEMIS_EXT(themis_ext)) {
 			Sleep_Milli(1000); //busy wait
-		}
-		LOG_INFO_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Ended Themis Session.");
-			ADD_INT_LOG("time", Stop_TIMER(&t));
 		}
 	}
 	Disconnect_THEMIS_EXT(themis_ext);
@@ -71,23 +62,10 @@ grpc::Status THEMIS_GRPC_SERVER::Launch(grpc::ServerContext* context,
 	char version[VERSION_STRING_LENGTH];
 
 	if (update_running) {
-		LOG_ERROR_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "An update is in progress");
-		}
 		return grpc::Status(grpc::StatusCode::ABORTED, "An update is in progress");
 	}
 
-	if (!Check_For_Update_KCONTEXT(themis_ext->ctx, version)) {
-		LOG_ERROR_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Themis cannot communicate with the API");
-		}
-		return grpc::Status(grpc::StatusCode::ABORTED, "Failed.");
-	}
-
 	if (strcmp(version, SOFTWARE_VERSION) != 0) {
-		LOG_ERROR_CTX((themis_ext->ctx)) {
-			ADD_STR_LOG("message", "Themis version out of date");
-		}
 		update_running = true;
 		Update_System(&updateInfo);
 		return grpc::Status(grpc::StatusCode::ABORTED, "Updated.");

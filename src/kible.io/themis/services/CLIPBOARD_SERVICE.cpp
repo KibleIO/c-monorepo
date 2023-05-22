@@ -31,9 +31,6 @@ void Main_Loop_CLIPBOARD_SERVICE(CLIPBOARD_SERVICE *clipboard) {
 				strcpy(curr_clipboard_str, temp_clipboard_str);
 
 				if (!Send_SERVER(clipboard->s, curr_clipboard_str, MAX_CLIPBOARD_SIZE)) {
-					LOG_WARN_CTX(clipboard->ctx) {
-						ADD_STR_LOG("message", "For some reason I couldn't send the clipboard");
-					}
 				}
 			}
 		}
