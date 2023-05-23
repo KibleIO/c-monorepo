@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include "../../json/json.hpp"
-#include "../client/ELASTIC_SEARCH_CLIENT.h"
+#include "../controller/client/ELASTIC_SEARCH_CLIENT.h"
 #include "UTILS.h"
 
 struct LOGGING {

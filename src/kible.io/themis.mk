@@ -23,7 +23,7 @@ CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig
 
 # File names
 EXEC = themis/Themis
-SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
+SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard themis/*/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:

@@ -1,25 +1,29 @@
 #include "THEMIS_HTTP_SERVER.h"
 
-bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
-	THEMIS_EXT *themis, int port) {
-
+bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server, KCONTEXT *ctx,
+	int port) {
+	
 	std::string listen_address;
 	listen_address += "http://0.0.0.0:";
 	listen_address += std::to_string(port);
 
-	server->themis_ext = themis;
+	server->ctx = ctx;
+	server->themis_ext.connected = false;
+
 	return pb::Initialize_THEMIS_SERVER(&server->server,
 		(char*) listen_address.c_str(), (void*) server);
 }
 
-bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server,
-	THEMIS_EXT *themis, int port, std::string path) {
+bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server, KCONTEXT *ctx,
+	int port, std::string path) {
 
 	std::string listen_address;
 	listen_address += "http://0.0.0.0:";
 	listen_address += std::to_string(port);
 
-	server->themis_ext = themis;
+	server->ctx = ctx;
+	server->themis_ext.connected = false;
+
 	return pb::Initialize_THEMIS_SERVER(&server->server,
 		(char*) listen_address.c_str(), (void*) server, path);
 }
@@ -39,13 +43,13 @@ bool pb::Update_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	return true;
 }
 
-void Launch_Loop2(THEMIS_EXT *themis_ext) {
-	if (Connect_THEMIS_EXT(themis_ext)) {
+void Launch_Loop(THEMIS_EXT *themis_ext, KCONTEXT *ctx) {
+	if (Initialize_THEMIS_EXT(themis_ext, ctx)) {
 		while (Running_THEMIS_EXT(themis_ext)) {
 			Sleep_Milli(1000); //busy wait
 		}
 	}
-	Disconnect_THEMIS_EXT(themis_ext);
+	Delete_THEMIS_EXT(themis_ext);
 }
 
 bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
@@ -55,14 +59,19 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
-        if (!*http_server->themis_ext->connected) {
+        if (!http_server->themis_ext.connected) {
                 if (http_server->launch_thread != NULL) {
                         http_server->launch_thread->join();
 		        delete http_server->launch_thread;
                 }
 
-                http_server->launch_thread = new thread(Launch_Loop2,
-			http_server->themis_ext);
+		Set_Screen_Dim_KCONTEXT(http_server->ctx, (SCREEN_DIM) {
+		request->width(),
+		request->width(),
+		request->height()});
+
+                http_server->launch_thread = new thread(Launch_Loop,
+			&http_server->themis_ext, http_server->ctx);
 		
 		//for good measure... or for fun, who knows
 		Sleep_Milli(500);
@@ -80,7 +89,7 @@ bool pb::Check_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
-	response->set_value(*http_server->themis_ext->connected);
+	response->set_value(http_server->themis_ext.connected);
 	return true;
 }
 
@@ -90,15 +99,23 @@ bool pb::Dimensions_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
+	
+	VIDEO_SERVER* video_server = 
+		Get_Instance_Of_SERVICE_SERVER_REGISTRY<VIDEO_SERVER*>(
+		&http_server->themis_ext.registry);
+	
+	if (video_server == NULL) {
+		return true;
+	}
 
-	Set_Screen_Dim_KCONTEXT(http_server->themis_ext->ctx, (SCREEN_DIM) {
+	Set_Screen_Dim_KCONTEXT(http_server->ctx, (SCREEN_DIM) {
 		request->width(),
 		request->width(),
 		request->height()});
 
-	if (Resize_VIDEO_SERVICE(&http_server->themis_ext->video,
+	if (Resize_VIDEO_SERVER(video_server,
 		request->width(), request->height(),
-		http_server->themis_ext->video.encode_level)) {
+		video_server->encode_level)) {
 
 		return true;
 	} else {
@@ -112,45 +129,54 @@ bool pb::Density_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
+	
+	VIDEO_SERVER* video_server = 
+		Get_Instance_Of_SERVICE_SERVER_REGISTRY<VIDEO_SERVER*>(
+		&http_server->themis_ext.registry);
+	
+	if (video_server == NULL) {
+		return true;
+	}
 
+	if (!http_server->themis_ext.connected) {
+		return true;
+	}
+	
 	switch (request->density()) {
 		case kible::themis::PixelDensity::PIXELDENSITY_HIGH:
-			if (*http_server->themis_ext->connected) {
-				Resize_VIDEO_SERVICE(
-					&http_server->themis_ext->video,
-					http_server->themis_ext->video.width,
-					http_server->themis_ext->video.height,
-					ENCODE_LEVEL_HIGH);
-			}
+			Resize_VIDEO_SERVER(video_server, video_server->width,
+				video_server->height, ENCODE_LEVEL_HIGH);
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_MEDIUM:
-			if (*http_server->themis_ext->connected) {
-				Resize_VIDEO_SERVICE(
-					&http_server->themis_ext->video,
-					http_server->themis_ext->video.width,
-					http_server->themis_ext->video.height,
-					ENCODE_LEVEL_MEDIUM);
-			}
+			Resize_VIDEO_SERVER(video_server, video_server->width,
+				video_server->height, ENCODE_LEVEL_MEDIUM);
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_LOW:
-			if (*http_server->themis_ext->connected) {
-				Resize_VIDEO_SERVICE(
-					&http_server->themis_ext->video,
-					http_server->themis_ext->video.width,
-					http_server->themis_ext->video.height,
-					ENCODE_LEVEL_LOW);
-			}
+			Resize_VIDEO_SERVER(video_server, video_server->width,
+				video_server->height, ENCODE_LEVEL_LOW);
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_PLACEBO:
-			if (*http_server->themis_ext->connected) {
-				Resize_VIDEO_SERVICE(
-					&http_server->themis_ext->video,
-					http_server->themis_ext->video.width,
-					http_server->themis_ext->video.height,
-					ENCODE_LEVEL_PLACEBO);
-			}
+			Resize_VIDEO_SERVER(video_server, video_server->width,
+				video_server->height, ENCODE_LEVEL_PLACEBO);
 			break;
 	}
 
 	return true;
+}
+
+/*
+
+why does this have to be defined here? https://stackoverflow.com/questions/56392506/compiler-optimization-removes-implicit-template-instantiation-leading-to-linker
+
+*/
+template<typename T>
+T Get_Instance_Of_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry) {
+	T return_type = NULL;
+	for (int i = 0; i < registry->service_count; i++) {
+		return_type = dynamic_cast<const T>(registry->service_server[i]);
+		if (return_type != NULL) {
+			return return_type;
+		}
+	}
+	return return_type;
 }

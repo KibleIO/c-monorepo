@@ -36,44 +36,18 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 			server->pool->push(temp);
 			break;
 		case LWS_CALLBACK_RECEIVE:
-			if (int(((uint8_t*) in)[0]) < 0 || int(((uint8_t*) in)[0]) >= MAX_HOSTS) {
+			if (int(((uint8_t*) in)[0]) < 0 ||
+				int(((uint8_t*) in)[0]) >= MAX_HOSTS) {
 				//log_err("invalid host id.");
 				break;
 			}
 
-			if (server->active_read[int(((uint8_t*) in)[0])]->size() >=
-				MAX_ACCUMULATED_FRAMES) {
-
-				//a reader is getting lazy... drop this packet
-				//log_err("a reader got lazy, dropping this packet.");
-				break;
+			if (server->consumers[int(((uint8_t*) in)[0])] != NULL) {
+				server->consumers[int(((uint8_t*) in)[0])]->callback(
+					server->consumers[int(((uint8_t*) in)[0])]->user_ptr,
+					(char*)in + 1,
+					len - 1);
 			}
-
-			while (server->pool->size() <= 0 &&
-				time_out < WEB_SOCKET_TIME_OUT) {
-
-				time_out++;
-				Sleep_Milli(WEB_SOCKET_SLEEP_TIME);
-			}
-			if (time_out >= WEB_SOCKET_TIME_OUT) {
-				break;
-			}
-
-			server->pool->pop(temp);
-
-			/*
-			if (len > MAX_WEBSOCKET_PACKET_SIZE) {
-				//log_err("received large packet. truncated.");
-				len = MAX_WEBSOCKET_PACKET_SIZE;
-			}
-			*/
-
-			temp->bytes = new uint8_t[len - 1];
-			copy((uint8_t*)in + 1, ((uint8_t*)in + 1) + (len - 1),
-				temp->bytes);
-			temp->size = len - 1;
-
-			server->active_read[int(((uint8_t*) in)[0])]->push(temp);
             		break;
 		case LWS_CALLBACK_CLOSED:
 			server->accept = false;
@@ -85,7 +59,10 @@ int callback_dumb_increment(lws* wsi, lws_callback_reasons reason,
 	return 0;
 }
 
-bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int port) {
+
+bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx,
+	int port) {
+	
 	WEBSOCKET_ELEMENT *temp;
 	int counter = WS_CONNECT_TIMEOUT;
 
@@ -94,7 +71,7 @@ bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int po
 	server->active_write	= new Queue<WEBSOCKET_ELEMENT*>;
 
 	for (int i = 0; i < MAX_HOSTS; i++) {
-		server->active_read[i] = new Queue<WEBSOCKET_ELEMENT*>;
+		server->consumers[i] = NULL;
 	}
 
 	for (int i = 0; i < WEB_SOCKET_POOL_SIZE; i++) {
@@ -119,6 +96,52 @@ bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER *server, KCONTEXT *ctx, int po
 	}
 
 	return counter > 0;
+}
+
+void Delete_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
+	WEBSOCKET_ELEMENT *temp = NULL;
+	
+	server->accept = false;
+	server->running = false;
+	if (server->main_thread != NULL) {
+		server->main_thread->join();
+		delete server->main_thread;
+		server->main_thread = NULL;
+	}
+
+	if (server->context != NULL) {
+		lws_context_destroy(server->context);
+		server->context = NULL;
+	}
+
+	//drain active_write
+	if (server->active_write != NULL) {
+		while (server->active_write->size() > 0) {
+			server->active_write->pop(temp);
+			delete [] temp->bytes;
+			delete temp;
+		}
+		delete server->active_write;
+		server->active_write = NULL;
+	}
+
+	//drain pool
+	if (server->pool != NULL) {
+		while (server->pool->size() > 0) {
+			server->pool->pop(temp);
+			delete temp;
+		}
+		delete server->pool;
+		server->pool = NULL;
+	}
+
+	//cleanout consumers
+	for (int i = 0; i < MAX_HOSTS; i++) {
+		if (server->consumers[i] != NULL) {
+			delete server->consumers[i];
+			server->consumers[i] = NULL;
+		}
+	}
 }
 
 void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
@@ -199,79 +222,18 @@ bool Send_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
 	return true;
 }
 
-bool Receive_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
-	uint8_t* bytes, int32_t size, int32_t recv_timeout,
-	uint8_t server_index) {
+uint8_t Register_Vhost_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
+	Receive_Callback_SOCKET_SERVER callback, void *user_ptr) {
 
-	WEBSOCKET_ELEMENT *temp = NULL;
-	uint32_t time_out = 0;
-	uint8_t return_val;
-	//int32_t sleep = recv_timeout / WEB_SOCKET_TIME_OUT;
-
-	while (server->active_read[server_index]->size() <= 0 &&
-		time_out < recv_timeout &&
-		server->accept) {
-
-		time_out++;
-		Sleep_Milli(WS_SLEEP_TIME);
-	}
-	if (time_out >= recv_timeout ||
-		!server->accept) {
-
-		return false;
-	}
-
-	server->active_read[server_index]->pop(temp);
-
-	copy(temp->bytes, temp->bytes + size, bytes);
-	return_val = size == temp->size;
-	temp->size = -1;
-	delete [] temp->bytes;
-
-	server->pool->push(temp);
-
-	return return_val;
-}
-
-int Receive_Unsafe_WS_SERVER_MASTER(WS_SERVER_MASTER *server,
-	uint8_t* bytes, int32_t recv_timeout,
-	uint8_t server_index) {
-
-	WEBSOCKET_ELEMENT *temp = NULL;
-	uint32_t time_out = 0;
-	uint8_t return_val;
-	int32_t sleep = recv_timeout / WEB_SOCKET_TIME_OUT;
-
-	while (server->active_read[server_index]->size() <= 0 &&
-		time_out < WEB_SOCKET_TIME_OUT &&
-		server->accept) {
-
-		time_out++;
-		Sleep_Milli(sleep);
-	}
-	if (time_out >= WEB_SOCKET_TIME_OUT ||
-		!server->accept) {
-
-		return false;
-	}
-
-	server->active_read[server_index]->pop(temp);
-
-	copy(temp->bytes, temp->bytes + temp->size, bytes);
-	return_val = temp->size;
-	temp->size = -1;
-	delete [] temp->bytes;
-
-	server->pool->push(temp);
-
-	return return_val;
-}
-
-uint8_t Register_Vhost_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 	if (server->host_count >= MAX_HOSTS) {
 		//log_err("Too many hosts.");
 		return -1;
 	}
+
+	server->consumers[server->host_count] = new WEBSOCKET_CONSUMER;
+	server->consumers[server->host_count]->user_ptr = user_ptr;
+	server->consumers[server->host_count]->callback = callback;
+
 	return server->host_count++;
 }
 
@@ -287,44 +249,4 @@ bool Set_Recv_Timeout_WS_SERVER_MASTER(WS_SERVER_MASTER *server, int sec,
 
 bool Set_High_Priority_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
 	return true;
-}
-
-void Delete_WS_SERVER_MASTER(WS_SERVER_MASTER *server) {
-	WEBSOCKET_ELEMENT *temp = NULL;
-	
-	server->accept = false;
-	server->running = false;
-	if (server->main_thread != NULL) {
-		server->main_thread->join();
-		delete server->main_thread;
-		server->main_thread = NULL;
-	}
-
-	lws_context_destroy(server->context);
-
-	//drain active_read
-	for (int i = 0; i < server->host_count; i++) {
-		while (server->active_read[i]->size() > 0) {
-			server->active_read[i]->pop(temp);
-			delete [] temp->bytes;
-			delete temp;
-		}
-		delete server->active_read[i];
-	}
-	server->host_count = 0;
-
-	//drain active_write
-	while (server->active_write->size() > 0) {
-		server->active_write->pop(temp);
-		delete [] temp->bytes;
-		delete temp;
-	}
-	delete server->active_write;
-
-	//drain pool
-	while (server->pool->size() > 0) {
-		server->pool->pop(temp);
-		delete temp;
-	}
-	delete server->pool;
 }

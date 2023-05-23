@@ -7,6 +7,7 @@
 #include "../../Utilities/KCONTEXT.h"
 #include "../../Utilities/CONCURRENT_QUEUE.h"
 #include "../../Utilities/UTILS.h"
+#include "../base/server/RECEIVE_CALLBACK_SOCKET_SERVER.h"
 
 #define WEB_SOCKET_POOL_SIZE 80
 #define MAX_WEBSOCKET_PACKET_SIZE 100000
@@ -30,6 +31,11 @@
 	NULL,\
 	0};
 
+struct WEBSOCKET_CONSUMER {
+	void *user_ptr;
+	Receive_Callback_SOCKET_SERVER callback;
+};
+
 struct WEBSOCKET_ELEMENT {
 	int32_t		size;
 	uint8_t*	bytes;
@@ -48,21 +54,18 @@ struct WS_SERVER_MASTER {
 
 	Queue<WEBSOCKET_ELEMENT*>	*pool;
 	Queue<WEBSOCKET_ELEMENT*>	*active_write;
-	Queue<WEBSOCKET_ELEMENT*>	*active_read[MAX_HOSTS];
+
+	WEBSOCKET_CONSUMER *consumers[MAX_HOSTS];
 };
 
 bool Initialize_WS_SERVER_MASTER(WS_SERVER_MASTER*, KCONTEXT*, int);
+void Delete_WS_SERVER_MASTER(WS_SERVER_MASTER*);
 void Set_Name_WS_SERVER_MASTER(WS_SERVER_MASTER*, char*);
 bool Set_Recv_Timeout_WS_SERVER_MASTER(WS_SERVER_MASTER*, int, int);
 bool Set_High_Priority_WS_SERVER_MASTER(WS_SERVER_MASTER*);
-void Delete_WS_SERVER_MASTER(WS_SERVER_MASTER*);
-
 void Service_Thread_WS_SERVER_MASTER(WS_SERVER_MASTER*);
 bool Send_WS_SERVER_MASTER(WS_SERVER_MASTER*, uint8_t*, uint32_t, uint8_t);
-bool Receive_WS_SERVER_MASTER(WS_SERVER_MASTER*, uint8_t*, int32_t, int32_t,
-	uint8_t);
-int Receive_Unsafe_WS_SERVER_MASTER(WS_SERVER_MASTER*, uint8_t*, int32_t,
-	uint8_t);
-uint8_t Register_Vhost_WS_SERVER_MASTER(WS_SERVER_MASTER*);
+uint8_t Register_Vhost_WS_SERVER_MASTER(WS_SERVER_MASTER*,
+	Receive_Callback_SOCKET_SERVER, void*);
 
 #endif

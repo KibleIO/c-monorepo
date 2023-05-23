@@ -40,6 +40,8 @@ struct KCONTEXT {
 	volatile bool rana_initialized;
 	string recent_error;
 	bool insecure_mode;
+	int core_services_backbone;
+	int core_services_backbone_port;
 };
 
 bool Initialize_KCONTEXT(KCONTEXT*, char*, bool);
