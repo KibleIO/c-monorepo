@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #ifndef XVFB_HANDLER_H_
 #define XVFB_HANDLER_H_
 
@@ -39,7 +37,5 @@ void Delete_XVFB_Handler(XVFB_HANDLER*);
 void Kill_XVFB_XVFB_Handler(XVFB_HANDLER*);
 int Handle_XVFB_Errors(Display*, XErrorEvent*);
 char* Render_XVFB_Handler(XVFB_HANDLER*);
-
-#endif
 
 #endif

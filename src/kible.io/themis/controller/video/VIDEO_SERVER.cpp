@@ -6,7 +6,7 @@ void Recv_Callback_VIDEO_SERVER(void *user_ptr, char *buffer, int buffer_size) {
 
 bool VIDEO_SERVER::Initialize(KCONTEXT *ctx_in,
 	SERVICE_SERVER_REGISTRY *registry) {
-	
+
 	ctx = ctx_in;
 	main_loop = NULL;
 	main_loop_running = false;
@@ -15,7 +15,7 @@ bool VIDEO_SERVER::Initialize(KCONTEXT *ctx_in,
 	ASSERT_E_R((Initialize_FPS_LIMITER(&fps_limiter,
 		VIDEO_FPS, false)), "Failed to intialize fps limiter",
 		ctx);
-	
+
 	if (!Initialize_SOCKET_SERVER(&socket_server,
 		Recv_Callback_VIDEO_SERVER, &registry->socket_server_registry,
 		ctx, this)) {
@@ -27,14 +27,15 @@ bool VIDEO_SERVER::Initialize(KCONTEXT *ctx_in,
 
 	ASSERT_E_R((Initialize_XVFB_Handler(&xvfb, screen_dim.sw,
 		screen_dim.h)), "Couldn't initialize xvfb", ctx);
+
 	ASSERT_E_R((Initialize_X264_ENCODER(&encoder, screen_dim,
 		encode_level, VIDEO_FPS)),
 		"Couldn't initialize x264 encoder", ctx);
-	
+
 	main_loop_running = true;
         main_loop = new thread(Main_VIDEO_SERVER, this);
 
-	return false;
+	return true;
 }
 
 void VIDEO_SERVER::Delete() {

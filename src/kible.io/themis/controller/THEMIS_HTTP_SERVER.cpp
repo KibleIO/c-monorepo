@@ -9,6 +9,7 @@ bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server, KCONTEXT *ctx,
 
 	server->ctx = ctx;
 	server->themis_ext.connected = false;
+	server->launch_thread = NULL;
 
 	return pb::Initialize_THEMIS_SERVER(&server->server,
 		(char*) listen_address.c_str(), (void*) server);
@@ -69,6 +70,16 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 		request->width(),
 		request->width(),
 		request->height()});
+		http_server->ctx->core_services_backbone_port = THEMIS_PORT;
+
+		switch (request->launchbackend()) {
+			case kible::themis::LaunchBackend::LAUNCHBACKEND_WS:
+				http_server->ctx->core_services_backbone = 
+					ROOT_SOCKET_TYPE_WS;
+				break;
+			default:
+				return false;
+		}
 
                 http_server->launch_thread = new thread(Launch_Loop,
 			&http_server->themis_ext, http_server->ctx);
@@ -90,6 +101,17 @@ bool pb::Check_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
 	response->set_value(http_server->themis_ext.connected);
+	return true;
+}
+
+bool pb::Ping_THEMIS_SERVER(pb::THEMIS_SERVER *server,
+	kible::themis::PingRequest *request,
+	kible::themis::PingResponse *response) {
+	
+	THEMIS_HTTP_SERVER *http_server =
+		(THEMIS_HTTP_SERVER*) server->user_ptr;
+
+	Start_TIMER(&http_server->themis_ext.timer);
 	return true;
 }
 

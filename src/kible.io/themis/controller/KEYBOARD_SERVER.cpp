@@ -8,7 +8,7 @@ void Recv_Callback_KEYBOARD_SERVER(void *user_ptr, char *buffer, int buffer_size
 bool KEYBOARD_SERVER::Initialize(KCONTEXT *ctx_in,
 	SERVICE_SERVER_REGISTRY *registry) {
 	
-	ctx = ctx;
+	ctx = ctx_in;
 
 	if (!Initialize_SOCKET_SERVER(&socket_server,
 		Recv_Callback_KEYBOARD_SERVER,
@@ -16,6 +16,8 @@ bool KEYBOARD_SERVER::Initialize(KCONTEXT *ctx_in,
 		
 		return false;
 	}
+
+	Open_Display_KEYBOARD();
 
 	return true;
 }

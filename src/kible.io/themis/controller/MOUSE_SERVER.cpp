@@ -28,7 +28,7 @@ void Recv_Callback_MOUSE_SERVER(void *user_ptr, char *buffer, int buffer_size) {
 bool MOUSE_SERVER::Initialize(KCONTEXT *ctx_in,
 	SERVICE_SERVER_REGISTRY *registry) {
 	
-	ctx = ctx;
+	ctx = ctx_in;
 
 	if (!Initialize_SOCKET_SERVER(&socket_server,
 		Recv_Callback_MOUSE_SERVER, &registry->socket_server_registry,
@@ -36,6 +36,8 @@ bool MOUSE_SERVER::Initialize(KCONTEXT *ctx_in,
 		
 		return false;
 	}
+
+	Open_Display_MOUSE();
 
 	return true;
 }

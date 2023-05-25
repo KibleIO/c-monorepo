@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #include "XVFB_HANDLER.h"
 
 bool XVFB_HANDLER::error;
@@ -45,6 +43,7 @@ bool Initialize_XVFB_Handler(XVFB_HANDLER* xvfb_handler, int w, int h) {
 	xvfb_handler->Height     = h;
 	xvfb_handler->error	= false;
 	xvfb_handler->Shm_Image = NULL;
+	xvfb_handler->_Display = NULL;
 
 	//system(string(string("DISPLAY=:1 xrandr --newmode $(cvt ") + to_string(xvfb_handler->Width) + " " + to_string(xvfb_handler->Height) + " | grep Modeline | cut -c 10-)").c_str());
 	//cout << string(string("DISPLAY=:1 xrandr --newmode $(gtf ") + to_string(xvfb_handler->Width) + " " + to_string(xvfb_handler->Height) + " 60 | grep Modeline | cut -c 12-)").c_str() << endl;
@@ -190,5 +189,3 @@ int Handle_XVFB_Errors(Display *display, XErrorEvent *theEvent) {
 
 	return 0;
 }
-
-#endif

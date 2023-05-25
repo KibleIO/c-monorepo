@@ -6,7 +6,7 @@ void Recv_Callback_AUDIO_SERVER(void *user_ptr, char *buffer, int buffer_size) {
 
 bool AUDIO_SERVER::Initialize(KCONTEXT *ctx_in,
 	SERVICE_SERVER_REGISTRY *registry) {
-	
+
 	ctx = ctx_in;
 	Compressed = new uint8_t[AS_MAX_FRAME_SIZE];
 	PCM_bytes = new uint8_t[AS_FRAME_SIZE * AS_CHANNELS * 2];
@@ -23,12 +23,13 @@ bool AUDIO_SERVER::Initialize(KCONTEXT *ctx_in,
 	if (!Initialize_SOCKET_SERVER(&socket_server,
 		Recv_Callback_AUDIO_SERVER, &registry->socket_server_registry,
 		ctx, this)) {
-		
 		return false;
 	}
 
 	main_loop_running = true;
         main_loop = new thread(Main_AUDIO_SERVER, this);
+
+	return true;
 }
 
 void AUDIO_SERVER::Delete() {

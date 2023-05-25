@@ -12,6 +12,8 @@ HTTP_Protobuf_Callback_Endpoint(THEMIS, Dimensions, \
 	kible::themis::DimensionsRequest, kible::themis::DimensionsResponse)
 HTTP_Protobuf_Callback_Endpoint(THEMIS, Density, \
 	kible::themis::DensityRequest, kible::themis::DensityResponse)
+HTTP_Protobuf_Callback_Endpoint(THEMIS, Ping, \
+	kible::themis::PingRequest, kible::themis::PingResponse)
 
 HTTP_Protobuf_Callback_End()
 

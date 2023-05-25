@@ -29,10 +29,9 @@ bool Initialize_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry,
 		if (!registry->service_server[i]->Initialize(ctx, registry)) {
 			return false;
 		}
+		registry->service_count++;
 	}
 	va_end(args);
-
-	registry->service_count = count;
 
 	return true;
 }
