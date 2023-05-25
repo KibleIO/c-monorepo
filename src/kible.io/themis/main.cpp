@@ -2,6 +2,7 @@
 #include <Utilities/KCONTEXT.h>
 #include <Utilities/UTILS.h>
 #include "controller/THEMIS_HTTP_SERVER.h"
+#include "client/EDGE_CLIENT.h"
 
 int main() {
 	KCONTEXT ctx;
