@@ -57,20 +57,27 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::LaunchRequest *request,
 	kible::themis::LaunchResponse *response) {
 
+	std::cout << "new connection comin in1" << std::endl;
+
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
+	std::cout << "new connection comin in2" << std::endl;
+
         if (!http_server->themis_ext.connected) {
+		std::cout << "new connection comin in3" << std::endl;
                 if (http_server->launch_thread != NULL) {
                         http_server->launch_thread->join();
 		        delete http_server->launch_thread;
                 }
+		std::cout << "new connection comin in4" << std::endl;
 
 		Set_Screen_Dim_KCONTEXT(http_server->ctx, (SCREEN_DIM) {
 		request->width(),
 		request->width(),
 		request->height()});
 		http_server->ctx->core_services_backbone_port = THEMIS_PORT;
+		std::cout << "new connection comin in5" << std::endl;
 
 		switch (request->launchbackend()) {
 			case kible::themis::LaunchBackend::LAUNCHBACKEND_WS:
@@ -80,9 +87,12 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 			default:
 				return false;
 		}
+		std::cout << "new connection comin in6" << std::endl;
 
                 http_server->launch_thread = new thread(Launch_Loop,
 			&http_server->themis_ext, http_server->ctx);
+		
+		std::cout << "new connection comin in7" << std::endl;
 		
 		//for good measure... or for fun, who knows
 		Sleep_Milli(500);
