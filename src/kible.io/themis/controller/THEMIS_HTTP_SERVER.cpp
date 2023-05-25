@@ -24,6 +24,7 @@ bool Initialize_THEMIS_HTTP_SERVER(THEMIS_HTTP_SERVER *server, KCONTEXT *ctx,
 
 	server->ctx = ctx;
 	server->themis_ext.connected = false;
+	server->launch_thread = NULL;
 
 	return pb::Initialize_THEMIS_SERVER(&server->server,
 		(char*) listen_address.c_str(), (void*) server, path);
