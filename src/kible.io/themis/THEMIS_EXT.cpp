@@ -3,9 +3,6 @@
 bool Initialize_THEMIS_EXT(THEMIS_EXT *themis, KCONTEXT *ctx) {
 	themis->connected = true;
 
-
-	std::cout << "hey? have we made it here" << std::endl;
-
 	if (!Initialize_SERVICE_SERVER_REGISTRY(&themis->registry, ctx, 4,
 		new MOUSE_SERVER,
 		new KEYBOARD_SERVER,

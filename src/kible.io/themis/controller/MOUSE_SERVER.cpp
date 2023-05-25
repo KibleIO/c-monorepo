@@ -27,8 +27,6 @@ void Recv_Callback_MOUSE_SERVER(void *user_ptr, char *buffer, int buffer_size) {
 
 bool MOUSE_SERVER::Initialize(KCONTEXT *ctx_in,
 	SERVICE_SERVER_REGISTRY *registry) {
-	
-	std::cout << "we are initializing the mouse!!!!!" << std::endl;
 
 	ctx = ctx_in;
 
