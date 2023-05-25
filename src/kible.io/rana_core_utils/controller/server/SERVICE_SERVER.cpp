@@ -5,9 +5,13 @@ bool Initialize_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry,
 
 	registry->service_count = 0;
 
+	std::cout << "step1" << std::endl;
+
 	for (int i = 0; i < MAX_SERVICES; i++) {
 		registry->service_server[i] = NULL;
 	}
+
+	std::cout << "step2" << std::endl;
 
 	if (!Initialize_SOCKET_SERVER_REGISTRY(
 		&registry->socket_server_registry)) {
@@ -15,12 +19,16 @@ bool Initialize_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry,
 		return false;
 	}
 
+	std::cout << "step3" << std::endl;
+
 	if (!Initialize_ROOT_SOCKET_SERVER(
 		&registry->socket_server_registry.root_sockets
 		[ROOT_SOCKET_TYPE_WS], ctx, ctx->core_services_backbone_port)) {
 		
 		return false;
 	}
+
+	std::cout << "step4" << std::endl;
 
 	va_list args;
 	va_start(args, count);
@@ -32,6 +40,8 @@ bool Initialize_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry,
 		registry->service_count++;
 	}
 	va_end(args);
+
+	std::cout << "step5" << std::endl;
 
 	return true;
 }

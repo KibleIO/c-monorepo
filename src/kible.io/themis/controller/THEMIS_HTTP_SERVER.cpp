@@ -57,8 +57,6 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 	kible::themis::LaunchRequest *request,
 	kible::themis::LaunchResponse *response) {
 
-	std::cout << "new connection comin in" << std::endl;
-
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
 
