@@ -24,6 +24,8 @@ bool VIDEO_SERVER::Initialize(KCONTEXT *ctx_in,
 	}
 
 	SCREEN_DIM screen_dim = Get_Screen_Dim_KCONTEXT(ctx);
+	width = screen_dim.sw;
+	height = screen_dim.h;
 
 	ASSERT_E_R((Initialize_XVFB_Handler(&xvfb, screen_dim.sw,
 		screen_dim.h)), "Couldn't initialize xvfb", ctx);
