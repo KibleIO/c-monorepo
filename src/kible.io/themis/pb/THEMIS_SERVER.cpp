@@ -14,6 +14,8 @@ HTTP_Protobuf_Callback_Endpoint(THEMIS, Density, \
 	kible::themis::DensityRequest, kible::themis::DensityResponse)
 HTTP_Protobuf_Callback_Endpoint(THEMIS, Ping, \
 	kible::themis::PingRequest, kible::themis::PingResponse)
+HTTP_Protobuf_Callback_Endpoint(THEMIS, FPS, \
+	kible::themis::FPSRequest, kible::themis::FPSResponse)
 
 HTTP_Protobuf_Callback_End()
 

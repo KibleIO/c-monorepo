@@ -27,8 +27,8 @@ bool Initialize_X264_ENCODER(X264_ENCODER* x264, SCREEN_DIM screen_dim,
 
 	// get parameters object
 	x264->mtx.lock();
-	x264_param_default_preset(
-	&x264->parameters, "faster", "zerolatency+fastdecode");
+	x264_param_default_preset(&x264->parameters,
+		x264_preset_names[level.preset], "zerolatency+fastdecode");
 	x264->mtx.unlock();
 
 	// parameter setup

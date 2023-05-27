@@ -5,7 +5,7 @@
 
 #define __CORE_SYSTEM__ "THEMIS"
 #define SOFTWARE_VERSION "3.1.11" //poseidon
-#define FPS 60
+#define DEFAULT_FPS 60
 #define HOST_PORT 3330
 #define THEMIS_PORT 4460
 #define THEMIS_HTTP_PORT 4461
