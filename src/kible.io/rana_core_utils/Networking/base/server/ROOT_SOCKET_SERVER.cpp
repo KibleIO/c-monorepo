@@ -9,10 +9,8 @@ bool Initialize_ROOT_SOCKET_SERVER(ROOT_SOCKET_SERVER *server, KCONTEXT *ctx,
 		case ROOT_SOCKET_TYPE_WS:
 			if (!Initialize_WS_SERVER_MASTER(
 				&server->ws_server_master, ctx, port)) {
-				
 				return false;
 			}
-			server->initialized = true;
 			return true;
 		default:
 			return false;

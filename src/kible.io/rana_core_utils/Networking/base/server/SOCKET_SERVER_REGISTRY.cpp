@@ -1,16 +1,25 @@
 #include "SOCKET_SERVER_REGISTRY.h"
 
-bool Initialize_SOCKET_SERVER_REGISTRY(SOCKET_SERVER_REGISTRY *registry) {
+bool Initialize_SOCKET_SERVER_REGISTRY(SOCKET_SERVER_REGISTRY *registry,
+	KCONTEXT *ctx) {
+	
 	for (int i = 0; i < MAX_ROOT_SOCKETS; i++) {
-		registry->root_sockets[i].initialized = false;
+		registry->root_sockets[i] = NULL;
 	}
-	return true;
+
+	registry->root_sockets[ctx->core_services_backbone] =
+				new ROOT_SOCKET_SERVER;
+	return Initialize_ROOT_SOCKET_SERVER(
+		registry->root_sockets[ctx->core_services_backbone], ctx,
+		ctx->core_services_backbone_port);
 }
 
 void Delete_SOCKET_SERVER_REGISTRY(SOCKET_SERVER_REGISTRY *registry) {
 	for (int i = 0; i < MAX_ROOT_SOCKETS; i++) {
-		if (registry->root_sockets[i].initialized) {
-			Delete_ROOT_SOCKET_SERVER(&registry->root_sockets[i]);
+		if (registry->root_sockets[i] != NULL) {
+			Delete_ROOT_SOCKET_SERVER(registry->root_sockets[i]);
+			delete registry->root_sockets[i];
+			registry->root_sockets[i] = NULL;
 		}
 	}
 }

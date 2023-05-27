@@ -5,7 +5,6 @@
 
 struct ROOT_SOCKET_SERVER {
 	int type;
-	bool initialized;
 	union {
 		WS_SERVER_MASTER ws_server_master;
 	};

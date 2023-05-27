@@ -10,14 +10,7 @@ bool Initialize_SERVICE_SERVER_REGISTRY(SERVICE_SERVER_REGISTRY *registry,
 	}
 
 	if (!Initialize_SOCKET_SERVER_REGISTRY(
-		&registry->socket_server_registry)) {
-		
-		return false;
-	}
-
-	if (!Initialize_ROOT_SOCKET_SERVER(
-		&registry->socket_server_registry.root_sockets
-		[ROOT_SOCKET_TYPE_WS], ctx, ctx->core_services_backbone_port)) {
+		&registry->socket_server_registry, ctx)) {
 		
 		return false;
 	}

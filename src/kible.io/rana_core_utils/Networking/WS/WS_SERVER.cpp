@@ -7,7 +7,7 @@ bool Initialize_WS_SERVER(WS_SERVER *server,
 	server->ctx = ctx;
 
 	server->ws_master = 
-		&registry->root_sockets[ROOT_SOCKET_TYPE_WS].ws_server_master;
+		&registry->root_sockets[ROOT_SOCKET_TYPE_WS]->ws_server_master;
 	Set_Name_WS_SERVER(server, "unknown");
 	
 	if (!Set_Recv_Timeout_WS_SERVER(server, WS_RECV_TIMEOUT, 0)) {
