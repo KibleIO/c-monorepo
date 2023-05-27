@@ -65,6 +65,7 @@ bool pb::Launch_THEMIS_SERVER(pb::THEMIS_SERVER *server,
                 if (http_server->launch_thread != NULL) {
                         http_server->launch_thread->join();
 		        delete http_server->launch_thread;
+			http_server->launch_thread = NULL;
                 }
 
 		Set_Screen_Dim_KCONTEXT(http_server->ctx, (SCREEN_DIM) {

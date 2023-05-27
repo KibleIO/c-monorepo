@@ -23,5 +23,6 @@ void Delete_THEMIS_EXT(THEMIS_EXT *themis) {
 }
 
 bool Running_THEMIS_EXT(THEMIS_EXT *themis) {
-	return (Stop_TIMER(&themis->timer) <= THEMIS_TIMEOUT_THRESHOLD);
+	return (Stop_TIMER(&themis->timer) <= THEMIS_TIMEOUT_THRESHOLD) &&
+		themis->connected;
 }
