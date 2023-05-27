@@ -18,10 +18,10 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 
 	client->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (client->sockfd < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client socket failed to open");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Client socket failed to open"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -29,10 +29,10 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVBUF, &input_var,
 				   sizeof(uint32_t)) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: recvbuf");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: recvbuf"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -40,10 +40,10 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 
         client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (client->sockfd < 0) {
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Client socket failed to open");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Client socket failed to open"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -53,10 +53,10 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*) &input_var,
 		sizeof input_var) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -65,10 +65,10 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
 		sizeof input_var) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -84,12 +84,12 @@ bool Initialize_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, KCONTEXT *ctx,
 		if (!getaddrinfo_k(&client->server_address.sin_addr.s_addr, ip,
 			2)) {
 
-			LOG_ERROR_CTX((client->ctx)) {
-				ADD_STR_LOG("message", "Failed to connect: "
-					"getaddrinfo_k() failed");
-				ADD_STR_LOG("ip", ip);
-				ADD_STR_LOG("name", client->name);
-			}
+			LOGGER_ERROR(client->ctx, {
+				{"message", "Failed to connect: "
+					"getaddrinfo_k() failed"},
+				{"name", client->name},
+				{"ip", ip},
+			});
 			return false;
 		}
 	}
@@ -146,10 +146,10 @@ bool Set_Recv_Timeout_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client, int s,
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
 		sizeof(tv)) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: rcvtimeo");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: rcvtimeo"},
+			{"name", client->name},
+		});
 
 		return false;
 	}
@@ -164,10 +164,10 @@ bool Set_High_Priority_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
 	if (setsockopt(client->sockfd, SOL_SOCKET, SO_PRIORITY,
 		(const char*)&o, sizeof o) != 0) {
 
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: priority");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "bad setsockopt: priority"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -209,9 +209,8 @@ void Delete_UDP_CLIENT_MASTER(UDP_CLIENT_MASTER *client) {
 		return;
 	}
 
-	LOG_WARN_CTX((client->ctx)) {
-		ADD_STR_LOG("message",
-			"Client connection has already been closed");
-		ADD_STR_LOG("name", client->name);
-	}
+	LOGGER_WARN(client->ctx, {
+		{"message", "Client connection has already been closed"},
+		{"name", client->name},
+	});
 }

@@ -62,6 +62,7 @@
 #define MAC_ADDRESS_RETRY_SLEEP 1000
 #define VERSION_STRING_LENGTH 30
 #define MAX_DIRECTORY_LEN 512
+#define CURRENT_TIME_LEN 100
 
 using namespace std;
 

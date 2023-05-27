@@ -22,10 +22,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 
 	server->sockfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (server->sockfd < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Server socket failed to open"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -33,10 +33,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 
         server->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (server->sockfd < 0) {
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "Server socket failed to open");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Server socket failed to open"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -46,10 +46,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*) &input_var,
 		sizeof(uint32_t)) == -1) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -59,10 +59,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_REUSEPORT, &input_var,
 		sizeof(uint32_t)) == -1) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: reuseaddr");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: reuseaddr"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -72,10 +72,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_SNDBUF, (const char*) &input_var,
 		sizeof(uint32_t)) == -1) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: sndbuf");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: sndbuf"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -86,11 +86,10 @@ bool Initialize_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, KCONTEXT *ctx,
 	if (::bind(server->sockfd, (const struct sockaddr*) &server_address,
 		server_address_size) < 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message",
-				"Failed to accept: Failed to bind UDP server");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "Failed to accept: Failed to bind UDP server"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -144,10 +143,10 @@ bool Set_Recv_Timeout_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server, int sec, int 
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*) &o_to,
 		sizeof(timeval)) == -1) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: timeout");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: timeout"},
+			{"name", server->name},
+		});
 		return false;
 	}
 	return true;
@@ -161,10 +160,10 @@ bool Set_High_Priority_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 	if (setsockopt(server->sockfd, SOL_SOCKET, SO_PRIORITY,
 		(const char*)&o, sizeof o) != 0) {
 
-		LOG_ERROR_CTX((server->ctx)) {
-			ADD_STR_LOG("message", "bad setsockopt: priority");
-			ADD_STR_LOG("name", server->name);
-		}
+		LOGGER_ERROR(server->ctx, {
+			{"message", "bad setsockopt: priority"},
+			{"name", server->name},
+		});
 		return false;
 	}
 
@@ -207,9 +206,8 @@ void Delete_UDP_SERVER_MASTER(UDP_SERVER_MASTER *server) {
 
 		return;
 	}
-	LOG_WARN_CTX((server->ctx)) {
-		ADD_STR_LOG("message",
-			"Server connection has already been closed");
-		ADD_STR_LOG("name", server->name);
-	}
+	LOGGER_WARN(server->ctx, {
+		{"message", "Server connection has already been closed"},
+		{"name", server->name},
+	});
 }

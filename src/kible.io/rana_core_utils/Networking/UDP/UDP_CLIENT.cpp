@@ -50,11 +50,11 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client) {
 		client->udp_master->server_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
-		LOG_WARN_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error sending test "
-				"buff");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error sending test "
+				"buff"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -63,11 +63,11 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client) {
 		(socklen_t*) &server_address_size);
 
 	if (size != TEST_BUFF_SIZE) {
-		LOG_WARN_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to connect: Error receiving test "
-				"buff... trying again");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to connect: Error receiving test "
+				"buff... trying again"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -79,11 +79,11 @@ bool Connect_UDP_CLIENT(UDP_CLIENT *client) {
 
 	if (client->udp_master->recv_thread != NULL) {
 		//whoa... what a weird scenario
-		LOG_ERROR_CTX((client->ctx)) {
-			ADD_STR_LOG("message", "Failed to accept: Weird, "
-				"unresolvable error occured");
-			ADD_STR_LOG("name", client->name);
-		}
+		LOGGER_ERROR(client->ctx, {
+			{"message", "Failed to accept: Weird, "
+				"unresolvable error occured"},
+			{"name", client->name},
+		});
 		return false;
 	}
 
@@ -177,9 +177,8 @@ void Delete_UDP_CLIENT(UDP_CLIENT *client) {
 		client->udp_master->connected = false;
 	}
 
-	LOG_WARN_CTX((client->ctx)) {
-		ADD_STR_LOG("message",
-			"Client connection has already been closed");
-		ADD_STR_LOG("name", client->name);
-	}
+	LOGGER_WARN(client->ctx, {
+		{"message", "Client connection has already been closed"},
+		{"name", client->name},
+	});
 }

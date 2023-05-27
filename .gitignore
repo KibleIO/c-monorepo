@@ -14,4 +14,5 @@ clip
 .DS_Store
 gen
 test
-Themis
+src/kible.io/themis/Themis
+src/kible.io/themis/rana_core_utils

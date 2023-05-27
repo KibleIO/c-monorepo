@@ -51,9 +51,11 @@ void Handle_Key(Display* dpy, KeySym key, int32_t value) {
 		case 2:
 			break;
 		default:
+			/*
 			log_err(((const JSON_TYPE){
 				{"message", "invalid key event value"},
 				JSON_TYPE_END}));
+			*/
 			break;
 	}
 }
@@ -180,9 +182,11 @@ void Handle_Keyboard_X11_Single(KEYBOARD_EVENT_T* k_event) {
 
 void Handle_Keyboard_X11(int display_ID, Queue<KEYBOARD_EVENT_T*>* events) {
 	if (!KEYBOARD::dpy) {
+		/*
 		log_err(((const JSON_TYPE){
 			{"message", "Could not open display"},
 			JSON_TYPE_END}));
+		*/
 		return;
 	}
 	KeyCode modcode = 0;

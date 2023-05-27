@@ -19,11 +19,11 @@ CC_COMPILE_FLAGS = -L./rana_core_utils -lpthread -lrana -lcares -lcurl -lavutil\
 		 -lasound -lopus -lsodium -lswscale\
 		-lXtst -lX11 -lXext -lopusfile -luuid -lx264 -ljson-c -lpulse-simple -lpulse -lwebsockets
 
-CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf)
+CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf) -lcurl
 
 # File names
 EXEC = themis/Themis
-SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard gen/*/*.cpp)
+SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard themis/*/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
@@ -50,5 +50,7 @@ $(EXEC): $(OBJECTS)
 clean:
 	rm -f $(EXEC) $(OBJECTS)
 
-run-arm:
-	docker run -p 4460:4460 --platform linux/arm64 --pull=always --rm -it kible/firefox:arm bash
+run:
+	mkdir -p ./themis/rana_core_utils
+	cp ./rana_core_utils/librana.so ./themis/rana_core_utils
+	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it -v `pwd`/themis/:/home/kasm-user kible/firefox:arm bash

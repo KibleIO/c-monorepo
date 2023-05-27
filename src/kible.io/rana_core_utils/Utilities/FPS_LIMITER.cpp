@@ -31,10 +31,12 @@ void Stop_FPS_LIMITER(FPS_LIMITER* fps_limiter) {
 	} else {
 		fps_limiter->frame_rate /= 30;
 		if (fps_limiter->verbose) {
+			/*
 			log_dbg(((const JSON_TYPE){
 				{"message", "average frame"},
 				{"rate", "to_string(fps_limiter->frame_rate).c_str()"},
 				JSON_TYPE_END}));
+			*/
 		}
 		fps_limiter->frame_count = 0;
 		fps_limiter->frame_rate = 0;
