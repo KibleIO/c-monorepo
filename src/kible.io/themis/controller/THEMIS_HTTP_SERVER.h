@@ -13,7 +13,7 @@
 typedef int Status;
 #endif
 
-#include "../pb/THEMIS_SERVER.h"
+#include <pb/THEMIS_SERVER.h>
 
 struct THEMIS_HTTP_SERVER {
 	pb::THEMIS_SERVER server;

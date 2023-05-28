@@ -15,15 +15,17 @@ CC = g++ -Wall -Wextra -Wno-pedantic -Wno-write-strings -Wno-missing-field-initi
 
 CC_BUILD_FLAGS = -I/usr/include/opus -I./rana_core_utils -I./gen -I./clip
 
-CC_COMPILE_FLAGS = -L./rana_core_utils -lpthread -lrana -lcares -lcurl -lavutil\
-		 -lasound -lopus -lsodium -lswscale\
-		-lXtst -lX11 -lXext -lopusfile -luuid -lx264 -ljson-c -lpulse-simple -lpulse -lwebsockets
+CC_COMPILE_FLAGS = ./rana_core_utils/librana.a clip/build/libclip.a -lpthread \
+		-lcares -lcurl -lavutil -lasound -lopus -lsodium -lswscale \
+		-lXtst -lX11 -lXext -lopusfile -luuid -lx264 -ljson-c \
+		-lpulse-simple -lpulse -lwebsockets -lcurl -lxcb
+		
 
-CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf) -lcurl
+CXXFLAGS = $(shell PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$HOME/.local/lib/pkgconfig/ pkg-config --libs grpc grpc++ protobuf) 
 
 # File names
 EXEC = themis/Themis
-SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard themis/*/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
+SOURCES = $(wildcard themis/*.cpp) $(wildcard themis/*/*.cpp) $(wildcard themis/*/*/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
@@ -51,6 +53,4 @@ clean:
 	rm -f $(EXEC) $(OBJECTS)
 
 run:
-	mkdir -p ./themis/rana_core_utils
-	cp ./rana_core_utils/librana.so ./themis/rana_core_utils
-	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it -v `pwd`/themis/:/home/kasm-user kible/firefox:arm bash
+	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it -v `pwd`/themis/Themis:/home/kasm-user/Themis kible/firefox:arm bash

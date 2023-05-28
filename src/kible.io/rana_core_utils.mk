@@ -1,5 +1,6 @@
 # Declaration of variables
 CC = g++ -O3 -Wall -Wextra -Wpedantic
+AR = ar rcs
 
 UNAME_M = $(shell uname -m)
 USER=`whoami`
@@ -32,10 +33,10 @@ ifeq ($(UNAME_M),armv7l)
 endif
 
 # File names
-EXEC = ./rana_core_utils/librana.so
+EXEC = ./rana_core_utils/librana.a
 EXEC_MAC = librana.dylib
 EXEC_WIN = rana.dll
-SOURCES = $(wildcard rana_core_utils/*.cpp) $(wildcard rana_core_utils/*/*.cpp) $(wildcard rana_core_utils/*/*/*.cpp) $(wildcard rana_core_utils/*/*/*/*.cpp) $(wildcard gen/*/*.cpp)
+SOURCES = $(wildcard rana_core_utils/*.cpp) $(wildcard rana_core_utils/*/*.cpp) $(wildcard rana_core_utils/*/*/*.cpp) $(wildcard rana_core_utils/*/*/*/*.cpp) $(wildcard gen/*/*.cpp) $(wildcard mongoose/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 default:
@@ -45,7 +46,7 @@ x86:
 	docker run --rm -it -v `pwd`:/root/code kible/coreutils:x86 make -f rana_core_utils.mk docker -j8
 
 docker: $(OBJECTS)
-	$(CC) $(OBJECTS) -shared -Wl,-soname,$(EXEC) -o $(EXEC) $(CXXFLAGS)
+	$(AR) $(EXEC) $(OBJECTS)
 
 mac: $(OBJECTS)
 	$(CC) -dynamiclib -undefined suppress -flat_namespace $(OBJECTS) -o $(EXEC_MAC) $(CXXFLAGS) -framework Cocoa -L$(SODIUM_LIB_PATH) -L$(FFMPEG_LIB_PATH) -lsodium -lswscale -lcurl -ljson-c

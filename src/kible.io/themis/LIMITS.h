@@ -1,7 +1,7 @@
 #ifndef LIMITS_H_
 #define LIMITS_H_
 
-//#define TESTING_BUILD
+#define TESTING_BUILD
 
 #define __CORE_SYSTEM__ "THEMIS"
 #define SOFTWARE_VERSION "3.1.11" //poseidon
