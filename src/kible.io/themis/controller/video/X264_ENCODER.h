@@ -49,6 +49,10 @@ means is the variability in the bit rate. The larger this number is the more
 I notice the average bit rate will vary, and the lower this number is the lower
 the variability is. I generally keep this number low.
 
+preset -> tune this variable for latency vs pixel fidelity trade offs. The lower
+this number is the lower latency and lower pixel fidelity you will have. Yes you
+read that right.
+
 I guess this article is decent abou h264
 https://slhck.info/video/2017/03/01/rate-control.html
 
@@ -57,12 +61,13 @@ struct ENCODE_LEVEL {
 	int max_kbs;
 	int rf_constant;
 	int vbv_buffer_size;
+	int preset;
 };
 
-#define ENCODE_LEVEL_HIGH (ENCODE_LEVEL){10000, 15, 1000}
-#define ENCODE_LEVEL_MEDIUM (ENCODE_LEVEL){7500, 20, 500}
-#define ENCODE_LEVEL_LOW (ENCODE_LEVEL){2500, 25, 250}
-#define ENCODE_LEVEL_PLACEBO (ENCODE_LEVEL){100, 45, 1}
+#define ENCODE_LEVEL_HIGH (ENCODE_LEVEL){10000, 15, 1000, 3}
+#define ENCODE_LEVEL_MEDIUM (ENCODE_LEVEL){7500, 20, 500, 3}
+#define ENCODE_LEVEL_LOW (ENCODE_LEVEL){2500, 25, 250, 0}
+#define ENCODE_LEVEL_PLACEBO (ENCODE_LEVEL){100, 45, 1, 0}
 
 struct X264_ENCODER {
 	mutex 			mtx;

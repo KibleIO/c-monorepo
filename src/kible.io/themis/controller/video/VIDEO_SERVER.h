@@ -24,6 +24,7 @@ struct VIDEO_SERVER : public SERVICE_SERVER {
 	volatile bool resize;
 	int width;
 	int height;
+	int fps;
 	char nal_unit[NAL_MAX_SIZE];
 
 	SOCKET_SERVER socket_server;
@@ -33,6 +34,6 @@ struct VIDEO_SERVER : public SERVICE_SERVER {
 };
 
 void Main_VIDEO_SERVER(VIDEO_SERVER*);
-bool Resize_VIDEO_SERVER(VIDEO_SERVER*, int, int, ENCODE_LEVEL);
+bool Resize_VIDEO_SERVER(VIDEO_SERVER*, int, int, ENCODE_LEVEL, int);
 
 #endif

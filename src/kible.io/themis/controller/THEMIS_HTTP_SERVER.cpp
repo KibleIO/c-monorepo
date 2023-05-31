@@ -137,19 +137,14 @@ bool pb::Dimensions_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 		request->width(),
 		request->height()});
 
-	if (Resize_VIDEO_SERVER(video_server,
+	return Resize_VIDEO_SERVER(video_server,
 		request->width(), request->height(),
-		video_server->encode_level)) {
-
-		return true;
-	} else {
-		return false;
-	}
+		video_server->encode_level, video_server->fps);
 }
 
-bool pb::Density_THEMIS_SERVER(pb::THEMIS_SERVER *server,
-	kible::themis::DensityRequest *request,
-	kible::themis::DensityResponse *response) {
+bool pb::FPS_THEMIS_SERVER(pb::THEMIS_SERVER *server,
+	kible::themis::FPSRequest *request,
+	kible::themis::FPSResponse *response) {
 	
 	THEMIS_HTTP_SERVER *http_server =
 		(THEMIS_HTTP_SERVER*) server->user_ptr;
@@ -162,28 +157,45 @@ bool pb::Density_THEMIS_SERVER(pb::THEMIS_SERVER *server,
 		return true;
 	}
 
-	if (!http_server->themis_ext.connected) {
+	return Resize_VIDEO_SERVER(video_server,
+		video_server->width,  video_server->height,
+		video_server->encode_level, request->fps());
+}
+
+bool pb::Density_THEMIS_SERVER(pb::THEMIS_SERVER *server,
+	kible::themis::DensityRequest *request,
+	kible::themis::DensityResponse *response) {
+	
+	ENCODE_LEVEL encode_level;
+
+	THEMIS_HTTP_SERVER *http_server =
+		(THEMIS_HTTP_SERVER*) server->user_ptr;
+	
+	VIDEO_SERVER* video_server = 
+		Get_Instance_Of_SERVICE_SERVER_REGISTRY<VIDEO_SERVER*>(
+		&http_server->themis_ext.registry);
+	
+	if (video_server == NULL || !http_server->themis_ext.connected) {
 		return true;
 	}
 	
 	switch (request->density()) {
 		case kible::themis::PixelDensity::PIXELDENSITY_HIGH:
-			Resize_VIDEO_SERVER(video_server, video_server->width,
-				video_server->height, ENCODE_LEVEL_HIGH);
+			encode_level = ENCODE_LEVEL_HIGH;
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_MEDIUM:
-			Resize_VIDEO_SERVER(video_server, video_server->width,
-				video_server->height, ENCODE_LEVEL_MEDIUM);
+			encode_level = ENCODE_LEVEL_MEDIUM;
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_LOW:
-			Resize_VIDEO_SERVER(video_server, video_server->width,
-				video_server->height, ENCODE_LEVEL_LOW);
+			encode_level = ENCODE_LEVEL_LOW;
 			break;
 		case kible::themis::PixelDensity::PIXELDENSITY_PLACEBO:
-			Resize_VIDEO_SERVER(video_server, video_server->width,
-				video_server->height, ENCODE_LEVEL_PLACEBO);
+			encode_level = ENCODE_LEVEL_PLACEBO;
 			break;
 	}
+
+	Resize_VIDEO_SERVER(video_server, video_server->width,
+		video_server->height, encode_level, video_server->fps);
 
 	return true;
 }
