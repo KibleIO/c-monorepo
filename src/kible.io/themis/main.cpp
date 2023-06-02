@@ -42,6 +42,11 @@ int main() {
 		INIT_CONN_KCONTEXT_SUCCESS) {
 		return 0;
 	}
+
+	LOGGER_INFO((&ctx), {
+		{"message", "main begun"},
+		{"version", SOFTWARE_VERSION},
+	});
 	
 	Run_THEMIS_HTTP_SERVER(&http);
 

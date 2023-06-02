@@ -30,10 +30,6 @@ void Log_LOGGING(LOGGING *logging, nlohmann::json obj, char *level, char *file,
 	obj["uuid"] = logging->uuid;
 	obj["type"] = std::string(level);
 
-	#ifdef EXTERNAL_LOGS_APIS_UTILS
-		Post_ELASTIC_SEARCH_CLIENT(&logging->client,
-			obj.dump().c_str());
-	#else
-		std::cout << obj.dump() << std::endl;
-	#endif
+	Post_ELASTIC_SEARCH_CLIENT(&logging->client,
+		(char*) obj.dump().c_str());
 }
