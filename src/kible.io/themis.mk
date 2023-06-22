@@ -54,3 +54,6 @@ clean:
 
 run:
 	docker run -p 4460:4460 -p 4461:4461 --platform linux/arm64 --pull=always --rm -it -v `pwd`/themis/Themis:/home/kasm-user/Themis kible/firefox:arm bash
+
+run-devpod:
+	sudo docker run --name kevin-themispod --network devpodnet --pull=always --rm -it -v /var/lib/docker/volumes/kevin-godevpod-data/_data/c-monorepo/src/kible.io/themis/Themis:/home/kasm-user/Themis kible/jammydesktop:x86
